@@ -27,7 +27,7 @@ SECRET_KEY = '^wvs5k)58b0g&wuwso^o@40ua728l1d_59w!81-b*93r8*ohv9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [*]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'kakeibo',
+    'api',
     'django_extensions',
 ]
 
@@ -127,4 +129,14 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
+)
+
+LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login'
+
+
+MEDIA_URL = '/document/'
+MEDIA_ROOT = (
+    os.path.join(BASE_DIR, 'document')
 )
