@@ -5,4 +5,7 @@ from django.contrib.auth import views as auth_views
                                                                                 
 from . import views    
 
-urlpatterns = []
+app_name = 'api'
+urlpatterns = [
+    url(r'^kakeibo/fy2018$', views.kakeibo, name='kakeibo'),
+]
