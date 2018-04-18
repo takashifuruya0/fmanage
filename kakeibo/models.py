@@ -1,32 +1,29 @@
 from django.db import models
-
 # Create your models here.
 
 
-class Usages(models.Model):
-    objects = None
+class BaseModel(models.Model):
+    name = models.CharField(max_length=100, unique=True)
     date = models.DateField()
-    usage = models.CharField(max_length=100, unique=True)
-    expense = models.BooleanField() # 支出はTrue, 収入はFalse
-    color = models.CharField(max_length=30, unique=True, blank=True, null=True)
 
     def __str__(self):
-        return self.expense_item
+        return self.name
 
 
-class Resources(models.Model):
+class Usages(BaseModel):
     objects = None
-    date = models.DateField()
-    resources = models.CharField(max_length=100, unique=True)
+    is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
+    color = models.CharField(max_length=30, unique=True, blank=True, null=True)
+
+
+class Resources(BaseModel):
+    objects = None
     initial_val = models.IntegerField(null=False, blank=False)
     color = models.CharField(max_length=30, unique=True, blank=True, null=True)
 
-    def __str__(self):
-        return self.resources
-
 
 # UsagesとResourcesの紐付け
-class UsageResourceRelation(models.Model):
+class UsageResourceRelations(models.Model):
     objects = None
     resource = models.ForeignKey(Resources)
     usage = models.ForeignKey(Usages)
@@ -50,9 +47,9 @@ class Kakeibos(models.Model):
     # 使い道/収入源
     usage = models.ForeignKey(Usages, null=True, blank=True)
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True)
+    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from")
     # 現金移動先
-    move_to = models.ForeignKey(Resources, null=True, blank=True)
+    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to")
 
     def __str__(self):
         return self.way
@@ -71,14 +68,14 @@ class SharedKakeibos(models.Model):
     date = models.DateField()
     # 金額
     fee = models.IntegerField()
-    # 種類
-    way = models.CharField(max_length=20)
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道/収入源
     usage = models.ForeignKey(Usages, null=True, blank=True)
     # 支払者
     paid_by = models.CharField(max_length=20)
+    # 支出？
+    is_expense = models.BooleanField()
 
     def __str__(self):
         return self.way
@@ -91,19 +88,21 @@ class SharedKakeibos(models.Model):
         return new_val
 
 
-class CreditItems(models.Model):
-    objects = None
-    name = models.CharField(max_length=100, unique=True)
-    kind = models.CharField(max_length=20, null=True, blank=True)
-    kind_key = models.ForeignKey(Usages, null=True, blank=True)
+class Cards(BaseModel):
+    color = models.CharField(max_length=30, unique=True, blank=True, null=True)
 
-    def __str__(self):
-        return self.name
+
+class CreditItems(BaseModel):
+    objects = None
+    usage = models.ForeignKey(Usages, null=True, blank=True)
+    color = models.CharField(max_length=30, unique=True, blank=True, null=True)
 
 
 class Credits(models.Model):
     objects = None
     date = models.DateField()
     debit_date = models.DateField()
-    credit_item = models.ForeignKey(CreditItems)
     fee = models.IntegerField()
+    credit_item = models.ForeignKey(CreditItems)
+    card = models.ForeignKey(Cards, related_name="credits")
+

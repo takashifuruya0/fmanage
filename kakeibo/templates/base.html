@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/document/bootstrap/css/bootstrap.min.css" >
+    <script src="/document/bootstrap/js/bootstrap.min.js"></script>
+    <!-- Original CSS -->
+    <link rel="stylesheet" href="/document/css/common.css">
+    <!-- Font Awesome Icon -->
+    <link href="https://use.fontawesome.com/releases/v5.0.4/css/all.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-sm bg-light navbar-light navbar-toggleable-sm">
+      <a class="navbar-brand" href="/">
+        <img src="/document/dogP5.gif" width="30" height="30" class="d-inline-block align-top" alt="">
+        GAS-furuya
+      </a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-link">
+            <a href="{%url 'gas:dashboard'%}" class="btn btn-warning">
+              <i class="fas fa-chart-area"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-link">
+            <a href="{% url 'gas:form_redirect' %}" class="btn btn-success">
+              <i class="fab fa-wpforms"></i> Form
+            </a>
+          </li>
+          <li class="nav-link">
+            <a href="{% url 'gas:cdashboard' %}" class="btn btn-primary">
+              <i class="fab fa-cc-visa"></i> Credit
+            </a>
+          </li>
+          <li class="nav-link">
+            <a href="{% url 'gas:adashboard' %}" class="btn btn-danger">
+              <i class="far fa-money-bill-alt"></i> Asset
+            </a>
+          </li>
+          <li class="nav-link">
+            <a href="/admin/"  class="btn btn-info">
+              <i class="fas fa-database"></i> Admin
+            </a>
+          </li>
+          <li class="nav-link">
+            <a href="{%url 'gas:logout' %}" class="btn btn-outline-danger">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    
+    {% if smsg %}
+    <div class="alert alert-success alert-dismissible">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      <strong>Success!</strong> {{smsg}}
+    </div>
+    {% endif %}
+    {% if emsg %}
+    <div class="alert alert-danger alert-dismissible">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      <strong>Danger!</strong> {{emsg}}
+    </div>
+    {% endif %}
+
+    {% block body %}{% endblock %}
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="/document/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>
