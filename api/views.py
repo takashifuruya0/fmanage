@@ -12,32 +12,34 @@ def kakeibo(request):
     if request.method == "POST":
         val = json.loads(request.body.decode())
         try:
+
             kakeibo = Kakeibos()
             kakeibo.date = date.today()
             kakeibo.fee = (val['金額'])
             kakeibo.way = val['項目']
             kakeibo.memo = val['メモ']
             kakeibo.tag = val['タグ']
-
             if kakeibo.way == "引き落とし":
-                kakeibo.move_from = Resources.objects.get(resource=val['引き落とし対象'])
-                kakeibo.usage = Usages.objects.get(usage=val['引き落とし項目'])
+                kakeibo.move_from = Resources.objects.get(name=val['引き落とし対象'])
+                kakeibo.usage = Usages.objects.get(name=val['引き落とし項目'])
             elif kakeibo.way == "振替":
-                kakeibo.move_from = Resources.objects.get(resource=val['From'])
-                kakeibo.move_to = Resources.objects.get(resource=val['To'])
+                kakeibo.move_from = Resources.objects.get(name=val['From'])
+                kakeibo.move_to = Resources.objects.get(name=val['To'])
             elif kakeibo.way == "収入":
-                kakeibo.move_to = Resources.objects.get(resource=val['振込先'])
-                kakeibo.usage = Usages.objects.get(usage=val['収入源'])
+                kakeibo.move_to = Resources.objects.get(name=val['振込先'])
+                if val['収入源'] == 'その他':
+                    val['収入源'] = 'その他収入'
+                kakeibo.usage = Usages.objects.get(name=val['収入源'])
             elif kakeibo.way == "支出（現金）":
-                kakeibo.move_from = Resources.objects.get(resource='財布')
-                kakeibo.usage = Usages.objects.get(usage=val['支出項目'])
+                kakeibo.move_from = Resources.objects.get(name='財布')
+                kakeibo.usage = Usages.objects.get(name=val['支出項目'])
             elif kakeibo.way == "支出（クレジット）":
-                kakeibo.usage = Usages.objects.get(usage=val['支出項目'])
+                kakeibo.usage = Usages.objects.get(name=val['支出項目'])
             elif kakeibo.way == "共通支出":
-                kakeibo.usage = Usages.objects.get(usage="共通支出")
+                kakeibo.usage = Usages.objects.get(name="共通支出")
             # save
             kakeibo.save()
-            memo = "Success"
+            memo = "Successfully completed"
 
         except Exception as e:
             memo = e

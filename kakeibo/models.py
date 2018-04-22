@@ -104,5 +104,5 @@ class Credits(models.Model):
     debit_date = models.DateField()
     fee = models.IntegerField()
     credit_item = models.ForeignKey(CreditItems)
-    card = models.ForeignKey(Cards, related_name="credits")
+    card = models.ForeignKey(Cards, related_name="credits", null=True)
 

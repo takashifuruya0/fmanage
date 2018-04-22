@@ -5,9 +5,9 @@ from django.contrib.auth import views as auth_views
                                                                                 
 from . import views    
 
-app_name = 'kakeibo'
+# app_name = 'account'
 urlpatterns = [
-    url(r'^updates$', views.updates, name='update'),
-    url(r'^$', views.dashboard, name='dashboard'),
+# Login, logout
+    url(r'^login$', auth_views.login, {'template_name': 'account/login.html'}, name='login'),
+    url(r'^logout$', auth_views.logout, name='logout'),
 ]
-

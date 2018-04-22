@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'kakeibo',
     'api',
+    'account',
     'django_extensions',
 ]
 
@@ -131,12 +132,15 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-LOGIN_URL = '/login'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/login'
+LOGIN_URL = '/account/login'
+LOGIN_REDIRECT_URL = '/kakeibo'
+LOGOUT_REDIRECT_URL = '/account/login'
 
 
 MEDIA_URL = '/document/'
 MEDIA_ROOT = (
     os.path.join(BASE_DIR, 'document')
 )
+
+# kakeiboFY2018
+URL_KAKEIBO = "https://script.google.com/macros/s/AKfycbyZ8v-KrRaBgtVoXdAEOPv2Zi8QBBgWCPS2VCj51QgRIxPxbVk/exec"

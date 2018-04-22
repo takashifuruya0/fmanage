@@ -27,22 +27,22 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-link">
-            <a href="{%url 'gas:dashboard'%}" class="btn btn-warning">
-              <i class="fas fa-chart-area"></i> Dashboard
+            <a href="{% url 'kakeibo:dashboard' %}" class="btn btn-warning">
+              <i class="fas fa-chart-area"></i> Kakeibo
             </a>
           </li>
           <li class="nav-link">
-            <a href="{% url 'gas:form_redirect' %}" class="btn btn-success">
+            <a href="" class="btn btn-success">
               <i class="fab fa-wpforms"></i> Form
             </a>
           </li>
           <li class="nav-link">
-            <a href="{% url 'gas:cdashboard' %}" class="btn btn-primary">
+            <a href="" class="btn btn-primary">
               <i class="fab fa-cc-visa"></i> Credit
             </a>
           </li>
           <li class="nav-link">
-            <a href="{% url 'gas:adashboard' %}" class="btn btn-danger">
+            <a href="" class="btn btn-danger">
               <i class="far fa-money-bill-alt"></i> Asset
             </a>
           </li>
@@ -52,7 +52,7 @@
             </a>
           </li>
           <li class="nav-link">
-            <a href="{%url 'gas:logout' %}" class="btn btn-outline-danger">
+            <a href="{% url 'account:logout' %}" class="btn btn-outline-danger">
               <i class="fas fa-sign-out-alt"></i> Logout
             </a>
           </li>
