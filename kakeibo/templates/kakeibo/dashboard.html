@@ -7,6 +7,47 @@
 {% block body %}
   
 <div class="container-fluid">
+  <h1>今月の概要</h1>
+  <div class="row">
+    <div class="col-6">
+      <table class="table table-light table-hover table-sm table-bordere">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody class="">
+          <tr>
+            <td>収入 （給与）</td>
+            <td>{{income}}（{{salary}}）</td>
+          </tr>
+          <tr>
+            <td>支出（現金）</td>
+            <td>{{expense}}</td>
+          </tr>
+          <tr>
+            <td>支出（クレジット）</td>
+            <td>{{credit}}</td>
+          </tr>
+          <tr>
+            <td>引き落とし</td>
+            <td>{{debit}}</td>
+          </tr>
+          <tr>
+            <td>共通支出</td>
+            <td>{{shared_expense}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-5 offset-1">
+      Hello, world
+    </div>
+  </div>
+
+  <hr>
 
   <h1>家計簿</h1>
   <div class="row">

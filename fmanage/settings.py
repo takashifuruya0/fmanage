@@ -144,3 +144,4 @@ MEDIA_ROOT = (
 
 # kakeiboFY2018
 URL_KAKEIBO = "https://script.google.com/macros/s/AKfycbyZ8v-KrRaBgtVoXdAEOPv2Zi8QBBgWCPS2VCj51QgRIxPxbVk/exec"
+URL_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSd1Guht2PZW62FFDKtLpLsSPGgHIXyYmpB44R0KvDnduSChzg/viewform"
