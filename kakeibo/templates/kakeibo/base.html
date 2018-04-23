@@ -17,7 +17,7 @@
 
   <body>
     <nav class="navbar navbar-expand-sm bg-light navbar-light navbar-toggleable-sm">
-      <a class="navbar-brand" href="/">
+      <a class="navbar-brand" href="{% url 'kakeibo:form' %}">
         <img src="/document/dogP5.gif" width="30" height="30" class="d-inline-block align-top" alt="">
         GAS-furuya
       </a>
@@ -27,17 +27,16 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-link">
-            <a href="{% url 'kakeibo:dashboard' %}" class="btn btn-warning">
-              <i class="fas fa-chart-area"></i> Kakeibo
-            </a>
-          </li>
-          <li class="nav-link">
-            <a href="{% url 'kakeibo:form' %}" class="btn btn-success">
+            <a href="" class="btn btn-success">
               <i class="fab fa-wpforms"></i> Form
             </a>
           </li>
           <li class="nav-link">
-            <a href="" class="btn btn-primary">
+            <a href="{% url 'kakeibo:shared_form' %}" class="btn btn-outline-success">
+              <i class="fab fa-wpforms"></i> Shared Form
+            </a>
+          <li class="nav-link">
+            <a href="{% url 'kakeibo:credit' %}" class="btn btn-primary">
               <i class="fab fa-cc-visa"></i> Credit
             </a>
           </li>

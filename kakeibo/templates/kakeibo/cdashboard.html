@@ -1,0 +1,122 @@
+{% extends "./base.html" %}
+
+{% block title %}
+    Credit Dashboard
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-5">
+      <h1>
+        <i class="fab fa-cc-visa"></i> Credit Dashboard
+      </h1>
+    </div>
+    <div class="col-sm-7">
+      <div class="row">
+        <div class="col-6 col-sm-3">
+          <button type="button" class="btn btn-outline-secondary btn-block btn-sm" data-toggle="collapse" data-target=".multi-collapse1">
+            <h3>Row1</h3>
+          </button>
+        </div>
+        <div class="col-6 col-sm-3">
+          <button type="button" class="btn btn-outline-secondary btn-block btn-sm" data-toggle="collapse" data-target=".multi-collapse2">
+            <h3>Row2</h3>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- val -->
+  <hr>
+  <div class="row">
+    <div class="col-md-4">
+      <h4>クレジット総支出：{{credits_sum}}</h4>
+    </div>
+    <div class="col-md-4">
+      <h4>今月の請求額：{{credits_month_sum}}</h4>
+    </div>
+    <div class="col-md-4">
+      <h4>利用回数：{{credits_month_count}}回</h4>
+    </div>
+  </div>
+
+<!-- row1 -->
+  <hr>
+  <div class="row">
+    <div class="col-md-5">
+      <div class="box2">
+        <a data-toggle="collapse" href="#1-1-1" role="button" aria-expanded="true" aria-controls="1-1-1">
+          <h3><i class="fas fa-chart-pie"></i> クレジット支出内訳</h3>
+        </a>
+        <div class="collapse multi-collapse1 show" id="1-1-1">
+            Hello world.<br>It is supposed to show a figure.
+        </div>
+      </div>
+
+      <div class="box2">
+        <a data-toggle="collapse" href="#1-1-2" role="button" aria-expanded="true" aria-controls="1-1-2">
+          <h3><i class="fas fa-chart-pie"></i> 項目別トータル</h3>
+        </a>
+        <div class="collapse multi-collapse1 show" id="1-1-2">
+          <table class="table table-light table-hover table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>Kind</th>
+                <th>Sum</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for k, v in sum_usage.items %}
+              <tr>
+                <td>{{k}}</td>
+                <td class="right">{{v}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-7">
+      <div class="box2">
+        <a data-toggle="collapse" href="#1-2" role="button" aria-expanded="true" aria-controls="1-2">
+          <h3><i class="fas fa-yen-sign"></i> クレジット支出統計</h3>
+        </a>
+        <div class="collapse multi-collapse1 show" id="1-2">
+          <table class="table table-light table-hover table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Usage</th>
+                <th>Sum</th>
+                <th>Avg</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for credit in credits %}
+              <tr>
+                <td>{{credit.1.name}}</td>
+                <td>{{credit.1.usage}}</td>
+                <td class="right">{{credit.1.sum}}</td>
+                <td class="right">{{credit.1.avg}}</td>
+                <td class="right">{{credit.1.count}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+</div>
+{% endblock %}

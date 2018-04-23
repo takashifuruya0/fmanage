@@ -65,3 +65,109 @@ def updates(request):
 def redirect_form(request):
     url = settings.URL_FORM
     return redirect(url)
+
+
+@login_required
+def redirect_sharedform(request):
+    url = settings.URL_SHAREDFORM
+    return redirect(url)
+
+
+@login_required
+def mine(request):
+    today = date.today()
+    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
+    income = kakeibos.filter(way="収入").aggregate(Sum('fee'))['fee__sum']
+    salary = kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")).aggregate(Sum('fee'))['fee__sum']
+    expense = kakeibos.filter(way="支出（現金）").aggregate(Sum('fee'))['fee__sum']
+    debit = kakeibos.filter(way="引き落とし").aggregate(Sum('fee'))['fee__sum']
+    shared_expense = kakeibos.filter(way="共通支出").aggregate(Sum('fee'))['fee__sum']
+    credit = kakeibos.filter(way="支出（クレジット）").aggregate(Sum('fee'))['fee__sum']
+    url = settings.URL_SHAREDFORM
+    return redirect(url)
+
+
+@login_required
+def mine_month(request, year, month):
+    kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year).order_by('date').reverse()
+    income = kakeibos.filter(way="収入").aggregate(Sum('fee'))['fee__sum']
+    salary = kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")).aggregate(Sum('fee'))['fee__sum']
+    expense = kakeibos.filter(way="支出（現金）").aggregate(Sum('fee'))['fee__sum']
+    debit = kakeibos.filter(way="引き落とし").aggregate(Sum('fee'))['fee__sum']
+    shared_expense = kakeibos.filter(way="共通支出").aggregate(Sum('fee'))['fee__sum']
+    credit = kakeibos.filter(way="支出（クレジット）").aggregate(Sum('fee'))['fee__sum']
+    url = settings.URL_SHAREDFORM
+    return redirect(url)
+
+
+@login_required
+def shared(request):
+    today = date.today()
+    skakeibos = SharedKakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
+    taka = skakeibos.filter(paid_by="敬士")
+    hoko = skakeibos.filter(paid_by="朋子")
+    url = settings.URL_SHAREDFORM
+    return redirect(url)
+
+
+@login_required
+def shared_month(request, year, month):
+    skakeibos = SharedKakeibos.objects.filter(date__month=month, date__year=year).order_by('date').reverse()
+    taka = skakeibos.filter(paid_by="敬士")
+    hoko = skakeibos.filter(paid_by="朋子")
+    url = settings.URL_SHAREDFORM
+    return redirect(url)
+
+
+@login_required
+def credit(request):
+    today = date.today()
+    citems = CreditItems.objects.all()
+    credits = Credits.objects.all().order_by("-date")
+    credits_month = credits.filter(debit_date__month=today.month, debit_date__year=today.year)
+
+    res_credits = dict()
+    sum_usage = dict()
+    for citem in citems:
+        credit = credits.filter(credit_item=citem).aggregate(Sum('fee'), Count('fee'), Avg('fee'))
+        temp = dict()
+        temp['name'] = citem.name
+        if citem.usage:
+            temp['usage'] = citem.usagename
+            tag = citem.usage.name
+        else:
+            temp['usage'] = ""
+            tag = "その他"
+        temp['sort'] = credit['fee__sum']
+        temp['sum'] = money.convert_yen(credit['fee__sum'])
+        temp['avg'] = money.convert_yen(round(credit['fee__avg']))
+        temp['count'] = credit['fee__count']
+        if tag in sum_usage.keys():
+            sum_usage[tag] = sum_usage[tag] + credit['fee__sum']
+        else:
+            sum_usage[tag] = credit['fee__sum']
+        res_credits[citem.pk] = temp
+
+    # Sumの降順に並び替え
+    res_credits = sorted(res_credits.items(), key=lambda x: -x[1]['sort'])
+    # 支出項目の円表示
+    res_sum_usage = dict()
+    for k, v in sorted(sum_usage.items(), key=lambda x: -x[1]):
+        res_sum_usage[k] = money.convert_yen(v)
+    # クレジット支出一覧から5レコード
+    credit_list = credits[:5]
+    # Sum
+    credits_sum = money.convert_yen(credits.aggregate(Sum('fee'))['fee__sum'])
+    credits_month_sum = money.convert_yen(credits_month.aggregate(Sum('fee'))['fee__sum'])
+    credits_month_count = credits_month.aggregate(Count('fee'))['fee__count']
+    # return
+    output = {
+        "credits": res_credits,
+        "sum_usage": res_sum_usage,
+        "credit_list": credit_list,
+        "credits_sum": credits_sum,
+        "credits_month_sum": credits_month_sum,
+        "credits_month_count": credits_month_count,
+    }
+
+    return render(request, 'kakeibo/cdashboard.html', output)
