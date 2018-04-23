@@ -16,7 +16,7 @@ class UsagesAdmin(admin.ModelAdmin):
 
 
 class SharedKakeibosAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'fee', 'memo', 'usage', 'paid_by', 'is_expense']
+    list_display = ['id', 'date', 'fee', 'memo', 'usage', 'paid_by', 'is_settled']
 
 
 class CardsAdmin(admin.ModelAdmin):

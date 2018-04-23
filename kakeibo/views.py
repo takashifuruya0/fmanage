@@ -19,7 +19,7 @@ from .functions import update_records, money
 @login_required
 def dashboard(request):
     today = date.today()
-    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
+    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
     income = kakeibos.filter(way="収入") .aggregate(Sum('fee'))['fee__sum']
     salary = kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")) .aggregate(Sum('fee'))['fee__sum']
     expense = kakeibos.filter(way="支出（現金）") .aggregate(Sum('fee'))['fee__sum']

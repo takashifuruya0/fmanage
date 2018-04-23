@@ -1,5 +1,8 @@
 from django.db import models
 # Create your models here.
+# ==============================
+#            Base
+# ==============================
 
 
 class BaseModel(models.Model):
@@ -8,6 +11,10 @@ class BaseModel(models.Model):
 
     def __str__(self):
         return self.name
+
+# ==============================
+#            model
+# ==============================
 
 
 class Usages(BaseModel):
@@ -68,14 +75,18 @@ class SharedKakeibos(models.Model):
     date = models.DateField()
     # 金額
     fee = models.IntegerField()
+    # 種類
+    way = models.CharField(max_length=20)
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
-    # 使い道/収入源
+    # 使い道
     usage = models.ForeignKey(Usages, null=True, blank=True)
+    # 現金移動元
+    move_from = models.ForeignKey(Resources, null=True, blank=True)
     # 支払者
     paid_by = models.CharField(max_length=20)
-    # 支出？
-    is_expense = models.BooleanField()
+    # 清算済み？
+    is_settled = models.BooleanField()
 
     def __str__(self):
         return self.way
