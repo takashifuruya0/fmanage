@@ -11,7 +11,7 @@ from .models import *
 import requests, json
 from datetime import datetime, date
 # function
-from .functions import update_records, money
+from .functions import update_records, money, figure
 
 # Create your views here.
 
@@ -27,6 +27,9 @@ def dashboard(request):
     shared_expense = kakeibos.filter(way="共通支出") .aggregate(Sum('fee'))['fee__sum']
     credit = kakeibos.filter(way="支出（クレジット）").aggregate(Sum('fee'))['fee__sum']
     smsg = "Hello, world"
+
+    data = [expense, debit, shared]
+    res = figure.fig_pie_basic(data=data, figtitle="test")
     output = {
         "smsg": smsg,
         "income": money.convert_yen(income),
@@ -171,3 +174,24 @@ def credit(request):
     }
 
     return render(request, 'kakeibo/cdashboard.html', output)
+
+
+def test(request):
+    today = date.today()
+    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
+    income = kakeibos.filter(way="収入").aggregate(Sum('fee'))['fee__sum']
+    salary = kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")).aggregate(Sum('fee'))['fee__sum']
+    expense = kakeibos.filter(way="支出（現金）").aggregate(Sum('fee'))['fee__sum']
+    debit = kakeibos.filter(way="引き落とし").aggregate(Sum('fee'))['fee__sum']
+    shared_expense = kakeibos.filter(way="共通支出").aggregate(Sum('fee'))['fee__sum']
+    credit = kakeibos.filter(way="支出（クレジット）").aggregate(Sum('fee'))['fee__sum']
+
+    data = {
+        "現金支出": expense,
+        "引き落とし": debit,
+        "共通支出": shared_expense,
+        "カード支出": credit,
+    }
+    res = figure.fig_pie_basic(data=data, figtitle="Breakdown of expenses")
+    res = figure.fig_bars_basic()
+    return res
