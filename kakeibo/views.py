@@ -45,17 +45,12 @@ def dashboard(request):
 
 @login_required
 def updates(request):
+    smsg0, emsg0 = update_records.init_resources_usages()
     smsg1, emsg1 = update_records.save_kakeibo_to_sql()
     smsg2, emsg2 = update_records.save_credit_to_sql()
     kakeibos = Kakeibos.objects.all()[:5]
-    if smsg1 != "" and smsg2 != "":
-        smsg = smsg1 + " and " + smsg2
-    else:
-        smsg = smsg1 + smsg2
-    if emsg1 != "" and emsg2 != "":
-        emsg = emsg1 + " and " + emsg2
-    else:
-        emsg = emsg1 + emsg2
+    smsg = smsg0 + "/" + smsg1 + "/" + smsg2
+    emsg = emsg0 + "/" + emsg1 + "/" + emsg2
     output = {
         "smsg": smsg,
         "emsg": emsg,

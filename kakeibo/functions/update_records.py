@@ -98,3 +98,52 @@ def save_credit_to_sql():
         emsg = "Updating kakeibo @ecords failed: " + str(e)
     # Dashboardへリダイレクト
     return smsg, emsg
+
+
+def init_resources_usages():
+    try:
+        resource_list = list()
+        resource_list.append({'date': datetime.date(2017, 1, 1), 'initial_val': 439386, 'name': 'ゆうちょ', 'color': None})
+        resource_list.append({'date': datetime.date(2018, 1, 1), 'initial_val': 841390, 'name': 'SBI敬士', 'color': None})
+        resource_list.append({'date': datetime.date(2018, 1, 1), 'initial_val': 22881, 'name': '財布', 'color': None})
+        resource_list.append({'date': datetime.date(2018, 1, 1), 'initial_val': 60000, 'name': '共通口座', 'color': None})
+        resource_list.append({'date': datetime.date(2018, 1, 1), 'initial_val': 86200, 'name': '貯金口座', 'color': None})
+        resource_list.append({'date': datetime.date(2018, 4, 23), 'initial_val': 0, 'name': '朋子口座', '_cards_cache': None, 'color': None})
+        Resources.objects.bulk_create(resource_list)
+
+        usage_list = [
+            {'date': datetime.date(2018, 1, 1), 'name': '給与', 'is_expense': False, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': 'SBI朋子', 'is_expense': False, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': 'その他収入', 'is_expense': False, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '食費', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '外食費', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '交際費', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '日常消耗品', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '散髪・衣服', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '交通費', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '喫茶店', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '娯楽費', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': 'コンビニ', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '書籍', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': 'クレジット（個人）', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': 'クレジット（家族）', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '電気', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': 'ガス', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '水道', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': 'NHK', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '家賃', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '奨学金返還', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': 'その他', 'is_expense': True, 'color': None},
+            {'date': datetime.date(2018, 1, 1), 'name': '共通支出', 'is_expense': True, 'color': None},
+        ]
+        Usages.objects.bulk_create(usage_list)
+
+        smsg = "Successfully initialize resources and usages. "
+        emsg = ""
+
+    except Exception as e:
+        smsg = ""
+        emsg = "Failed to initialize resources and usages: " + str(e)
+
+    finally:
+        return smsg, emsg
