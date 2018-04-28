@@ -28,7 +28,11 @@ def dashboard(request):
     credit = kakeibos.filter(way="支出（クレジット）").aggregate(Sum('fee'))['fee__sum']
     smsg = "Hello, world"
 
-    data = [expense, debit, shared]
+    data = {
+         "現金支出": expense, 
+         "引き落とし": debit, 
+         "共通支出": shared_expense,
+    }
     res = figure.fig_pie_basic(data=data, figtitle="test")
     output = {
         "smsg": smsg,

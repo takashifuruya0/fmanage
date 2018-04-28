@@ -59,7 +59,7 @@ def save_kakeibo_to_sql():
             emsg = ""
     except Exception as e:
         smsg = ""
-        emsg = "Updating kakeibo @ecords failed: " + str(e)
+        emsg = "Updating kakeibo-records failed: " + str(e)
     return smsg, emsg
 
 
@@ -95,42 +95,45 @@ def save_credit_to_sql():
             emsg = ""
     except Exception as e:
         smsg = ""
-        emsg = "Updating kakeibo @ecords failed: " + str(e)
+        emsg = "Updating credit-records failed: " + str(e)
     # Dashboardへリダイレクト
     return smsg, emsg
 
 
 def init_resources_usages():
     try:
-        Resources({'date': date(2017, 1, 1), 'initial_val': 439386, 'name': 'ゆうちょ', 'color': None}).save()
-        Resources({'date': date(2018, 1, 1), 'initial_val': 841390, 'name': 'SBI敬士', 'color': None}).save()
-        Resources({'date': date(2018, 1, 1), 'initial_val': 22881, 'name': '財布', 'color': None}).save()
-        Resources({'date': date(2018, 1, 1), 'initial_val': 60000, 'name': '共通口座', 'color': None}).save()
-        Resources({'date': date(2018, 1, 1), 'initial_val': 86200, 'name': '貯金口座', 'color': None}).save()
-        Resources({'date': date(2018, 4, 23), 'initial_val': 0, 'name': '朋子口座', '_cards_cache': None, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '給与', 'is_expense': False, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': 'SBI朋子', 'is_expense': False, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': 'その他収入', 'is_expense': False, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '食費', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '外食費', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '交際費', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '日常消耗品', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '散髪・衣服', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '交通費', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '喫茶店', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '娯楽費', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': 'コンビニ', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '書籍', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': 'クレジット（個人）', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': 'クレジット（家族）', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '電気', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': 'ガス', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '水道', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': 'NHK', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '家賃', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '奨学金返還', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': 'その他', 'is_expense': True, 'color': None}).save()
-        Usages({'date': date(2018, 1, 1), 'name': '共通支出', 'is_expense': True, 'color': None}).save()
+        Resources.objects.all().delete()
+        Resources(**{'date': date(2017, 1, 1), 'initial_val': 439386, 'name': 'ゆうちょ', 'color': None}).save()
+        Resources(**{'date': date(2018, 1, 1), 'initial_val': 841390, 'name': 'SBI敬士', 'color': None}).save()
+        Resources(**{'date': date(2018, 1, 1), 'initial_val': 22881, 'name': '財布', 'color': None}).save()
+        Resources(**{'date': date(2018, 1, 1), 'initial_val': 60000, 'name': '共通口座', 'color': None}).save()
+        Resources(**{'date': date(2018, 1, 1), 'initial_val': 86200, 'name': '貯金口座', 'color': None}).save()
+        Resources(**{'date': date(2018, 4, 23), 'initial_val': 0, 'name': '朋子口座', 'color': None}).save()
+
+        Usages.objects.all().delete()
+        Usages(**{'date': date(2018, 1, 1), 'name': '給与', 'is_expense': False, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': 'SBI朋子', 'is_expense': False, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': 'その他収入', 'is_expense': False, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '食費', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '外食費', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '交際費', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '日常消耗品', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '散髪・衣服', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '交通費', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '喫茶店', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '娯楽費', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': 'コンビニ', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '書籍', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': 'クレジット（個人）', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': 'クレジット（家族）', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '電気', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': 'ガス', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '水道', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': 'NHK', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '家賃', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '奨学金返還', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': 'その他', 'is_expense': True, 'color': None}).save()
+        Usages(**{'date': date(2018, 1, 1), 'name': '共通支出', 'is_expense': True, 'color': None}).save()
 
         smsg = "Successfully initialize resources and usages. "
         emsg = ""
