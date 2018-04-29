@@ -25,5 +25,9 @@ urlpatterns = [
 
     # test
     url(r'^test$', views.test, name='test'),
+
+    # figure
+    url(r'^fig/bars_balance$', views.bars_balance, name='bars_balance'),
+    url(r'^fig/pie_expense$', views.pie_epense, name='pie_expense')
 ]
 

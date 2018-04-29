@@ -10,7 +10,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 
 # basic: 円グラフ作成
-def fig_pie_basic(data, figtitle, colors=[], threshold=5, figsize=(8, 8), figid=1):
+def fig_pie_basic(data={}, figtitle="", colors=[], threshold=5, figsize=(8, 8), figid=1):
     """
     円グラフ作成
     :param data:  dict
@@ -71,49 +71,63 @@ def fig_pie_basic(data, figtitle, colors=[], threshold=5, figsize=(8, 8), figid=
     return response
 
 
-def fig_bars_basic(data, numbars=2, numdata=4, figsize=(8, 8), figid=2):
+def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
     """
-    データ
-    :param data:
-    :param numbars:
-    :param numdata:
-    :param figsize:
-    :param figid:
-    :return:
+    複数の棒グラフ
+    :param data: listにlistを内包
+    :param figtitle: タイトル
+    :param figsize: (int, int)
+    :param figid: int
+    :return: response
     """
     if not data:
-        data = [
-            [100, 200],
-            [1000, 800],
-            [100, 100],
-            [300, 500],
-        ]
+        data = {
+            "a": [200, 200],
+            "b": [1000, 800],
+            "c": [100, 100],
+            "d": [300, 500],
+        }
 
-    left = np.array([i for i in range(numbars)])
+    numdata = data.__len__()
     height = list()
-    for i in range(0, data.__len__()):
-        height.append(np.array(data[i]))
+    keys_legend = list()
+    vbar_max = 0
+    for k in data.keys():
+        vbar_max = np.array(data[k]) + vbar_max
+        height.append(np.array(data[k]))
+        keys_legend.append(k)
+        numbars = data[k].__len__()
+    left = np.array([i for i in range(numbars)])
 
+    hbar = [0,]
+    hbar_labels = ["¥0", ]
+    for i in sorted(vbar_max):
+        print(i)
+        hbar.append(i)
+        hbar_labels.append("¥"+str(i))
+    vbar_max = max(vbar_max)
     # create figure
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.125, bottom=0.085, right=0.95, top=0.95, wspace=0.05, hspace=0.05)
 
     # bar
-    p = list()
+    bars = list()
     for i in range(0, numdata):
         if i == 0:
-            p.append(ax.bar(left, height[i]))
+            bars.append(ax.bar(left, height[i]))
             bottom = np.array(height[i])
         else:
-            p.append(ax.bar(left, height[i], bottom=bottom))
+            bars.append(ax.bar(left, height[i], bottom=bottom))
             bottom = np.array(height[i] + bottom)
 
-    ax.legend((p[0], p[1], p[2]), ("Income", "Expense", "Others"))
-    ax.set_xticks([0, 1])
+    ax.legend(bars, keys_legend)
+    ax.set_xticks([i for i in range(numbars)])
     ax.set_xticklabels(['Income', 'Expense'], fontsize='small')
-    ax.set_yticks([0, 500, 1000, 1500])
-    ax.set_yticklabels(['¥0', '¥500', '¥1,000', '¥1,500'], fontsize='small')
+    ax.set_yticks(hbar)
+    ax.set_yticklabels(hbar_labels, fontsize='small')
+    ax.set_title(figtitle)
+    ax.yaxis.grid()
 
     # return response-data
     canvas = FigureCanvas(fig)

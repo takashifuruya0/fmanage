@@ -33,7 +33,7 @@
   <hr>
   <div class="row">
 
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       <h2>今月の概要</h2>
       <table class="table table-light table-hover table-sm table-bordere">
         <thead>
@@ -65,12 +65,10 @@
           </tr>
         </tbody>
       </table>
-    </div>
 
-    <div class="col-sm-6">
       <div class="box2">
         <a data-toggle="collapse" href="#expense" role="button" aria-expanded="true" aria-controls="expense">
-          <h2>最近の支出</h2>
+          <h3>最近の支出</h3>
         </a>
         <div class="collapse" id="expense">
           <table class="table table-light table-hover table-sm table-bordered">
@@ -97,6 +95,14 @@
           </table>
         </div>
       </div>
+
+    </div>
+
+    <div class="col-sm-4">
+      <p class="resizeimage"><img src="{% url 'kakeibo:bars_balance' %}"></p>
+    </div>
+    <div class="col-sm-4">
+      <p class="resizeimage"><img src="{% url 'kakeibo:pie_expense' %}"></p>
     </div>
   </div>
 
