@@ -71,12 +71,15 @@ def fig_pie_basic(data, figtitle, colors=[], threshold=5, figsize=(8, 8), figid=
     return response
 
 
-def fig_bars_basic(data=[], numbars=2, numdata=4, figsize=(8, 8), figid=2):
+def fig_bars_basic(data, numbars=2, numdata=4, figsize=(8, 8), figid=2):
     """
-    積み重ね棒グラフ
-    :param figsize: (int, int)
-    :param figid: int
-    :return: response
+    データ
+    :param data:
+    :param numbars:
+    :param numdata:
+    :param figsize:
+    :param figid:
+    :return:
     """
     if not data:
         data = [
