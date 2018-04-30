@@ -7,6 +7,7 @@ mpl.use("Agg")
 mpl.rcParams.update({'font.size': 17})
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from kakeibo.functions import update_records, money
 
 
 # basic: 円グラフ作成
@@ -91,14 +92,29 @@ def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
     numdata = data.__len__()
     height = list()
     keys_legend = list()
+    labels = list()
+    label_positions = list()
+    left_positions = list()
     vbar_max = 0
-    for k in data.keys():
-        vbar_max = np.array(data[k]) + vbar_max
-        height.append(np.array(data[k]))
+    for k, v in data.items():
+        if vbar_max is 0:
+            numbars = v.__len__()
+            sum_v = [0 for i in range(numbars)]
+        vbar_max = np.array(v) + vbar_max
+        height.append(np.array(v))
         keys_legend.append(k)
-        numbars = data[k].__len__()
-    left = np.array([i for i in range(numbars)])
+        tmp = 0
+        for val in v:
+            if val is not 0:
+                labels.append(money.convert_yen(val))
+                left_positions.append(tmp)
+                label_positions.append(sum_v[tmp] + val/2)
+                sum_v[tmp] = sum_v[tmp] + val
+            tmp += 1
 
+    left = np.array([i for i in range(numbars)])
+    print(label_positions)
+    print(labels)
     hbar = [0,]
     hbar_labels = ["¥0", ]
     for i in sorted(vbar_max):
@@ -106,6 +122,7 @@ def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
         hbar.append(i)
         hbar_labels.append("¥"+str(i))
     vbar_max = max(vbar_max)
+
     # create figure
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
@@ -114,12 +131,21 @@ def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
     # bar
     bars = list()
     for i in range(0, numdata):
+        left_position = left_positions[i]
+        label_position = label_positions[i]
+        label = labels[i]
         if i == 0:
             bars.append(ax.bar(left, height[i]))
             bottom = np.array(height[i])
+            ax.text(left_position, label_position, label, horizontalalignment='center',
+                    verticalalignment='center')
+            print(label)
         else:
             bars.append(ax.bar(left, height[i], bottom=bottom))
             bottom = np.array(height[i] + bottom)
+            ax.text(left_position, label_position, label, horizontalalignment='center',
+                    verticalalignment='center')
+            print(label)
 
     ax.legend(bars, keys_legend)
     ax.set_xticks([i for i in range(numbars)])
