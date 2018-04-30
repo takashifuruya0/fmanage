@@ -113,12 +113,9 @@ def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
             tmp += 1
 
     left = np.array([i for i in range(numbars)])
-    print(label_positions)
-    print(labels)
     hbar = [0,]
     hbar_labels = ["¥0", ]
     for i in sorted(vbar_max):
-        print(i)
         hbar.append(i)
         hbar_labels.append("¥"+str(i))
     vbar_max = max(vbar_max)
@@ -139,13 +136,11 @@ def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
             bottom = np.array(height[i])
             ax.text(left_position, label_position, label, horizontalalignment='center',
                     verticalalignment='center')
-            print(label)
         else:
             bars.append(ax.bar(left, height[i], bottom=bottom))
             bottom = np.array(height[i] + bottom)
             ax.text(left_position, label_position, label, horizontalalignment='center',
                     verticalalignment='center')
-            print(label)
 
     ax.legend(bars, keys_legend)
     ax.set_xticks([i for i in range(numbars)])
