@@ -135,7 +135,7 @@ def credit(request):
         temp = dict()
         temp['name'] = citem.name
         if citem.usage:
-            temp['usage'] = citem.usagename
+            temp['usage'] = citem.usage.name
             tag = citem.usage.name
         else:
             temp['usage'] = ""
@@ -213,6 +213,25 @@ def pie_epense(request):
         "Card": credit,
     }
     res = figure.fig_pie_basic(data=data, figtitle="Breakdown of expenses")
+    return res
+
+
+def pie_credit(request):
+    credits = Credits.objects.all()
+    usage_list = list()
+    usage_sum = dict()
+    usage_sum["その他"] = 0
+    for c in credits:
+        if c.credit_item.usage in usage_list and c.credit_item.usage != None:
+            usage_sum[c.credit_item.usage.name] = usage_sum(c.credit_item.usage.name) + c.fee
+        elif c.credit_item.usage == None:
+            usage_list.append("その他")
+            usage_sum["その他"] = c.fee + usage_sum["その他"]
+        else:
+            usage_list.append(c.credit_item.usage.name)
+            usage_sum[c.credit_item.usage.name] = c.fee
+
+    res = figure.fig_pie_basic(data=usage_sum, figtitle="Usage of credit")
     return res
 
 
