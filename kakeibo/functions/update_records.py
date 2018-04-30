@@ -28,7 +28,6 @@ def save_kakeibo_to_sql():
             data = r.json()
             for k, val in data.items():
                 if val['金額'] is not 0:
-                    print(val)
                     kakeibo = Kakeibos()
                     kakeibo.date = val['タイムスタンプ'][0:10]
                     kakeibo.fee = (val['金額'])
