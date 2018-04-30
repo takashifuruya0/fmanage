@@ -228,7 +228,7 @@ def pie_credit(request):
             usage_list.append("その他")
             usage_sum["その他"] = c.fee + usage_sum["その他"]
         else:
-            usage_list.append(c.credit_item.usage.name)
+            usage_list.append(c.credit_item.usage)
             usage_sum[c.credit_item.usage.name] = c.fee
 
     res = figure.fig_pie_basic(data=usage_sum, figtitle="Usage of credit")
