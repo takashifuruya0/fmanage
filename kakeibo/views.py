@@ -223,7 +223,7 @@ def pie_credit(request):
     usage_sum["その他"] = 0
     for c in credits:
         if c.credit_item.usage in usage_list and c.credit_item.usage != None:
-            usage_sum[c.credit_item.usage.name] = usage_sum(c.credit_item.usage.name) + c.fee
+            usage_sum[c.credit_item.usage.name] = usage_sum[c.credit_item.usage.name] + c.fee
         elif c.credit_item.usage == None:
             usage_list.append("その他")
             usage_sum["その他"] = c.fee + usage_sum["その他"]
