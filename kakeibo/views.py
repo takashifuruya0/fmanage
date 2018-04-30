@@ -190,7 +190,7 @@ def bars_balance(request):
         "Debit": [0, debit],
         "Shared_expense": [0, shared_expense],
         "Card": [0, credit],
-        "Income": [income * 2, 0],
+        "Income": [income, 0],
     }
     res = figure.fig_bars_basic(data=data, figtitle="Balance")
     return res
