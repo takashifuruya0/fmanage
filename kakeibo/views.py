@@ -135,7 +135,7 @@ def credit(request):
         temp = dict()
         temp['name'] = citem.name
         if citem.usage:
-            temp['usage'] = citem.usagename
+            temp['usage'] = citem.usage.name
             tag = citem.usage.name
         else:
             temp['usage'] = ""
