@@ -6,7 +6,7 @@ from django.db.models import Avg, Sum, Count, Q
 from django.db import transaction
 from django.conf import settings
 # model
-from kakeibo.models import Kakeibos, Usages, Resources, Credits, CreditItems, Cards
+from kakeibo.models import Kakeibos, Usages, Resources, Credits, CreditItems, Cards, SharedKakeibos
 
 # module
 import json, requests
@@ -29,7 +29,7 @@ def save_kakeibo_to_sql():
             for k, val in data.items():
                 if val['金額'] is not 0:
                     kakeibo = Kakeibos()
-                    kakeibo.date = val['タイムスタンプ'][0:10]
+                    kakeibo.date = parser.parse(val['タイムスタンプ']).astimezone(timezone('Asia/Tokyo'))
                     kakeibo.fee = (val['金額'])
                     kakeibo.way = val['項目']
                     kakeibo.memo = val['メモ']
@@ -84,7 +84,7 @@ def save_credit_to_sql():
                     credit.credit_item = new_item
                 else:
                     credit.credit_item = CreditItems.objects.get(name=v['name'])
-                credit.date = v['date'][0:10]
+                credit.date = parser.parse(v['タイムスタンプ']).astimezone(timezone('Asia/Tokyo'))
                 credit.fee = v['fee']
                 debit_year = "20" + v['debit_date'][0:2]
                 debit_month = v['debit_date'][3:5]
@@ -143,3 +143,41 @@ def init_resources_usages():
 
     finally:
         return smsg, emsg
+
+
+def save_shared_to_sql():
+    try:
+        # transaction starts
+        with transaction.atomic():
+            # 初期化
+            SharedKakeibos.objects.all().delete()
+            # SSから取得
+            url = settings.URL_SHARED
+            r = requests.get(url)
+            data = r.json()
+            for k, val in data.items():
+                if val['金額'] is not 0:
+                    kakeibo = SharedKakeibos()
+                    kakeibo.date = parser.parse(val['タイムスタンプ']).astimezone(timezone('Asia/Tokyo'))
+                    kakeibo.fee = (val['金額'])
+                    kakeibo.way = val['項目']
+                    kakeibo.memo = val['メモ']
+                    kakeibo.paid_by = val['支払者']
+                    kakeibo.is_settled = False
+                    if kakeibo.way == "引き落とし":
+                        kakeibo.move_from = Resources.objects.get(name=val['引き落とし対象'])
+                        kakeibo.usage = Usages.objects.get(name=val['引き落とし項目'])
+                    elif kakeibo.way == "現金":
+                        kakeibo.move_from = Resources.objects.get(name='財布')
+                        kakeibo.usage = Usages.objects.get(name=val['支出項目'])
+                    elif kakeibo.way == "クレジット":
+                        kakeibo.usage = Usages.objects.get(name=val['支出項目'])
+                    # save
+                    kakeibo.save()
+            smsg = "Updating shared-kakeibo-records completed successfully"
+            emsg = ""
+    except Exception as e:
+        smsg = ""
+        emsg = "Updating shared-kakeibo-records failed: " + str(e)
+        print(e)
+    return smsg, emsg

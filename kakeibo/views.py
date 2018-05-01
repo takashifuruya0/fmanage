@@ -62,6 +62,10 @@ def updates(request):
     }
     return render(request, 'kakeibo/dashboard.html', output)
 
+@login_required
+def updates_shared(request):
+    smsg0, emsg0 = update_records.save_shared_to_sql()
+    return redirect('kakeibo:dashboard')
 
 @login_required
 def redirect_form(request):
