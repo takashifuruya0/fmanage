@@ -11,21 +11,23 @@ from .models import *
 import requests, json
 from datetime import datetime, date
 # function
-from .functions import update_records, money, figure
+from .functions import update_records, money, figure, mylib
 
 # Create your views here.
 
 
 @login_required
 def dashboard(request):
+
     today = date.today()
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
-    income = kakeibos.filter(way="収入") .aggregate(Sum('fee'))['fee__sum']
-    salary = kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")) .aggregate(Sum('fee'))['fee__sum']
-    expense = kakeibos.filter(way="支出（現金）") .aggregate(Sum('fee'))['fee__sum']
-    debit = kakeibos.filter(way="引き落とし").aggregate(Sum('fee'))['fee__sum']
-    shared_expense = kakeibos.filter(way="共通支出") .aggregate(Sum('fee'))['fee__sum']
-    credit = kakeibos.filter(way="支出（クレジット）").aggregate(Sum('fee'))['fee__sum']
+    income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
+    salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
+    expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
+    debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
+    shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
+    credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
+
     smsg = "Hello, world"
 
     data = {
@@ -83,25 +85,26 @@ def redirect_sharedform(request):
 def mine(request):
     today = date.today()
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
-    income = kakeibos.filter(way="収入").aggregate(Sum('fee'))['fee__sum']
-    salary = kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")).aggregate(Sum('fee'))['fee__sum']
-    expense = kakeibos.filter(way="支出（現金）").aggregate(Sum('fee'))['fee__sum']
-    debit = kakeibos.filter(way="引き落とし").aggregate(Sum('fee'))['fee__sum']
-    shared_expense = kakeibos.filter(way="共通支出").aggregate(Sum('fee'))['fee__sum']
-    credit = kakeibos.filter(way="支出（クレジット）").aggregate(Sum('fee'))['fee__sum']
+    income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
+    salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
+    expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
+    debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
+    shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
+    credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
     url = settings.URL_SHAREDFORM
     return redirect(url)
 
 
 @login_required
 def mine_month(request, year, month):
-    kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year).order_by('date').reverse()
-    income = kakeibos.filter(way="収入").aggregate(Sum('fee'))['fee__sum']
-    salary = kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")).aggregate(Sum('fee'))['fee__sum']
-    expense = kakeibos.filter(way="支出（現金）").aggregate(Sum('fee'))['fee__sum']
-    debit = kakeibos.filter(way="引き落とし").aggregate(Sum('fee'))['fee__sum']
-    shared_expense = kakeibos.filter(way="共通支出").aggregate(Sum('fee'))['fee__sum']
-    credit = kakeibos.filter(way="支出（クレジット）").aggregate(Sum('fee'))['fee__sum']
+    today = date.today()
+    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
+    income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
+    salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
+    expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
+    debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
+    shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
+    credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
     url = settings.URL_SHAREDFORM
     return redirect(url)
 
@@ -163,8 +166,8 @@ def credit(request):
     # クレジット支出一覧から5レコード
     credit_list = credits[:5]
     # Sum
-    credits_sum = money.convert_yen(credits.aggregate(Sum('fee'))['fee__sum'])
-    credits_month_sum = money.convert_yen(credits_month.aggregate(Sum('fee'))['fee__sum'])
+    credits_sum = money.convert_yen(mylib.cal_sum_or_0(credits))
+    credits_month_sum = money.convert_yen(mylib.cal_sum_or_0(credits_month))
     credits_month_count = credits_month.aggregate(Count('fee'))['fee__count']
     # return
     output = {
@@ -182,12 +185,12 @@ def credit(request):
 def bars_balance(request):
     today = date.today()
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
-    income = kakeibos.filter(way="収入").aggregate(Sum('fee'))['fee__sum']
-    salary = kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")).aggregate(Sum('fee'))['fee__sum']
-    expense = kakeibos.filter(way="支出（現金）").aggregate(Sum('fee'))['fee__sum']
-    debit = kakeibos.filter(way="引き落とし").aggregate(Sum('fee'))['fee__sum']
-    shared_expense = kakeibos.filter(way="共通支出").aggregate(Sum('fee'))['fee__sum']
-    credit = kakeibos.filter(way="支出（クレジット）").aggregate(Sum('fee'))['fee__sum']
+    income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
+    salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
+    expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
+    debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
+    shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
+    credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
 
     data = {
         "Cash": [0, expense],
@@ -196,19 +199,18 @@ def bars_balance(request):
         "Card": [0, credit],
         "Income": [income, 0],
     }
-    res = figure.fig_bars_basic(data=data, figtitle="Balance")
+    vbar_labels = ['Income', 'Expense']
+    res = figure.fig_bars_basic(data=data, figtitle="Balance", vbar_labels=vbar_labels)
     return res
 
 
 def pie_epense(request):
     today = date.today()
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
-    income = kakeibos.filter(way="収入").aggregate(Sum('fee'))['fee__sum']
-    salary = kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")).aggregate(Sum('fee'))['fee__sum']
-    expense = kakeibos.filter(way="支出（現金）").aggregate(Sum('fee'))['fee__sum']
-    debit = kakeibos.filter(way="引き落とし").aggregate(Sum('fee'))['fee__sum']
-    shared_expense = kakeibos.filter(way="共通支出").aggregate(Sum('fee'))['fee__sum']
-    credit = kakeibos.filter(way="支出（クレジット）").aggregate(Sum('fee'))['fee__sum']
+    expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
+    debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
+    shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
+    credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
 
     data = {
         "Cash": expense,

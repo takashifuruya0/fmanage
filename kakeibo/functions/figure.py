@@ -72,7 +72,7 @@ def fig_pie_basic(data={}, figtitle="", colors=[], threshold=5, figsize=(8, 8), 
     return response
 
 
-def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
+def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid=2):
     """
     複数の棒グラフ
     :param data: listにlistを内包
@@ -95,12 +95,12 @@ def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
     labels = list()
     label_positions = list()
     left_positions = list()
-    vbar_max = 0
+    vbar = 0
     for k, v in data.items():
-        if vbar_max is 0:
+        if vbar is 0:
             numbars = v.__len__()
             sum_v = [0 for i in range(numbars)]
-        vbar_max = np.array(v) + vbar_max
+        vbar = np.array(v) + vbar
         height.append(np.array(v))
         keys_legend.append(k)
         tmp = 0
@@ -115,10 +115,9 @@ def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
     left = np.array([i for i in range(numbars)])
     hbar = [0,]
     hbar_labels = ["¥0", ]
-    for i in sorted(vbar_max):
+    for i in sorted(vbar):
         hbar.append(i)
         hbar_labels.append("¥"+str(i))
-    vbar_max = max(vbar_max)
 
     # create figure
     fig = plt.figure(figid, figsize=figsize)
@@ -127,7 +126,7 @@ def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
 
     # bar
     bars = list()
-    for i in range(0, numdata):
+    for i in range(left_positions.__len__()):
         left_position = left_positions[i]
         label_position = label_positions[i]
         label = labels[i]
@@ -144,7 +143,7 @@ def fig_bars_basic(data={}, figtitle="", figsize=(8, 8), figid=2):
 
     ax.legend(bars, keys_legend)
     ax.set_xticks([i for i in range(numbars)])
-    ax.set_xticklabels(['Income', 'Expense'], fontsize='small')
+    ax.set_xticklabels(vbar_labels, fontsize='small')
     ax.set_yticks(hbar)
     ax.set_yticklabels(hbar_labels, fontsize='small')
     ax.set_title(figtitle)
