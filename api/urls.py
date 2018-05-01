@@ -8,4 +8,5 @@ from . import views
 app_name = 'api'
 urlpatterns = [
     url(r'^kakeibo/fy2018$', views.kakeibo, name='kakeibo'),
+    url(r'^shared', views.shared, name='shared'),
 ]
