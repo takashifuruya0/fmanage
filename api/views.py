@@ -70,23 +70,13 @@ def shared(request):
             if kakeibo.way == "引き落とし":
                 kakeibo.move_from = Resources.objects.get(name=val['引き落とし対象'])
                 kakeibo.usage = Usages.objects.get(name=val['引き落とし項目'])
-            elif kakeibo.way == "振替":
-                kakeibo.move_from = Resources.objects.get(name=val['From'])
-                kakeibo.move_to = Resources.objects.get(name=val['To'])
-            elif kakeibo.way == "収入":
-                kakeibo.move_to = Resources.objects.get(name=val['振込先'])
-                if val['収入源'] == 'その他':
-                    val['収入源'] = 'その他収入'
-                kakeibo.usage = Usages.objects.get(name=val['収入源'])
-            elif kakeibo.way == "支出（現金）":
+            elif kakeibo.way == "現金":
                 kakeibo.move_from = Resources.objects.get(name='財布')
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
-            elif kakeibo.way == "支出（クレジット）":
+            elif kakeibo.way == "クレジット":
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
-            elif kakeibo.way == "共通支出":
-                kakeibo.usage = Usages.objects.get(name="共通支出")
-            # save
 
+            # save
             kakeibo.save()
             memo = "Successfully completed"
 
