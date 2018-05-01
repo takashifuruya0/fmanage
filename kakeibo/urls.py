@@ -8,6 +8,7 @@ from . import views
 app_name = 'kakeibo'
 urlpatterns = [
     url(r'^updates$', views.updates, name='update'),
+    url(r'^updates/shared$', views.updates_shared, name='update_shared'),
     
     # redirect_to_form
     url(r'^form$', views.redirect_form, name='form'),
