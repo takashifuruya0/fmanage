@@ -67,6 +67,7 @@ def shared(request):
             kakeibo.way = val['項目']
             kakeibo.memo = val['メモ']
             kakeibo.paid_by = val['支払者']
+            kakeibo.is_settled = False
             if kakeibo.way == "引き落とし":
                 kakeibo.move_from = Resources.objects.get(name=val['引き落とし対象'])
                 kakeibo.usage = Usages.objects.get(name=val['引き落とし項目'])
