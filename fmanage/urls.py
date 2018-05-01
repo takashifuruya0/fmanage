@@ -22,6 +22,7 @@ from django.views.static import serve
 from django.views.generic import RedirectView
 
 urlpatterns = [
+    url(r'^$', RedirectView.as_view(url='kakeibo/')),
     url(r'^admin/', admin.site.urls),
     url(r'^kakeibo/', include('kakeibo.urls', namespace='kakeibo')),
     url(r'^api/', include('api.urls', namespace='api')),
