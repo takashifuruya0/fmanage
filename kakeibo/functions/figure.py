@@ -7,7 +7,7 @@ mpl.use("Agg")
 mpl.rcParams.update({'font.size': 17})
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from kakeibo.functions import update_records, money
+from kakeibo.functions import money
 
 
 # basic: 円グラフ作成
@@ -192,21 +192,20 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
     # bar
     bars = list()  # 凡例作成のため、リスト化
     for i in range(0, numdata):
-        left_position1 = left_positions[2 * i]
-        label_position1 = label_positions[2 * i]
-        left_position2 = left_positions[2 * i + 1]
-        label_position2 = label_positions[2 * i + 1]
-        label = labels[i]
         if i == 0:
             bars.append(ax.bar(left, height[i]))
             bottom = np.array(height[i])
         else:
             bars.append(ax.bar(left, height[i], bottom=bottom))
             bottom = np.array(height[i] + bottom)
-        ax.text(left_position1, label_position1, label, horizontalalignment='center',
-                verticalalignment='center')
-        ax.text(left_position2, label_position2, label, horizontalalignment='center',
-                verticalalignment='center')
+        for j in range(2):
+            left_position1 = left_positions[2 * i + j]
+            label_position1 = label_positions[2 * i + j]
+            label1 = labels[2 * i + j]
+            ax.text(left_position1, label_position1, label1,
+                    horizontalalignment='center',
+                    verticalalignment='center'
+                    )
 
     ax.legend(bars, keys_legend)
     ax.set_xticks([i for i in range(numbars)])
@@ -286,21 +285,20 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
     # bar
     bars = list()  # 凡例作成のため、リスト化
     for i in range(0, numdata):
-        left_position1 = left_positions[2 * i]
-        label_position1 = label_positions[2 * i]
-        left_position2 = left_positions[2 * i + 1]
-        label_position2 = label_positions[2 * i + 1]
-        label = labels[i]
         if i == 0:
             bars.append(ax.bar(left, height[i], color=colors_graph[i]))
             bottom = np.array(height[i])
         else:
             bars.append(ax.bar(left, height[i], bottom=bottom, color=colors_graph[i]))
             bottom = np.array(height[i] + bottom)
-        ax.text(left_position1, label_position1, label, horizontalalignment='center',
-                verticalalignment='center')
-        ax.text(left_position2, label_position2, label, horizontalalignment='center',
-                verticalalignment='center')
+        for j in range(2):
+            left_position1 = left_positions[2 * i + j]
+            label_position1 = label_positions[2 * i + j]
+            label1 = labels[2 * i + j]
+            ax.text(left_position1, label_position1, label1,
+                    horizontalalignment='center',
+                    verticalalignment='center'
+                    )
 
     ax.legend(bars, keys_legend)
     ax.set_xticks([i for i in range(numbars)])
