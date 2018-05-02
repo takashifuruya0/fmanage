@@ -314,3 +314,4 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
     canvas.print_png(response)
     fig.clear()
     return response
+

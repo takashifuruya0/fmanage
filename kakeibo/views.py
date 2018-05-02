@@ -4,7 +4,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.db.models import Avg, Sum, Count, Q
-from django.db import transaction
+from django.views.generic import ListView
+from django.utils import timezone
+
 # model
 from .models import *
 # module
@@ -251,3 +253,10 @@ def pie_credit(request):
 
 def test(reqest):
     return True
+
+
+class listview(ListView):
+    model = Kakeibos
+    ordering = ['-date']
+    paginate_by = 20
+    queryset = Kakeibos.objects.exclude(way="振替")  # Default: Model.objects.all()

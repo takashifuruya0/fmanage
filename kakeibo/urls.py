@@ -23,6 +23,8 @@ urlpatterns = [
     url(r'^shared/(\d{4})(\d{2})$', views.shared_month, name='shared_month'),
     # dashboard
     url(r'^$', views.dashboard, name='dashboard'),
+    # list
+    url(r'^list$', views.listview.as_view(), name="kakeibo_list"),
 
     # test
     url(r'^test$', views.test, name='test'),
