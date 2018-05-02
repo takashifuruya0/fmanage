@@ -232,7 +232,7 @@ def pie_expense(request):
     return res
 
 
-def pie_credit(request):
+def pie_credititem(request):
     credits = Credits.objects.all()
     usage_list = list()
     usage_sum = dict()
@@ -247,7 +247,17 @@ def pie_credit(request):
             usage_list.append(c.credit_item.usage)
             usage_sum[c.credit_item.usage.name] = c.fee
 
-    res = figure.fig_pie_basic(data=usage_sum, figtitle="Usage of credit")
+    res = figure.fig_pie_basic(data=usage_sum, figtitle="Usage of credit", figid=4)
+    return res
+
+
+def pie_credit(request):
+    credititems = CreditItems.objects.all()
+    credit_sum = dict()
+    for ci in credititems:
+        credit = Credits.objects.filter(credit_item=ci).aggregate(Sum('fee'))
+        credit_sum[ci.name] = credit['fee__sum']
+    res = figure.fig_pie_basic(data=credit_sum, figtitle="Usage of credit", figsize=(12, 12), figid=3)
     return res
 
 
