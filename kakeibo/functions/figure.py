@@ -110,6 +110,10 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
                 left_positions.append(tmp)
                 label_positions.append(sum_v[tmp] + val/2)
                 sum_v[tmp] = sum_v[tmp] + val
+            else:
+                labels.append("")
+                left_positions.append("")
+                label_positions.append("")
             tmp += 1
 
     left = np.array([i for i in range(numbars)])
@@ -126,20 +130,22 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
 
     # bar
     bars = list()
-    for i in range(left_positions.__len__()):
-        left_position = left_positions[i]
-        label_position = label_positions[i]
+    for i in range(0, numdata):
+        left_position1 = left_positions[2 * i]
+        label_position1 = label_positions[2 * i]
+        left_position2 = left_positions[2 * i + 1]
+        label_position2 = label_positions[2 * i + 1]
         label = labels[i]
         if i == 0:
             bars.append(ax.bar(left, height[i]))
             bottom = np.array(height[i])
-            ax.text(left_position, label_position, label, horizontalalignment='center',
-                    verticalalignment='center')
         else:
             bars.append(ax.bar(left, height[i], bottom=bottom))
             bottom = np.array(height[i] + bottom)
-            ax.text(left_position, label_position, label, horizontalalignment='center',
-                    verticalalignment='center')
+        ax.text(left_position1, label_position1, label, horizontalalignment='center',
+                verticalalignment='center')
+        ax.text(left_position2, label_position2, label, horizontalalignment='center',
+                verticalalignment='center')
 
     ax.legend(bars, keys_legend)
     ax.set_xticks([i for i in range(numbars)])

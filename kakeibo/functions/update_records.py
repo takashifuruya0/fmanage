@@ -84,7 +84,7 @@ def save_credit_to_sql():
                     credit.credit_item = new_item
                 else:
                     credit.credit_item = CreditItems.objects.get(name=v['name'])
-                credit.date = parser.parse(v['タイムスタンプ']).astimezone(timezone('Asia/Tokyo'))
+                credit.date = parser.parse(v['date']).astimezone(timezone('Asia/Tokyo'))
                 credit.fee = v['fee']
                 debit_year = "20" + v['debit_date'][0:2]
                 debit_month = v['debit_date'][3:5]
