@@ -35,7 +35,6 @@ def dashboard(request):
          "引き落とし": debit, 
          "共通支出": shared_expense,
     }
-    res = figure.fig_pie_basic(data=data, figtitle="test")
     output = {
         "smsg": smsg,
         "income": money.convert_yen(income),
@@ -199,12 +198,19 @@ def bars_balance(request):
         "Card": [0, credit],
         "Income": [income, 0],
     }
+    colors = {
+        "Cash": "green",
+        "Debit": "blue",
+        "Shared_expense": "orange",
+        "Card": "gray",
+        "Income": "tomato",
+    }
     vbar_labels = ['Income', 'Expense']
-    res = figure.fig_bars_basic(data=data, figtitle="Balance", vbar_labels=vbar_labels)
+    res = figure.fig_bars_basic_color(data=data, figtitle="Balance", vbar_labels=vbar_labels, colors=colors)
     return res
 
 
-def pie_epense(request):
+def pie_expense(request):
     today = date.today()
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
     expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
@@ -218,7 +224,13 @@ def pie_epense(request):
         "Shared_expense": shared_expense,
         "Card": credit,
     }
-    res = figure.fig_pie_basic(data=data, figtitle="Breakdown of expenses")
+    colors = {
+        "Cash": "green",
+        "Debit": "blue",
+        "Shared_expense": "orange",
+        "Card": "gray",
+    }
+    res = figure.fig_pie_basic_colored(data=data, figtitle="Breakdown of expenses", colors=colors)
     return res
 
 
