@@ -53,20 +53,16 @@ def updates(request):
     smsg0, emsg0 = update_records.init_resources_usages()
     smsg1, emsg1 = update_records.save_kakeibo_to_sql()
     smsg2, emsg2 = update_records.save_credit_to_sql()
-    kakeibos = Kakeibos.objects.all()[:5]
     smsg = smsg0 + "/" + smsg1 + "/" + smsg2
     emsg = emsg0 + "/" + emsg1 + "/" + emsg2
-    output = {
-        "smsg": smsg,
-        "emsg": emsg,
-        "kakeibos": kakeibos,
-    }
-    return render(request, 'kakeibo/dashboard.html', output)
+    return redirect('kakeibo:dashboard')
+
 
 @login_required
 def updates_shared(request):
     smsg0, emsg0 = update_records.save_shared_to_sql()
     return redirect('kakeibo:dashboard')
+
 
 @login_required
 def redirect_form(request):
