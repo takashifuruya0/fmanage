@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'kakeibo',
     'api',
     'account',
+    'command',
     'django_extensions',
 ]
 
