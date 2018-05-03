@@ -32,6 +32,7 @@ urlpatterns = [
     # figure
     url(r'^fig/bars_balance$', views.bars_balance, name='bars_balance'),
     url(r'^fig/pie_expense$', views.pie_expense, name='pie_expense'),
+    url(r'^fig/pie_resource$', views.pie_resource, name='pie_resource'),
     url(r'^fig/pie_credititem$', views.pie_credititem, name='pie_credititem'),
     url(r'^fig/pie_credit$', views.pie_credit, name='pie_credit'),
 ]

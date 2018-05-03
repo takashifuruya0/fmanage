@@ -271,6 +271,24 @@ def pie_credit(request):
     return res
 
 
+def pie_resource(request):
+
+    def None_or_zero(val):
+        if val is None:
+            return 0
+        else:
+            return val
+
+    resources = Resources.objects.all()
+    data = dict()
+    for rs in resources:
+        move_to = Kakeibos.objects.filter(move_to=rs).aggregate(Sum('fee'))['fee__sum']
+        move_from = Kakeibos.objects.filter(move_from=rs).aggregate(Sum('fee'))['fee__sum']
+        data[rs.name] = rs.initial_val + None_or_zero(move_to) - None_or_zero(move_from)
+    res = figure.fig_pie_basic(data=data, figtitle="Breakdown of resources",  figid=10, threshold=0)
+    return res
+
+
 def test(reqest):
     return True
 
