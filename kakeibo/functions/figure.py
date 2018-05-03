@@ -8,6 +8,9 @@ mpl.rcParams.update({'font.size': 17})
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from kakeibo.functions import money
+# logging
+import logging
+logger = logging.getLogger("django")
 
 
 # basic: 円グラフ作成
@@ -118,6 +121,7 @@ def fig_pie_basic_colored(data={}, figtitle="", colors={}, threshold=5, figsize=
                                       colors=colors_graph,
                                       counterclock=False,)
     else:
+        logger.info("A figure was created with default colors since size of color-list unmatched")
         pie, text, autotexts = ax.pie(datas, startangle=90, labels=labels, autopct=make_autopct(sum_v),
                                       counterclock=False, )
     # translate into Japanese
@@ -176,6 +180,10 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
                 left_positions.append("")
                 label_positions.append("")
             tmp += 1
+
+    logger.info("numdata:" + str(numdata))
+    logger.info("numbars: " + str(numbars))
+    logger.info("sum_v: " + str(sum_v))
 
     left = np.array([i for i in range(numbars)])
     hbar = [0,]  # y軸メモリ位置
@@ -269,6 +277,10 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
                 left_positions.append("")
                 label_positions.append("")
             tmp += 1
+
+    logger.info("numdata:" + str(numdata))
+    logger.info("numbars: " + str(numbars))
+    logger.info("sum_v: " + str(sum_v))
 
     left = np.array([i for i in range(numbars)])
     hbar = [0,]  # y軸メモリ位置
