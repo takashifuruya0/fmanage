@@ -7,7 +7,6 @@ from django.db import transaction
 from django.conf import settings
 # model
 from kakeibo.models import Kakeibos, Usages, Resources, Credits, CreditItems, Cards, SharedKakeibos
-
 # module
 import json, requests
 from datetime import datetime, date
@@ -90,7 +89,7 @@ def save_credit_to_sql():
                 debit_month = v['debit_date'][3:5]
                 credit.debit_date = debit_year+"-"+debit_month+"-01"
                 credit.save()
-            smsg = "Updating kakeibo-records completed successfully"
+            smsg = "Updating credit-records completed successfully"
             emsg = ""
     except Exception as e:
         smsg = ""
@@ -179,5 +178,4 @@ def save_shared_to_sql():
     except Exception as e:
         smsg = ""
         emsg = "Updating shared-kakeibo-records failed: " + str(e)
-        print(e)
     return smsg, emsg

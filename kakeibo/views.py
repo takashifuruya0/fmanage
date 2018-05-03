@@ -6,7 +6,9 @@ from django.conf import settings
 from django.db.models import Avg, Sum, Count, Q
 from django.views.generic import ListView
 from django.utils import timezone
-
+# logging
+import logging
+logger = logging.getLogger("django")
 # model
 from .models import *
 # module
@@ -20,7 +22,6 @@ from .functions import update_records, money, figure, mylib
 
 @login_required
 def dashboard(request):
-
     today = date.today()
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
@@ -29,8 +30,7 @@ def dashboard(request):
     debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
     shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
     credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
-
-    smsg = "Hello, world"
+    smsg = ""
 
     data = {
          "現金支出": expense, 
@@ -47,22 +47,32 @@ def dashboard(request):
         "salary": money.convert_yen(salary),
         "kakeibos": kakeibos[:5],
     }
+    logger.info("output: " + str(output))
     return render(request, 'kakeibo/dashboard.html', output)
 
 
 @login_required
 def updates(request):
-    smsg0, emsg0 = update_records.init_resources_usages()
-    smsg1, emsg1 = update_records.save_kakeibo_to_sql()
-    smsg2, emsg2 = update_records.save_credit_to_sql()
-    smsg = smsg0 + "/" + smsg1 + "/" + smsg2
-    emsg = emsg0 + "/" + emsg1 + "/" + emsg2
+    smsg = ["", "", ""]
+    emsg = ["", "", ""]
+    smsg[0], emsg[0] = update_records.init_resources_usages()
+    smsg[1], emsg[1] = update_records.save_kakeibo_to_sql()
+    smsg[2], emsg[2] = update_records.save_credit_to_sql()
+    for i in range(smsg.__len__()):
+        if smsg[i] != "":
+            logger.info(smsg[i])
+        if emsg[i] != "":
+            logger.error(emsg[i])
     return redirect('kakeibo:dashboard')
 
 
 @login_required
 def updates_shared(request):
-    smsg0, emsg0 = update_records.save_shared_to_sql()
+    smsg, emsg = update_records.save_shared_to_sql()
+    if smsg != "":
+        logger.info(smsg)
+    if emsg != "":
+        logger.error(emsg)
     return redirect('kakeibo:dashboard')
 
 
