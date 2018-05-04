@@ -215,7 +215,7 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
                     verticalalignment='center'
                     )
 
-    ax.legend(bars, keys_legend, loc="lower left")
+    ax.legend(bars, keys_legend, loc="best")
     ax.set_xticks([i for i in range(numbars)])
     ax.set_xticklabels(vbar_labels, fontsize='small')
     ax.set_yticks(hbar)
@@ -312,7 +312,7 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
                     verticalalignment='center'
                     )
 
-    ax.legend(bars, keys_legend, loc="lower left")
+    ax.legend(bars, keys_legend, loc="best")
     ax.set_xticks([i for i in range(numbars)])
     ax.set_xticklabels(vbar_labels, fontsize='small')
     ax.set_yticks(hbar)

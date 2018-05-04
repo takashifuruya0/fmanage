@@ -23,6 +23,7 @@ from .functions import update_records, money, figure, mylib
 @login_required
 def dashboard(request):
     today = date.today()
+    # kakeibo
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
     salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
@@ -30,9 +31,17 @@ def dashboard(request):
     debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
     shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
     credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
+
+    # shared
     shared = SharedKakeibos.objects.filter(date__month=today.month, date__year=today.year)
     paidbyt = mylib.cal_sum_or_0(shared.filter(paid_by="敬士"))
     paidbyh = mylib.cal_sum_or_0(shared.filter(paid_by="朋子"))
+    shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
+    if shared_usages.__len__() != 0:
+        shared_grouped_by_usage = dict()
+        for su in shared_usages:
+            us = Usages.objects.get(pk=su['usage']).name
+            shared_grouped_by_usage[us] = money.convert_yen(su['sum'])
     smsg = ""
 
     output = {
@@ -47,6 +56,7 @@ def dashboard(request):
         "shared": money.convert_yen(paidbyh+paidbyt),
         "paidbyt": money.convert_yen(paidbyt),
         "paidbyh": money.convert_yen(paidbyh),
+        "shared_grouped_by_usage": shared_grouped_by_usage,
     }
     logger.info("output: " + str(output))
     return render(request, 'kakeibo/dashboard.html', output)
@@ -310,8 +320,14 @@ def test(reqest):
     return True
 
 
-class listview(ListView):
+class KakeiboList(ListView):
     model = Kakeibos
     ordering = ['-date']
     paginate_by = 20
     queryset = Kakeibos.objects.exclude(way="振替")  # Default: Model.objects.all()
+
+
+class SharedList(ListView):
+    model = SharedKakeibos
+    ordering = ['-date']
+    paginate_by = 20

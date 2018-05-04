@@ -66,6 +66,7 @@
   <hr>
   <div class="row">
     <div class="col-sm-4">
+      <h4>支払者別</h4>
       <table class="table table-light table-hover table-sm table-bordere">
         <thead>
           <tr>
@@ -86,6 +87,24 @@
             <td>朋子</td>
             <td>{{paidbyh}}</td>
           </tr>
+        </tbody>
+      </table>
+
+      <h4>用途別</h4>
+      <table class="table table-light table-hover table-sm table-bordere">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for key,val in shared_grouped_by_usage.items %}
+          <tr>
+            <td>{{key}}</td>
+            <td>{{val}}</td>
+          </tr>
+        {% endfor %}
         </tbody>
       </table>
     </div>
