@@ -30,14 +30,13 @@ def dashboard(request):
     debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
     shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
     credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
+    shared = SharedKakeibos.objects.filter(date__month=today.month-1, date__year=today.year)
+    paidbyt = mylib.cal_sum_or_0(shared.filter(paid_by="敬士"))
+    paidbyh = mylib.cal_sum_or_0(shared.filter(paid_by="朋子"))
     smsg = ""
 
-    data = {
-         "現金支出": expense, 
-         "引き落とし": debit, 
-         "共通支出": shared_expense,
-    }
     output = {
+        "today": today,
         "smsg": smsg,
         "income": money.convert_yen(income),
         "expense": money.convert_yen(expense),
@@ -45,7 +44,9 @@ def dashboard(request):
         "shared_expense": money.convert_yen(shared_expense),
         "credit": money.convert_yen(credit),
         "salary": money.convert_yen(salary),
-        "kakeibos": kakeibos[:5],
+        "shared": money.convert_yen(paidbyh+paidbyt),
+        "paidbyt": money.convert_yen(paidbyt),
+        "paidbyh": money.convert_yen(paidbyh),
     }
     logger.info("output: " + str(output))
     return render(request, 'kakeibo/dashboard.html', output)
@@ -273,19 +274,23 @@ def pie_credit(request):
 
 def pie_resource(request):
 
-    def None_or_zero(val):
-        if val is None:
-            return 0
-        else:
-            return val
-
     resources = Resources.objects.all()
     data = dict()
     for rs in resources:
-        move_to = Kakeibos.objects.filter(move_to=rs).aggregate(Sum('fee'))['fee__sum']
-        move_from = Kakeibos.objects.filter(move_from=rs).aggregate(Sum('fee'))['fee__sum']
-        data[rs.name] = rs.initial_val + None_or_zero(move_to) - None_or_zero(move_from)
+        move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
+        move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
+        data[rs.name] = rs.initial_val + move_to - move_from
     res = figure.fig_pie_basic(data=data, figtitle="Breakdown of resources",  figid=10, threshold=0)
+    return res
+
+
+def pie_shared(request):
+    shared = SharedKakeibos.objects.all()
+    usages = Usages.objects.all()
+    data = dict()
+    for us in usages:
+        data[us.name] = mylib.cal_sum_or_0(shared.filter(usage=us))
+    res = figure.fig_pie_basic(data=data, figtitle="Breakdown of shared",  figid=12, threshold=5)
     return res
 
 
