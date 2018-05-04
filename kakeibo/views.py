@@ -30,7 +30,7 @@ def dashboard(request):
     debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
     shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
     credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
-    shared = SharedKakeibos.objects.filter(date__month=today.month-1, date__year=today.year)
+    shared = SharedKakeibos.objects.filter(date__month=today.month, date__year=today.year)
     paidbyt = mylib.cal_sum_or_0(shared.filter(paid_by="敬士"))
     paidbyh = mylib.cal_sum_or_0(shared.filter(paid_by="朋子"))
     smsg = ""
