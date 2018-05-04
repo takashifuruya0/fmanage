@@ -273,7 +273,6 @@ def pie_credit(request):
 
 
 def pie_resource(request):
-
     resources = Resources.objects.all()
     data = dict()
     for rs in resources:
@@ -287,7 +286,7 @@ def pie_resource(request):
 def pie_shared_year(request):
     today = date.today()
     shared = SharedKakeibos.objects.filter(date__year=today.year)
-    usages = Usages.objects.all()
+    usages = Usages.objects.filter(is_expense=True)
     data = dict()
     for us in usages:
         data[us.name] = mylib.cal_sum_or_0(shared.filter(usage=us))
@@ -298,7 +297,7 @@ def pie_shared_year(request):
 def pie_shared(request):
     today = date.today()
     shared = SharedKakeibos.objects.filter(date__year=today.year, date__month=today.month)
-    usages = Usages.objects.all()
+    usages = Usages.objects.filter(is_expense=True)
     data = dict()
     for us in usages:
         data[us.name] = mylib.cal_sum_or_0(shared.filter(usage=us))
