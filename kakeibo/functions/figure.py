@@ -215,7 +215,7 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
                     verticalalignment='center'
                     )
 
-    ax.legend(bars, keys_legend)
+    ax.legend(bars, keys_legend, loc="lower left")
     ax.set_xticks([i for i in range(numbars)])
     ax.set_xticklabels(vbar_labels, fontsize='small')
     ax.set_yticks(hbar)
@@ -261,9 +261,9 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
         if vbar is 0:
             numbars = v.__len__()  # 棒の数
             sum_v = [0 for i in range(numbars)]
+        keys_legend.append(k)
         vbar = np.array(v) + vbar
         height.append(np.array(v))
-        keys_legend.append(k)
         colors_graph.append(colors[k])
         tmp = 0
         for val in v:
@@ -312,7 +312,7 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
                     verticalalignment='center'
                     )
 
-    ax.legend(bars, keys_legend)
+    ax.legend(bars, keys_legend, loc="lower left")
     ax.set_xticks([i for i in range(numbars)])
     ax.set_xticklabels(vbar_labels, fontsize='small')
     ax.set_yticks(hbar)
