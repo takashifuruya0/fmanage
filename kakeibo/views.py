@@ -284,13 +284,24 @@ def pie_resource(request):
     return res
 
 
-def pie_shared(request):
+def pie_shared_total(request):
     shared = SharedKakeibos.objects.all()
     usages = Usages.objects.all()
     data = dict()
     for us in usages:
         data[us.name] = mylib.cal_sum_or_0(shared.filter(usage=us))
-    res = figure.fig_pie_basic(data=data, figtitle="Breakdown of shared",  figid=12, threshold=5)
+    res = figure.fig_pie_basic(data=data, figtitle="Breakdown of shared (Total)",  figid=12, threshold=5)
+    return res
+
+
+def pie_shared(request):
+    today = date.today()
+    shared = SharedKakeibos.objects.filter(date__year=today.year, date__month=today.month)
+    usages = Usages.objects.all()
+    data = dict()
+    for us in usages:
+        data[us.name] = mylib.cal_sum_or_0(shared.filter(usage=us))
+    res = figure.fig_pie_basic(data=data, figtitle="Breakdown of shared (Total)",  figid=13, threshold=5)
     return res
 
 
