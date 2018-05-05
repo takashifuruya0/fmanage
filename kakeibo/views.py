@@ -26,12 +26,19 @@ def dashboard(request):
     # kakeibo
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
     expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
     debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
     shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
     credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
-
+    # resource
+    resources = Resources.objects.all()
+    current_resource = dict()
+    for rs in resources:
+        move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
+        move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
+        val = rs.initial_val + move_to - move_from
+        if val is not 0:
+            current_resource[rs.name] = money.convert_yen(val)
     # shared
     shared = SharedKakeibos.objects.filter(date__month=today.month, date__year=today.year)
     paidbyt = mylib.cal_sum_or_0(shared.filter(paid_by="敬士"))
@@ -52,7 +59,7 @@ def dashboard(request):
         "debit": money.convert_yen(debit),
         "shared_expense": money.convert_yen(shared_expense),
         "credit": money.convert_yen(credit),
-        "salary": money.convert_yen(salary),
+        "current_resource": current_resource,
         "shared": money.convert_yen(paidbyh+paidbyt),
         "paidbyt": money.convert_yen(paidbyt),
         "paidbyh": money.convert_yen(paidbyh),

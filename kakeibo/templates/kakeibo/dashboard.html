@@ -19,39 +19,59 @@
   </div>
 
   <hr>
-  <h2>{{today.month}}月の概要</h2>
+  <h2>{{today.year}}年{{today.month}}月の概要</h2>
   <div class="row">
     <div class="col-sm-4">
+      <h4>収支</h4>
       <table class="table table-light table-hover table-sm table-bordere">
         <thead>
           <tr>
             <th>Key</th>
-            <th>Value</th>
+            <th class="right">Value</th>
           </tr>
         </thead>
-        <tbody class="">
+        <tbody>
           <tr>
-            <td>収入<br>（うち給与）</td>
-            <td>{{income}}<br>（{{salary}}）</td>
+            <td>収入</td>
+            <td class="right">{{income}}</td>
           </tr>
           <tr>
             <td>現金支出</td>
-            <td>{{expense}}</td>
+            <td class="right">{{expense}}</td>
           </tr>
           <tr>
             <td>クレジット支出</td>
-            <td>{{credit}}</td>
+            <td class="right">{{credit}}</td>
           </tr>
           <tr>
             <td>引き落とし</td>
-            <td>{{debit}}</td>
+            <td class="right">{{debit}}</td>
           </tr>
           <tr>
             <td>共通支出</td>
-            <td>{{shared_expense}}</td>
+            <td class="right">{{shared_expense}}</td>
           </tr>
         </tbody>
       </table>
+
+      <h4>資産状態</h4>
+      <table class="table table-light table-hover table-sm table-bordere">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th class="right">Value</th>
+          </tr>
+        </thead>
+        <tbody class="">
+          {% for key, val in current_resource.items %}
+          <tr>
+            <td>{{key}}</td>
+            <td class="right">{{val}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
     </div>
 
     <div class="col-sm-4">
@@ -71,21 +91,21 @@
         <thead>
           <tr>
             <th>Key</th>
-            <th>Value</th>
+            <th class="right">Value</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>合計</td>
-            <td>{{shared}}</td>
+            <td class="right">{{shared}}</td>
           </tr>
           <tr>
             <td>敬士</td>
-            <td>{{paidbyt}}</td>
+            <td class="right">{{paidbyt}}</td>
           </tr>
           <tr>
             <td>朋子</td>
-            <td>{{paidbyh}}</td>
+            <td class="right">{{paidbyh}}</td>
           </tr>
         </tbody>
       </table>
@@ -95,14 +115,14 @@
         <thead>
           <tr>
             <th>Key</th>
-            <th>Value</th>
+            <th class="right">Value</th>
           </tr>
         </thead>
         <tbody>
         {% for key,val in shared_grouped_by_usage.items %}
           <tr>
             <td>{{key}}</td>
-            <td>{{val}}</td>
+            <td class="right">{{val}}</td>
           </tr>
         {% endfor %}
         </tbody>
