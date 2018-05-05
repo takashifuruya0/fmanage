@@ -228,7 +228,13 @@ def consolidate_kakeibo():
                     # 収入源の変換
                     if val['収入源'] == "給与収入":
                         val['収入源'] = "給与"
-
+                    # 支払い方法の変換
+                    if val['支払い方法'] == "現金":
+                        val['支払い方法'] = "支出（現金）"
+                    elif val['支払い方法'] == "クレジットカード":
+                        val['支払い方法'] = "支出（クレジット）"
+                    elif val['支払い方法'] == "現金移動":
+                        val['支払い方法'] = "振替"
                     # 登録
                     kakeibo = Kakeibos()
                     kakeibo.date = parser.parse(val['タイムスタンプ']).astimezone(timezone('Asia/Tokyo'))
@@ -238,16 +244,16 @@ def consolidate_kakeibo():
                     if kakeibo.way == "引き落とし":
                         kakeibo.move_from = Resources.objects.get(name="ゆうちょ")
                         kakeibo.usage = Usages.objects.get(name=val['項目（引き落とし）'])
-                    elif kakeibo.way == "現金移動":
+                    elif kakeibo.way == "振替":
                         kakeibo.move_from = Resources.objects.get(name=val['From(現金移動)'])
                         kakeibo.move_to = Resources.objects.get(name=val['To(現金移動)'])
                     elif kakeibo.way == "収入":
                         kakeibo.usage = Usages.objects.get(name=val['収入源'])
                         kakeibo.move_to = Resources.objects.get(name="ゆうちょ")
-                    elif kakeibo.way == "現金":
+                    elif kakeibo.way == "支出（現金）":
                         kakeibo.move_from = Resources.objects.get(name='財布')
                         kakeibo.usage = Usages.objects.get(name=val['項目（現金・クレジット）'])
-                    elif kakeibo.way == "クレジットカード":
+                    elif kakeibo.way == "支出（クレジット）":
                         kakeibo.usage = Usages.objects.get(name=val['項目（現金・クレジット）'])
 
                     # save
