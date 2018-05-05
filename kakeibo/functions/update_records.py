@@ -13,6 +13,8 @@ from datetime import datetime, date
 from bs4 import BeautifulSoup
 from pytz import timezone
 from dateutil import parser
+import logging
+logger = logging.getLogger("django")
 
 
 def save_kakeibo_to_sql():
@@ -51,6 +53,7 @@ def save_kakeibo_to_sql():
                         kakeibo.usage = Usages.objects.get(name=val['支出項目'])
                     elif kakeibo.way == "共通支出":
                         kakeibo.usage = Usages.objects.get(name="共通支出")
+                        kakeibo.move_from = Resources.objects.get(name="財布")
                     # save
                     kakeibo.save()
             smsg = "Updating kakeibo-records completed successfully"
@@ -178,4 +181,88 @@ def save_shared_to_sql():
     except Exception as e:
         smsg = ""
         emsg = "Updating shared-kakeibo-records failed: " + str(e)
+    return smsg, emsg
+
+
+def consolidate_kakeibo():
+    try:
+        # transaction starts
+        with transaction.atomic():
+
+            # SSから取得
+            url = "https://script.google.com/macros/s/AKfycbyszn8odB6D9bkL6H6fQJyA83PO3uske-I34F0bNhPsJeSlAN8/exec"
+            r = requests.get(url+"?method=get_form&numdata=1000")
+            data = r.json()
+            for k, val in data.items():
+                if val['金額'] is not 0:
+                    # kakeibos.way = val['支払い方法']
+                    # kakeibos.memo = val['メモ']
+                    # kakeibos.tag = val['特別タグ']
+                    # kakeibos.mail = val['家計簿メール']
+                    # kakeibos.source = val['収入源']
+                    # kakeibos.move_from = val['From(現金移動)']
+                    # kakeibos.move_to = val['To(現金移動)']
+                    # kakeibos.cash_or_credit = val['項目（現金・クレジット）']
+                    # kakeibos.debit = val["項目（引き落とし）"]
+
+                    # resourceの変換
+                    if val['From(現金移動)'] == "SBI":
+                        val['From(現金移動)'] = "SBI敬士"
+                    elif val['From(現金移動)'] == "貯金":
+                        val['From(現金移動)'] = "貯金口座"
+                    if val['To(現金移動)'] == "SBI":
+                        val['To(現金移動)'] = "SBI敬士"
+                    elif val['To(現金移動)'] == "貯金":
+                        val['To(現金移動)'] = "貯金口座"
+                    # usageの変換
+                    if val['項目（現金・クレジット）'] =="日用消耗品":
+                        val['項目（現金・クレジット）'] = "日常消耗品"
+                    elif val['項目（現金・クレジット）'] == "衣服・化粧品・散髪":
+                        val['項目（現金・クレジット）'] = "散髪・衣服"
+                    elif val['項目（現金・クレジット）'] == "本・漫画":
+                        val['項目（現金・クレジット）'] = "書籍"
+                    # 引き落としの変換
+                    if val["項目（引き落とし）"] == "カード請求":
+                        val["項目（引き落とし）"] = "クレジット（個人）"
+                    elif val["項目（引き落とし）"] == "奨学金返済":
+                        val["項目（引き落とし）"] = "奨学金返還"
+                    # 収入源の変換
+                    if val['収入源'] == "給与収入":
+                        val['収入源'] = "給与"
+                    # 支払い方法の変換
+                    if val['支払い方法'] == "現金":
+                        val['支払い方法'] = "支出（現金）"
+                    elif val['支払い方法'] == "クレジットカード":
+                        val['支払い方法'] = "支出（クレジット）"
+                    elif val['支払い方法'] == "現金移動":
+                        val['支払い方法'] = "振替"
+                    # 登録
+                    kakeibo = Kakeibos()
+                    kakeibo.date = parser.parse(val['タイムスタンプ']).astimezone(timezone('Asia/Tokyo'))
+                    kakeibo.fee = (val['金額'])
+                    kakeibo.way = val['支払い方法']
+                    kakeibo.memo = val['メモ']
+                    if kakeibo.way == "引き落とし":
+                        kakeibo.move_from = Resources.objects.get(name="ゆうちょ")
+                        kakeibo.usage = Usages.objects.get(name=val['項目（引き落とし）'])
+                    elif kakeibo.way == "振替":
+                        kakeibo.move_from = Resources.objects.get(name=val['From(現金移動)'])
+                        kakeibo.move_to = Resources.objects.get(name=val['To(現金移動)'])
+                    elif kakeibo.way == "収入":
+                        kakeibo.usage = Usages.objects.get(name=val['収入源'])
+                        kakeibo.move_to = Resources.objects.get(name="ゆうちょ")
+                    elif kakeibo.way == "支出（現金）":
+                        kakeibo.move_from = Resources.objects.get(name='財布')
+                        kakeibo.usage = Usages.objects.get(name=val['項目（現金・クレジット）'])
+                    elif kakeibo.way == "支出（クレジット）":
+                        kakeibo.usage = Usages.objects.get(name=val['項目（現金・クレジット）'])
+
+                    # save
+                    kakeibo.save()
+            smsg = "Consolidating kakeibo-records completed successfully"
+            emsg = ""
+    except Exception as e:
+        smsg = ""
+        emsg = "Consolidating kakeibo-records failed: " + str(e)
+        logger.error(val)
     return smsg, emsg

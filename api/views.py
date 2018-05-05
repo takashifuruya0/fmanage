@@ -37,6 +37,7 @@ def kakeibo(request):
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
             elif kakeibo.way == "共通支出":
                 kakeibo.usage = Usages.objects.get(name="共通支出")
+                kakeibo.move_from = Resources.objects.get(name="財布")
             # save
             kakeibo.save()
             memo = "Successfully completed"
