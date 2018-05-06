@@ -316,6 +316,32 @@ def pie_shared(request):
     return res
 
 
+def barline_usage(request, id):
+    us = Usages.objects.get(pk=id)
+    label = us.name
+    height = list()
+    height_sum = list()
+    xticklabel = list()
+    for j in range(2017, 2019):
+        for i in range(4, 13):
+            ka = Kakeibos.objects.filter(date__year=j, date__month=i)
+            if ka.__len__() is 0:
+                break
+            else:
+                ka = ka.filter(usage=us)
+                height.append(mylib.cal_sum_or_0(ka))
+                height_sum.append(sum(height))
+                xticklabel.append(str(j - 2000) + "/" + str(i))
+    xlim = [i for i in range(0, len(height))]
+    ylim = [i for i in range(0, max(height_sum), 100000)]
+    yticklabel = [money.convert_yen(i) for i in ylim]
+    res = figure.fig_barline_basic(height_bar=height, left_bar=xlim, label_bar=label,
+                                   height_line=height_sum, left_line=xlim, label_line="cumulative",
+                                   ylim=ylim, yticklabel=yticklabel, xlim=xlim, xticklabel=xticklabel,
+                                   figsize=(10, 10))
+    return res
+
+
 def test(reqest):
     return True
 
