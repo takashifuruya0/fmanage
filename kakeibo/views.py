@@ -218,18 +218,18 @@ def bars_balance(request):
     credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
 
     data = {
-        "Cash": [0, expense],
-        "Debit": [0, debit],
-        "Shared_expense": [0, shared_expense],
-        "Card": [0, credit],
-        "Income": [income, 0],
+        "支出（現金）": [0, expense],
+        "引き落とし": [0, debit],
+        "共通支出": [0, shared_expense],
+        "支出（クレジット）": [0, credit],
+        "収入": [income, 0],
     }
     colors = {
-        "Cash": "green",
-        "Debit": "blue",
-        "Shared_expense": "orange",
-        "Card": "gray",
-        "Income": "tomato",
+        "支出（現金）": "green",
+        "引き落とし": "blue",
+        "共通支出": "orange",
+        "支出（クレジット）": "gray",
+        "収入": "tomato",
     }
     vbar_labels = ['Income', 'Expense']
     res = figure.fig_bars_basic_color(data=data, figtitle="Balance", vbar_labels=vbar_labels, colors=colors)
