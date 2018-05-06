@@ -1,6 +1,5 @@
 # coding:utf-8
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.db.models import Avg, Sum, Count, Q
@@ -350,6 +349,8 @@ def barline_usage(request, id):
 
 
 def test(reqest):
+    res = figure.fig_lines_basic()
+    return res
     return True
 
 

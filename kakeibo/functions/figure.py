@@ -1,6 +1,8 @@
 # coding:utf-8
 
 from django.http import HttpResponse
+import itertools
+from django.conf import settings
 import numpy as np
 import matplotlib as mpl
 mpl.use("Agg")
@@ -59,8 +61,7 @@ def fig_pie_basic(data={}, figtitle="", threshold=5, figsize=(8, 8), figid=1):
     pie, text, autotexts = ax.pie(datas, startangle=90, labels=labels, autopct=make_autopct(sum_v),
                                       counterclock=False, )
     # translate into Japanese
-    FONT_PATH = 'document/font/ipaexg.ttf'
-    prop = mpl.font_manager.FontProperties(fname=FONT_PATH)
+    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
     plt.setp(text, fontproperties=prop)
 
     # return response-data
@@ -125,8 +126,7 @@ def fig_pie_basic_colored(data={}, figtitle="", colors={}, threshold=5, figsize=
         pie, text, autotexts = ax.pie(datas, startangle=90, labels=labels, autopct=make_autopct(sum_v),
                                       counterclock=False, )
     # translate into Japanese
-    FONT_PATH = 'document/font/ipaexg.ttf'
-    prop = mpl.font_manager.FontProperties(fname=FONT_PATH)
+    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
     plt.setp(text, fontproperties=prop)
 
     # return response-data
@@ -218,8 +218,7 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
                     verticalalignment='center'
                     )
     # legend
-    FONT_PATH = 'document/font/ipaexg.ttf'
-    prop = mpl.font_manager.FontProperties(fname=FONT_PATH)
+    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
     ax.legend(bars, keys_legend, loc="best", prop=prop)
     # axis
     ax.set_xticks([i for i in range(numbars)])
@@ -316,8 +315,7 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
                     verticalalignment='center'
                     )
     # legend
-    FONT_PATH = 'document/font/ipaexg.ttf'
-    prop = mpl.font_manager.FontProperties(fname=FONT_PATH)
+    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
     ax.legend(bars, keys_legend, loc="best", prop=prop)
     # axis
     ax.set_xticks([i for i in range(numbars)])
@@ -335,7 +333,7 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
     return response
 
 
-# 該当月の支出推移：折れ線グラフ: year+month
+# 線/点線/棒グラフ
 def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
                       left_line=list(), height_line=list(), label_line="",
                       left_dot=list(), height_dot=list(), label_dot="",
@@ -343,24 +341,11 @@ def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
                       ylabel="", ylim=list(), yticklabel=list(),
                       figsize=(8,8), figid=5, figtitle="", width_bar=0.4):
 
-    # set data
-    # left_bar = [i for i in range(1, 10)]
-    # left_line = [i for i in range(11, 20)]
-    # left_dot = [i for i in range(21, 30)]
-    # height_bar = [i * i for i in range(1, 10)]
-    # height_line = [9 * i - i * i for i in range(1, 10)]
-    # height_dot = [i + 2 for i in range(1, 10)]
-    # label_bar = "bar"
-    # label_line = "line"
-    # label_dot = "dot"
-    # xlabel = "test-x"
-    # ylabel = "test-y"
+    # lim
     if not xlim:
         xlim = [min(left_bar+left_line+left_dot), max(left_bar+left_line+left_dot)]
     if not ylim:
         ylim = [min(height_bar+height_line+height_dot), max(height_bar+height_line+height_dot)]
-
-    figtitle="test-title"
 
     # create figure
     fig = plt.figure(figid, figsize=figsize)
@@ -385,8 +370,7 @@ def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
         ax.plot(left_dot, height_dot, '--', color="black", label=label_dot)
 
     # translate into Japanese
-    FONT_PATH = 'document/font/ipaexg.ttf'
-    prop = mpl.font_manager.FontProperties(fname=FONT_PATH)
+    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
     ax.legend(prop=prop)
 
     # axis, title
@@ -407,7 +391,74 @@ def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
         ax.set_yticklabels(yticklabel)
     else:
         ax.set_ylim(ylim)
+    ax.grid()
 
+    # return fig
+    canvas = FigureCanvas(fig)
+    response = HttpResponse(content_type='image/png')
+    canvas.print_png(response)
+    fig.clear()
+    return response
+
+
+# 線/点線/棒グラフ
+def fig_lines_basic(lefts=list(), heights=list(), labels=list(), colors=list(),
+                      xlabel="", xlim=list(), xticklabel=list(),
+                      ylabel="", ylim=list(), yticklabel=list(),
+                      figsize=(8,8), figid=6, figtitle="",):
+    # test data
+    lefts = [
+        [i for i in range(0, 11)],
+        [j for j in range(10, 20)],
+    ]
+    heights = [
+        [i for i in range(0, 11)],
+        [10+10*j-j*j for j in range(0, 10)],
+    ]
+    labels = ["test1", "test2"]
+    colors = ["red", "blue"]
+    # lim
+    if not xlim:
+        xlim = [min(itertools.chain(*lefts)), max(itertools.chain(*lefts))]
+        logger.info((xlim))
+    if not ylim:
+        ylim = [min(itertools.chain(*heights)), max(itertools.chain(*heights))]
+        logger.info(ylim)
+
+    # create figure
+    fig = plt.figure(figid, figsize=figsize)
+    ax = fig.add_subplot(111)
+    fig.subplots_adjust(left=0.125, bottom=0.085, right=0.95, top=0.95, wspace=0.05, hspace=0.05)
+
+    # Line
+    for left, height, label, color in zip(lefts, heights, labels, colors):
+        left_line = np.array(left)
+        height_line = np.array(height)
+        ax.plot(left_line, height_line, '-', color=color, label=label)
+
+
+    # translate into Japanese
+    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
+    ax.legend(prop=prop)
+
+    # axis, title
+    if xlabel:
+        ax.set_xlabel(xlabel)
+    if ylabel:
+        ax.set_ylabel(ylabel)
+    if figtitle:
+        ax.set_title(figtitle)
+
+    if xticklabel:
+        ax.set_xticks(xlim)
+        ax.set_xticklabels(xticklabel)
+    else:
+        ax.set_xlim(xlim)
+    if yticklabel:
+        ax.set_yticks(ylim)
+        ax.set_yticklabels(yticklabel)
+    else:
+        ax.set_ylim(ylim)
     ax.grid()
 
     # return fig

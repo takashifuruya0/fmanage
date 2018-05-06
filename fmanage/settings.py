@@ -149,6 +149,8 @@ URL_SHARED ="https://script.google.com/macros/s/AKfycby-55e05olODl_dvB-QtyGhB-ZQ
 URL_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSd1Guht2PZW62FFDKtLpLsSPGgHIXyYmpB44R0KvDnduSChzg/viewform"
 URL_SHAREDFORM="https://docs.google.com/forms/d/e/1FAIpQLScxkEwMCmdvnNALAPXJa0Ve0oyxlg2t40lnv_292ijFer4gNQ/viewform?usp=sf_link"
 
+# Font Path
+FONT_PATH = 'document/font/ipaexg.ttf'
 
 # Logging
 LOGGING = {
