@@ -406,17 +406,17 @@ def fig_lines_basic(lefts=list(), heights=list(), labels=list(), colors=list(),
                       xlabel="", xlim=list(), xticklabel=list(),
                       ylabel="", ylim=list(), yticklabel=list(),
                       figsize=(8,8), figid=6, figtitle="",):
-    # test data
-    lefts = [
-        [i for i in range(0, 11)],
-        [j for j in range(10, 20)],
-    ]
-    heights = [
-        [i for i in range(0, 11)],
-        [10+10*j-j*j for j in range(0, 10)],
-    ]
-    labels = ["test1", "test2"]
-    colors = ["red", "blue"]
+    # # test data
+    # lefts = [
+    #     [i for i in range(0, 11)],
+    #     [j for j in range(10, 20)],
+    # ]
+    # heights = [
+    #     [i for i in range(0, 11)],
+    #     [10+10*j-j*j for j in range(0, 10)],
+    # ]
+    # labels = ["test1", "test2"]
+    # colors = ["red", "blue"]
     # lim
     if not xlim:
         xlim = [min(itertools.chain(*lefts)), max(itertools.chain(*lefts))]
@@ -429,12 +429,12 @@ def fig_lines_basic(lefts=list(), heights=list(), labels=list(), colors=list(),
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.125, bottom=0.085, right=0.95, top=0.95, wspace=0.05, hspace=0.05)
-
     # Line
     for left, height, label, color in zip(lefts, heights, labels, colors):
         left_line = np.array(left)
         height_line = np.array(height)
         ax.plot(left_line, height_line, '-', color=color, label=label)
+
 
 
     # translate into Japanese

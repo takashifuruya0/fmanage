@@ -348,9 +348,30 @@ def barline_usage(request, id):
     return res
 
 
-def test(reqest):
-    res = figure.fig_lines_basic()
+def lines_usage(reqest, year, month):
+    kas = Kakeibos.objects.filter(date__year=year, date__month=month)
+    left = list()
+    usages = [i for i in Usages.objects.filter(is_expense=True)]
+    height = [list() for i in usages]
+    colors = [i.color for i in usages]
+    for i in range(1, 32):
+        ka = kas.filter(date__day=i)
+        left.append(i)
+        tmp = 0
+        for us in usages:
+            height[tmp].append(mylib.cal_sum_or_0(ka.filter(usage=us)))
+            tmp += 1
+
+    heights = [i for i in height]
+    lefts = [left for i in height]
+    labels = [i.name for i in usages]
+    res = figure.fig_lines_basic(heights=heights, lefts=lefts, colors=colors,
+                                 labels=labels, figtitle="test", figsize=(11, 11)
+                                 )
     return res
+
+
+def test(reqest):
     return True
 
 

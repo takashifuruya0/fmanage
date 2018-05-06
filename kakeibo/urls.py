@@ -41,5 +41,6 @@ urlpatterns = [
     url(r'^fig/pie_shared$', views.pie_shared, name='pie_shared'),
     url(r'^fig/pie_shared_year$', views.pie_shared_year, name='pie_shared_year'),
     url(r'^fig/barline_usage/(\d+)$', views.barline_usage, name='barline_usage'),
+    url(r'^fig/lines_usage/(\d{4})/(\d{1,2})$', views.lines_usage, name='lines_usage'),
 ]
 
