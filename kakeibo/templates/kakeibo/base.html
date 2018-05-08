@@ -14,46 +14,63 @@
     <!-- Original CSS -->
     <link rel="stylesheet" href="/document/css/common.css">
     <!-- Font Awesome Icon -->
-    <link href="https://use.fontawesome.com/releases/v5.0.4/css/all.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.12/css/all.css" integrity="sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9" crossorigin="anonymous">
   </head>
 
   <body>
-    <nav class="navbar navbar-expand-sm bg-light navbar-light navbar-toggleable-sm">
+    <nav class="navbar navbar-expand-sm bg-info navbar-light navbar-toggleable-sm">
       <a class="navbar-brand" href="{% url 'kakeibo:dashboard' %}">
         <img src="/document/dogP5.gif" width="30" height="30" class="d-inline-block align-top" alt="">
-        GAS-furuya
+        fk-management
       </a>
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-link">
-            <a href="{% url 'kakeibo:form' %}" class="btn btn-success">
-              <i class="fab fa-wpforms"></i> Form
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-user-circle"></i> My Kakeibo
             </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="{% url 'kakeibo:form' %}">
+                <i class="fab fa-wpforms"></i> My form
+              </a>
+              <a class="dropdown-item" href="{% url 'kakeibo:kakeibo_list' %}">
+                <i class="fas fa-list-alt"></i> My record
+              </a>
+              <a class="dropdown-item" href="{% url 'kakeibo:credit' %}">
+                <i class="fab fa-cc-visa"></i> Credit
+              </a>
+            </div>
           </li>
-          <li class="nav-link">
-            <a href="{% url 'kakeibo:shared_form' %}" class="btn btn-outline-success">
-              <i class="fab fa-wpforms"></i> Shared Form
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-people-carry"></i> Shared Kakeibo
             </a>
-          <li class="nav-link">
-            <a href="{% url 'kakeibo:credit' %}" class="btn btn-primary">
-              <i class="fab fa-cc-visa"></i> Credit
-            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="{% url 'kakeibo:shared_form' %}">
+                <i class="fab fa-wpforms"></i> Shared form
+              </a>
+              <a class="dropdown-item" href="{% url 'kakeibo:shared_list' %}">
+                <i class="fas fa-list-alt"></i> Shared record
+              </a>
+            </div>
           </li>
-          <li class="nav-link">
-            <a href="" class="btn btn-danger">
+
+          <li class="nav-item active">
+            <a href="" class="nav-link">
               <i class="far fa-money-bill-alt"></i> Asset
             </a>
           </li>
-          <li class="nav-link">
-            <a href="/admin/"  class="btn btn-info">
+
+          <li class="nav-item active">
+            <a href="/admin/"  class="nav-link">
               <i class="fas fa-database"></i> Admin
             </a>
           </li>
-          <li class="nav-link">
-            <a href="{% url 'account:logout' %}" class="btn btn-outline-danger">
+          <li class="nav-item active">
+            <a href="{% url 'account:logout' %}" class="nav-link">
               <i class="fas fa-sign-out-alt"></i> Logout
             </a>
           </li>
