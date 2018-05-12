@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.db.models import Avg, Sum, Count, Q
 from django.views.generic import ListView
-from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 # logging
 import logging
 logger = logging.getLogger("django")
@@ -13,7 +13,7 @@ logger = logging.getLogger("django")
 from .models import *
 # module
 import requests, json
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 # function
 from .functions import update_records, money, figure, mylib
 
@@ -346,6 +346,32 @@ def barline_usage(request, id):
                                    height_line=height_sum, left_line=xlim, label_line="cumulative",
                                    ylim=ylim, yticklabel=yticklabel, xlim=xlim, xticklabel=xticklabel,
                                    figsize=(10, 10))
+    return res
+
+
+def bars_resource(request):
+    resources = Resources.objects.all()
+    data = dict()
+    today = date.today()
+    last = today - relativedelta(months=1)
+    ka = Kakeibos.objects.all()
+    kal = ka.exclude(date__month=today.month, date__year=today.year)
+    for rs in resources:
+        move_to = mylib.cal_sum_or_0(ka.filter(move_to=rs))
+        move_from = mylib.cal_sum_or_0(ka.filter(move_from=rs))
+        data[rs.name] = [rs.initial_val + move_to - move_from]
+        move_to = mylib.cal_sum_or_0(kal.filter(move_to=rs))
+        move_from = mylib.cal_sum_or_0(kal.filter(move_from=rs))
+        data[rs.name].append(rs.initial_val + move_to - move_from)
+    labels = [
+        str(today.year) + "/" + str(today.month),
+        str(last.year) + "/" + str(last.month),
+              ]
+    res = figure.fig_bars_basic(data=data,
+                                figtitle="Details of Resource",
+                                vbar_labels=labels,
+                                figsize=(10, 10)
+                                )
     return res
 
 

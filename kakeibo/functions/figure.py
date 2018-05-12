@@ -193,7 +193,7 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
     hbar_labels = ["¥0", ]  # y軸メモリ見出し
     for i in sorted(vbar):
         hbar.append(i)
-        hbar_labels.append("¥"+str(i))
+        hbar_labels.append(money.convert_yen(i))
 
     # create figure
     fig = plt.figure(figid, figsize=figsize)
@@ -209,10 +209,10 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
         else:
             bars.append(ax.bar(left, height[i], bottom=bottom, color=colors_graph[i]))
             bottom = np.array(height[i] + bottom)
-        for j in range(2):
-            left_position1 = left_positions[2 * i + j]
-            label_position1 = label_positions[2 * i + j]
-            label1 = labels[2 * i + j]
+        for j in range(numbars):
+            left_position1 = left_positions[numbars * i + j]
+            label_position1 = label_positions[numbars * i + j]
+            label1 = labels[numbars * i + j]
             ax.text(left_position1, label_position1, label1,
                     horizontalalignment='center',
                     verticalalignment='center'
@@ -291,7 +291,7 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
     hbar_labels = ["¥0", ]  # y軸メモリ見出し
     for i in sorted(vbar):
         hbar.append(i)
-        hbar_labels.append("¥"+str(i))
+        hbar_labels.append(money.convert_yen(i))
 
     # create figure
     fig = plt.figure(figid, figsize=figsize)
@@ -307,10 +307,10 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
         else:
             bars.append(ax.bar(left, height[i], bottom=bottom))
             bottom = np.array(height[i] + bottom)
-        for j in range(2):
-            left_position1 = left_positions[2 * i + j]
-            label_position1 = label_positions[2 * i + j]
-            label1 = labels[2 * i + j]
+        for j in range(numbars):
+            left_position1 = left_positions[numbars * i + j]
+            label_position1 = label_positions[numbars * i + j]
+            label1 = labels[numbars * i + j]
             ax.text(left_position1, label_position1, label1,
                     horizontalalignment='center',
                     verticalalignment='center'
