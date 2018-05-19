@@ -78,7 +78,7 @@
       <p class="resizeimage"><img src="{% url 'kakeibo:bars_balance' %}"></p>
     </div>
     <div class="col-sm-4">
-      <p class="resizeimage"><img src="{% url 'kakeibo:bars_resource' %}"></p>
+      <p class="resizeimage"><img src="{% url 'kakeibo:bars_resource' %}?year={{today.year}}&month={{today.month}}"></p>
     </div>
   </div>
 

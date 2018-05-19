@@ -231,7 +231,7 @@ def bars_balance(request):
         "収入": "tomato",
     }
     vbar_labels = ['Income', 'Expense']
-    res = figure.fig_bars_basic_color(data=data, figtitle="Balance", vbar_labels=vbar_labels, colors=colors)
+    res = figure.fig_bars_basic_color(data=data, figtitle="収支内訳", vbar_labels=vbar_labels, colors=colors)
     return res
 
 
