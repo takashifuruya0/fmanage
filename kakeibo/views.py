@@ -124,6 +124,9 @@ def mine(request):
         val = rs.initial_val + move_to - move_from
         if val is not 0:
             current_resource[rs.name] = money.convert_yen(val)
+    # usages
+    usage_list = [i.pk for i in Usages.objects.all()]
+    logger.info(usage_list)
     output = {
         "today": today,
         "income": money.convert_yen(income),
@@ -132,6 +135,7 @@ def mine(request):
         "shared_expense": money.convert_yen(shared_expense),
         "credit": money.convert_yen(credit),
         "current_resource": current_resource,
+        "usage_list": usage_list,
     }
     return render(request, 'kakeibo/mine.html', output)
 
@@ -372,21 +376,26 @@ def pie_shared(request):
     figtitle = "共通支出内訳"
     if year is None and month is None:
         shared = SharedKakeibos.objects.all()
+        figid = 15
     elif month is None:
         shared = SharedKakeibos.objects.filter(date__year=year)
         figtitle = figtitle + "(" + str(year) + ")"
+        figid = int(year) + 15
     else:
         shared = SharedKakeibos.objects.filter(date__year=year, date__month=month)
         figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
+        figid = int(year) + int(month) + 15
     usages = Usages.objects.filter(is_expense=True)
     data = dict()
     for us in usages:
         data[us.name] = mylib.cal_sum_or_0(shared.filter(usage=us))
-    res = figure.fig_pie_basic(data=data, figtitle=figtitle,  figid=15, threshold=5)
+    res = figure.fig_pie_basic(data=data, figtitle=figtitle,  figid=figid, threshold=5, )
     return res
 
 
-def barline_usage(request, id):
+def barline_usage(request):
+    id = request.GET.get("usageid")
+    figid = 100 + int(id)
     us = Usages.objects.get(pk=id)
     label = us.name
     height = list()
@@ -408,7 +417,66 @@ def barline_usage(request, id):
     res = figure.fig_barline_basic(height_bar=height, left_bar=xlim, label_bar=label,
                                    height_line=height_sum, left_line=xlim, label_line="cumulative",
                                    ylim=ylim, yticklabel=yticklabel, xlim=xlim, xticklabel=xticklabel,
-                                   figsize=(10, 10))
+                                   figsize=(10, 10), figid=figid)
+    return res
+
+
+def barline_expense_cash(request):
+    year = request.GET.get("year")
+    month = request.GET.get("month")
+    rs = Resources.objects.get(name="財布")
+    kakeibos = Kakeibos.objects.filter(move_from=rs)
+    height = list()
+    left = list()
+    height_sum = list()
+    xlim = list()
+    xticklabel = list()
+    if year is not None and month is not None:
+        kakeibos = kakeibos.filter(date__year=year, date__month=month)
+        figtitle = "現金支出推移 (" + str(year) + "/" + str(month) + ")"
+        ylim = [i for i in range(0, 130000, 10000)]
+        figsize = (10, 10)
+        figid = 100 + int(year) + int(month)
+        for j in range(1, 32):
+            ka = kakeibos.filter(date__day=j)
+            left.append(j)
+            height.append(mylib.cal_sum_or_0(ka))
+            height_sum.append(sum(height))
+    elif year is not None:
+        kakeibos = kakeibos.filter(date__year=year)
+        figtitle = "現金支出推移 (" + str(year) + ")"
+        ylim = [i for i in range(0, 1200000, 200000)]
+        figsize = (11, 11)
+        figid = 100 + int(year)
+        for j in range(1, 13):
+            ka = kakeibos.filter(date__month=j)
+            left.append(j)
+            height.append(mylib.cal_sum_or_0(ka))
+            height_sum.append(sum(height))
+    else:
+        dates = [ka.date for ka in kakeibos]
+        mindate = min(dates)
+        maxdate = max(dates)
+        figtitle = "現金支出推移"
+        ylim = [i for i in range(0, 3000000, 500000)]
+        figsize = (12, 12)
+        figid = 100
+        tmp = 0
+        while mindate < maxdate:
+            ka = kakeibos.filter(date__year=mindate.year, date__month=mindate.month)
+            left.append(tmp)
+            height.append(mylib.cal_sum_or_0(ka))
+            height_sum.append(sum(height))
+            mindate += relativedelta(months=1)
+            xlim.append(tmp)
+            xticklabel.append(str(mindate.year-2000)+"/"+str(mindate.month))
+            tmp += 1
+    yticklabel = [money.convert_yen(i) for i in ylim]
+    label_line = "支出累計 (" + money.convert_yen(sum(height)) + ")"
+    res = figure.fig_barline_basic(height_bar=height, left_bar=left, label_bar="現金支出",
+                                   height_line=height_sum, left_line=left, label_line=label_line,
+                                   xlim=xlim, xticklabel=xticklabel, ylim=ylim, yticklabel=yticklabel,
+                                   figtitle=figtitle, figsize=figsize, figid=figid)
     return res
 
 
@@ -438,15 +506,25 @@ def bars_resource(request):
     return res
 
 
-def lines_usage_cash(request, year, month):
-    kas = Kakeibos.objects.filter(date__month=month, date__year=year, move_from=Resources.objects.get(name="財布"))
+def lines_usage_cash(request):
+    ka = Kakeibos.objects.filter(move_from=Resources.objects.get(name="財布"))
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "現金支出内訳"
+    if year is None and month is None:
+        kakeibos = ka.all()
+    elif month is None:
+        kakeibos = ka.filter(date__year=year)
+        figtitle = figtitle + "(" + str(year) + ")"
+    else:
+        kakeibos = ka.filter(date__month=month, date__year=year)
+        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     left = list()
     usages = [i for i in Usages.objects.filter(is_expense=True)]
     height = [list() for i in usages]
     colors = [i.color for i in usages]
-    figtitle = "lines_usages_cash"
     for i in range(1, 32):
-        ka = kas.filter(date__day=i)
+        ka = kakeibos.filter(date__day=i)
         left.append(i)
         tmp = 0
         for us in usages:

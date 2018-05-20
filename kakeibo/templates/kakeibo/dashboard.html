@@ -75,10 +75,14 @@
     </div>
 
     <div class="col-sm-4">
-      <p class="resizeimage"><img src="{% url 'kakeibo:bars_balance' %}"></p>
+      <p class="resizeimage">
+        <img src="{% url 'kakeibo:bars_balance' %}?year={{today.year}}&month={{today.month}}">
+      </p>
     </div>
     <div class="col-sm-4">
-      <p class="resizeimage"><img src="{% url 'kakeibo:bars_resource' %}?year={{today.year}}&month={{today.month}}"></p>
+      <p class="resizeimage">
+        <img src="{% url 'kakeibo:bars_resource' %}?year={{today.year}}&month={{today.month}}">
+      </p>
     </div>
   </div>
 
@@ -129,10 +133,10 @@
       </table>
     </div>
     <div class="col-sm-4">
-      <p class="resizeimage"><img src="{% url 'kakeibo:pie_shared' %}"></p>
+      <p class="resizeimage"><img src="{% url 'kakeibo:pie_shared' %}?year={{today.year}}&month={{today.month}}"></p>
     </div>
     <div class="col-sm-4">
-      <p class="resizeimage"><img src="{% url 'kakeibo:pie_shared_year' %}"></p>
+      <p class="resizeimage"><img src="{% url 'kakeibo:pie_shared' %}"></p>
     </div>
   </div>
 

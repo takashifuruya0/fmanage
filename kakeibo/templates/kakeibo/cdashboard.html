@@ -56,7 +56,7 @@
             Hello world.<br>It is supposed to show a figure.
             <div>
             <p class="resizeimage">
-              <img src="{% url 'kakeibo:pie_credit' %}">
+              <img src="{% url 'kakeibo:pie_credit' %}?year={{today.year}}&month={{today.month|add:'-1'}}">
             </p>
           </div>
         </div>
@@ -64,7 +64,7 @@
 
       <div class="box2">
         <a data-toggle="collapse" href="#1-1-2" role="button" aria-expanded="true" aria-controls="1-1-2">
-          <h3><i class="fas fa-chart-pie"></i> 項目別トータル</h3>
+          <h3><i class="fas fa-chart-pie"></i> 用途別トータル</h3>
         </a>
         <div class="collapse multi-collapse1 show" id="1-1-2">
           <div>

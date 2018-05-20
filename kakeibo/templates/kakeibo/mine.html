@@ -1,0 +1,135 @@
+{% extends "kakeibo/base.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+ 
+{% block body %}
+  
+<div class="container-fluid">
+  <hr>
+  <div class="row">
+    <div class="col-sm-8">
+      <h1>
+        <i class="fas fa-chart-area"></i> My Dashboard
+      </h1>
+    </div>
+    <div class="col-sm-4">
+    </div>
+  </div>
+
+  <hr>
+  <h2><i class="fas fa-user-circle"></i> {{today.year}}/{{today.month}}</h2>
+  <div class="row">
+    <div class="col-sm-4">
+      <h4>収支</h4>
+      <table class="table table-light table-hover table-sm table-bordere">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th class="right">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>収入</td>
+            <td class="right">{{income}}</td>
+          </tr>
+          <tr>
+            <td>現金支出</td>
+            <td class="right">{{expense}}</td>
+          </tr>
+          <tr>
+            <td>クレジット支出</td>
+            <td class="right">{{credit}}</td>
+          </tr>
+          <tr>
+            <td>引き落とし</td>
+            <td class="right">{{debit}}</td>
+          </tr>
+          <tr>
+            <td>共通支出</td>
+            <td class="right">{{shared_expense}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>資産状態</h4>
+      <table class="table table-light table-hover table-sm table-bordere">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th class="right">Value</th>
+          </tr>
+        </thead>
+        <tbody class="">
+          {% for key, val in current_resource.items %}
+          <tr>
+            <td>{{key}}</td>
+            <td class="right">{{val}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+
+    <div class="col-sm-8">
+      <div class="row">
+        <div class="col-sm-6">
+          <p class="resizeimage">
+            <img src="{% url 'kakeibo:bars_balance' %}?year={{today.year}}&month={{today.month}}">
+          </p>
+        </div>
+        <div class="col-sm-6">
+          <p class="resizeimage">
+            <img src="{% url 'kakeibo:bars_resource' %}?year={{today.year}}&month={{today.month}}">
+          </p>
+        </div>
+        <div class="col-sm-6">
+          <p class="resizeimage">
+            <img src="{% url 'kakeibo:pie_expense' %}?year={{today.year}}&month={{today.month}}">
+          </p>
+        </div>
+        <div class="col-sm-6">
+          <p class="resizeimage">
+            <img src="{% url 'kakeibo:pie_resource' %}?year={{today.year}}&month={{today.month}}">
+          </p>
+        </div>
+        <div class="col-sm-6">
+          <p class="resizeimage">
+            <img src="{% url 'kakeibo:pie_usage_cash' %}?year={{today.year}}&month={{today.month}}">
+          </p>
+        </div>
+        <div class="col-sm-6">
+          <p class="resizeimage">
+            <img src="{% url 'kakeibo:barline_expense_cash' %}?year={{today.year}}&month={{today.month}}">
+          </p>
+        </div>
+        <div class="col-sm-6">
+          <p class="resizeimage">
+            <img src="{% url 'kakeibo:barline_expense_cash' %}?year={{today.year}}">
+          </p>
+        </div>
+        <div class="col-sm-6">
+          <p class="resizeimage">
+            <img src="{% url 'kakeibo:barline_expense_cash' %}">
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="row">
+    {% for usage_id in usage_list %}
+    <div class="col-sm-3">
+      <p class="resizeimage">
+        <img src="{% url 'kakeibo:barline_usage' %}?usageid={{usage_id}}">
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

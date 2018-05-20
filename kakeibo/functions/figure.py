@@ -371,8 +371,7 @@ def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
         left_dot = np.array(left_dot)
         ax.plot(left_dot, height_dot, '--', color="black", label=label_dot)
 
-    # translate into Japanese
-    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
+    # legend
     ax.legend(prop=prop)
 
     # axis, title
@@ -381,7 +380,7 @@ def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
     if ylabel:
         ax.set_ylabel(ylabel)
     if figtitle:
-        ax.set_title(figtitle)
+        ax.set_title(figtitle, fontproperties=prop)
 
     if xticklabel:
         ax.set_xticks(xlim)
@@ -403,7 +402,7 @@ def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
     return response
 
 
-# 線/点線/棒グラフ
+# 線グラフ
 def fig_lines_basic(lefts=list(), heights=list(), labels=list(), colors=list(),
                       xlabel="", xlim=list(), xticklabel=list(),
                       ylabel="", ylim=list(), yticklabel=list(),
@@ -437,8 +436,7 @@ def fig_lines_basic(lefts=list(), heights=list(), labels=list(), colors=list(),
         height_line = np.array(height)
         ax.plot(left_line, height_line, '-', color=color, label=label)
 
-    # translate into Japanese
-    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
+    # legend
     ax.legend(prop=prop)
 
     # axis, title
@@ -447,7 +445,7 @@ def fig_lines_basic(lefts=list(), heights=list(), labels=list(), colors=list(),
     if ylabel:
         ax.set_ylabel(ylabel)
     if figtitle:
-        ax.set_title(figtitle)
+        ax.set_title(figtitle, fontproperties=prop)
 
     if xticklabel:
         ax.set_xticks(xlim)
