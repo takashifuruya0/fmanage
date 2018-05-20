@@ -1,6 +1,6 @@
 # coding:utf-8
 
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 import itertools
 from django.conf import settings
 import numpy as np
@@ -13,6 +13,8 @@ from kakeibo.functions import money
 # logging
 import logging
 logger = logging.getLogger("django")
+# Japanese
+prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
 
 
 # basic: 円グラフ作成
@@ -41,6 +43,8 @@ def fig_pie_basic(data={}, figtitle="", threshold=5, figsize=(8, 8), figid=1):
     labels = list()
     datas = list()
     sum_v = sum(data.values())
+    if sum_v is 0:
+        raise Http404
     for k, v in data.items():
         if isinstance(v, int) or isinstance(v, float):
             datas.append(v)
@@ -55,14 +59,13 @@ def fig_pie_basic(data={}, figtitle="", threshold=5, figsize=(8, 8), figid=1):
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.075, bottom=0.05, right=0.95, top=0.95, wspace=0.05, hspace=0.05)
-    ax.set_title(figtitle)
     ax.axis("equal")
 
     pie, text, autotexts = ax.pie(datas, startangle=90, labels=labels, autopct=make_autopct(sum_v),
                                       counterclock=False, )
     # translate into Japanese
-    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
     plt.setp(text, fontproperties=prop)
+    ax.set_title(figtitle, fontproperties=prop)
 
     # return response-data
     canvas = FigureCanvas(fig)
@@ -100,6 +103,8 @@ def fig_pie_basic_colored(data={}, figtitle="", colors={}, threshold=5, figsize=
     datas = list()
     colors_graph = list()
     sum_v = sum(data.values())
+    if sum_v is 0:
+        raise Http404
     for k, v in data.items():
         if isinstance(v, int) or isinstance(v, float):
             datas.append(v)
@@ -115,7 +120,6 @@ def fig_pie_basic_colored(data={}, figtitle="", colors={}, threshold=5, figsize=
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.075, bottom=0.05, right=0.95, top=0.95, wspace=0.05, hspace=0.05)
-    ax.set_title(figtitle)
     ax.axis("equal")
     if colors_graph.__len__() is data.__len__():
         pie, text, autotexts = ax.pie(datas, startangle=90, labels=labels, autopct=make_autopct(sum_v),
@@ -126,8 +130,8 @@ def fig_pie_basic_colored(data={}, figtitle="", colors={}, threshold=5, figsize=
         pie, text, autotexts = ax.pie(datas, startangle=90, labels=labels, autopct=make_autopct(sum_v),
                                       counterclock=False, )
     # translate into Japanese
-    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
     plt.setp(text, fontproperties=prop)
+    ax.set_title(figtitle, fontproperties=prop)
 
     # return response-data
     canvas = FigureCanvas(fig)
@@ -218,14 +222,13 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
                     verticalalignment='center'
                     )
     # legend
-    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
     ax.legend(bars, keys_legend, loc="best", prop=prop)
     # axis
     ax.set_xticks([i for i in range(numbars)])
     ax.set_xticklabels(vbar_labels, fontsize='small')
     ax.set_yticks(hbar)
     ax.set_yticklabels(hbar_labels, fontsize='small')
-    ax.set_title(figtitle)
+    ax.set_title(figtitle, fontproperties=prop)
     ax.yaxis.grid()
 
     # return response-data
@@ -315,14 +318,13 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
                     verticalalignment='center'
                     )
     # legend
-    prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
     ax.legend(bars, keys_legend, loc="best", prop=prop)
     # axis
     ax.set_xticks([i for i in range(numbars)])
     ax.set_xticklabels(vbar_labels, fontsize='small')
     ax.set_yticks(hbar)
     ax.set_yticklabels(hbar_labels, fontsize='small')
-    ax.set_title(figtitle)
+    ax.set_title(figtitle, fontproperties=prop)
     ax.yaxis.grid()
 
     # return response-data
@@ -434,8 +436,6 @@ def fig_lines_basic(lefts=list(), heights=list(), labels=list(), colors=list(),
         left_line = np.array(left)
         height_line = np.array(height)
         ax.plot(left_line, height_line, '-', color=color, label=label)
-
-
 
     # translate into Japanese
     prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)

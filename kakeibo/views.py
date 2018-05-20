@@ -115,8 +115,25 @@ def mine(request):
     debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
     shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
     credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
-    url = settings.URL_SHAREDFORM
-    return redirect(url)
+    # resource
+    resources = Resources.objects.all()
+    current_resource = dict()
+    for rs in resources:
+        move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
+        move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
+        val = rs.initial_val + move_to - move_from
+        if val is not 0:
+            current_resource[rs.name] = money.convert_yen(val)
+    output = {
+        "today": today,
+        "income": money.convert_yen(income),
+        "expense": money.convert_yen(expense),
+        "debit": money.convert_yen(debit),
+        "shared_expense": money.convert_yen(shared_expense),
+        "credit": money.convert_yen(credit),
+        "current_resource": current_resource,
+    }
+    return render(request, 'kakeibo/mine.html', output)
 
 
 @login_required
@@ -195,6 +212,7 @@ def credit(request):
     credits_month_count = credits_month.aggregate(Count('fee'))['fee__count']
     # return
     output = {
+        "today": today,
         "credits": res_credits,
         "sum_usage": res_sum_usage,
         "credit_list": credit_list,
@@ -207,8 +225,17 @@ def credit(request):
 
 
 def bars_balance(request):
-    today = date.today()
-    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "収支内訳"
+    if year is None and month is None:
+        kakeibos = Kakeibos.objects.all()
+    elif month is None:
+        kakeibos = Kakeibos.objects.filter(date__year=year)
+        figtitle = figtitle + "(" + str(year) + ")"
+    else:
+        kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
+        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
     salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
     expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
@@ -231,13 +258,22 @@ def bars_balance(request):
         "収入": "tomato",
     }
     vbar_labels = ['Income', 'Expense']
-    res = figure.fig_bars_basic_color(data=data, figtitle="収支内訳", vbar_labels=vbar_labels, colors=colors)
+    res = figure.fig_bars_basic_color(data=data, figtitle=figtitle, vbar_labels=vbar_labels, colors=colors, figsize=(9, 9))
     return res
 
 
 def pie_expense(request):
-    today = date.today()
-    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "支出内訳"
+    if year is None and month is None:
+        kakeibos = Kakeibos.objects.all()
+    elif month is None:
+        kakeibos = Kakeibos.objects.filter(date__year=year)
+        figtitle = figtitle + "(" + str(year) + ")"
+    else:
+        kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
+        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
     debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
     shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
@@ -255,12 +291,22 @@ def pie_expense(request):
         "Shared_expense": "orange",
         "Card": "gray",
     }
-    res = figure.fig_pie_basic_colored(data=data, figtitle="Breakdown of expenses", colors=colors)
+    res = figure.fig_pie_basic_colored(data=data, figtitle=figtitle, colors=colors)
     return res
 
 
 def pie_credititem(request):
-    credits = Credits.objects.all()
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "用途別クレジット内訳"
+    if year is None and month is None:
+        credits = Credits.objects.all()
+    elif month is None:
+        credits = Credits.objects.filter(date__year=year)
+        figtitle = figtitle + "(" + str(year) + ")"
+    else:
+        credits = Credits.objects.filter(date__year=year, date__month=month)
+        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     usage_list = list()
     usage_sum = dict()
     usage_sum["その他"] = 0
@@ -274,50 +320,68 @@ def pie_credititem(request):
             usage_list.append(c.credit_item.usage)
             usage_sum[c.credit_item.usage.name] = c.fee
 
-    res = figure.fig_pie_basic(data=usage_sum, figtitle="Usage of credit", figid=4)
+    res = figure.fig_pie_basic(data=usage_sum, figtitle=figtitle, figid=4)
     return res
 
 
 def pie_credit(request):
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "項目別クレジット内訳"
     credititems = CreditItems.objects.all()
+    if year is None and month is None:
+        credits = Credits.objects.all()
+    elif month is None:
+        credits = Credits.objects.filter(date__year=year)
+        figtitle = figtitle + "(" + str(year) + ")"
+    else:
+        credits = Credits.objects.filter(date__year=year, date__month=month)
+        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     credit_sum = dict()
     for ci in credititems:
-        credit = Credits.objects.filter(credit_item=ci).aggregate(Sum('fee'))
-        credit_sum[ci.name] = credit['fee__sum']
-    res = figure.fig_pie_basic(data=credit_sum, figtitle="Usage of credit", figsize=(12, 12), figid=3)
+        credit_sum[ci.name] = mylib.cal_sum_or_0(credits.filter(credit_item=ci))
+    res = figure.fig_pie_basic(data=credit_sum, figtitle=figtitle, figsize=(12, 12), figid=3)
     return res
 
 
 def pie_resource(request):
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "資産内訳"
+    if year is None and month is None:
+        kakeibos = Kakeibos.objects.all()
+    elif month is None:
+        kakeibos = Kakeibos.objects.filter(date__year=year)
+        figtitle = figtitle + "(" + str(year) + ")"
+    else:
+        kakeibos = Kakeibos.objects.filter(date__year=year, date__month=month)
+        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     resources = Resources.objects.all()
     data = dict()
     for rs in resources:
-        move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
-        move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
+        move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
+        move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
         data[rs.name] = rs.initial_val + move_to - move_from
-    res = figure.fig_pie_basic(data=data, figtitle="Breakdown of resources",  figid=10, threshold=0)
-    return res
-
-
-def pie_shared_year(request):
-    today = date.today()
-    shared = SharedKakeibos.objects.filter(date__year=today.year)
-    usages = Usages.objects.filter(is_expense=True)
-    data = dict()
-    for us in usages:
-        data[us.name] = mylib.cal_sum_or_0(shared.filter(usage=us))
-    res = figure.fig_pie_basic(data=data, figtitle="Breakdown of shared (CY"+str(today.year)+")",  figid=12, threshold=5)
+    res = figure.fig_pie_basic(data=data, figtitle=figtitle,  figid=10, threshold=0)
     return res
 
 
 def pie_shared(request):
-    today = date.today()
-    shared = SharedKakeibos.objects.filter(date__year=today.year, date__month=today.month)
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "共通支出内訳"
+    if year is None and month is None:
+        shared = SharedKakeibos.objects.all()
+    elif month is None:
+        shared = SharedKakeibos.objects.filter(date__year=year)
+        figtitle = figtitle + "(" + str(year) + ")"
+    else:
+        shared = SharedKakeibos.objects.filter(date__year=year, date__month=month)
+        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     usages = Usages.objects.filter(is_expense=True)
     data = dict()
     for us in usages:
         data[us.name] = mylib.cal_sum_or_0(shared.filter(usage=us))
-    figtitle = "Breakdown of shared (" + str(today.year) + "/" + str(today.month) + ")"
     res = figure.fig_pie_basic(data=data, figtitle=figtitle,  figid=15, threshold=5)
     return res
 
@@ -348,7 +412,6 @@ def barline_usage(request, id):
     return res
 
 
-
 def bars_resource(request):
     resources = Resources.objects.all()
     data = dict()
@@ -368,19 +431,20 @@ def bars_resource(request):
         str(last.year) + "/" + str(last.month),
               ]
     res = figure.fig_bars_basic(data=data,
-                                figtitle="Details of Resource",
+                                figtitle="資産内訳と先月比",
                                 vbar_labels=labels,
                                 figsize=(10, 10)
                                 )
     return res
 
 
-def lines_usage(reqest, year, month):
-    kas = Kakeibos.objects.filter(date__year=year, date__month=month)
+def lines_usage_cash(request, year, month):
+    kas = Kakeibos.objects.filter(date__month=month, date__year=year, move_from=Resources.objects.get(name="財布"))
     left = list()
     usages = [i for i in Usages.objects.filter(is_expense=True)]
     height = [list() for i in usages]
     colors = [i.color for i in usages]
+    figtitle = "lines_usages_cash"
     for i in range(1, 32):
         ka = kas.filter(date__day=i)
         left.append(i)
@@ -393,12 +457,53 @@ def lines_usage(reqest, year, month):
     lefts = [left for i in height]
     labels = [i.name for i in usages]
     res = figure.fig_lines_basic(heights=heights, lefts=lefts, colors=colors,
-                                 labels=labels, figtitle="test", figsize=(11, 11)
+                                 labels=labels, figtitle=figtitle, figsize=(11, 11)
                                  )
     return res
 
 
-def test(reqest):
+def pie_usage_cash(request):
+    ka = Kakeibos.objects.filter(move_from=Resources.objects.get(name="財布"))
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "現金支出内訳"
+    if year is None and month is None:
+        kakeibos = ka.all()
+    elif month is None:
+        kakeibos = ka.filter(date__year=year)
+        figtitle = figtitle + "(" + str(year) + ")"
+    else:
+        kakeibos = ka.filter(date__month=month, date__year=year)
+        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
+    usages = Usages.objects.filter(is_expense=True)
+    data = dict()
+    for us in usages:
+         data[us.name] = mylib.cal_sum_or_0(kakeibos.filter(usage=us))
+    res = figure.fig_pie_basic(data=data, figtitle=figtitle)
+    return res
+
+
+def test(request):
+    today = date.today()
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    rs = Resources.objects.get(name=request.GET.get(key="resource"))
+    figtitle = "Usage-Breakdown @" + rs.name
+    if year is None:
+        kakeibos = Kakeibos.objects.filter(move_from=rs)
+    elif month is None:
+        kakeibos = Kakeibos.objects.filter(date__year=year, move_from=rs)
+        figtitle = figtitle + "(CY" + str(year) + ")"
+    else:
+        kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year, move_from=rs)
+        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
+    usages = Usages.objects.filter(is_expense=True)
+    data = dict()
+    for us in usages:
+        data[us.name] = mylib.cal_sum_or_0(kakeibos.filter(usage=us))
+
+    res = figure.fig_pie_basic(data=data, figtitle=figtitle)
+    return res
     return True
 
 
