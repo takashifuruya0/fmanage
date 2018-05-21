@@ -9,12 +9,12 @@ from dateutil.relativedelta import relativedelta
 import logging
 logger = logging.getLogger("django")
 # model
-from .models import *
+from kakeibo.models import *
 # module
 import requests, json
 from datetime import datetime, date, timedelta
 # function
-from .functions import update_records, money, figure, mylib
+from kakeibo.functions import update_records, money, figure, mylib
 
 # Create your views here.
 
