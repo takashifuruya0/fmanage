@@ -113,7 +113,7 @@
         </div>
         <div class="col-sm-6">
           <p class="resizeimage">
-            <img src="{% url 'kakeibo:barline_expense_cash' %}">
+            <img src="{% url 'kakeibo:barline_expense_cash' %}?year={{today.year|add:"-1"}}">
           </p>
         </div>
       </div>
