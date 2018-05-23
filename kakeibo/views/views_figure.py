@@ -138,6 +138,7 @@ def pie_credit(request):
     return res
 
 
+# 要修正：指定年月までのKakeibosを取得するように変更
 def pie_resource(request):
     year = request.GET.get(key="year")
     month = request.GET.get(key="month")
@@ -145,10 +146,10 @@ def pie_resource(request):
     if year is None and month is None:
         kakeibos = Kakeibos.objects.all()
     elif month is None:
-        kakeibos = Kakeibos.objects.filter(date__year=year)
+        kakeibos = Kakeibos.objects.filter(date__lt=date(int(year)+1,1,1))
         figtitle = figtitle + "(" + str(year) + ")"
     else:
-        kakeibos = Kakeibos.objects.filter(date__year=year, date__month=month)
+        kakeibos = Kakeibos.objects.filter(date__lt=date(int(year),int(month)+1,1))
         figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     resources = Resources.objects.all()
     data = dict()
