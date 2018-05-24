@@ -5,15 +5,33 @@
 {% endblock %}
 
 {% block body %}
-  <h1>Hello, world!</h1>
+  <div class="container-fluid">
+    <h1>fk-management</h1>
 
-  <form method="post" action="{% url 'account:login' %}">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
-      {{ form.errors.username }}
-      {{ form.username }}
-      {{ form.errors.password }}
-      {{ form.password }}
-      <input type="submit" value="Login">
-  </form>
+    <div class="row">
+      <div class="col-sm-6">
+        <form method="post" action="{% url 'account:login' %}">
+          {% csrf_token %}
+          <table class="table table-light table-hover table-border">
+            <tbody>
+              <tr>
+                <td>Username</td>
+                <td>{{form.username}}</td>
+              </tr>
+              <tr>
+                <td>Password</td>
+                <td>{{form.password}}</td>
+              </tr>
+            </tbody>
+          </table>
+          <input type="submit" value="Login">
+        </form>
+      </div>
+      <div class="col-sm-6">
+        {{ form.non_field_errors }}
+        {{ form.errors.username }}
+        {{ form.errors.password }}
+      </div>
+    </div>
+  </div>
 {% endblock %}
