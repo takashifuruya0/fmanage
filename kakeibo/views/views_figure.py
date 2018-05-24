@@ -336,19 +336,46 @@ def pie_usage_cash(request):
     year = request.GET.get(key="year")
     month = request.GET.get(key="month")
     figtitle = "現金支出内訳"
+    figid = 200
     if year is None and month is None:
         kakeibos = ka.all()
     elif month is None:
         kakeibos = ka.filter(date__year=year)
         figtitle = figtitle + "(" + str(year) + ")"
+        figid = figid + int(year)
     else:
         kakeibos = ka.filter(date__month=month, date__year=year)
         figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
+        figid = figid + int(year) + int(month)
     usages = Usages.objects.filter(is_expense=True)
     data = dict()
     for us in usages:
          data[us.name] = mylib.cal_sum_or_0(kakeibos.filter(usage=us))
-    res = figure.fig_pie_basic(data=data, figtitle=figtitle)
+    res = figure.fig_pie_basic(data=data, figtitle=figtitle, figid=figid)
+    return res
+
+
+def pie_usage(request):
+    ka = Kakeibos.objects.filter(move_to=None)
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "支出内訳"
+    figid = 250
+    if year is None and month is None:
+        kakeibos = ka.all()
+    elif month is None:
+        kakeibos = ka.filter(date__year=year)
+        figtitle = figtitle + "(" + str(year) + ")"
+        figid = figid + int(year)
+    else:
+        kakeibos = ka.filter(date__month=month, date__year=year)
+        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
+        figid = figid + int(year) + int(month)
+    usages = Usages.objects.filter(is_expense=True)
+    data = dict()
+    for us in usages:
+         data[us.name] = mylib.cal_sum_or_0(kakeibos.filter(usage=us))
+    res = figure.fig_pie_basic(data=data, figtitle=figtitle, figid=figid)
     return res
 
 

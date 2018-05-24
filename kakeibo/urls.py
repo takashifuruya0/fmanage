@@ -45,6 +45,7 @@ urlpatterns = [
     url(r'^fig/pie_credit$', views_figure.pie_credit, name='pie_credit'),
     url(r'^fig/pie_shared$', views_figure.pie_shared, name='pie_shared'),
     url(r'^fig/pie_usage_cash$', views_figure.pie_usage_cash, name='pie_usage_cash'),
+    url(r'^fig/pie_usage$', views_figure.pie_usage, name='pie_usage'),
     # 棒・線
     url(r'^fig/barline_usage$', views_figure.barline_usage, name='barline_usage'),
     url(r'^fig/barline_expense_cash$', views_figure.barline_expense_cash, name='barline_expense_cash'),
