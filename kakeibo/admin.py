@@ -31,6 +31,10 @@ class CreditItemsAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'date', 'usage', 'color']
 
 
+class ColorsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+
+
 admin.site.register(Kakeibos, KakeibosAdmin)
 admin.site.register(Resources, ResourcesAdmin)
 admin.site.register(Usages, UsagesAdmin)
@@ -38,3 +42,4 @@ admin.site.register(SharedKakeibos, SharedKakeibosAdmin)
 admin.site.register(Cards, CardsAdmin)
 admin.site.register(CreditItems, CreditItemsAdmin)
 admin.site.register(Credits, CreditsAdmin)
+admin.site.register(Colors, ColorsAdmin)

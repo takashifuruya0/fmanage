@@ -17,16 +17,24 @@ class BaseModel(models.Model):
 # ==============================
 
 
+class Colors(models.Model):
+    objects = None
+    name = models.CharField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Usages(BaseModel):
     objects = None
     is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
-    color = models.CharField(max_length=30, unique=True, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True)
 
 
 class Resources(BaseModel):
     objects = None
     initial_val = models.IntegerField(null=False, blank=False)
-    color = models.CharField(max_length=30, unique=True, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True)
 
 
 # UsagesとResourcesの紐付け
@@ -100,13 +108,13 @@ class SharedKakeibos(models.Model):
 
 
 class Cards(BaseModel):
-    color = models.CharField(max_length=30, unique=True, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True)
 
 
 class CreditItems(BaseModel):
     objects = None
     usage = models.ForeignKey(Usages, null=True, blank=True)
-    color = models.CharField(max_length=30, unique=True, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True)
 
 
 class Credits(models.Model):
@@ -116,4 +124,5 @@ class Credits(models.Model):
     fee = models.IntegerField()
     credit_item = models.ForeignKey(CreditItems)
     card = models.ForeignKey(Cards, related_name="credits", null=True)
+
 
