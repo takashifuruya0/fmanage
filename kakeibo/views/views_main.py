@@ -16,7 +16,9 @@ from datetime import datetime, date, timedelta
 # function
 from kakeibo.functions import update_records, money, figure, mylib
 # budget
-budget = 150000
+budget_t = 90000
+budget_h = 60000
+budget = budget_t + budget_h
 
 # Create your views here.
 
@@ -51,6 +53,12 @@ def dashboard(request):
         for su in shared_usages:
             us = Usages.objects.get(pk=su['usage']).name
             shared_grouped_by_usage[us] = money.convert_yen(su['sum'])
+    # End of Month
+    if inout_shared <= 0:
+        move = budget_h + inout_shared/2 - paidbyh
+    else:
+        move = budget_h - inout_shared - paidbyh
+
     smsg = ""
 
     output = {
@@ -70,6 +78,7 @@ def dashboard(request):
         "out": money.convert_yen(expense+debit+shared_expense),
         "inout_shared": money.convert_yen(inout_shared),
         "budget": money.convert_yen(budget),
+        "move": money.convert_yen(move),
     }
     logger.info("output: " + str(output))
     return render(request, 'kakeibo/dashboard.html', output)
