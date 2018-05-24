@@ -38,6 +38,8 @@ urlpatterns = [
     url(r'^fig/bars_resource$', views_figure.bars_resource, name='bars_resource'),
     # 収支
     url(r'^fig/bars_balance$', views_figure.bars_balance, name='bars_balance'),
+    # 月末精算
+    url(r'^fig/bars_shared_eom$', views_figure.bars_shared_eom, name='bars_shared_eom'),
     # 円
     url(r'^fig/pie_expense$', views_figure.pie_expense, name='pie_expense'),
     url(r'^fig/pie_resource$', views_figure.pie_resource, name='pie_resource'),

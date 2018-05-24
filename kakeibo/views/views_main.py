@@ -55,7 +55,7 @@ def dashboard(request):
             shared_grouped_by_usage[us] = money.convert_yen(su['sum'])
     # End of Month
     if inout_shared <= 0:
-        move = budget_h + inout_shared/2 - paidbyh
+        move = budget_h - inout_shared/2 - paidbyh
     else:
         move = budget_h - inout_shared - paidbyh
 

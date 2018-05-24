@@ -55,6 +55,39 @@ def bars_balance(request):
     res = figure.fig_bars_basic_color(data=data, figtitle=figtitle, vbar_labels=vbar_labels, colors=colors, figsize=(9, 9))
     return res
 
+def bars_shared_eom(request):
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "共通支出月末精算: " + year + "/" + month
+    if year is None and month is None:
+        return False
+    budget = dict()
+    payment = dict()
+    sk = SharedKakeibos.objects.filter(date__year=year, date__month=month)
+    budget['taka'] = 90000
+    budget['hoko'] = 60000
+    payment['taka'] = mylib.cal_sum_or_0(sk.filter(paid_by="敬士"))
+    payment['hoko'] = mylib.cal_sum_or_0(sk.filter(paid_by="朋子"))
+    inout = sum(budget.values()) - sum(payment.values())
+    if inout <= 0:
+        inout = -inout
+        rb = [int(inout/2), 0, int(inout/2), 0]
+        rb_name="赤字"
+        seisan = [0, int(inout/2)+budget['hoko']-payment['hoko'] ,0,0]
+    else:
+        rb = [0, inout, 0, 0]
+        rb_name="黒字"
+        seisan = [0, -inout+budget['hoko']-payment['hoko'] ,0,0]
+    data = {
+        "現金精算": seisan,
+        "予算": [budget['hoko'], 0, budget['taka'], 0],
+        "支払": [0, payment['hoko'], 0, payment['taka']],
+        }
+    data[rb_name] = rb
+    
+    vbar_labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
+    res = figure.fig_bars_basic(data=data, figtitle=figtitle, vbar_labels=vbar_labels, figsize=(10, 10))
+    return res
 
 def pie_expense(request):
     year = request.GET.get(key="year")

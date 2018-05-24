@@ -225,9 +225,9 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
     ax.legend(bars, keys_legend, loc="best", prop=prop)
     # axis
     ax.set_xticks([i for i in range(numbars)])
-    ax.set_xticklabels(vbar_labels, fontsize='small')
+    ax.set_xticklabels(vbar_labels, fontsize='small', fontproperties=prop)
     ax.set_yticks(hbar)
-    ax.set_yticklabels(hbar_labels, fontsize='small')
+    ax.set_yticklabels(hbar_labels, fontsize='small', fontproperties=prop)
     ax.set_title(figtitle, fontproperties=prop)
     ax.yaxis.grid()
 
@@ -237,7 +237,6 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
     canvas.print_png(response)
     fig.clear()
     return response
-
 
 
 def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid=4):
@@ -321,9 +320,9 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
     ax.legend(bars, keys_legend, loc="best", prop=prop)
     # axis
     ax.set_xticks([i for i in range(numbars)])
-    ax.set_xticklabels(vbar_labels, fontsize='small')
+    ax.set_xticklabels(vbar_labels, fontsize='small', fontproperties=prop)
     ax.set_yticks(hbar)
-    ax.set_yticklabels(hbar_labels, fontsize='small')
+    ax.set_yticklabels(hbar_labels, fontsize='small', fontproperties=prop)
     ax.set_title(figtitle, fontproperties=prop)
     ax.yaxis.grid()
 
