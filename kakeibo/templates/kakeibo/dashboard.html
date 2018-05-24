@@ -9,21 +9,44 @@
 <div class="container-fluid">
   <hr>
   <div class="row">
-    <div class="col-sm-8">
+    <div class="col-sm-6">
       <h1>
         <i class="fas fa-chart-area"></i> {{today.year}}年{{today.month}}月の概要
       </h1>
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-2">
+    </div>
+    <div class="col-sm-2">
+    </div>
+    <div class="col-sm-2">
     </div>
   </div>
-
   <hr>
-  <h2><i class="fas fa-user-circle"></i> 家計簿</h2>
+
+  <button class="btn btn-block btn-info">
+      <h2><i class="fas fa-user-circle"></i> 家計簿</h2>
+  </button>
+  <hr>
+  <div class="row">
+    <div class="col-sm-6">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-4">
+      <button class="btn btn-block btn-outline-info">収支 {{inout}}</button>
+    </div>
+    <div class="col-4">
+      <button class="btn btn-block btn-outline-success">収入 {{income}}</button>
+    </div>
+    <div class="col-4">
+      <button class="btn btn-block btn-outline-danger">支出 {{out}}</button>
+    </div>
+  </div>
+  <hr>
   <div class="row">
     <div class="col-sm-4">
       <h4>収支</h4>
-      <table class="table table-light table-hover table-sm table-bordere">
+      <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
             <th>Key</th>
@@ -55,7 +78,7 @@
       </table>
 
       <h4>資産状態</h4>
-      <table class="table table-light table-hover table-sm table-bordere">
+      <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
             <th>Key</th>
@@ -86,12 +109,30 @@
     </div>
   </div>
 
-  <h2><i class="fas fa-people-carry"></i> 共通家計簿</h2>
+  <button class="btn btn-block btn-info">
+      <h2><i class="fas fa-people-carry"></i> 共通家計簿</h2>
+  </button>
+  <hr>
+  <div class="row">
+    <div class="col-sm-6">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-4">
+      <button class="btn btn-block btn-outline-info">収支 {{inout_shared}}</button>
+    </div>
+    <div class="col-4">
+      <button class="btn btn-block btn-outline-success">予算 {{budget}}</button>
+    </div>
+    <div class="col-4">
+      <button class="btn btn-block btn-outline-danger">支出 {{shared}}</button>
+    </div>
+  </div>
   <hr>
   <div class="row">
     <div class="col-sm-4">
       <h4>支払者別</h4>
-      <table class="table table-light table-hover table-sm table-bordere">
+      <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
             <th>Key</th>
@@ -115,7 +156,7 @@
       </table>
 
       <h4>用途別</h4>
-      <table class="table table-light table-hover table-sm table-bordere">
+      <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
             <th>Key</th>
@@ -140,11 +181,25 @@
     </div>
   </div>
 
-
-  <h2><i class="far fa-money-bill-alt"></i> 資産運用</h2>
+  <button class="btn btn-block btn-info">
+      <h2><i class="far fa-money-bill-alt"></i> 資産運用</h2>
+  </button>
   <hr>
   <div class="row">
+    <div class="col-sm-6">
+    </div>
   </div>
+  <div class="row">
+    <div class="col-4">
+    </div>
+    <div class="col-4">
+    </div>
+    <div class="col-4">
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+  <hr>
 
 </div>
 {% endblock %}

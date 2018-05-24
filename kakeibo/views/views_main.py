@@ -9,12 +9,14 @@ from dateutil.relativedelta import relativedelta
 import logging
 logger = logging.getLogger("django")
 # model
-from .models import *
+from kakeibo.models import *
 # module
 import requests, json
 from datetime import datetime, date, timedelta
 # function
-from .functions import update_records, money, figure, mylib
+from kakeibo.functions import update_records, money, figure, mylib
+# budget
+budget = 150000
 
 # Create your views here.
 
@@ -42,6 +44,7 @@ def dashboard(request):
     shared = SharedKakeibos.objects.filter(date__month=today.month, date__year=today.year)
     paidbyt = mylib.cal_sum_or_0(shared.filter(paid_by="敬士"))
     paidbyh = mylib.cal_sum_or_0(shared.filter(paid_by="朋子"))
+    inout_shared = budget - paidbyt - paidbyh
     shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
     if shared_usages.__len__() != 0:
         shared_grouped_by_usage = dict()
@@ -63,6 +66,10 @@ def dashboard(request):
         "paidbyt": money.convert_yen(paidbyt),
         "paidbyh": money.convert_yen(paidbyh),
         "shared_grouped_by_usage": shared_grouped_by_usage,
+        "inout": money.convert_yen(income-expense-debit-shared_expense),
+        "out": money.convert_yen(expense+debit+shared_expense),
+        "inout_shared": money.convert_yen(inout_shared),
+        "budget": money.convert_yen(budget),
     }
     logger.info("output: " + str(output))
     return render(request, 'kakeibo/dashboard.html', output)
@@ -124,9 +131,16 @@ def mine(request):
         val = rs.initial_val + move_to - move_from
         if val is not 0:
             current_resource[rs.name] = money.convert_yen(val)
-    # usages
-    usage_list = [i.pk for i in Usages.objects.all()]
+    # usages_list
+    usages = Usages.objects.all()
+    current_usage = dict()
+    for us in usages:
+        val = mylib.cal_sum_or_0(kakeibos.filter(usage=us))
+        if val is not 0 and us.is_expense:
+            current_usage[us.name] = money.convert_yen(val)
+    usage_list = [i.pk for i in usages]
     logger.info(usage_list)
+    # output
     output = {
         "today": today,
         "income": money.convert_yen(income),
@@ -135,6 +149,7 @@ def mine(request):
         "shared_expense": money.convert_yen(shared_expense),
         "credit": money.convert_yen(credit),
         "current_resource": current_resource,
+        "current_usage": current_usage,
         "usage_list": usage_list,
     }
     return render(request, 'kakeibo/mine.html', output)
