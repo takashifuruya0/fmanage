@@ -18,6 +18,7 @@ from kakeibo.functions import update_records, money, figure, mylib
 
 # Create your views here.
 
+
 def bars_balance(request):
     year = request.GET.get(key="year")
     month = request.GET.get(key="month")
@@ -31,7 +32,6 @@ def bars_balance(request):
         kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
         figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
     expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
     debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
     shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
@@ -52,8 +52,9 @@ def bars_balance(request):
         "収入": "tomato",
     }
     vbar_labels = ['Income', 'Expense']
-    res = figure.fig_bars_basic_color(data=data, figtitle=figtitle, vbar_labels=vbar_labels, colors=colors, figsize=(9, 9))
+    res = figure.fig_bars_basic_color(data=data, figtitle=figtitle, vbar_labels=vbar_labels, colors=colors, figsize=(10,10))
     return res
+
 
 def bars_shared_eom(request):
     year = request.GET.get(key="year")
@@ -73,21 +74,22 @@ def bars_shared_eom(request):
         inout = -inout
         rb = [int(inout/2), 0, int(inout/2), 0]
         rb_name="赤字"
-        seisan = [0, int(inout/2)+budget['hoko']-payment['hoko'] ,0,0]
+        seisan = [0, int(inout / 2) + budget['hoko'] - payment['hoko'], 0, 0]
     else:
         rb = [0, inout, 0, 0]
         rb_name="黒字"
-        seisan = [0, -inout+budget['hoko']-payment['hoko'] ,0,0]
+        seisan = [0, -inout + budget['hoko'] - payment['hoko'], 0, 0]
     data = {
         "現金精算": seisan,
         "予算": [budget['hoko'], 0, budget['taka'], 0],
         "支払": [0, payment['hoko'], 0, payment['taka']],
-        }
+    }
     data[rb_name] = rb
     
     vbar_labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
     res = figure.fig_bars_basic(data=data, figtitle=figtitle, vbar_labels=vbar_labels, figsize=(10, 10))
     return res
+
 
 def pie_expense(request):
     year = request.GET.get(key="year")
@@ -138,9 +140,9 @@ def pie_credititem(request):
     usage_sum = dict()
     usage_sum["その他"] = 0
     for c in credits:
-        if c.credit_item.usage in usage_list and c.credit_item.usage != None:
+        if c.credit_item.usage in usage_list and c.credit_item.usage is not None:
             usage_sum[c.credit_item.usage.name] = usage_sum[c.credit_item.usage.name] + c.fee
-        elif c.credit_item.usage == None:
+        elif c.credit_item.usage is None:
             usage_list.append("その他")
             usage_sum["その他"] = c.fee + usage_sum["その他"]
         else:
@@ -157,16 +159,16 @@ def pie_credit(request):
     figtitle = "項目別クレジット内訳"
     credititems = CreditItems.objects.all()
     if year is None and month is None:
-        credits = Credits.objects.all()
+        credit = Credits.objects.all()
     elif month is None:
-        credits = Credits.objects.filter(date__year=year)
+        credit = Credits.objects.filter(date__year=year)
         figtitle = figtitle + "(" + str(year) + ")"
     else:
-        credits = Credits.objects.filter(date__year=year, date__month=month)
+        credit = Credits.objects.filter(date__year=year, date__month=month)
         figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     credit_sum = dict()
     for ci in credititems:
-        credit_sum[ci.name] = mylib.cal_sum_or_0(credits.filter(credit_item=ci))
+        credit_sum[ci.name] = mylib.cal_sum_or_0(credit.filter(credit_item=ci))
     res = figure.fig_pie_basic(data=credit_sum, figtitle=figtitle, figsize=(12, 12), figid=3)
     return res
 
@@ -179,10 +181,10 @@ def pie_resource(request):
     if year is None and month is None:
         kakeibos = Kakeibos.objects.all()
     elif month is None:
-        kakeibos = Kakeibos.objects.filter(date__lt=date(int(year)+1,1,1))
+        kakeibos = Kakeibos.objects.filter(date__lt=date(int(year) + 1, 1, 1))
         figtitle = figtitle + "(" + str(year) + ")"
     else:
-        kakeibos = Kakeibos.objects.filter(date__lt=date(int(year),int(month)+1,1))
+        kakeibos = Kakeibos.objects.filter(date__lt=date(int(year), int(month) + 1, 1))
         figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     resources = Resources.objects.all()
     data = dict()
@@ -325,7 +327,7 @@ def bars_resource(request):
     res = figure.fig_bars_basic(data=data,
                                 figtitle="資産内訳と先月比",
                                 vbar_labels=labels,
-                                figsize=(10, 10)
+                                figsize=(11, 11)
                                 )
     return res
 
