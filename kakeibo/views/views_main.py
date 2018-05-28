@@ -34,9 +34,8 @@ def dashboard(request):
     shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
     credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
     # resource
-    resources = Resources.objects.all()
     current_resource = dict()
-    for rs in resources:
+    for rs in Resources.objects.all():
         move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
         move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
         val = rs.initial_val + move_to - move_from
@@ -60,9 +59,9 @@ def dashboard(request):
     else:
         move = budget_h - inout_shared - paidbyh
         status_shared = "primary"
-
+    # msg
     smsg = ""
-
+    # progress_bar
     tmpmax = max([income, expense + debit + shared_expense]) / 100
     pb_kakeibo_in = int(income / tmpmax)
     pb_kakeibo_out = int((expense + debit + shared_expense) / tmpmax)
@@ -77,21 +76,23 @@ def dashboard(request):
     output = {
         "today": today,
         "smsg": smsg,
+        # kakeibo
         "income": money.convert_yen(income),
         "expense": money.convert_yen(expense),
         "debit": money.convert_yen(debit),
         "shared_expense": money.convert_yen(shared_expense),
         "credit": money.convert_yen(credit),
         "current_resource": current_resource,
-        "shared": money.convert_yen(paidbyh+paidbyt),
-        "paidbyt": money.convert_yen(paidbyt),
-        "paidbyh": money.convert_yen(paidbyh),
-        "shared_grouped_by_usage": shared_grouped_by_usage,
         "inout": money.convert_yen(income-expense-debit-shared_expense),
         "out": money.convert_yen(expense+debit+shared_expense),
+        # shared
         "inout_shared": money.convert_yen(inout_shared),
         "budget": money.convert_yen(budget),
+        "shared": money.convert_yen(paidbyh + paidbyt),
         "move": money.convert_yen(move),
+        "shared_grouped_by_usage": shared_grouped_by_usage,
+        "paidby": {"t": money.convert_yen(paidbyt), "h": money.convert_yen(paidbyh)},
+        # progress bar and status
         "pb_kakeibo": {"in": pb_kakeibo_in, "out": pb_kakeibo_out},
         "pb_shared": {"in": pb_shared_in, "out": pb_shared_out},
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
@@ -182,14 +183,6 @@ def mine(request):
 
 @login_required
 def mine_month(request, year, month):
-    today = date.today()
-    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
-    income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
-    expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
-    debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
-    shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
-    credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
     url = settings.URL_SHAREDFORM
     return redirect(url)
 
