@@ -56,10 +56,23 @@ def dashboard(request):
     # End of Month
     if inout_shared <= 0:
         move = budget_h - inout_shared/2 - paidbyh
+        status_shared = "danger"
     else:
         move = budget_h - inout_shared - paidbyh
+        status_shared = "primary"
 
     smsg = ""
+
+    tmpmax = max([income, expense + debit + shared_expense]) / 100
+    pb_kakeibo_in = int(income / tmpmax)
+    pb_kakeibo_out = int((expense + debit + shared_expense) / tmpmax)
+    if pb_kakeibo_in == 100:
+        status_kakeibo = "primary"
+    else:
+        status_kakeibo = "danger"
+    tmpmax = max([budget, paidbyt+paidbyh]) / 100
+    pb_shared_in = int(budget / tmpmax)
+    pb_shared_out = int((paidbyt+paidbyh)/tmpmax)
 
     output = {
         "today": today,
@@ -79,6 +92,9 @@ def dashboard(request):
         "inout_shared": money.convert_yen(inout_shared),
         "budget": money.convert_yen(budget),
         "move": money.convert_yen(move),
+        "pb_kakeibo": {"in": pb_kakeibo_in, "out": pb_kakeibo_out},
+        "pb_shared": {"in": pb_shared_in, "out": pb_shared_out},
+        "status": {"kakeibo": status_kakeibo, "shared": status_shared},
     }
     logger.info("output: " + str(output))
     return render(request, 'kakeibo/dashboard.html', output)

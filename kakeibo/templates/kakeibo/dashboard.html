@@ -33,13 +33,15 @@
   </div>
   <div class="row">
     <div class="col-sm-4">
-      <button class="btn btn-block btn-outline-primary">収支 {{inout}}</button>
+      <button class="btn btn-block btn-lg btn-outline-{{status.kakeibo}}">収支 {{inout}}</button>
     </div>
-    <div class="col-sm-4">
-      <button class="btn btn-block btn-outline-success">収入 {{income}}</button>
-    </div>
-    <div class="col-sm-4">
-      <button class="btn btn-block btn-outline-danger">支出 {{out}}</button>
+    <div class="col-sm-8">
+      <div class="progress" style="height:25px">
+        <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_kakeibo.in}}%; height:25px">収入 {{income}}</div>
+      </div>
+      <div class="progress" style="height:25px">
+        <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_kakeibo.out}}%; height:25px">支出 {{out}}</div>
+      </div>
     </div>
   </div>
   <hr>
@@ -119,13 +121,15 @@
   </div>
   <div class="row">
     <div class="col-sm-4">
-      <button class="btn btn-block btn-outline-info">収支 {{inout_shared}}</button>
+      <button class="btn btn-block btn-lg btn-outline-{{status.shared}}">収支 {{inout_shared}}</button>
     </div>
-    <div class="col-sm-4">
-      <button class="btn btn-block btn-outline-success">予算 {{budget}}</button>
-    </div>
-    <div class="col-sm-4">
-      <button class="btn btn-block btn-outline-danger">支出 {{shared}}</button>
+    <div class="col-sm-8">
+      <div class="progress" style="height:25px">
+        <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_shared.in}}%; height:25px">予算 {{budget}}</div>
+      </div>
+      <div class="progress" style="height:25px">
+        <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_shared.out}}%; height:25px">支出 {{shared}}</div>
+      </div>
     </div>
   </div>
   <hr>
