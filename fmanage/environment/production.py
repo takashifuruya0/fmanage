@@ -7,8 +7,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': "fkmanage",
-        "USER": os.environ['FKMANAGE_DB_USER'],
-        "PASSWORD": os.environ['FKMANAGE_DB_PASSWORD'],
+        "USER": 'fkuser',
+        "PASSWORD": 'Kagaya&101',
         "HOST": "localhost",
         "POST": "",
     }
