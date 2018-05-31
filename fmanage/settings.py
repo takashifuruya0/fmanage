@@ -77,25 +77,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'fmanage.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'fkmanage',
-        #'USER': os.environ.get("FKMANAGE_DB_USER"),
-        #'PASSWORD': os.environ.get("FKMANAGE_DB_PASSWORD"),
-        'USER': 'fkuser',
-        'PASSWORD': 'Kagaya&101',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
-}
-# update db settings
-db_from_env = dj_database_url.config(conn_max_age=400)
-DATABASES['default'].update(db_from_env)
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
