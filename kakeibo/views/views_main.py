@@ -47,8 +47,9 @@ def dashboard(request):
     paidbyh = mylib.cal_sum_or_0(shared.filter(paid_by="朋子"))
     inout_shared = budget - paidbyt - paidbyh
     shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
+
+    shared_grouped_by_usage = dict()
     if shared_usages.__len__() != 0:
-        shared_grouped_by_usage = dict()
         for su in shared_usages:
             us = Usages.objects.get(pk=su['usage']).name
             shared_grouped_by_usage[us] = money.convert_yen(su['sum'])

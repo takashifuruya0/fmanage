@@ -75,10 +75,14 @@ def bars_shared_eom(request):
         rb = [int(inout/2), 0, int(inout/2), 0]
         rb_name="赤字"
         seisan = [0, int(inout / 2) + budget['hoko'] - payment['hoko'], 0, 0]
-    else:
-        rb = [0, inout, 0, 0]
-        rb_name="黒字"
+    elif -inout + budget['hoko'] - payment['hoko'] >= 0:
+        rb = [0, inout, 0, inout]
+        rb_name = "黒字"
         seisan = [0, -inout + budget['hoko'] - payment['hoko'], 0, 0]
+    else:
+        rb = [0, inout/2, 0, inout/2]
+        rb_name="黒字"
+        seisan = [0, 0, 0, 0]
     data = {
         "現金精算": seisan,
         "予算": [budget['hoko'], 0, budget['taka'], 0],
