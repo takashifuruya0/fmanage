@@ -61,17 +61,26 @@ def dashboard(request):
         status_shared = "primary"
     # msg
     smsg = ""
-    # progress_bar
+    # progress_bar of kakeibo
     tmpmax = max([income, expense + debit + shared_expense]) / 100
-    pb_kakeibo_in = int(income / tmpmax)
-    pb_kakeibo_out = int((expense + debit + shared_expense) / tmpmax)
+    if tmpmax != 0:
+        pb_kakeibo_in = int(income / tmpmax)
+        pb_kakeibo_out = int((expense + debit + shared_expense) / tmpmax)
+    else:
+        pb_kakeibo_in = 0
+        pb_kakeibo_out = 0
     if pb_kakeibo_in == 100:
         status_kakeibo = "primary"
     else:
         status_kakeibo = "danger"
+    # progress_bar of shared
     tmpmax = max([budget, paidbyt+paidbyh]) / 100
-    pb_shared_in = int(budget / tmpmax)
-    pb_shared_out = int((paidbyt+paidbyh)/tmpmax)
+    if tmpmax != 0:
+        pb_shared_in = int(budget / tmpmax)
+        pb_shared_out = int((paidbyt+paidbyh)/tmpmax)
+    else:
+        pb_shared_in = 0
+        pb_shared_out = 0
 
     output = {
         "today": today,
