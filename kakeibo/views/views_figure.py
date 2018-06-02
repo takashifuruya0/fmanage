@@ -313,14 +313,27 @@ def barline_expense_cash(request):
 def bars_resource(request):
     resources = Resources.objects.all()
     data = dict()
-    today = date.today()
-    last = today - relativedelta(months=1)
-    ka = Kakeibos.objects.all()
-    kal = ka.exclude(date__month=today.month, date__year=today.year)
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "資産内訳と先月比"
+    if year is None or month is None:
+        year = date.today().year
+        month = date.today().month
+    # 指定月の月末日を取得
+    today = date(int(year), int(month), 1) - relativedelta(days=1) + relativedelta(months=1)
+    figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
+    # 指定月の一ヶ月前の月末日を取得
+    last = date(today.year, today.month, 1) - relativedelta(days=1)
+    # 範囲指定でレコード取得
+    ka = Kakeibos.objects.filter(date__lte=today)
+    kal = Kakeibos.objects.filter(date__lte=last)
+    # 計算
     for rs in resources:
+        # left bar: this
         move_to = mylib.cal_sum_or_0(ka.filter(move_to=rs))
         move_from = mylib.cal_sum_or_0(ka.filter(move_from=rs))
         data[rs.name] = [rs.initial_val + move_to - move_from]
+        # right bar: last
         move_to = mylib.cal_sum_or_0(kal.filter(move_to=rs))
         move_from = mylib.cal_sum_or_0(kal.filter(move_from=rs))
         data[rs.name].append(rs.initial_val + move_to - move_from)
@@ -329,7 +342,7 @@ def bars_resource(request):
         str(last.year) + "/" + str(last.month),
               ]
     res = figure.fig_bars_basic(data=data,
-                                figtitle="資産内訳と先月比",
+                                figtitle=figtitle,
                                 vbar_labels=labels,
                                 figsize=(11, 11)
                                 )

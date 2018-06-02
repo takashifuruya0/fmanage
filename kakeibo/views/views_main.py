@@ -150,10 +150,13 @@ def redirect_sharedform(request):
 
 @login_required
 def mine(request):
-    today = date.today()
-    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    if year is None or month is None:
+        year = date.today().year
+        month = date.today().month
+    kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year).order_by('date').reverse()
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
     expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
     debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
     shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
@@ -167,6 +170,11 @@ def mine(request):
         val = rs.initial_val + move_to - move_from
         if val is not 0:
             current_resource[rs.name] = money.convert_yen(val)
+    # saved
+    rs = Resources.objects.get(name="SBI敬士")
+    move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
+    move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
+    saved = move_to - move_from
     # usages_list
     usages = Usages.objects.all()
     current_usage = dict()
@@ -176,9 +184,24 @@ def mine(request):
             current_usage[us.name] = money.convert_yen(val)
     usage_list = [i.pk for i in usages]
     logger.info(usage_list)
+    # status
+    pb_kakeibo = dict()
+    out = expense+debit+shared_expense
+    if income > out:
+        status = "primary"
+        pb_kakeibo_in = 100
+        pb_kakeibo_out= int(out / income * 100)
+    else:
+        status = "danger"
+        pb_kakeibo_in = int(income / out * 100)
+        pb_kakeibo_out = 100
+
     # output
     output = {
-        "today": today,
+        "today": {"year": year, "month": month},
+        "inout": money.convert_yen(out),
+        "status": status,
+        "saved": money.convert_yen(saved),
         "income": money.convert_yen(income),
         "expense": money.convert_yen(expense),
         "debit": money.convert_yen(debit),
@@ -187,6 +210,8 @@ def mine(request):
         "current_resource": current_resource,
         "current_usage": current_usage,
         "usage_list": usage_list,
+        "pb_kakeibo": {"in": pb_kakeibo_in, "out": pb_kakeibo_out},
+        "out": money.convert_yen(out),
     }
     return render(request, 'kakeibo/mine.html', output)
 
