@@ -64,12 +64,19 @@ def dashboard(request):
             us = Usages.objects.get(pk=su['usage']).name
             shared_grouped_by_usage[us] = money.convert_yen(su['sum'])
     # End of Month
+    # 赤字→精算あり
     if inout_shared <= 0:
         move = budget_h - inout_shared/2 - paidbyh
         status_shared = "danger"
         pb_shared = {"in": int(budget_shared / (paidbyh + paidbyh) * 100), "out": 100}
-    else:
+    # 黒字＋朋子さん支払いが朋子さん予算以下→精算あり
+    elif -inout_shared + budget_h - paidbyh >= 0:
         move = budget_h - inout_shared - paidbyh
+        status_shared = "primary"
+        pb_shared = {"in": 100, "out": int((paidbyh + paidbyt) / budget_shared * 100)}
+    # 黒字＋朋子さん支払い＜朋子さん予算→精算なし
+    else:
+        move = 0
         status_shared = "primary"
         pb_shared = {"in": 100, "out": int((paidbyh + paidbyt) / budget_shared * 100)}
     # msg
