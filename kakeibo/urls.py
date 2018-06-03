@@ -53,6 +53,8 @@ urlpatterns = [
     url(r'^fig/barline_expense_cash$', views_figure.barline_expense_cash, name='barline_expense_cash'),
     # 線
     url(r'^fig/lines_usage_cash$', views_figure.lines_usage_cash, name='lines_usage_cash'),
+    # test
+    url(r'^fig/test$', views_figure.test_figure, name='testfig'),
 
 ]
 

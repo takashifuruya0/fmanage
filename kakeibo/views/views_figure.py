@@ -80,16 +80,16 @@ def bars_shared_eom(request):
         rb_name = "黒字"
         seisan = [0, -inout + budget['hoko'] - payment['hoko'], 0, 0]
     else:
-        rb = [0, inout/2, 0, inout/2]
+        rb = [0, budget['hoko'] - payment['hoko'], 0, inout - budget['hoko'] + payment['hoko']]
         rb_name="黒字"
         seisan = [0, 0, 0, 0]
     data = {
         "現金精算": seisan,
         "予算": [budget['hoko'], 0, budget['taka'], 0],
         "支払": [0, payment['hoko'], 0, payment['taka']],
+        rb_name: rb,
     }
-    data[rb_name] = rb
-    
+
     vbar_labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
     res = figure.fig_bars_basic(data=data, figtitle=figtitle, vbar_labels=vbar_labels, figsize=(10, 10))
     return res
@@ -177,7 +177,6 @@ def pie_credit(request):
     return res
 
 
-# 要修正：指定年月までのKakeibosを取得するように変更
 def pie_resource(request):
     year = request.GET.get(key="year")
     month = request.GET.get(key="month")
@@ -276,7 +275,7 @@ def barline_expense_cash(request):
         kakeibos = kakeibos.filter(date__year=year)
         figtitle = "現金支出推移 (" + str(year) + ")"
         ylim = [i for i in range(0, 1200000, 200000)]
-        figsize = (11, 11)
+        figsize = (12, 12)
         figid = 100 + int(year)
         for j in range(1, 13):
             ka = kakeibos.filter(date__month=j)
@@ -313,23 +312,36 @@ def barline_expense_cash(request):
 def bars_resource(request):
     resources = Resources.objects.all()
     data = dict()
-    today = date.today()
-    last = today - relativedelta(months=1)
-    ka = Kakeibos.objects.all()
-    kal = ka.exclude(date__month=today.month, date__year=today.year)
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    figtitle = "資産内訳と先月比"
+    if year is None or month is None:
+        year = date.today().year
+        month = date.today().month
+    # 指定月の月末日を取得
+    today = date(int(year), int(month) + 1, 1) - relativedelta(days=1)
+    figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
+    # 指定月の一ヶ月前の月末日を取得
+    last = date(int(year), int(month), 1) - relativedelta(days=1)
+    # 範囲指定でレコード取得
+    ka = Kakeibos.objects.filter(date__lte=today)
+    kal = Kakeibos.objects.filter(date__year=today.year, date__month=today.month)
+    # 計算
     for rs in resources:
+        # left bar: this
         move_to = mylib.cal_sum_or_0(ka.filter(move_to=rs))
         move_from = mylib.cal_sum_or_0(ka.filter(move_from=rs))
         data[rs.name] = [rs.initial_val + move_to - move_from]
+        # right bar: last
         move_to = mylib.cal_sum_or_0(kal.filter(move_to=rs))
         move_from = mylib.cal_sum_or_0(kal.filter(move_from=rs))
-        data[rs.name].append(rs.initial_val + move_to - move_from)
+        data[rs.name].append(data[rs.name][0] - move_to + move_from)
     labels = [
         str(today.year) + "/" + str(today.month),
         str(last.year) + "/" + str(last.month),
-              ]
+    ]
     res = figure.fig_bars_basic(data=data,
-                                figtitle="資産内訳と先月比",
+                                figtitle=figtitle,
                                 vbar_labels=labels,
                                 figsize=(11, 11)
                                 )
@@ -419,24 +431,40 @@ def pie_usage(request):
 
 
 def test_figure(request):
-    today = date.today()
+    resources = Resources.objects.all()
+    data = dict()
     year = request.GET.get(key="year")
     month = request.GET.get(key="month")
-    rs = Resources.objects.get(name=request.GET.get(key="resource"))
-    figtitle = "Usage-Breakdown @" + rs.name
-    if year is None:
-        kakeibos = Kakeibos.objects.filter(move_from=rs)
-    elif month is None:
-        kakeibos = Kakeibos.objects.filter(date__year=year, move_from=rs)
-        figtitle = figtitle + "(CY" + str(year) + ")"
-    else:
-        kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year, move_from=rs)
-        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
-    usages = Usages.objects.filter(is_expense=True)
-    data = dict()
-    for us in usages:
-        data[us.name] = mylib.cal_sum_or_0(kakeibos.filter(usage=us))
-
-    res = figure.fig_pie_basic(data=data, figtitle=figtitle)
+    figtitle = "資産内訳と先月比"
+    if year is None or month is None:
+        year = date.today().year
+        month = date.today().month
+    # 指定月の月末日を取得
+    today = date(int(year), int(month) + 1, 1) - relativedelta(days=1)
+    figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
+    # 指定月の一ヶ月前の月末日を取得
+    last = date(int(year), int(month), 1) - relativedelta(days=1)
+    # 範囲指定でレコード取得
+    ka = Kakeibos.objects.filter(date__lte=today)
+    kal = Kakeibos.objects.filter(date__year=today.year, date__month=today.month)
+    # 計算
+    for rs in resources:
+        # left bar: this
+        move_to = mylib.cal_sum_or_0(ka.filter(move_to=rs))
+        move_from = mylib.cal_sum_or_0(ka.filter(move_from=rs))
+        data[rs.name] = [rs.initial_val + move_to - move_from]
+        # right bar: last
+        move_to = mylib.cal_sum_or_0(kal.filter(move_to=rs))
+        move_from = mylib.cal_sum_or_0(kal.filter(move_from=rs))
+        data[rs.name].append(data[rs.name][0] - move_to + move_from)
+    labels = [
+        str(today.year) + "/" + str(today.month),
+        str(last.year) + "/" + str(last.month),
+    ]
+    res = figure.fig_bars_basic(data=data,
+                                figtitle=figtitle,
+                                vbar_labels=labels,
+                                figsize=(11, 11)
+                                )
     return res
     return True

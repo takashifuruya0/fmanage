@@ -3,6 +3,7 @@
 
 
 def convert_yen(v):
+    v = int(v)
     try:
         if v >= 0:
             new_val = '¥{:,}'.format(v)

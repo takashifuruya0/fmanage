@@ -11,7 +11,7 @@
   <div class="row">
     <div class="col-sm-8">
       <h1>
-        <i class="fas fa-chart-area"></i> My Dashboard
+        <i class="fas fa-user-circle"></i> {{today.year}}年{{today.month}}月
       </h1>
     </div>
     <div class="col-sm-4">
@@ -19,7 +19,28 @@
   </div>
 
   <hr>
-  <h2><i class="fas fa-user-circle"></i> {{today.year}}/{{today.month}}</h2>
+  <div class="row">
+    <div class="col-sm-4">
+      <button class="btn btn-block btn-lg btn-outline-info">貯金 {{saved}}</button>
+    </div>
+    <div class="col-sm-4">
+      <button class="btn btn-block btn-lg btn-outline-{{status}}">収支 {{inout}}</button>
+    </div>
+    <div class="col-sm-4">
+      <div class="progress" style="height:25px">
+        <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_kakeibo.in}}%; height:25px">
+          収入 {{income}}
+        </div>
+      </div>
+      <div class="progress" style="height:25px">
+        <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_kakeibo.out}}%; height:25px">
+          支出 {{expense}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
   <div class="row">
     <div class="col-sm-4">
       <h4>収支</h4>
@@ -34,26 +55,12 @@
           </tr>
         </thead>
         <tbody>
+          {% for key, val in current_way.items %}
           <tr>
-            <td>収入</td>
-            <td class="right">{{income}}</td>
+            <td>{{key}}</td>
+            <td class="right">{{val}}</td>
           </tr>
-          <tr>
-            <td>現金支出</td>
-            <td class="right">{{expense}}</td>
-          </tr>
-          <tr>
-            <td>クレジット支出</td>
-            <td class="right">{{credit}}</td>
-          </tr>
-          <tr>
-            <td>引き落とし</td>
-            <td class="right">{{debit}}</td>
-          </tr>
-          <tr>
-            <td>共通支出</td>
-            <td class="right">{{shared_expense}}</td>
-          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
@@ -102,45 +109,43 @@
           {% endfor %}
         </tbody>
       </table>
-
-    </div>
-
-    <div class="col-sm-8">
-      <div class="row">
-        <div class="col-sm-6">
-          <p class="resizeimage">
-            <img src="{% url 'kakeibo:pie_expense' %}?year={{today.year}}&month={{today.month}}">
-          </p>
-        </div>
-        <div class="col-sm-6">
-          <p class="resizeimage">
-            <img src="{% url 'kakeibo:pie_resource' %}?year={{today.year}}&month={{today.month}}">
-          </p>
-        </div>
-        <div class="col-sm-6">
-          <p class="resizeimage">
-            <img src="{% url 'kakeibo:pie_usage_cash' %}?year={{today.year}}&month={{today.month}}">
-          </p>
-        </div>
-        <div class="col-sm-6">
-          <p class="resizeimage">
-            <img src="{% url 'kakeibo:barline_expense_cash' %}?year={{today.year}}&month={{today.month}}">
-          </p>
-        </div>
-        <div class="col-sm-6">
-          <p class="resizeimage">
-            <img src="{% url 'kakeibo:barline_expense_cash' %}?year={{today.year}}">
-          </p>
-        </div>
-        <div class="col-sm-6">
-          <p class="resizeimage">
-            <img src="{% url 'kakeibo:barline_expense_cash' %}?year={{today.year|add:"-1"}}">
-          </p>
-        </div>
-      </div>
     </div>
   </div>
 
+  <hr>
+  <div class="row">
+    <div class="col-sm-4">
+      <p class="resizeimage">
+        <img src="{% url 'kakeibo:pie_expense' %}?year={{today.year}}&month={{today.month}}">
+      </p>
+    </div>
+    <div class="col-sm-4">
+      <p class="resizeimage">
+        <img src="{% url 'kakeibo:pie_resource' %}?year={{today.year}}&month={{today.month}}">
+      </p>
+    </div>
+    <div class="col-sm-4">
+      <p class="resizeimage">
+        <img src="{% url 'kakeibo:pie_usage_cash' %}?year={{today.year}}&month={{today.month}}">
+      </p>
+    </div>
+  </div>
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-6">
+      <p class="resizeimage">
+        <img src="{% url 'kakeibo:barline_expense_cash' %}?year={{today.year}}&month={{today.month}}">
+      </p>
+    </div>
+    <div class="col-sm-6">
+      <p class="resizeimage">
+        <img src="{% url 'kakeibo:barline_expense_cash' %}?year={{today.year}}">
+      </p>
+    </div>
+  </div>
+
+  <!--
   <hr>
   <div class="row">
     {% for usage_id in usage_list %}
@@ -151,6 +156,6 @@
     </div>
     {% endfor %}
   </div>
-
+  -->
 </div>
 {% endblock %}
