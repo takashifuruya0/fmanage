@@ -18,7 +18,7 @@ from kakeibo.functions import update_records, money, figure, mylib
 # budget
 budget_t = 90000
 budget_h = 60000
-budget = budget_t + budget_h
+budget_shared = budget_t + budget_h
 
 # Create your views here.
 
@@ -27,12 +27,22 @@ budget = budget_t + budget_h
 def dashboard(request):
     today = date.today()
     # kakeibo
-    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
+    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
-    debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
-    shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
-    credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
+    expense = mylib.cal_sum_or_0(kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）")))
+    # status, progress_bar
+    if income > expense:
+        status_kakeibo = "primary"
+        pb_kakeibo = {"in": 100, "out": int(expense / income * 100)}
+    else:
+        status_kakeibo = "danger"
+        pb_kakeibo = {"in": int(income / expense * 100), "out": 100}
+    # way
+    ways_sum = kakeibos.values('way').annotate(Sum('fee'))
+    current_way = dict()
+    for w in ways_sum:
+        if w['way'] != "振替":
+            current_way[w['way']] = money.convert_yen(w['fee__sum'])
     # resource
     current_resource = dict()
     for rs in Resources.objects.all():
@@ -45,66 +55,52 @@ def dashboard(request):
     shared = SharedKakeibos.objects.filter(date__month=today.month, date__year=today.year)
     paidbyt = mylib.cal_sum_or_0(shared.filter(paid_by="敬士"))
     paidbyh = mylib.cal_sum_or_0(shared.filter(paid_by="朋子"))
-    inout_shared = budget - paidbyt - paidbyh
+    inout_shared = budget_shared - paidbyt - paidbyh
     shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
-
+    # shared_grouped_by_usage
     shared_grouped_by_usage = dict()
     if shared_usages.__len__() != 0:
         for su in shared_usages:
             us = Usages.objects.get(pk=su['usage']).name
             shared_grouped_by_usage[us] = money.convert_yen(su['sum'])
     # End of Month
+    # 赤字→精算あり
     if inout_shared <= 0:
         move = budget_h - inout_shared/2 - paidbyh
         status_shared = "danger"
-    else:
+        pb_shared = {"in": int(budget_shared / (paidbyh + paidbyh) * 100), "out": 100}
+    # 黒字＋朋子さん支払いが朋子さん予算以下→精算あり
+    elif -inout_shared + budget_h - paidbyh >= 0:
         move = budget_h - inout_shared - paidbyh
         status_shared = "primary"
+        pb_shared = {"in": 100, "out": int((paidbyh + paidbyt) / budget_shared * 100)}
+    # 黒字＋朋子さん支払い＜朋子さん予算→精算なし
+    else:
+        move = 0
+        status_shared = "primary"
+        pb_shared = {"in": 100, "out": int((paidbyh + paidbyt) / budget_shared * 100)}
     # msg
     smsg = ""
-    # progress_bar of kakeibo
-    tmpmax = max([income, expense + debit + shared_expense]) / 100
-    if tmpmax != 0:
-        pb_kakeibo_in = int(income / tmpmax)
-        pb_kakeibo_out = int((expense + debit + shared_expense) / tmpmax)
-    else:
-        pb_kakeibo_in = 0
-        pb_kakeibo_out = 0
-    if pb_kakeibo_in == 100:
-        status_kakeibo = "primary"
-    else:
-        status_kakeibo = "danger"
-    # progress_bar of shared
-    tmpmax = max([budget, paidbyt+paidbyh]) / 100
-    if tmpmax != 0:
-        pb_shared_in = int(budget / tmpmax)
-        pb_shared_out = int((paidbyt+paidbyh)/tmpmax)
-    else:
-        pb_shared_in = 0
-        pb_shared_out = 0
 
     output = {
         "today": today,
         "smsg": smsg,
         # kakeibo
+        "inout": money.convert_yen(income-expense),
         "income": money.convert_yen(income),
         "expense": money.convert_yen(expense),
-        "debit": money.convert_yen(debit),
-        "shared_expense": money.convert_yen(shared_expense),
-        "credit": money.convert_yen(credit),
+        "current_way": current_way,
         "current_resource": current_resource,
-        "inout": money.convert_yen(income-expense-debit-shared_expense),
-        "out": money.convert_yen(expense+debit+shared_expense),
         # shared
         "inout_shared": money.convert_yen(inout_shared),
-        "budget": money.convert_yen(budget),
-        "shared": money.convert_yen(paidbyh + paidbyt),
+        "budget_shared": money.convert_yen(budget_shared),
+        "expense_shared": money.convert_yen(paidbyh + paidbyt),
         "move": money.convert_yen(move),
         "shared_grouped_by_usage": shared_grouped_by_usage,
         "paidby": {"t": money.convert_yen(paidbyt), "h": money.convert_yen(paidbyh)},
         # progress bar and status
-        "pb_kakeibo": {"in": pb_kakeibo_in, "out": pb_kakeibo_out},
-        "pb_shared": {"in": pb_shared_in, "out": pb_shared_out},
+        "pb_kakeibo": pb_kakeibo,
+        "pb_shared": pb_shared,
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
     }
     logger.info("output: " + str(output))
@@ -150,14 +146,30 @@ def redirect_sharedform(request):
 
 @login_required
 def mine(request):
-    today = date.today()
-    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    if year is None or month is None:
+        year = date.today().year
+        month = date.today().month
+    kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    salary = mylib.cal_sum_or_0(kakeibos.filter(way="収入", usage=Usages.objects.get(name="給与")))
-    expense = mylib.cal_sum_or_0(kakeibos.filter(way="支出（現金）"))
-    debit = mylib.cal_sum_or_0(kakeibos.filter(way="引き落とし"))
-    shared_expense = mylib.cal_sum_or_0(kakeibos.filter(way="共通支出"))
-    credit = mylib.cal_sum_or_0(kakeibos.filter(way="支出（クレジット）"))
+    expense = mylib.cal_sum_or_0(kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）")))
+    # status, progress_bar
+    if income > expense:
+        status = "primary"
+        pb_kakeibo_in = 100
+        pb_kakeibo_out = int(expense / income * 100)
+    else:
+        status = "danger"
+        pb_kakeibo_in = int(income / expense * 100)
+        pb_kakeibo_out = 100
+    pb_kakeibo = {"in": pb_kakeibo_in, "out": pb_kakeibo_out}
+    # way
+    ways_sum = kakeibos.values('way').annotate(Sum('fee'))
+    current_way = dict()
+    for w in ways_sum:
+        if w['way'] != "振替":
+            current_way[w['way']] = money.convert_yen(w['fee__sum'])
     # resource
     resources = Resources.objects.all()
     current_resource = dict()
@@ -167,26 +179,34 @@ def mine(request):
         val = rs.initial_val + move_to - move_from
         if val is not 0:
             current_resource[rs.name] = money.convert_yen(val)
-    # usages_list
+    # usage
     usages = Usages.objects.all()
     current_usage = dict()
     for us in usages:
         val = mylib.cal_sum_or_0(kakeibos.filter(usage=us))
         if val is not 0 and us.is_expense:
             current_usage[us.name] = money.convert_yen(val)
-    usage_list = [i.pk for i in usages]
-    logger.info(usage_list)
+    # saved
+    rs = Resources.objects.get(name="SBI敬士")
+    move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
+    move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
+    saved = move_to - move_from
+
     # output
     output = {
-        "today": today,
+        "today": {"year": year, "month": month},
+        # status
+        "status": status,
+        "saved": money.convert_yen(saved),
+        "inout": money.convert_yen(income - expense),
+        # progress_bar
+        "pb_kakeibo": pb_kakeibo,
         "income": money.convert_yen(income),
         "expense": money.convert_yen(expense),
-        "debit": money.convert_yen(debit),
-        "shared_expense": money.convert_yen(shared_expense),
-        "credit": money.convert_yen(credit),
+        # current list
         "current_resource": current_resource,
         "current_usage": current_usage,
-        "usage_list": usage_list,
+        "current_way": current_way,
     }
     return render(request, 'kakeibo/mine.html', output)
 
