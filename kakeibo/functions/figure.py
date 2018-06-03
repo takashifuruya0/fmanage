@@ -230,7 +230,7 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
     ax.set_yticklabels(hbar_labels, fontsize='small', fontproperties=prop)
     ax.set_title(figtitle, fontproperties=prop)
     ax.yaxis.grid()
-
+    [spine.set_visible(False) for spine in ax.spines.values()]
     # return response-data
     canvas = FigureCanvas(fig)
     response = HttpResponse(content_type='image/png')
@@ -325,7 +325,7 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
     ax.set_yticklabels(hbar_labels, fontsize='small', fontproperties=prop)
     ax.set_title(figtitle, fontproperties=prop)
     ax.yaxis.grid()
-
+    [spine.set_visible(False) for spine in ax.spines.values()]
     # return response-data
     canvas = FigureCanvas(fig)
     response = HttpResponse(content_type='image/png')
@@ -392,7 +392,7 @@ def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
     else:
         ax.set_ylim(ylim)
     ax.grid()
-
+    [spine.set_visible(False) for spine in ax.spines.values()]
     # return fig
     canvas = FigureCanvas(fig)
     response = HttpResponse(content_type='image/png')
