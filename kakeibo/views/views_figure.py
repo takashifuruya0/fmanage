@@ -84,7 +84,7 @@ def bars_shared_eom(request):
     # 黒字＋朋子さん支払い＜朋子さん予算→精算なし
     else:
         rb = [0, budget['hoko'] - payment['hoko'], 0, inout - budget['hoko'] + payment['hoko']]
-        rb_name="黒字"
+        rb_name = "黒字"
         seisan = [0, 0, 0, 0]
     data = {
         "現金精算": seisan,
