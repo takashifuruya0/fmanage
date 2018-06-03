@@ -185,7 +185,6 @@ def mine(request):
     usage_list = [i.pk for i in usages]
     logger.info(usage_list)
     # status
-    pb_kakeibo = dict()
     out = expense+debit+shared_expense
     if income > out:
         status = "primary"
@@ -195,11 +194,11 @@ def mine(request):
         status = "danger"
         pb_kakeibo_in = int(income / out * 100)
         pb_kakeibo_out = 100
-
+    pb_kakeibo = {"in": pb_kakeibo_in, "out": pb_kakeibo_out}
     # output
     output = {
         "today": {"year": year, "month": month},
-        "inout": money.convert_yen(out),
+        "inout": money.convert_yen(income-out),
         "status": status,
         "saved": money.convert_yen(saved),
         "income": money.convert_yen(income),
@@ -210,7 +209,7 @@ def mine(request):
         "current_resource": current_resource,
         "current_usage": current_usage,
         "usage_list": usage_list,
-        "pb_kakeibo": {"in": pb_kakeibo_in, "out": pb_kakeibo_out},
+        "pb_kakeibo": pb_kakeibo,
         "out": money.convert_yen(out),
     }
     return render(request, 'kakeibo/mine.html', output)
