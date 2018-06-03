@@ -28,20 +28,20 @@ class Colors(models.Model):
 class Usages(BaseModel):
     objects = None
     is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.SET_NULL)
 
 
 class Resources(BaseModel):
     objects = None
     initial_val = models.IntegerField(null=False, blank=False)
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.SET_NULL)
 
 
 # UsagesとResourcesの紐付け
 class UsageResourceRelations(models.Model):
     objects = None
-    resource = models.ForeignKey(Resources)
-    usage = models.ForeignKey(Usages)
+    resource = models.ForeignKey(Resources, on_delete=models.DO_NOTHING)
+    usage = models.ForeignKey(Usages, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.usage+"<=>"+self.resource
@@ -60,11 +60,11 @@ class Kakeibos(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道/収入源
-    usage = models.ForeignKey(Usages, null=True, blank=True)
+    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.SET_NULL)
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from")
+    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from", on_delete=models.SET_NULL)
     # 現金移動先
-    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to")
+    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to", on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.way
@@ -88,9 +88,9 @@ class SharedKakeibos(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道
-    usage = models.ForeignKey(Usages, null=True, blank=True)
+    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.SET_NULL)
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True)
+    move_from = models.ForeignKey(Resources, null=True, blank=True, on_delete=models.SET_NULL)
     # 支払者
     paid_by = models.CharField(max_length=20)
     # 清算済み？
@@ -108,13 +108,13 @@ class SharedKakeibos(models.Model):
 
 
 class Cards(BaseModel):
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.SET_NULL)
 
 
 class CreditItems(BaseModel):
     objects = None
-    usage = models.ForeignKey(Usages, null=True, blank=True)
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.SET_NULL)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.SET_NULL)
 
 
 class Credits(models.Model):
@@ -122,7 +122,7 @@ class Credits(models.Model):
     date = models.DateField()
     debit_date = models.DateField()
     fee = models.IntegerField()
-    credit_item = models.ForeignKey(CreditItems)
-    card = models.ForeignKey(Cards, related_name="credits", null=True)
+    credit_item = models.ForeignKey(CreditItems, on_delete=models.DO_NOTHING)
+    card = models.ForeignKey(Cards, related_name="credits", null=True, on_delete=models.SET_NULL)
 
 
