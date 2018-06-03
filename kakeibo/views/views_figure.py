@@ -187,7 +187,7 @@ def pie_resource(request):
         kakeibos = Kakeibos.objects.filter(date__lt=date(int(year) + 1, 1, 1))
         figtitle = figtitle + "(" + str(year) + ")"
     else:
-        kakeibos = Kakeibos.objects.filter(date__lt=date(int(year), int(month), 1) + relativedelta(months=1))
+        kakeibos = Kakeibos.objects.filter(date__lt=date(int(year), int(month) + 1, 1))
         figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     resources = Resources.objects.all()
     data = dict()
@@ -319,10 +319,10 @@ def bars_resource(request):
         year = date.today().year
         month = date.today().month
     # 指定月の月末日を取得
-    today = date(int(year), int(month), 1) - relativedelta(days=1) + relativedelta(months=1)
+    today = date(int(year), int(month)+1, 1) - relativedelta(days=1)
     figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
     # 指定月の一ヶ月前の月末日を取得
-    last = date(today.year, today.month, 1) - relativedelta(days=1)
+    last = date(int(year), int(month), 1) - relativedelta(days=1)
     # 範囲指定でレコード取得
     ka = Kakeibos.objects.filter(date__lte=today)
     kal = Kakeibos.objects.filter(date__lte=last)

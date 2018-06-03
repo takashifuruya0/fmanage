@@ -11,7 +11,7 @@
   <div class="row">
     <div class="col-sm-8">
       <h1>
-        <i class="fas fa-user-circle"></i> {{today.year}}/{{today.month}}
+        <i class="fas fa-user-circle"></i> {{today.year}}年{{today.month}}月
       </h1>
     </div>
     <div class="col-sm-4">
@@ -34,7 +34,7 @@
       </div>
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_kakeibo.out}}%; height:25px">
-          支出 {{out}}
+          支出 {{expense}}
         </div>
       </div>
     </div>
@@ -55,26 +55,12 @@
           </tr>
         </thead>
         <tbody>
+          {% for key, val in current_way.items %}
           <tr>
-            <td>収入</td>
-            <td class="right">{{income}}</td>
+            <td>{{key}}</td>
+            <td class="right">{{val}}</td>
           </tr>
-          <tr>
-            <td>現金支出</td>
-            <td class="right">{{expense}}</td>
-          </tr>
-          <tr>
-            <td>クレジット支出</td>
-            <td class="right">{{credit}}</td>
-          </tr>
-          <tr>
-            <td>引き落とし</td>
-            <td class="right">{{debit}}</td>
-          </tr>
-          <tr>
-            <td>共通支出</td>
-            <td class="right">{{shared_expense}}</td>
-          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
