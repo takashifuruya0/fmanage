@@ -80,16 +80,16 @@ def bars_shared_eom(request):
         rb_name = "黒字"
         seisan = [0, -inout + budget['hoko'] - payment['hoko'], 0, 0]
     else:
-        rb = [0, inout/2, 0, inout/2]
+        rb = [0, budget['hoko'] - payment['hoko'], 0, inout - budget['hoko'] + payment['hoko']]
         rb_name="黒字"
         seisan = [0, 0, 0, 0]
     data = {
         "現金精算": seisan,
         "予算": [budget['hoko'], 0, budget['taka'], 0],
         "支払": [0, payment['hoko'], 0, payment['taka']],
+        rb_name: rb,
     }
-    data[rb_name] = rb
-    
+
     vbar_labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
     res = figure.fig_bars_basic(data=data, figtitle=figtitle, vbar_labels=vbar_labels, figsize=(10, 10))
     return res
