@@ -68,7 +68,7 @@ def dashboard(request):
     if inout_shared <= 0:
         move = budget_h - inout_shared/2 - paidbyh
         status_shared = "danger"
-        pb_shared = {"in": int(budget_shared / (paidbyh + paidbyh) * 100), "out": 100}
+        pb_shared = {"in": int(budget_shared / (paidbyh + paidbyt) * 100), "out": 100}
     # 黒字＋朋子さん支払いが朋子さん予算以下→精算あり
     elif -inout_shared + budget_h - paidbyh >= 0:
         move = budget_h - inout_shared - paidbyh
@@ -212,28 +212,66 @@ def mine(request):
 
 
 @login_required
-def mine_month(request, year, month):
-    url = settings.URL_SHAREDFORM
-    return redirect(url)
-
-
-@login_required
 def shared(request):
-    today = date.today()
-    skakeibos = SharedKakeibos.objects.filter(date__month=today.month, date__year=today.year).order_by('date').reverse()
-    taka = skakeibos.filter(paid_by="敬士")
-    hoko = skakeibos.filter(paid_by="朋子")
-    url = settings.URL_SHAREDFORM
-    return redirect(url)
+    year = request.GET.get(key="year")
+    month = request.GET.get(key="month")
+    if year is None or month is None:
+        year = date.today().year
+        month = date.today().month
 
+    # data
+    skakeibos = SharedKakeibos.objects.filter(date__month=month, date__year=year)
+    paidbyt = mylib.cal_sum_or_0(skakeibos.filter(paid_by="敬士"))
+    paidbyh = mylib.cal_sum_or_0(skakeibos.filter(paid_by="朋子"))
 
-@login_required
-def shared_month(request, year, month):
-    skakeibos = SharedKakeibos.objects.filter(date__month=month, date__year=year).order_by('date').reverse()
-    taka = skakeibos.filter(paid_by="敬士")
-    hoko = skakeibos.filter(paid_by="朋子")
-    url = settings.URL_SHAREDFORM
-    return redirect(url)
+    # inout
+    expense = mylib.cal_sum_or_0(skakeibos)
+    budget = budget_h + budget_t
+    inout_shared = budget - expense
+
+    # shared_grouped_by_usage
+    shared_usages = skakeibos.values('usage').annotate(sum=Sum('fee'))
+    shared_grouped_by_usage = dict()
+    if shared_usages.__len__() != 0:
+        for su in shared_usages:
+            us = Usages.objects.get(pk=su['usage']).name
+            shared_grouped_by_usage[us] = money.convert_yen(su['sum'])
+
+    # End of Month
+    # 赤字→精算あり
+    if inout_shared <= 0:
+        move = budget_h - inout_shared / 2 - paidbyh
+        status_shared = "danger"
+        pb_shared_in = int(budget_shared / expense * 100)
+        pb_shared_out = 100
+    # 黒字
+    else:
+        status_shared = "primary"
+        pb_shared_in = 100
+        pb_shared_out = int(expense / budget * 100)
+        # 朋子さん支払いが朋子さん予算以下→精算あり
+        if -inout_shared + budget_h - paidbyh >= 0:
+            move = budget_h - inout_shared - paidbyh
+        # 朋子さん支払い＜朋子さん予算→精算なし
+        else:
+            move = 0
+
+    # output
+    output = {
+        "today": {"year": year, "month": month},
+        # status
+        "status": status_shared,
+        # progress_bar
+        "pb_shared": {"in": pb_shared_in, "out": pb_shared_out},
+        # data
+        "budget": money.convert_yen(budget),
+        "expense": money.convert_yen(expense),
+        "paidby": {"t": money.convert_yen(paidbyt), "h": money.convert_yen(paidbyh)},
+        "inout": money.convert_yen(budget - expense),
+        "move": money.convert_yen(move),
+        "shared_grouped_by_usage": shared_grouped_by_usage,
+    }
+    return render(request, 'kakeibo/shared.html', output)
 
 
 @login_required

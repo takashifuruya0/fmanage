@@ -18,12 +18,10 @@ urlpatterns = [
     url(r'^sharedform$', views.redirect_sharedform, name='shared_form'),
     # mine
     url(r'^mine$', views.mine, name='mine'),
-    url(r'^mine/(\d{4})(\d{2})$', views.mine_month, name='mine_month'),
     # credit
     url(r'^credit$', views.credit, name='credit'),
     # shared
     url(r'^shared$', views.shared, name='shared'),
-    url(r'^shared/(\d{4})(\d{2})$', views.shared_month, name='shared_month'),
     # dashboard
     url(r'^$', views.dashboard, name='dashboard'),
     # list
