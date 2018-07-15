@@ -146,11 +146,16 @@ def redirect_sharedform(request):
 
 @login_required
 def mine(request):
-    year = request.GET.get(key="year")
-    month = request.GET.get(key="month")
+    if request.GET.get(key="yearmonth") is not None:
+        year = request.GET.get(key="yearmonth")[0:4]
+        month = request.GET.get(key="yearmonth")[5:]
+    else:
+        year = request.GET.get(key="year")
+        month = request.GET.get(key="month")
     if year is None or month is None:
         year = date.today().year
         month = date.today().month
+
     kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
     expense = mylib.cal_sum_or_0(kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）")))
@@ -213,8 +218,12 @@ def mine(request):
 
 @login_required
 def shared(request):
-    year = request.GET.get(key="year")
-    month = request.GET.get(key="month")
+    if request.GET.get(key="yearmonth") is not None:
+        year = request.GET.get(key="yearmonth")[0:4]
+        month = request.GET.get(key="yearmonth")[5:]
+    else:
+        year = request.GET.get(key="year")
+        month = request.GET.get(key="month")
     if year is None or month is None:
         year = date.today().year
         month = date.today().month
