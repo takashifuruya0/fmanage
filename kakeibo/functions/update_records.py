@@ -180,7 +180,7 @@ def save_shared_to_sql():
             emsg = ""
     except Exception as e:
         smsg = ""
-        emsg = "Updating shared-kakeibo-records failed: " + str(e)
+        emsg = "Updating shared-kakeibo-records failed: " + str(e) + ":" + str(val)
     return smsg, emsg
 
 

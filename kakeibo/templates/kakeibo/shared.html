@@ -89,27 +89,41 @@
       <p class="resizeimage"><img src="{% url 'kakeibo:pie_shared' %}?year={{today.year}}&month={{today.month}}"></p>
     </div>
     <div class="col-sm-4">
-      精算：{{move}}
       <p class="resizeimage"><img src="{% url 'kakeibo:bars_shared_eom' %}?year={{today.year}}&month={{today.month}}"></p>
     </div>
   </div>
 
   <hr>
   <div class="row">
-    <div class="col-sm-4">
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:pie_expense' %}?year={{today.year}}&month={{today.month}}">
-      </p>
-    </div>
-    <div class="col-sm-4">
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:pie_resource' %}?year={{today.year}}&month={{today.month}}">
-      </p>
-    </div>
-    <div class="col-sm-4">
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:pie_usage_cash' %}?year={{today.year}}&month={{today.month}}">
-      </p>
+    <div class="col-sm-12">
+      <h4>{{today.year}}年実績</h4>
+      <table class="table table-light table-hover table-sm">
+        <thead>
+          <tr>
+            <th></th>
+            {% for i in usage_list %}
+            <th class="right">{{i}}</th>
+            {% endfor%}
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in data_year %}
+          <tr>
+            <td>{{i.month}}月</td>
+            <td class="right">
+              <div class="progress" style="height:25px">
+                <div class="progress-bar bg-{{i.color}} progress-bar-striped" style="width:{{i.percent}}%; height:25px">
+                  {{i.sum}}
+                </div>
+              </div>
+            </td>
+            {% for j in i.data %}
+            <td class="right">{{j}}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 

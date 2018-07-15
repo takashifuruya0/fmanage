@@ -220,7 +220,8 @@ def shared(request):
         month = date.today().month
 
     # data
-    skakeibos = SharedKakeibos.objects.filter(date__month=month, date__year=year)
+    skakeibos_year = SharedKakeibos.objects.filter(date__year=year)
+    skakeibos = skakeibos_year.filter(date__month=month)
     paidbyt = mylib.cal_sum_or_0(skakeibos.filter(paid_by="敬士"))
     paidbyh = mylib.cal_sum_or_0(skakeibos.filter(paid_by="朋子"))
 
@@ -256,6 +257,36 @@ def shared(request):
         else:
             move = 0
 
+    # 年間
+    data_year = list()
+    usage_list = ["家賃", "食費", "日常消耗品", "ガス", "電気", "水道", "その他"]
+    logger.info("usage_list:" + str(usage_list))
+    for i in range(1, 13):
+        data_tmp = dict()
+        sk = skakeibos_year.filter(date__month=i)
+        if sk.__len__() is not 0:
+            data_tmp["month"] = i
+            data_tmp2 = list()
+            sus = sk.values('usage').annotate(sum=Sum('fee'))
+            for j in usage_list:
+                for su in sus:
+                    tmp = "-"
+                    if Usages.objects.get(pk=su['usage']).name == j:
+                        tmp = money.convert_yen(su['sum'])
+                        break
+                data_tmp2.append(tmp)
+            val_tmp = mylib.cal_sum_or_0(sk)
+            data_tmp["sum"] = money.convert_yen(val_tmp)
+            data_tmp["percent"] = val_tmp / (budget + 30000) * 100
+            if val_tmp < budget:
+                data_tmp["color"] = "success"
+            else:
+                data_tmp["color"] = "danger"
+            data_tmp["data"] = data_tmp2
+            data_year.append(data_tmp)
+    usage_list.insert(0, "合計")
+
+    logger.info("data_year"+str(data_year))
     # output
     output = {
         "today": {"year": year, "month": month},
@@ -270,6 +301,9 @@ def shared(request):
         "inout": money.convert_yen(budget - expense),
         "move": money.convert_yen(move),
         "shared_grouped_by_usage": shared_grouped_by_usage,
+        #table
+        "data_year": data_year,
+        "usage_list": usage_list,
     }
     return render(request, 'kakeibo/shared.html', output)
 
