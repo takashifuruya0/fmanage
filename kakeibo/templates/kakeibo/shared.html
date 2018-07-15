@@ -18,7 +18,7 @@
       <form class="form-horizontal" method="get" action="{% url 'kakeibo:shared' %}">
         {% csrf_token %}
         <div class="form-group">
-          <label class="control-label col-xs-2"></label>
+          <label class="control-label col-xs-2">Year&Month</label>
           <div class="row">
             <div class="col-5">
               <input type="month" name="yearmonth">
