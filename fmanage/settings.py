@@ -144,9 +144,12 @@ MEDIA_ROOT = (
 
 # URL
 URL_KAKEIBO = "https://script.google.com/macros/s/AKfycbyZ8v-KrRaBgtVoXdAEOPv2Zi8QBBgWCPS2VCj51QgRIxPxbVk/exec"
-URL_SHARED ="https://script.google.com/macros/s/AKfycby-55e05olODl_dvB-QtyGhB-ZQ7zAYfhWmGtr7R1H2ppnau0nz/exec"
+URL_SHARED = "https://script.google.com/macros/s/AKfycby-55e05olODl_dvB-QtyGhB-ZQ7zAYfhWmGtr7R1H2ppnau0nz/exec"
 URL_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSd1Guht2PZW62FFDKtLpLsSPGgHIXyYmpB44R0KvDnduSChzg/viewform"
-URL_SHAREDFORM="https://docs.google.com/forms/d/e/1FAIpQLScxkEwMCmdvnNALAPXJa0Ve0oyxlg2t40lnv_292ijFer4gNQ/viewform?usp=sf_link"
+URL_SHAREDFORM = "https://docs.google.com/forms/d/e/1FAIpQLScxkEwMCmdvnNALAPXJa0Ve0oyxlg2t40lnv_292ijFer4gNQ/viewform"
+URL_BASE = "https://www.fk-management.com"
+URL_METABASE = URL_BASE + "/metabase"
+URL_KNOWLEDGE = URL_BASE + "/knowledge"
 
 # Font Path
 FONT_PATH = 'document/font/ipaexg.ttf'

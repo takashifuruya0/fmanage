@@ -30,7 +30,7 @@
         <ul class="navbar-nav mr-auto">
           <li class="nav-item dropdown active">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-user-circle"></i> My Kakeibo
+              <i class="fas fa-user-circle"></i> Kakeibo
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" href="{% url 'kakeibo:mine' %}">
@@ -49,7 +49,7 @@
           </li>
           <li class="nav-item dropdown active">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-people-carry"></i> Shared Kakeibo
+              <i class="fas fa-people-carry"></i> Shared
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" href="{% url 'kakeibo:shared' %}">
@@ -64,16 +64,24 @@
             </div>
           </li>
 
-          <li class="nav-item active">
-            <a href="" class="nav-link">
-              <i class="far fa-money-bill-alt"></i> Asset
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-link"></i> Link
             </a>
-          </li>
-
-          <li class="nav-item active">
-            <a href="/admin/"  class="nav-link">
-              <i class="fas fa-database"></i> Admin
-            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="">
+                <i class="far fa-money-bill-alt"></i> Asset
+              </a>
+              <a class="dropdown-item" href="{% url 'kakeibo:knowledge' %}">
+                <i class="fas fa-book"></i> Knowledge
+              </a>
+              <a class="dropdown-item" href="{% url 'kakeibo:metabase' %}">
+                <i class="fas fa-tachometer-alt"></i> Metabase
+              </a>
+              <a class="dropdown-item" href="/admin/">
+                <i class="fas fa-database"></i> Admin
+              </a>
+            </div>
           </li>
           <li class="nav-item active">
             <a href="{% url 'account:logout' %}" class="nav-link">

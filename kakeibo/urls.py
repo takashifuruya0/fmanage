@@ -3,9 +3,10 @@
 from django.conf.urls import url                                                
 from django.contrib.auth import views as auth_views                             
                                                                                 
-#from . import views    
+
 from kakeibo.views import views_figure, views_list
 from kakeibo.views import views_main as views
+from kakeibo.views import views_redirect as views_redirect
 
 app_name = 'kakeibo'
 urlpatterns = [
@@ -13,17 +14,17 @@ urlpatterns = [
     url(r'^updates$', views.updates, name='update'),
     url(r'^updates/shared$', views.updates_shared, name='update_shared'),
     
-    # redirect_to_form
+    # redirect_to_link
     url(r'^form$', views.redirect_form, name='form'),
     url(r'^sharedform$', views.redirect_sharedform, name='shared_form'),
+    url(r'^metabase$', views_redirect.redirect_metabase, name='metabase'),
+    url(r'^knowledge$', views_redirect.redirect_knowledge, name='knowledge'),
     # mine
     url(r'^mine$', views.mine, name='mine'),
-    url(r'^mine/(\d{4})(\d{2})$', views.mine_month, name='mine_month'),
     # credit
     url(r'^credit$', views.credit, name='credit'),
     # shared
     url(r'^shared$', views.shared, name='shared'),
-    url(r'^shared/(\d{4})(\d{2})$', views.shared_month, name='shared_month'),
     # dashboard
     url(r'^$', views.dashboard, name='dashboard'),
     # list
