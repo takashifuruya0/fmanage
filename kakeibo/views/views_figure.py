@@ -334,11 +334,17 @@ def bars_resource(request):
         # left bar: this
         move_to = mylib.cal_sum_or_0(ka.filter(move_to=rs))
         move_from = mylib.cal_sum_or_0(ka.filter(move_from=rs))
-        data[rs.name] = [rs.initial_val + move_to - move_from]
+        tmp = rs.initial_val + move_to - move_from
+        if tmp < 0:
+            tmp = 0
+        data[rs.name] = [tmp]
         # right bar: last
         move_to = mylib.cal_sum_or_0(kal.filter(move_to=rs))
         move_from = mylib.cal_sum_or_0(kal.filter(move_from=rs))
-        data[rs.name].append(data[rs.name][0] - move_to + move_from)
+        tmp = data[rs.name][0] - move_to + move_from
+        if tmp < 0:
+            tmp = 0
+        data[rs.name].append(tmp)
     labels = [
         str(today.year) + "/" + str(today.month),
         str(last.year) + "/" + str(last.month),
