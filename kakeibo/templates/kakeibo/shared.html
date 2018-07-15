@@ -1,0 +1,133 @@
+{% extends "kakeibo/base.html" %}
+
+{% block title %}
+    Shared Dashboard
+{% endblock %}
+ 
+{% block body %}
+  
+<div class="container-fluid">
+  <hr>
+  <div class="row">
+    <div class="col-sm-8">
+      <h1>
+        <i class="fas fa-user-circle"></i> {{today.year}}年{{today.month}}月
+      </h1>
+    </div>
+    <div class="col-sm-4">
+    </div>
+  </div>
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-4">
+      <button class="btn btn-block btn-lg btn-outline-info">精算額 {{move}}</button>
+    </div>
+    <div class="col-sm-4">
+      <button class="btn btn-block btn-lg btn-outline-{{status}}">収支 {{inout}}</button>
+    </div>
+    <div class="col-sm-4">
+      <div class="progress" style="height:25px">
+        <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_shared.in}}%; height:25px">
+          予算 {{budget}}
+        </div>
+      </div>
+      <div class="progress" style="height:25px">
+        <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_shared.out}}%; height:25px">
+          支出 {{expense}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-4">
+      <h4>支払者別</h4>
+      <table class="table table-light table-hover table-sm">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th class="right">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>合計</td>
+            <td class="right">{{expense_shared}}</td>
+          </tr>
+          <tr>
+            <td>敬士</td>
+            <td class="right">{{paidby.t}}</td>
+          </tr>
+          <tr>
+            <td>朋子</td>
+            <td class="right">{{paidby.h}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>用途別</h4>
+      <table class="table table-light table-hover table-sm">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th class="right">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for key,val in shared_grouped_by_usage.items %}
+          <tr>
+            <td>{{key}}</td>
+            <td class="right">{{val}}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-4">
+      <p class="resizeimage"><img src="{% url 'kakeibo:pie_shared' %}?year={{today.year}}&month={{today.month}}"></p>
+    </div>
+    <div class="col-sm-4">
+      <p class="resizeimage"><img src="{% url 'kakeibo:bars_shared_eom' %}?year={{today.year}}&month={{today.month}}"></p>
+    </div>
+  </div>
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-12">
+      <h4>{{today.year}}年実績</h4>
+      <table class="table table-light table-hover table-sm">
+        <thead>
+          <tr>
+            <th></th>
+            {% for i in usage_list %}
+            <th class="right">{{i}}</th>
+            {% endfor%}
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in data_year %}
+          <tr>
+            <td>{{i.month}}月</td>
+            <td class="right">
+              <div class="progress" style="height:25px">
+                <div class="progress-bar bg-{{i.color}} progress-bar-striped" style="width:{{i.percent}}%; height:25px">
+                  {{i.sum}}
+                </div>
+              </div>
+            </td>
+            {% for j in i.data %}
+            <td class="right">{{j}}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+</div>
+{% endblock %}
