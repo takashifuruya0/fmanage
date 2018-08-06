@@ -62,35 +62,12 @@ def bars_shared_eom(request):
     figtitle = "共通支出月末精算: " + year + "/" + month
     if year is None and month is None:
         return False
-    budget = dict()
-    payment = dict()
-    sk = SharedKakeibos.objects.filter(date__year=year, date__month=month)
-    budget['taka'] = 90000
-    budget['hoko'] = 60000
-    payment['taka'] = mylib.cal_sum_or_0(sk.filter(paid_by="敬士"))
-    payment['hoko'] = mylib.cal_sum_or_0(sk.filter(paid_by="朋子"))
-    inout = sum(budget.values()) - sum(payment.values())
-    # 赤字→精算あり
-    if inout <= 0:
-        inout = -inout
-        rb = [int(inout/2), 0, int(inout/2), 0]
-        rb_name="赤字"
-        seisan = [0, int(inout / 2) + budget['hoko'] - payment['hoko'], 0, 0]
-    # 黒字＋朋子さん支払いが朋子さん予算以下→精算あり
-    elif -inout + budget['hoko'] - payment['hoko'] >= 0:
-        rb = [0, inout, 0, 0]
-        rb_name = "黒字"
-        seisan = [0, -inout + budget['hoko'] - payment['hoko'], 0, 0]
-    # 黒字＋朋子さん支払い＜朋子さん予算→精算なし
-    else:
-        rb = [0, budget['hoko'] - payment['hoko'], 0, inout - budget['hoko'] + payment['hoko']]
-        rb_name = "黒字"
-        seisan = [0, 0, 0, 0]
+    seisan = mylib.seisan(year, month)
     data = {
-        "現金精算": seisan,
-        "予算": [budget['hoko'], 0, budget['taka'], 0],
-        "支払": [0, payment['hoko'], 0, payment['taka']],
-        rb_name: rb,
+        "現金精算": seisan['seisan'],
+        "予算": [seisan['budget']['hoko'], 0, seisan['budget'][['taka'], 0],
+        "支払": [0, seisan['payment']['hoko'], 0, seisan['payment'][['taka']],
+        seisan['status']: seisan['rb'],
     }
 
     vbar_labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
