@@ -2,8 +2,10 @@ from django.shortcuts import render
 from kakeibo.models import Kakeibos, Usages, Resources, SharedKakeibos
 import json
 from datetime import date, datetime
+from dateutil.relativedelta import relativedelta
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from kakeibo.functions import mylib
 # Create your views here.
 
 @csrf_exempt
@@ -93,3 +95,35 @@ def shared(request):
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
+
+
+@csrf_exempt
+def seisan(request):
+    if request.method != "GET":
+        data = {
+            "status": False,
+            "message": "GET request is only acceptable",
+            }
+    else:
+        # 指定月の一ヶ月前の月末日を取得
+        year = request.GET.get(key="year")
+        month = request.GET.get(key="month")
+        print(year)
+        print(month)
+        if year is None or month is None:
+            today = date.today()
+            last = date(int(today.year), int(today.month), 1) - relativedelta(days=1)
+            year = last.year
+            month = last.month
+        seisan = mylib.seisan(year, month)
+        data = {
+            "status": True,
+            "message": "Got response sucessfully",
+            "data": seisan,
+            }
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response
+
+
+
