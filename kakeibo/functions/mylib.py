@@ -31,7 +31,7 @@ def seisan(year=date.today().year, month=date.today().month):
     payment['taka'] = cal_sum_or_0(sk.filter(paid_by="敬士"))
     payment['hoko'] = cal_sum_or_0(sk.filter(paid_by="朋子"))
     payment['sum'] = sum(payment.values())
-    inout = sum(budget.values()) - sum(payment.values())
+    inout = budget['sum'] - payment['sum'] 
     # 赤字→精算あり
     if inout <= 0:
         inout = -inout

@@ -63,11 +63,12 @@ def bars_shared_eom(request):
     if year is None and month is None:
         return False
     seisan = mylib.seisan(year, month)
+    rb_name = seisan['status']
     data = {
-        "現金精算": seisan['seisan'],
-        "予算": [seisan['budget']['hoko'], 0, seisan['budget'][['taka'], 0],
-        "支払": [0, seisan['payment']['hoko'], 0, seisan['payment'][['taka']],
-        seisan['status']: seisan['rb'],
+        "現金精算": [0, seisan['seisan'], 0, 0],
+        "予算": [seisan['budget']['hoko'], 0, seisan['budget']['taka'], 0],
+        "支払": [0, seisan['payment']['hoko'], 0, seisan['payment']['taka']],
+        rb_name: seisan['rb'],
     }
 
     vbar_labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
