@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^credit$', views.credit, name='credit'),
     # shared
     url(r'^shared$', views.shared, name='shared'),
+    url(r'^shared2$', views.shared2, name='shared2'),
     # dashboard
     url(r'^$', views.dashboard, name='dashboard'),
     # list
