@@ -104,11 +104,11 @@ def save_credit_to_sql():
 def init_resources_usages():
     try:
         if len(Resources.objects.all()) == 0:
-            Resources(**{'date': date(2017, 1, 1), 'initial_val': 439386, 'name': 'ゆうちょ', 'color': None}).save()
+            Resources(**{'date': date(2017, 1, 1), 'initial_val': 475928, 'name': 'ゆうちょ', 'color': None}).save()
             Resources(**{'date': date(2018, 1, 1), 'initial_val': 841390, 'name': 'SBI敬士', 'color': None}).save()
-            Resources(**{'date': date(2018, 1, 1), 'initial_val': 22881, 'name': '財布', 'color': None}).save()
+            Resources(**{'date': date(2018, 1, 1), 'initial_val': 44286, 'name': '財布', 'color': None}).save()
             Resources(**{'date': date(2018, 1, 1), 'initial_val': 60000, 'name': '共通口座', 'color': None}).save()
-            Resources(**{'date': date(2018, 1, 1), 'initial_val': 86200, 'name': '貯金口座', 'color': None}).save()
+            Resources(**{'date': date(2018, 1, 1), 'initial_val': 85200, 'name': '貯金口座', 'color': None}).save()
             Resources(**{'date': date(2018, 4, 23), 'initial_val': 0, 'name': '朋子口座', 'color': None}).save()
 
         if len(Usages.objects.all()) == 0:
@@ -135,6 +135,10 @@ def init_resources_usages():
             Usages(**{'date': date(2018, 1, 1), 'name': '奨学金返還', 'is_expense': True, 'color': None}).save()
             Usages(**{'date': date(2018, 1, 1), 'name': 'その他', 'is_expense': True, 'color': None}).save()
             Usages(**{'date': date(2018, 1, 1), 'name': '共通支出', 'is_expense': True, 'color': None}).save()
+            Usages(**{'date': date(2018, 1, 1), 'name': '仕事', 'is_expense': True, 'color': None}).save()
+            Usages(**{'date': date(2018, 1, 1), 'name': '自己啓発', 'is_expense': True, 'color': None}).save()
+            Usages(**{'date': date(2018, 1, 1), 'name': '通信費', 'is_expense': True, 'color': None}).save()
+            Usages(**{'date': date(2018, 1, 1), 'name': '引越', 'is_expense': True, 'color': None}).save()
 
         smsg = "Successfully initialize resources and usages. "
         emsg = ""
