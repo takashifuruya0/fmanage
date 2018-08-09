@@ -41,8 +41,8 @@ def dashboard(request):
     ways_sum = kakeibos.values('way').annotate(Sum('fee'))
     current_way = dict()
     for w in ways_sum:
-        if w['way'] != "振替":
-            current_way[w['way']] = money.convert_yen(w['fee__sum'])
+        current_way[w['way']] = money.convert_yen(w['fee__sum'])
+        current_way.pop("振替")
     # resource
     current_resource = dict()
     for rs in Resources.objects.all():
