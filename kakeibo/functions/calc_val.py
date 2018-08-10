@@ -13,7 +13,7 @@ def resource_current_val(rsname, val):
     try:
         rs = Resources.objects.get(name=rsname)
         # 初回
-        if rs.current_val is None:
+        if rs.current_val is None or val is 0:
             move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
             move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
             rs.current_val = rs.initial_val + move_to - move_from
