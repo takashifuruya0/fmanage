@@ -60,6 +60,6 @@ def record_status():
     astatus.investment = current.investment
 
     astatus.total = astatus.stocks_value + astatus.other_value + astatus.buying_power
-    res = dict()
+
     return res
 
