@@ -4,14 +4,14 @@ from asset.functions import get_info
 from datetime import date
 
 
-def benefit(id):
-    hs = HoldingStocks.objects.get(id=id)
+def benefit(hs_id):
+    hs = HoldingStocks.objects.get(id=hs_id)
     code = hs.stock.code
     data = get_info.stock_overview(code)
-    val = (data['price'] - hs.average_price)*hs.num
+    val = (data['price'] - hs.average_price) * hs.num
     holding_time = date.today() - hs.date
     res = {
-        "data":{
+        "data": {
             "id": id,
             "date": hs.date,
             "code": code,
@@ -29,8 +29,8 @@ def benefit(id):
 
 def benefit_all():
     aval = 0
-    res = {}
-    res["data"] = []
+    res = dict()
+    res["data_all"] = []
     hsa = HoldingStocks.objects.all()
     for hs in hsa:
         tmp = benefit(hs.id)
