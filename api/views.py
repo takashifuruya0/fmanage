@@ -5,7 +5,7 @@ from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from kakeibo.functions import mylib
+from kakeibo.functions import mylib,calc_val
 # Create your views here.
 
 @csrf_exempt
@@ -14,7 +14,6 @@ def kakeibo(request):
     if request.method == "POST":
         val = json.loads(request.body.decode())
         try:
-
             kakeibo = Kakeibos()
             kakeibo.date = date.today()
             kakeibo.fee = (val['金額'])
@@ -24,22 +23,39 @@ def kakeibo(request):
             if kakeibo.way == "引き落とし":
                 kakeibo.move_from = Resources.objects.get(name=val['引き落とし対象'])
                 kakeibo.usage = Usages.objects.get(name=val['引き落とし項目'])
+                # update current_val
+                calc_val.resource_current_val(val['引き落とし対象'], -val['金額'])
+
             elif kakeibo.way == "振替":
                 kakeibo.move_from = Resources.objects.get(name=val['From'])
                 kakeibo.move_to = Resources.objects.get(name=val['To'])
+                # update current_val
+                calc_val.resource_current_val(val['From'], -val['金額'])
+                calc_val.resource_current_val(val['To'], val['金額'])
+
             elif kakeibo.way == "収入":
                 kakeibo.move_to = Resources.objects.get(name=val['振込先'])
                 if val['収入源'] == 'その他':
                     val['収入源'] = 'その他収入'
                 kakeibo.usage = Usages.objects.get(name=val['収入源'])
+                # update current_val
+                calc_val.resource_current_val(val['振込先'], val['金額'])
+
             elif kakeibo.way == "支出（現金）":
                 kakeibo.move_from = Resources.objects.get(name='財布')
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
+                # update current_val
+                calc_val.resource_current_val('財布', -val['金額'])
+
             elif kakeibo.way == "支出（クレジット）":
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
+
             elif kakeibo.way == "共通支出":
                 kakeibo.usage = Usages.objects.get(name="共通支出")
                 kakeibo.move_from = Resources.objects.get(name="財布")
+                # update current_val
+                calc_val.resource_current_val('財布', -val['金額'])
+
             # save
             kakeibo.save()
             memo = "Successfully completed"
@@ -63,7 +79,6 @@ def shared(request):
     if request.method == "POST":
         val = json.loads(request.body.decode())
         try:
-
             kakeibo = SharedKakeibos()
             kakeibo.date = date.today()
             kakeibo.fee = (val['金額'])
@@ -79,7 +94,6 @@ def shared(request):
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
             elif kakeibo.way == "クレジット":
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
-
             # save
             kakeibo.save()
             memo = "Successfully completed"
@@ -108,8 +122,6 @@ def seisan(request):
         # 指定月の一ヶ月前の月末日を取得
         year = request.GET.get(key="year")
         month = request.GET.get(key="month")
-        print(year)
-        print(month)
         if year is None or month is None:
             today = date.today()
             last = date(int(today.year), int(today.month), 1) - relativedelta(days=1)
@@ -118,7 +130,7 @@ def seisan(request):
         seisan = mylib.seisan(year, month)
         data = {
             "status": True,
-            "message": "Got response sucessfully",
+            "message": "Got response successfully",
             "data": seisan,
             }
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
