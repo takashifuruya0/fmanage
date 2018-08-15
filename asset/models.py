@@ -3,41 +3,41 @@ from django.db import models
 # Create your models here.
 
 
-class Stocks(models):
+class Stocks(models.Model):
     objects = None
-    name = models.CharField()
-    code = models.CharField()
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=4)
 
     def __str__(self):
         return self.name
 
 
-class BuyOrders(models):
-    objects = None
-    datetime = models.DateTimeField()
-    stock = models.ForeignKey(Stocks)
-    num = models.IntegerField(null=False, blank=False)
-    price = models.FloatField(null=False, blank=False)
-    commission = models.IntegerField()
+# class BuyOrders(models.Model):
+#     objects = None
+#     datetime = models.DateTimeField()
+#     stock = models.ForeignKey(Stocks)
+#     num = models.IntegerField(null=False, blank=False)
+#     price = models.FloatField(null=False, blank=False)
+#     commission = models.IntegerField()
+#
+#     def __str__(self):
+#         return "B/"+self.datetime+":"+self.stock
+#
+#
+# class SellOrders(models.Model):
+#     objects = None
+#     datetime = models.DateTimeField()
+#     stock = models.ForeignKey(Stocks)
+#     num = models.IntegerField(null=False, blank=False)
+#     price = models.FloatField(null=False, blank=False)
+#     commission = models.IntegerField()
+#     account = models.CharField()
+#
+#     def __str__(self):
+#         return "S/"+self.datetime+":"+self.stock
 
-    def __str__(self):
-        return "B/"+self.datetime+":"+self.stock
 
-
-class SellOrders(models):
-    objects = None
-    datetime = models.DateTimeField()
-    stock = models.ForeignKey(Stocks)
-    num = models.IntegerField(null=False, blank=False)
-    price = models.FloatField(null=False, blank=False)
-    commission = models.IntegerField()
-    account = models.CharField()
-
-    def __str__(self):
-        return "S/"+self.datetime+":"+self.stock
-
-
-class HoldingStocks(models):
+class HoldingStocks(models.Model):
     objects = None
     date = models.DateField()
     stock = models.ForeignKey(Stocks)
@@ -48,14 +48,14 @@ class HoldingStocks(models):
         return self.stock.name + "/" + self.num
 
 
-class Results(models):
-    buy_order = models.ForeignKey(BuyOrders)
-    sell_order = models.ForeignKey(SellOrders)
-    holding_time = models.IntegerField()
-    result = models.IntegerField()
-
-    def __str__(self):
-        return self.buy_order + ":" + self.sell_order
+# class Results(models.Model):
+#     buy_order = models.ForeignKey(BuyOrders)
+#     sell_order = models.ForeignKey(SellOrders)
+#     holding_time = models.IntegerField()
+#     result = models.IntegerField()
+#
+#     def __str__(self):
+#         return self.buy_order + ":" + self.sell_order
 
 
 

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import *
+from asset.models import *
 # Register your models here.
 
 
@@ -35,6 +36,14 @@ class ColorsAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
 
 
+class StocksAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'code']
+
+
+class HoldingStocksAdmin(admin.ModelAdmin):
+    list_display = ['id', 'date', 'stock', 'num', 'average_price']
+
+
 admin.site.register(Kakeibos, KakeibosAdmin)
 admin.site.register(Resources, ResourcesAdmin)
 admin.site.register(Usages, UsagesAdmin)
@@ -43,3 +52,5 @@ admin.site.register(Cards, CardsAdmin)
 admin.site.register(CreditItems, CreditItemsAdmin)
 admin.site.register(Credits, CreditsAdmin)
 admin.site.register(Colors, ColorsAdmin)
+admin.site.register(Stocks, StocksAdmin)
+admin.site.register(HoldingStocks, HoldingStocksAdmin)

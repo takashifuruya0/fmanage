@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'api',
     'account',
     'command',
+    "asset",
     'django_extensions',
 ]
 
