@@ -48,6 +48,15 @@ class HoldingStocks(models.Model):
         return self.stock.name + "/" + self.num
 
 
+class AssetStatus(models.Model):
+    objects = None
+    date = models.DateField()
+    total = models.IntegerField()
+    buying_power = models.IntegerField()
+    stocks_value = models.IntegerField()
+    other_value = models.IntegerField()
+    investment = models.IntegerField()
+
 # class Results(models.Model):
 #     buy_order = models.ForeignKey(BuyOrders)
 #     sell_order = models.ForeignKey(SellOrders)
