@@ -36,7 +36,9 @@ def dashboard(request):
             "code": code,
             "num": num,
             "aprice": aprice,
+            "atotal": aprice * num,
             "cprice": cprice,
+            "ctotal": cprice * num,
             "benefit": benefit,
             "color": val_color(benefit),
         }

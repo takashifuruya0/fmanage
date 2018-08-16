@@ -13,11 +13,7 @@
           <i class="fab fa-servicestack"></i> 資産運用概要
         </h1>
       </div>
-      <div class="col-sm-2">
-      </div>
-      <div class="col-sm-2">
-      </div>
-      <div class="col-sm-2">
+      <div class="col-sm-6">
       </div>
     </div>
     <hr>
@@ -34,6 +30,7 @@
               <th>Num</th>
               <th>Buying price</th>
               <th>Current price</th>
+              <th>Total</th>
               <th>Benefit</th>
             </tr>
           </thead>
@@ -46,10 +43,12 @@
               <td>{{hs.num}}</td>
               <td>{{hs.aprice}}</td>
               <td>{{hs.cprice}}</td>
+              <td>{{hs.ctotal}}</td>
               <td><font color="{{hs.color}}">{{hs.benefit}}</font></td>
             </tr>
             {% endfor %}
           <tr>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -62,5 +61,60 @@
         </table>
       </div>
     </div>
+
+    <!-- Graphs -->
+    <div class="row">
+      <div class="col-sm-4">
+        <canvas id="pie_holding_stocks"></canvas>
+      </div>
+      <div class="col-sm-8">
+        <canvas id="bar_holding_stocks"></canvas>
+      </div>
+    </div>
   </div>
+
+  <!-- pie_holding_stocks -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script>
+  <script>
+    var ctx = document.getElementById('pie_holding_stocks').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: [{%for hs in hstocks%}"{{hs.name}}",{%endfor%}],
+        datasets: [{
+          label: 'alice',
+          data: [{%for hs in hstocks%}{{hs.ctotal}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e"]
+        }]
+      }
+    });
+  </script>
+
+  <!-- bar_holding_stocks -->
+  <script>
+    var ctx = document.getElementById('bar_holding_stocks').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [{%for hs in hstocks%}"{{hs.name}}",{%endfor%}],
+        datasets: [{
+          label: 'Buying price',
+          data: [{%for hs in hstocks%}{{hs.atotal}},{%endfor%}],
+          backgroundColor: "rgba(153,255,51,0.4)"
+        }, {
+          label: 'Current price',
+          data: [{%for hs in hstocks%}{{hs.ctotal}},{%endfor%}],
+          backgroundColor: "rgba(255,153,0,0.4)"
+        }]
+      }
+    });
+  </script>
+
 {% endblock %}
