@@ -18,7 +18,7 @@ def kakeibo(request):
         try:
             logger.info("kakeibo api is called by POST")
             val = json.loads(request.body.decode())
-            
+
             kakeibo = Kakeibos()
             kakeibo.date = date.today()
             kakeibo.fee = (val['金額'])
@@ -29,14 +29,14 @@ def kakeibo(request):
                 kakeibo.move_from = Resources.objects.get(name=val['引き落とし対象'])
                 kakeibo.usage = Usages.objects.get(name=val['引き落とし項目'])
                 # update current_val
-                calc_val.resource_current_val(val['引き落とし対象'], -kakeibo.fee)
+                # calc_val.resource_current_val(val['引き落とし対象'], -kakeibo.fee)
 
             elif kakeibo.way == "振替":
                 kakeibo.move_from = Resources.objects.get(name=val['From'])
                 kakeibo.move_to = Resources.objects.get(name=val['To'])
                 # update current_val
-                calc_val.resource_current_val(val['From'], -kakeibo.fee)
-                calc_val.resource_current_val(val['To'], kakeibo.fee)
+                # calc_val.resource_current_val(val['From'], -kakeibo.fee)
+                # calc_val.resource_current_val(val['To'], kakeibo.fee)
 
             elif kakeibo.way == "収入":
                 kakeibo.move_to = Resources.objects.get(name=val['振込先'])
@@ -44,13 +44,13 @@ def kakeibo(request):
                     val['収入源'] = 'その他収入'
                 kakeibo.usage = Usages.objects.get(name=val['収入源'])
                 # update current_val
-                calc_val.resource_current_val(val['振込先'], kakeibo.fee)
+                # calc_val.resource_current_val(val['振込先'], kakeibo.fee)
 
             elif kakeibo.way == "支出（現金）":
                 kakeibo.move_from = Resources.objects.get(name='財布')
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
                 # update current_val
-                calc_val.resource_current_val('財布', -kakeibo.fee)
+                # calc_val.resource_current_val('財布', -kakeibo.fee)
 
             elif kakeibo.way == "支出（クレジット）":
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
@@ -59,10 +59,14 @@ def kakeibo(request):
                 kakeibo.usage = Usages.objects.get(name="共通支出")
                 kakeibo.move_from = Resources.objects.get(name="財布")
                 # update current_val
-                calc_val.resource_current_val('財布', -kakeibo.fee)
+                # calc_val.resource_current_val('財布', -kakeibo.fee)
 
             # save
             kakeibo.save()
+            name = [i.name for i in Resources.objects.all()]
+            for i in name:
+                calc_val.resource_current_val(i, 0)
+
             memo = "Successfully completed"
             logger.info(memo)
 
