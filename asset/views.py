@@ -13,23 +13,33 @@ from asset.functions import get_info, asset_calculation
 def dashboard(request):
 
     def val_color(val):
-        if val < 0:
-            return "red"
-        else:
+        if type(val) is str:
             return "black"
+        elif val > 0:
+            return "black"
+        else:
+            return "red"
 
     # 保有株リスト
     hstocks = list()
     hss = HoldingStocks.objects.all()
     for hs in hss:
-        data = get_info.stock_overview(hs.stock.code)
         name = hs.stock.name
         code = hs.stock.code
         num = hs.num
         date = hs.date
         aprice = hs.average_price
-        cprice = data['price']
-        benefit = (cprice - aprice) * num
+        # scraping
+        data = get_info.stock_overview(code)
+        if data['status']:
+            cprice = data['price']
+            ctotal = cprice * num
+            benefit = (cprice - aprice) * num
+        else:
+            cprice = "-"
+            ctotal = "-"
+            benefit = "-"
+
         res = {
             "date": date,
             "name": name,
@@ -38,7 +48,7 @@ def dashboard(request):
             "aprice": aprice,
             "atotal": aprice * num,
             "cprice": cprice,
-            "ctotal": cprice * num,
+            "ctotal": ctotal,
             "benefit": benefit,
             "color": val_color(benefit),
         }

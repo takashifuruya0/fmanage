@@ -80,7 +80,7 @@
     var myChart = new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: [{%for hs in hstocks%}"{{hs.name}}",{%endfor%}],
+        labels: [{%for hs in hstocks%}"{{hs.code}}",{%endfor%}],
         datasets: [{
           label: 'alice',
           data: [{%for hs in hstocks%}{{hs.ctotal}},{%endfor%}],
@@ -103,7 +103,7 @@
     var myChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: [{%for hs in hstocks%}"{{hs.name}}",{%endfor%}],
+        labels: [{%for hs in hstocks%}"{{hs.code}}",{%endfor%}],
         datasets: [{
           label: 'Buying price',
           data: [{%for hs in hstocks%}{{hs.atotal}},{%endfor%}],

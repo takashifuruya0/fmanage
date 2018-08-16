@@ -2,13 +2,22 @@
 from asset.models import Stocks, HoldingStocks, AssetStatus
 from asset.functions import get_info
 from datetime import date
+import logging
+logger = logging.getLogger("django")
 
 
 def benefit(hs_id):
     hs = HoldingStocks.objects.get(id=hs_id)
     code = hs.stock.code
     data = get_info.stock_overview(code)
-    val = (data['price'] - hs.average_price) * hs.num
+    if data['status']:
+        cval = data['price']
+        val = (data['price'] - hs.average_price) * hs.num
+        total = hs.num * data['price']
+    else:
+        cval = "-"
+        val = "-"
+        total = "-"
     holding_time = date.today() - hs.date
     res = {
         "data": {
@@ -19,8 +28,8 @@ def benefit(hs_id):
             "num": hs.num,
             "average_price": hs.average_price,
         },
-        "current_price": data['price'],
-        "total": hs.num * data['price'],
+        "current_price": cval,
+        "total": total,
         "benefit": val,
         "holding_time": holding_time.days,
     }
@@ -28,8 +37,8 @@ def benefit(hs_id):
 
 
 def benefit_all():
-    benefit_all = 0
-    total_all = 0
+    benefits = 0
+    totals = 0
     res = {
         "data_all": [],
     }
@@ -37,10 +46,17 @@ def benefit_all():
     for hs in hsa:
         tmp = benefit(hs.id)
         res["data_all"].append(tmp)
-        benefit_all += tmp["benefit"]
-        total_all += tmp['total']
-    res['benefit_all'] = benefit_all
-    res['total_all'] = total_all
+        try:
+            benefits += tmp["benefit"]
+            totals += tmp['total']
+        except Exception as e:
+            logger.error("adding in benefit_all() was failed")
+            logger.error(e)
+            benefits = 0
+            totals = 0
+
+    res['benefit_all'] = benefits
+    res['total_all'] = totals
     return res
 
 

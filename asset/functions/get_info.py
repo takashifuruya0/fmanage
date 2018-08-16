@@ -1,6 +1,8 @@
 # coding:utf-8
 import requests
 from bs4 import BeautifulSoup
+import logging
+logger = logging.getLogger("django")
 
 
 def stock_overview(code):
@@ -15,14 +17,17 @@ def stock_overview(code):
         stockprice = stocktable.findAll('td', {'class': 'stoksPrice'})[1].text
         stockprice = float(stockprice.replace(",", ""))
         memo = "Success"
+        status = True
     except Exception as e:
         symbol = "-"
         stockprice = e
+        status = False
         memo = ret.text
     res = {
         "code": code,
         "name": symbol,
         "price": stockprice,
-        "status": memo,
+        "status": status,
+        "memo": memo,
     }
     return res
