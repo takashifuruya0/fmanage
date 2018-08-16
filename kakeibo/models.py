@@ -35,6 +35,7 @@ class Resources(BaseModel):
     objects = None
     initial_val = models.IntegerField(null=False, blank=False)
     color = models.OneToOneField(Colors, blank=True, null=True)
+    current_val = models.IntegerField(null=True, blank=True)
 
 
 # UsagesとResourcesの紐付け

@@ -9,7 +9,7 @@ class KakeibosAdmin(admin.ModelAdmin):
 
 
 class ResourcesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'date', 'initial_val', 'color']
+    list_display = ['id', 'name', 'date', 'initial_val', 'current_val', 'color']
 
 
 class UsagesAdmin(admin.ModelAdmin):

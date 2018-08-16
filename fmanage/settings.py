@@ -152,6 +152,10 @@ URL_BASE = "https://www.fk-management.com"
 URL_METABASE = URL_BASE + "/metabase"
 URL_KNOWLEDGE = URL_BASE + "/knowledge"
 
+# Budget
+BUDGET_TAKA = 90000
+BUDGET_HOKO = 60000
+
 # Font Path
 FONT_PATH = 'document/font/ipaexg.ttf'
 

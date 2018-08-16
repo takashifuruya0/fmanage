@@ -41,14 +41,19 @@ def dashboard(request):
     ways_sum = kakeibos.values('way').annotate(Sum('fee'))
     current_way = dict()
     for w in ways_sum:
-        if w['way'] != "振替":
-            current_way[w['way']] = money.convert_yen(w['fee__sum'])
+        current_way[w['way']] = money.convert_yen(w['fee__sum'])
+    current_way.pop("振替")
     # resource
     current_resource = dict()
     for rs in Resources.objects.all():
-        move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
-        move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
-        val = rs.initial_val + move_to - move_from
+        # current_valがあれば早い
+        if rs.current_val is not None:
+            val = rs.current_val
+        else:
+            move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
+            move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
+            val = rs.initial_val + move_to - move_from
+            logger.info(rs.name+":"+str(val))
         if val is not 0:
             current_resource[rs.name] = money.convert_yen(val)
     # shared
@@ -176,12 +181,16 @@ def mine(request):
         if w['way'] != "振替":
             current_way[w['way']] = money.convert_yen(w['fee__sum'])
     # resource
-    resources = Resources.objects.all()
     current_resource = dict()
-    for rs in resources:
-        move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
-        move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
-        val = rs.initial_val + move_to - move_from
+    for rs in Resources.objects.all():
+        # current_valがあれば早い
+        if rs.current_val is not None:
+            val = rs.current_val
+        else:
+            move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
+            move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
+            val = rs.initial_val + move_to - move_from
+            logger.info(rs.name + ":" + str(val))
         if val is not 0:
             current_resource[rs.name] = money.convert_yen(val)
     # usage
