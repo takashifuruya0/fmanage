@@ -30,12 +30,13 @@ def benefit(hs_id):
 def benefit_all():
     benefit_all = 0
     total_all = 0
-    res = dict()
-    res["data_all"] = []
+    res = {
+        "data_all": [],
+    }
     hsa = HoldingStocks.objects.all()
     for hs in hsa:
         tmp = benefit(hs.id)
-        res["data"].append(tmp)
+        res["data_all"].append(tmp)
         benefit_all += tmp["benefit"]
         total_all += tmp['total']
     res['benefit_all'] = benefit_all

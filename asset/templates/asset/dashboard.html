@@ -23,10 +23,43 @@
     <hr>
 
     <div class="row">
-      <div class="col-sm-6">
-        {{today.year}}年{{today.month}}月
-      </div>
-      <div class="col-sm-6">
+      <div class="col-sm-12">
+        <h2>{{today.year}}年{{today.month}}月{{today.day}}日</h2>
+        <table class="table table-light table-hover table-sm">
+          <thead>
+            <tr>
+              <th>Buying Date</th>
+              <th>Code</th>
+              <th>Name</th>
+              <th>Num</th>
+              <th>Buying price</th>
+              <th>Current price</th>
+              <th>Benefit</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for hs in hstocks %}
+            <tr>
+              <td>{{hs.date}}</td>
+              <td>{{hs.code}}</td>
+              <td>{{hs.name}}</td>
+              <td>{{hs.num}}</td>
+              <td>{{hs.aprice}}</td>
+              <td>{{hs.cprice}}</td>
+              <td><font color="{{hs.color}}">{{hs.benefit}}</font></td>
+            </tr>
+            {% endfor %}
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{total}}</td>
+            <td><font color="{{total_color}}">{{benefit}}</font></td>
+          </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
