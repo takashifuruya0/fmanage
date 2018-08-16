@@ -23,11 +23,12 @@ def resource_current_val(rsname, val):
         rs.save()
         logger.info(rsname+":"+str(rs.current_val))
         msg = rsname + " is updated successfully"
+        logger.info(msg)
         status = True
     except Exception as e:
         msg = "Failed to update " + rsname
-        logger.error(msg)
         msg = msg + ": " + str(e)
+        logger.error(msg)
         status = False
     res = {
         "msg": msg,

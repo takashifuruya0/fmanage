@@ -5,7 +5,7 @@ from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from kakeibo.functions import mylib,calc_val
+from kakeibo.functions import mylib, calc_val
 # Create your views here.
 
 @csrf_exempt
