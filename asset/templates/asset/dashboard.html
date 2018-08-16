@@ -1,0 +1,33 @@
+{% extends "kakeibo/base.html" %}
+
+{% block title %}
+    Asset dashboard
+{% endblock %}
+
+{% block body %}
+  <div class="container-fluid">
+    <hr>
+    <div class="row">
+      <div class="col-sm-6">
+        <h1>
+          <i class="fab fa-servicestack"></i> 資産運用概要
+        </h1>
+      </div>
+      <div class="col-sm-2">
+      </div>
+      <div class="col-sm-2">
+      </div>
+      <div class="col-sm-2">
+      </div>
+    </div>
+    <hr>
+
+    <div class="row">
+      <div class="col-sm-6">
+        {{today.year}}年{{today.month}}月
+      </div>
+      <div class="col-sm-6">
+      </div>
+    </div>
+  </div>
+{% endblock %}

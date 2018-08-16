@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(url='kakeibo/')),
     url(r'^admin/', admin.site.urls),
     url(r'^kakeibo/', include('kakeibo.urls', namespace='kakeibo')),
+    url(r'^asset/', include('asset.urls', namespace='asset')),
     url(r'^api/', include('api.urls', namespace='api')),
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^document/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
