@@ -15,9 +15,10 @@ logger = logging.getLogger("django")
 def kakeibo(request):
     # add data to DB
     if request.method == "POST":
-        logger.info("kakeibo api is called by POST")
-        val = json.loads(request.body.decode())
         try:
+            logger.info("kakeibo api is called by POST")
+            val = json.loads(request.body.decode())
+            
             kakeibo = Kakeibos()
             kakeibo.date = date.today()
             kakeibo.fee = (val['金額'])
