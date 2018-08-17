@@ -45,7 +45,7 @@ class HoldingStocks(models.Model):
     average_price = models.FloatField()
 
     def __str__(self):
-        return self.stock.name + "/" + self.num
+        return self.stock.name
 
 
 class AssetStatus(models.Model):

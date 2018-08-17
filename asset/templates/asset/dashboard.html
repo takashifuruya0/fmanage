@@ -10,7 +10,7 @@
     <div class="row">
       <div class="col-sm-6">
         <h1>
-          <i class="fab fa-servicestack"></i> 資産運用概要
+          <i class="fab fa-servicestack"></i> 資産運用概要: {{today.year}}年{{today.month}}月{{today.day}}日
         </h1>
       </div>
       <div class="col-sm-6">
@@ -21,17 +21,49 @@
     <!-- Graphs -->
     <h2>Graphs</h2>
     <div class="row">
-      <div class="col-sm-4">
+      <div class="col-sm-3">
         <canvas id="pie_holding_stocks"></canvas>
       </div>
-      <div class="col-sm-8">
+      <div class="col-sm-5">
         <canvas id="bar_holding_stocks"></canvas>
+      </div>
+      <div class="col-sm-4">
+        <table class="table table-light table-hover table-sm">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th class="right">Val</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>保有株式</td>
+              <td class="right">{{total}}</td>
+            </tr>
+            <tr>
+              <td>買付余力</td>
+              <td class="right">{{buying_power}}</td>
+            </tr>
+            <tr>
+              <td>総計</td>
+              <td class="right">{{total_b}}</td>
+            </tr>
+            <tr>
+              <td>収益</td>
+              <td class="right"><font color="{{total_color}}">{{benefit}}</font></td>
+            </tr>
+            <tr>
+              <td>投資額</td>
+              <td class="right">{{investment}}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
     <hr>
 
     <!-- Table -->
-    <h2>{{today.year}}年{{today.month}}月{{today.day}}日</h2>
+    <h2>Holding Stocks</h2>
     <div class="row">
       <div class="col-sm-12">
         <table class="table table-light table-hover table-sm table-responsive-md">
@@ -60,21 +92,20 @@
               <td class="right"><font color="{{hs.color}}">{{hs.benefit}}</font></td>
             </tr>
             {% endfor %}
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="right">{{total}}</td>
-            <td class="right"><font color="{{total_color}}">{{benefit}}</font></td>
-          </tr>
           </tbody>
         </table>
       </div>
     </div>
+    <hr>
+
+    <h2>Date shift</h2>
+    <div class="row">
+      <div class="col-sm-12">
+        <canvas id="date_shift"></canvas>
+      </div>
+    </div>
   </div>
+
 
   <!-- pie_holding_stocks -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script>
@@ -83,10 +114,10 @@
     var myChart = new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: [{%for hs in hstocks%}"{{hs.code}}",{%endfor%}],
+        labels: ["Buying power", {%for hs in hstocks%}"{{hs.code}}",{%endfor%}],
         datasets: [{
           label: "alice",
-          data: [{%for hs in hstocks%}{{hs.ctotal}},{%endfor%}],
+          data: [{{buying_power}}, {%for hs in hstocks%}{{hs.ctotal}},{%endfor%}],
           backgroundColor: [
             "#2ecc71",
             "#3498db",
@@ -118,6 +149,51 @@
           backgroundColor: "rgba(255,153,0,0.4)"
         }]
       }
+    });
+  </script>
+
+  <!-- Date shift -->
+  <script>
+    var lineChartData = {
+      labels : ["1月","2月","3月","4月","5月","6月"],
+      datasets : [
+        {
+          label: "私",
+          fillColor : /*"#f2dae8"*/"rgba(242,218,232,0.6)",
+          strokeColor : /*"#dd9cb4"*/"rgba(221,156,180,0.6)",
+          pointColor : /*"#dd9cb4"*/"rgba(221,156,180,0.6)",
+          pointStrokeColor : "#fff",
+          pointHighlightFill : "#fff",
+          pointHighlightStroke : /*"#dd9cb4"*/"rgba(221,156,180,0.6)",
+          data : [67,65,66,70,71,77]
+        },
+        {
+          label: "彼",
+          fillColor : /*"#afd0ef"*/"rgba(175,208,239,0.6)",
+          strokeColor : /*"#fb7dd8"*/"rgba(143,183,221,0.6)",
+          pointColor : /*"#8fb7dd"*/"rgba(143,183,221,0.6)",
+          pointStrokeColor : "#fff",
+          pointHighlightFill : "#fff",
+          pointHighlightStroke : /*"#8fb7dd"*/"rgba(143,183,221,0.6)",
+          data : [57,56,55,53,56,49]
+        }
+      ]
+    }
+    var options = {
+      scales: {
+        yAxes: [{
+          stacked: true
+        }]
+      }
+    }
+    var ctx = document.getElementById("date_shift").getContext("2d");
+    var myChart = new Chart(ctx, {
+        type: "line",
+        data: lineChartData,
+        responsive: true,
+        options: options,
+        // 下記を追加すると線がまっすぐになります
+        /* bezierCurve: false */
     });
   </script>
 

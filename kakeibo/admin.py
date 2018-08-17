@@ -44,6 +44,10 @@ class HoldingStocksAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'stock', 'num', 'average_price']
 
 
+class AssetStatusAdmin(admin.ModelAdmin):
+    list_display = ["date", "total", "buying_power", "stocks_value", "other_value", "investment"]
+
+
 admin.site.register(Kakeibos, KakeibosAdmin)
 admin.site.register(Resources, ResourcesAdmin)
 admin.site.register(Usages, UsagesAdmin)
@@ -54,3 +58,4 @@ admin.site.register(Credits, CreditsAdmin)
 admin.site.register(Colors, ColorsAdmin)
 admin.site.register(Stocks, StocksAdmin)
 admin.site.register(HoldingStocks, HoldingStocksAdmin)
+admin.site.register(AssetStatus, AssetStatusAdmin)

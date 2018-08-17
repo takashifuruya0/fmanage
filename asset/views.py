@@ -5,11 +5,10 @@ logger = logging.getLogger("django")
 import requests
 from bs4 import BeautifulSoup
 from datetime import date, datetime
-from asset.models import Stocks, HoldingStocks
+from asset.models import Stocks, HoldingStocks, AssetStatus
 from asset.functions import get_info, mylib_asset
 # Template-view
 from django.views.generic.edit import CreateView
-
 
 
 # 概要
@@ -52,6 +51,11 @@ def dashboard(request):
     # 総資産
     total = mylib_asset.benefit_all()['total_all']
     benefit = mylib_asset.benefit_all()['benefit_all']
+    # 買付余力
+    astatus = AssetStatus.objects.latest('date')
+    investment = astatus.investment
+    buying_power = astatus.buying_power
+    total_b = total + buying_power
 
     # return
     output = {
@@ -59,7 +63,10 @@ def dashboard(request):
         "hstocks": hstocks,
         "total": total,
         "benefit": benefit,
+        "buying_power": buying_power,
         "total_color": mylib_asset.val_color(benefit),
+        "total_b": total_b,
+        "investment": investment,
     }
     return render(request, 'asset/dashboard.html', output)
 

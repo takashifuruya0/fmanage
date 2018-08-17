@@ -61,22 +61,33 @@ def benefit_all():
 
 
 def record_status():
-    tmp = AssetStatus.objects.get(date=date.today())
-    if tmp.__len__ is 1:
-        astatus = tmp[0]
-    else:
-        astatus = AssetStatus()
-    current = AssetStatus.objects.all().latest('id')
-    data = benefit_all()
-    astatus.date = date.today()
-    astatus.stocks_value = data['total_all']
-
-    # otherやbuying_power, investmentのアップデートもこの関数でやる？
-    astatus.other_value = current.other_value
-    astatus.buying_power = current.buying_power
-    astatus.investment = current.investment
-
-    astatus.total = astatus.stocks_value + astatus.other_value + astatus.buying_power
+    try:
+        tmp = AssetStatus.objects.filter(date=date.today())
+        if tmp.__len__() == 1:
+            astatus = tmp[0]
+            memo = "updated AssetStatus for today"
+        else:
+            astatus = AssetStatus()
+            memo = "create AssetStatus for today"
+        # 保有株式を計算
+        data = benefit_all()
+        astatus.date = date.today()
+        astatus.stocks_value = data['total_all']
+        # 一つ前のデータからother_value, buying_power, investment,を引き継ぎ
+        current = AssetStatus.objects.all().latest('id')
+        astatus.other_value = current.other_value
+        astatus.buying_power = current.buying_power
+        astatus.investment = current.investment
+        # total を update
+        astatus.total = astatus.stocks_value + astatus.other_value + astatus.buying_power
+        astatus.save()
+        logger.info(astatus.total)
+        #
+        status = True
+    except Exception as e:
+        status = False
+        memo = e
+    res = {"status": status, "memo": memo,}
     return res
 
 
