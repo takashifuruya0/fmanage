@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from asset.functions import asset_calculation as ac
+from asset.functions import mylib_asset as ac
 
 
 # BaseCommandを継承して作成

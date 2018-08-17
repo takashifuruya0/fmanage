@@ -77,6 +77,25 @@ def record_status():
     astatus.investment = current.investment
 
     astatus.total = astatus.stocks_value + astatus.other_value + astatus.buying_power
-
     return res
 
+
+def convert_yen(v):
+    v = int(v)
+    try:
+        if v >= 0:
+            new_val = '¥{:,}'.format(v)
+        elif v < 0:
+            new_val = '-¥{:,}'.format(-v)
+    except Exception as e:
+            new_val = "-"
+    return new_val
+
+
+def val_color(val):
+    if type(val) is str:
+        return "black"
+    elif val > 0:
+        return "black"
+    else:
+        return "red"

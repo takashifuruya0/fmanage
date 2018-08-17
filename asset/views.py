@@ -6,19 +6,14 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import date, datetime
 from asset.models import Stocks, HoldingStocks
-from asset.functions import get_info, asset_calculation
+from asset.functions import get_info, mylib_asset
+# Template-view
+from django.views.generic.edit import CreateView
+
 
 
 # 概要
 def dashboard(request):
-
-    def val_color(val):
-        if type(val) is str:
-            return "black"
-        elif val > 0:
-            return "black"
-        else:
-            return "red"
 
     # 保有株リスト
     hstocks = list()
@@ -50,13 +45,13 @@ def dashboard(request):
             "cprice": cprice,
             "ctotal": ctotal,
             "benefit": benefit,
-            "color": val_color(benefit),
+            "color": mylib_asset.val_color(benefit),
         }
         hstocks.append(res)
 
     # 総資産
-    total = asset_calculation.benefit_all()['total_all']
-    benefit = asset_calculation.benefit_all()['benefit_all']
+    total = mylib_asset.benefit_all()['total_all']
+    benefit = mylib_asset.benefit_all()['benefit_all']
 
     # return
     output = {
@@ -64,8 +59,16 @@ def dashboard(request):
         "hstocks": hstocks,
         "total": total,
         "benefit": benefit,
-        "total_color": val_color(benefit),
+        "total_color": mylib_asset.val_color(benefit),
     }
     return render(request, 'asset/dashboard.html', output)
 
 
+class StocksCreateView(CreateView):
+    model = Stocks
+    fields = ("code", "name")  # リストもしくはタプル
+
+
+class HoldingStocksCreateView(CreateView):
+    model = HoldingStocks
+    fields = ("stock", "date", "average_price", "num")  # リストもしくはタプル
