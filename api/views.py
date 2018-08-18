@@ -67,18 +67,21 @@ def kakeibo(request):
             for i in name:
                 calc_val.resource_current_val(i, 0)
 
+            status = True
             memo = "Successfully completed"
             logger.info(memo)
 
         except Exception as e:
+            status = False
             memo = e
             logger.error(str(e))
 
     else:
+        status = False
         memo = "you should use POST"
 
     # json
-    data = {"memo": memo, }
+    data = {"message": memo, "status": status,}
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
@@ -108,15 +111,18 @@ def shared(request):
             # save
             kakeibo.save()
             memo = "Successfully completed"
+            status = True
 
         except Exception as e:
             memo = e
+            status = False
 
     else:
         memo = "you should use POST"
+        status = False
 
     # json
-    data = {"memo": memo, }
+    data = {"message": memo, "status": status,}
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
