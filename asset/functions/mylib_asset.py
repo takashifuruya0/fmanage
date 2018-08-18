@@ -112,6 +112,21 @@ def val_color(val):
         return "red"
 
 
+def register_stocks(code):
+    try:
+        data = get_info.stock_overview(code)
+        stock = Stocks()
+        stock.code = code
+        stock.name = data['name']
+        status = True
+        msg = "Code " + str(code) + " was successfully registered"
+    except Exception as e:
+        status = False
+        msg = "Code " + str(code) + " was failed to register"
+    res = {"status": status, "message": msg,}
+    return res
+
+
 def inherit_asset_status():
     dates = [
         [2018, 8, 10],
