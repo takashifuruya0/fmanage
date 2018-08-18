@@ -12,29 +12,38 @@ class Stocks(models.Model):
         return self.name
 
 
-# class BuyOrders(models.Model):
-#     objects = None
-#     datetime = models.DateTimeField()
-#     stock = models.ForeignKey(Stocks)
-#     num = models.IntegerField(null=False, blank=False)
-#     price = models.FloatField(null=False, blank=False)
-#     commission = models.IntegerField()
-#
-#     def __str__(self):
-#         return "B/"+self.datetime+":"+self.stock
-#
-#
-# class SellOrders(models.Model):
-#     objects = None
-#     datetime = models.DateTimeField()
-#     stock = models.ForeignKey(Stocks)
-#     num = models.IntegerField(null=False, blank=False)
-#     price = models.FloatField(null=False, blank=False)
-#     commission = models.IntegerField()
-#     account = models.CharField()
-#
-#     def __str__(self):
-#         return "S/"+self.datetime+":"+self.stock
+class Commissions(models.Model):
+    objects = None
+    order_price_line = models.IntegerField()
+    fee = models.IntegerField()
+
+    def __str__(self):
+        return self.order_price_line
+
+
+class BuyOrders(models.Model):
+    objects = None
+    date = models.DateField()
+    stock = models.ForeignKey(Stocks)
+    num = models.IntegerField(null=False, blank=False)
+    price = models.FloatField(null=False, blank=False)
+    commission = models.IntegerField()
+
+    def __str__(self):
+        return "B/"+self.date+":"+self.stock
+
+
+class SellOrders(models.Model):
+    objects = None
+    date = models.DateField()
+    stock = models.ForeignKey(Stocks)
+    num = models.IntegerField(null=False, blank=False)
+    price = models.FloatField(null=False, blank=False)
+    commission = models.IntegerField()
+    tax = models.IntegerField()
+
+    def __str__(self):
+        return "S/"+self.datetime+":"+self.stock
 
 
 class HoldingStocks(models.Model):
