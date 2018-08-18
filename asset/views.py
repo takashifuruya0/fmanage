@@ -52,9 +52,9 @@ def dashboard(request):
     total = mylib_asset.benefit_all()['total_all']
     benefit = mylib_asset.benefit_all()['benefit_all']
     # 買付余力
-    astatus = AssetStatus.objects.latest('date')
-    investment = astatus.investment
-    buying_power = astatus.buying_power
+    astatus = AssetStatus.objects.all().order_by('date')
+    investment = astatus.last().investment
+    buying_power = astatus.last().buying_power
     total_b = total + buying_power
 
     # return
@@ -67,6 +67,7 @@ def dashboard(request):
         "total_color": mylib_asset.val_color(benefit),
         "total_b": total_b,
         "investment": investment,
+        "astatus": astatus,
     }
     return render(request, 'asset/dashboard.html', output)
 
