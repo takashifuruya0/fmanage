@@ -10,4 +10,6 @@ urlpatterns = [
     url(r'^kakeibo/fy2018$', views.kakeibo, name='kakeibo'),
     url(r'^shared$', views.shared, name='shared'),
     url(r'^seisan$', views.seisan, name='seisan'),
+    url(r'^kakeibo_month$', views.kakeibo_month, name="kakeibo_month"),
+    url(r'^shared_month$', views.shared_month, name="shared_month"),
 ]

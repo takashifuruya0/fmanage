@@ -5,6 +5,7 @@ from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib, calc_val
 # Create your views here.
 import logging
@@ -264,4 +265,99 @@ def seisan(request):
     return response
 
 
+@csrf_exempt
+def kakeibo_month(request):
+    if request.method != "GET":
+        # GET以外はFalse
+        data = {
+            "message": "GET request is only acceptable",
+            "status": False,
+        }
+    elif request.method == "GET":
+        # year, monthが指定されていない→今月
+        year = request.GET.get(key="year")
+        month = request.GET.get(key="month")
+        if year is None or month is None:
+            today = date.today()
+            year = today.year
+            month = today.month
+        data = {
+            "expense": list(),
+            "income": list(),
+        }
+        # usage=None（振替）を除外
+        ks = Kakeibos.objects.exclude(usage=None).filter(date__year=year, date__month=month)\
+            .values("usage").annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        # dataがない場合
+        if ks.__len__() == 0:
+            data['message'] = "No data"
+            data['status'] = False
+        else:
+            for k in ks:
+                d = {
+                    "usage": Usages.objects.get(pk=k['usage']).name,
+                    "sum": k['sum'],
+                    "ave": k['avg'],
+                    "count": k['count'],
+                }
+                if Usages.objects.get(pk=k['usage']).is_expense is True:
+                    data["expense"].append(d)
+                else:
+                    data["income"].append(d)
+            data["message"] = "Success"
+            data['status'] = True
+        data['date'] = {"year": year, "month": month, }
+    # json
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response
 
+
+@csrf_exempt
+def shared_month(request):
+    if request.method != "GET":
+        # GET以外はFalse
+        data = {
+            "message": "GET request is only acceptable",
+            "status": False,
+        }
+    elif request.method == "GET":
+        # year, monthが指定されていない→今月
+        year = request.GET.get(key="year")
+        month = request.GET.get(key="month")
+        if year is None or month is None:
+            today = date.today()
+            year = today.year
+            month = today.month
+        data = {
+            "expense": list(),
+            "income": list(),
+        }
+        # usage=None（振替）を除外
+        ks = SharedKakeibos.objects.exclude(usage=None).filter(date__year=year, date__month=month)\
+            .values("usage", "paid_by").order_by("paid_by")\
+            .annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        # dataがない場合
+        if ks.__len__() == 0:
+            data['message'] = "No data"
+            data['status'] = False
+        else:
+            for k in ks:
+                d = {
+                    "usage": Usages.objects.get(pk=k['usage']).name,
+                    "paid_by": k['paid_by'],
+                    "sum": k['sum'],
+                    "ave": k['avg'],
+                    "count": k['count'],
+                }
+                if Usages.objects.get(pk=k['usage']).is_expense is True:
+                    data["expense"].append(d)
+                else:
+                    data["income"].append(d)
+            data["message"] = "Success"
+            data['status'] = True
+        data['date'] = {"year": year, "month": month, }
+    # json
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response
