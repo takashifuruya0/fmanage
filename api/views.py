@@ -274,20 +274,23 @@ def kakeibo_month(request):
             "status": False,
         }
     elif request.method == "GET":
-        # year, monthが指定されていない→今月
-        year = request.GET.get(key="year")
-        month = request.GET.get(key="month")
-        if year is None or month is None:
-            today = date.today()
-            year = today.year
-            month = today.month
+        # jsonに変換するデータを準備
         data = {
             "expense": list(),
             "income": list(),
         }
+        # yearかmonthが指定されていない→全件取得
+        year = request.GET.get(key="year")
+        month = request.GET.get(key="month")
+        if year is None or month is None:
+            data['date'] = {"year": None, "month": None, }
+            ks = Kakeibos.objects.exclude(usage=None)
+        else:
+            data['date'] = {"year": year, "month": month, }
+            ks = Kakeibos.objects.exclude(usage=None).filter(date__year=year, date__month=month)
         # usage=None（振替）を除外
-        ks = Kakeibos.objects.exclude(usage=None).filter(date__year=year, date__month=month)\
-            .values("usage").annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        ks = ks.values("usage") \
+            .annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
         # dataがない場合
         if ks.__len__() == 0:
             data['message'] = "No data"
@@ -322,20 +325,22 @@ def shared_month(request):
             "status": False,
         }
     elif request.method == "GET":
-        # year, monthが指定されていない→今月
-        year = request.GET.get(key="year")
-        month = request.GET.get(key="month")
-        if year is None or month is None:
-            today = date.today()
-            year = today.year
-            month = today.month
+        # jsonに変換するデータを準備
         data = {
             "expense": list(),
             "income": list(),
         }
+        # yearかmonthが指定されていない→全件取得
+        year = request.GET.get(key="year")
+        month = request.GET.get(key="month")
+        if year is None or month is None:
+            data['date'] = {"year": None, "month": None, }
+            ks = SharedKakeibos.objects.exclude(usage=None)
+        else:
+            data['date'] = {"year": year, "month": month, }
+            ks = SharedKakeibos.objects.exclude(usage=None).filter(date__year=year, date__month=month)
         # usage=None（振替）を除外
-        ks = SharedKakeibos.objects.exclude(usage=None).filter(date__year=year, date__month=month)\
-            .values("usage", "paid_by").order_by("paid_by")\
+        ks = ks.values("usage", "paid_by").order_by("paid_by")\
             .annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
         # dataがない場合
         if ks.__len__() == 0:
