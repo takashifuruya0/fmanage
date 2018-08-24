@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'command',
     "asset",
     'django_extensions',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
@@ -192,3 +193,6 @@ LOGGING = {
         },
     }
 }
+
+# django.conf.humanize
+NUMBER_GROUPING = 3

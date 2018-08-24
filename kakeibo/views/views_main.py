@@ -41,7 +41,7 @@ def dashboard(request):
     ways_sum = kakeibos.values('way').annotate(Sum('fee'))
     current_way = dict()
     for w in ways_sum:
-        current_way[w['way']] = money.convert_yen(w['fee__sum'])
+        current_way[w['way']] = w['fee__sum']
     current_way.pop("振替")
     # resource
     current_resource = dict()
@@ -54,8 +54,9 @@ def dashboard(request):
             move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
             val = rs.initial_val + move_to - move_from
             logger.info(rs.name+":"+str(val))
+            print(rs.name+":"+str(val))
         if val is not 0:
-            current_resource[rs.name] = money.convert_yen(val)
+            current_resource[rs.name] = val
     # shared
     shared = SharedKakeibos.objects.filter(date__month=today.month, date__year=today.year)
     paidbyt = mylib.cal_sum_or_0(shared.filter(paid_by="敬士"))
@@ -68,7 +69,6 @@ def dashboard(request):
         for su in shared_usages:
             tmp = dict()
             tmp['name'] = Usages.objects.get(pk=su['usage']).name
-            tmp['yen'] = money.convert_yen(su['sum'])
             tmp['val'] = su['sum']
             shared_grouped_by_usage.append(tmp)
     # End of Month
@@ -94,21 +94,19 @@ def dashboard(request):
         "today": today,
         "smsg": smsg,
         # kakeibo
-        "inout": money.convert_yen(income-expense),
-        "income": money.convert_yen(income),
-        "expense": money.convert_yen(expense),
+        "inout": income-expense,
+        "income": income,
+        "expense": expense,
         "current_way": current_way,
         "current_resource": current_resource,
         # shared
-        "inout_shared": money.convert_yen(inout_shared),
-        "budget_shared": money.convert_yen(budget_shared),
-        "expense_shared": money.convert_yen(paidbyh + paidbyt),
-        "move": money.convert_yen(move),
+        "inout_shared": inout_shared,
+        "budget_shared": {"t": budget_t, "h": budget_h, "all": budget_shared},
+        "expense_shared": {"t": paidbyt, "h": paidbyh, "all": paidbyh + paidbyt},
+        "move": move,
         "shared_grouped_by_usage": shared_grouped_by_usage,
-        "paidby": {"t": money.convert_yen(paidbyt), "h": money.convert_yen(paidbyh)},
         # progress bar and status
-        "pb_kakeibo": pb_kakeibo,
-        "pb_shared": pb_shared,
+        "pb": {"kakeibo": pb_kakeibo, "shared": pb_shared},
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
     }
     logger.info("output: " + str(output))

@@ -1,5 +1,5 @@
 {% extends "kakeibo/base.html" %}
-
+{% load humanize %}
 {% block title %}
     Dashboard
 {% endblock %}
@@ -33,17 +33,17 @@
   </div>
   <div class="row">
     <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-outline-{{status.kakeibo}}">収支 {{inout}}</button>
+      <button class="btn btn-block btn-lg btn-outline-{{status.kakeibo}}">収支 ¥{{inout | intcomma}}</button>
     </div>
     <div class="col-sm-8">
       <div class="progress" style="height:25px">
-        <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_kakeibo.in}}%; height:25px">
-          収入 {{income}}
+        <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb.kakeibo.in}}%; height:25px">
+          収入 ¥{{income | intcomma}}
         </div>
       </div>
       <div class="progress" style="height:25px">
-        <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_kakeibo.out}}%; height:25px">
-          支出 {{expense}}
+        <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb.kakeibo.out}}%; height:25px">
+          支出 ¥{{expense | intcomma}}
         </div>
       </div>
     </div>
@@ -63,7 +63,7 @@
           {% for key, val in current_way.items %}
           <tr>
             <td>{{key}}</td>
-            <td class="right">{{val}}</td>
+            <td class="right">¥{{val | intcomma}}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -81,7 +81,7 @@
           {% for key, val in current_resource.items %}
           <tr>
             <td>{{key}}</td>
-            <td class="right">{{val}}</td>
+            <td class="right">¥{{val | intcomma}}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -111,17 +111,17 @@
   </div>
   <div class="row">
     <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-outline-{{status.shared}}">収支 {{inout_shared}}</button>
+      <button class="btn btn-block btn-lg btn-outline-{{status.shared}}">収支 ¥{{inout_shared | intcomma}}</button>
     </div>
     <div class="col-sm-8">
       <div class="progress" style="height:25px">
-        <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_shared.in}}%; height:25px">
-          予算 {{budget_shared}}
+        <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb.shared.in}}%; height:25px">
+          予算 ¥{{budget_shared.all | intcomma}}
         </div>
       </div>
       <div class="progress" style="height:25px">
-        <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_shared.out}}%; height:25px">
-          支出 {{expense_shared}}
+        <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb.shared.out}}%; height:25px">
+          支出 ¥{{expense_shared.all | intcomma}}
         </div>
       </div>
     </div>
@@ -140,15 +140,15 @@
         <tbody>
           <tr>
             <td>合計</td>
-            <td class="right">{{expense_shared}}</td>
+            <td class="right">¥{{expense_shared.all | intcomma}}</td>
           </tr>
           <tr>
             <td>敬士</td>
-            <td class="right">{{paidby.t}}</td>
+            <td class="right">¥{{expense_shared.t | intcomma}}</td>
           </tr>
           <tr>
             <td>朋子</td>
-            <td class="right">{{paidby.h}}</td>
+            <td class="right">¥{{expense_shared.h | intcomma}}</td>
           </tr>
         </tbody>
       </table>
@@ -162,10 +162,10 @@
           </tr>
         </thead>
         <tbody>
-        {% for key,val in shared_grouped_by_usage.items %}
+        {% for su in shared_grouped_by_usage %}
           <tr>
-            <td>{{key}}</td>
-            <td class="right">{{val}}</td>
+            <td>{{su.name}}</td>
+            <td class="right">¥{{su.val|intcomma}}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -176,7 +176,7 @@
       <canvas id="pie_shared_usage"></canvas>
     </div>
     <div class="col-sm-4">
-      精算：{{move}}
+      精算：¥{{move | intcomma}}
       <p class="resizeimage"><img src="{% url 'kakeibo:bars_shared_eom' %}?year={{today.year}}&month={{today.month}}"></p>
     </div>
   </div>
