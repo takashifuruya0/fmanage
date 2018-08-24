@@ -63,11 +63,14 @@ def dashboard(request):
     inout_shared = budget_shared - paidbyt - paidbyh
     shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
     # shared_grouped_by_usage
-    shared_grouped_by_usage = dict()
+    shared_grouped_by_usage = list()
     if shared_usages.__len__() != 0:
         for su in shared_usages:
-            us = Usages.objects.get(pk=su['usage']).name
-            shared_grouped_by_usage[us] = money.convert_yen(su['sum'])
+            tmp = dict()
+            tmp['name'] = Usages.objects.get(pk=su['usage']).name
+            tmp['yen'] = money.convert_yen(su['sum'])
+            tmp['val'] = su['sum']
+            shared_grouped_by_usage.append(tmp)
     # End of Month
     # 赤字→精算あり
     if inout_shared <= 0:
