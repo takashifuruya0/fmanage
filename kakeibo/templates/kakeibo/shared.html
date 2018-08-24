@@ -1,5 +1,5 @@
 {% extends "kakeibo/base.html" %}
-
+{% load humanize %}
 {% block title %}
     Shared Dashboard
 {% endblock %}
@@ -35,20 +35,20 @@
   <hr>
   <div class="row">
     <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-outline-info">精算額 {{move}}</button>
+      <button class="btn btn-block btn-lg btn-outline-info">精算額 ¥{{move | intcomma}}</button>
     </div>
     <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-outline-{{status}}">収支 {{inout}}</button>
+      <button class="btn btn-block btn-lg btn-outline-{{status}}">収支 ¥{{inout | intcomma}}</button>
     </div>
     <div class="col-sm-4">
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_shared.in}}%; height:25px">
-          予算 {{budget}}
+          予算 ¥{{budget.all | intcomma}}
         </div>
       </div>
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_shared.out}}%; height:25px">
-          支出 {{expense}}
+          支出 ¥{{expense.all | intcomma}}
         </div>
       </div>
     </div>
@@ -68,15 +68,15 @@
         <tbody>
           <tr>
             <td>合計</td>
-            <td class="right">{{expense}}</td>
+            <td class="right">¥{{expense.all | intcomma}}</td>
           </tr>
           <tr>
             <td>敬士</td>
-            <td class="right">{{paidby.t}}</td>
+            <td class="right">¥{{expense.t | intcomma}}</td>
           </tr>
           <tr>
             <td>朋子</td>
-            <td class="right">{{paidby.h}}</td>
+            <td class="right">¥{{expense.h | intcomma}}</td>
           </tr>
         </tbody>
       </table>
@@ -93,14 +93,15 @@
         {% for key,val in shared_grouped_by_usage.items %}
           <tr>
             <td>{{key}}</td>
-            <td class="right">{{val}}</td>
+            <td class="right">¥{{val | intcomma}}</td>
           </tr>
         {% endfor %}
         </tbody>
       </table>
     </div>
     <div class="col-sm-4">
-      <p class="resizeimage"><img src="{% url 'kakeibo:pie_shared' %}?year={{today.year}}&month={{today.month}}"></p>
+      <!--<p class="resizeimage"><img src="{% url 'kakeibo:pie_shared' %}?year={{today.year}}&month={{today.month}}"></p>-->
+      <canvas id="pie_shared_usage"></canvas>
     </div>
     <div class="col-sm-4">
       <p class="resizeimage"><img src="{% url 'kakeibo:bars_shared_eom' %}?year={{today.year}}&month={{today.month}}"></p>
@@ -116,7 +117,7 @@
           <tr>
             <th></th>
             {% for i in usage_list %}
-            <th class="right">{{i}}</th>
+            <th class="right">¥{{i | intcomma}}</th>
             {% endfor%}
           </tr>
         </thead>
@@ -127,12 +128,12 @@
             <td class="right">
               <div class="progress" style="height:25px">
                 <div class="progress-bar bg-{{i.color}} progress-bar-striped" style="width:{{i.percent}}%; height:25px">
-                  {{i.sum}}
+                  ¥{{i.sum | intcomma}}
                 </div>
               </div>
             </td>
             {% for j in i.data %}
-            <td class="right">{{j}}</td>
+            <td class="right">¥{{j | intcomma}}</td>
             {% endfor %}
           </tr>
           {% endfor %}
@@ -144,4 +145,28 @@
   <hr>
 
 </div>
+
+<!-- pie_shared_usage -->
+<script>
+  var ctx = document.getElementById('pie_shared_usage').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for name in shared_grouped_by_usage.keys%}"{{name}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for val in shared_grouped_by_usage.values%}{{val}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e"
+         ]
+      }]
+    }
+  });
+</script>
 {% endblock %}

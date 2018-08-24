@@ -255,7 +255,7 @@ def shared(request):
     if shared_usages.__len__() != 0:
         for su in shared_usages:
             us = Usages.objects.get(pk=su['usage']).name
-            shared_grouped_by_usage[us] = money.convert_yen(su['sum'])
+            shared_grouped_by_usage[us] = su['sum']
 
     # End of Month
     # 赤字→精算あり
@@ -289,13 +289,13 @@ def shared(request):
             sus = sk.values('usage').annotate(sum=Sum('fee'))
             for j in usage_list:
                 for su in sus:
-                    tmp = "-"
+                    tmp = 0
                     if Usages.objects.get(pk=su['usage']).name == j:
-                        tmp = money.convert_yen(su['sum'])
+                        tmp = su['sum']
                         break
                 data_tmp2.append(tmp)
             val_tmp = mylib.cal_sum_or_0(sk)
-            data_tmp["sum"] = money.convert_yen(val_tmp)
+            data_tmp["sum"] = val_tmp
             data_tmp["percent"] = val_tmp / (budget + 30000) * 100
             if val_tmp < budget:
                 data_tmp["color"] = "success"
@@ -313,12 +313,11 @@ def shared(request):
         "status": status_shared,
         # progress_bar
         "pb_shared": {"in": pb_shared_in, "out": pb_shared_out},
-        # data
-        "budget": money.convert_yen(budget),
-        "expense": money.convert_yen(expense),
-        "paidby": {"t": money.convert_yen(paidbyt), "h": money.convert_yen(paidbyh)},
-        "inout": money.convert_yen(budget - expense),
-        "move": money.convert_yen(move),
+        # shared
+        "inout": inout_shared,
+        "budget": {"t": budget_t, "h": budget_h, "all": budget_shared},
+        "expense": {"t": paidbyt, "h": paidbyh, "all": paidbyh + paidbyt},
+        "move": move,
         "shared_grouped_by_usage": shared_grouped_by_usage,
         #table
         "data_year": data_year,
