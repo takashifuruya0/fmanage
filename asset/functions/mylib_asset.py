@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger("django")
 
 
+# hs_idのHoldingStocksについて、含み損益を計算する
 def benefit(hs_id):
     hs = HoldingStocks.objects.get(id=hs_id)
     code = hs.stock.code
@@ -36,6 +37,7 @@ def benefit(hs_id):
     return res
 
 
+# すべてのHoldingStocksについて、含み損益を計算する
 def benefit_all():
     benefits = 0
     totals = 0
@@ -60,6 +62,7 @@ def benefit_all():
     return res
 
 
+# 現在の資産運用状況を記録
 def record_status():
     try:
         tmp = AssetStatus.objects.filter(date=date.today())
@@ -91,6 +94,7 @@ def record_status():
     return res
 
 
+# 円表示に変更
 def convert_yen(v):
     v = int(v)
     try:
@@ -103,6 +107,7 @@ def convert_yen(v):
     return new_val
 
 
+# 負の値にはred, それ以外にはBlackを返す
 def val_color(val):
     if type(val) is str:
         return "black"
@@ -112,6 +117,7 @@ def val_color(val):
         return "red"
 
 
+# 証券コードcodeの株式をStocksに保存
 def register_stocks(code):
     try:
         data = get_info.stock_overview(code)
@@ -127,6 +133,7 @@ def register_stocks(code):
     return res
 
 
+# これまでの資産運用状況を引き継ぎ
 def inherit_asset_status():
     dates = [
         [2018, 8, 10],
