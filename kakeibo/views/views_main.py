@@ -15,10 +15,7 @@ import requests, json
 from datetime import datetime, date, timedelta
 # function
 from kakeibo.functions import update_records, money, figure, mylib
-# budget
-budget_t = 90000
-budget_h = 60000
-budget_shared = budget_t + budget_h
+
 
 # Create your views here.
 
@@ -28,8 +25,9 @@ def dashboard(request):
     today = date.today()
     # kakeibo
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
+    ekakeibos = kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）"))
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    expense = mylib.cal_sum_or_0(kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）")))
+    expense = mylib.cal_sum_or_0(ekakeibos)
     # status, progress_bar
     if income > expense:
         status_kakeibo = "primary"
@@ -45,25 +43,56 @@ def dashboard(request):
     current_way.pop("振替")
     # resource
     current_resource = dict()
+    resources_chart = list()
     for rs in Resources.objects.all():
         # current_valがあれば早い
         if rs.current_val is not None:
             val = rs.current_val
+            move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
+            move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
+            val2 = val - move_to + move_from
         else:
             move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
             move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
             val = rs.initial_val + move_to - move_from
-            logger.info(rs.name+":"+str(val))
-            print(rs.name+":"+str(val))
         if val is not 0:
             current_resource[rs.name] = val
+            tmp = {"name": rs.name, "this_month": val, "last_month": val2}
+            resources_chart.append(tmp)
+    # usage
+    current_usage = list()
+    cash_usages = ekakeibos.values('usage').annotate(sum=Sum('fee'))
+    for cu in cash_usages:
+        name = Usages.objects.get(pk=cu['usage']).name
+        val = cu['sum']
+        current_usage.append({"name": name, "val": val})
+    logger.info(current_usage)
+
     # shared
+    seisan = mylib.seisan(today.year, today.month)
+    budget_shared = {
+        "t": seisan['budget']['taka'],
+        "h": seisan['budget']['hoko'],
+        "all": seisan['budget']['hoko'] + seisan['budget']['taka']
+    }
+    expense_shared = {
+        "t": seisan['payment']['taka'],
+        "h": seisan['payment']['hoko'],
+        "all": seisan['payment']['hoko'] + seisan['payment']['taka']
+    }
     shared = SharedKakeibos.objects.filter(date__month=today.month, date__year=today.year)
-    paidbyt = mylib.cal_sum_or_0(shared.filter(paid_by="敬士"))
-    paidbyh = mylib.cal_sum_or_0(shared.filter(paid_by="朋子"))
-    inout_shared = budget_shared - paidbyt - paidbyh
-    shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
+    inout_shared = seisan["inout"]
+    rb_name = seisan['status']
+    move = seisan['seisan']
+    # 赤字→精算あり
+    if rb_name == "赤字":
+        status_shared = "danger"
+        pb_shared = {"in": int(budget_shared['all'] / expense_shared['all'] * 100), "out": 100}
+    else:
+        status_shared = "primary"
+        pb_shared = {"in": 100, "out": int(expense_shared['all'] / budget_shared['all'] * 100)}
     # shared_grouped_by_usage
+    shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
     shared_grouped_by_usage = list()
     if shared_usages.__len__() != 0:
         for su in shared_usages:
@@ -71,22 +100,17 @@ def dashboard(request):
             tmp['name'] = Usages.objects.get(pk=su['usage']).name
             tmp['val'] = su['sum']
             shared_grouped_by_usage.append(tmp)
-    # End of Month
-    # 赤字→精算あり
-    if inout_shared <= 0:
-        move = budget_h - inout_shared/2 - paidbyh
-        status_shared = "danger"
-        pb_shared = {"in": int(budget_shared / (paidbyh + paidbyt) * 100), "out": 100}
-    # 黒字＋朋子さん支払いが朋子さん予算以下→精算あり
-    elif -inout_shared + budget_h - paidbyh >= 0:
-        move = budget_h - inout_shared - paidbyh
-        status_shared = "primary"
-        pb_shared = {"in": 100, "out": int((paidbyh + paidbyt) / budget_shared * 100)}
-    # 黒字＋朋子さん支払い＜朋子さん予算→精算なし
-    else:
-        move = 0
-        status_shared = "primary"
-        pb_shared = {"in": 100, "out": int((paidbyh + paidbyt) / budget_shared * 100)}
+        logger.info(shared_grouped_by_usage)
+    # chart.js
+    data = {
+        "現金精算": [0, seisan['seisan'], 0, 0],
+        "予算": [seisan['budget']['hoko'], 0, seisan['budget']['taka'], 0],
+        "支払": [0, seisan['payment']['hoko'], 0, seisan['payment']['taka']],
+        rb_name: seisan['rb'],
+    }
+    labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
+    bar_eom = {"data": data, "labels": labels}
+
     # msg
     smsg = ""
 
@@ -99,17 +123,20 @@ def dashboard(request):
         "expense": expense,
         "current_way": current_way,
         "current_resource": current_resource,
+        "resources": resources_chart,
+        "current_usage": current_usage,
         # shared
         "inout_shared": inout_shared,
-        "budget_shared": {"t": budget_t, "h": budget_h, "all": budget_shared},
-        "expense_shared": {"t": paidbyt, "h": paidbyh, "all": paidbyh + paidbyt},
+        "budget_shared": budget_shared,
+        "expense_shared": expense_shared,
         "move": move,
         "shared_grouped_by_usage": shared_grouped_by_usage,
+        "bar_eom": bar_eom,
         # progress bar and status
         "pb": {"kakeibo": pb_kakeibo, "shared": pb_shared},
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
     }
-    logger.info("output: " + str(output))
+    # logger.info("output: " + str(output))
     return render(request, 'kakeibo/dashboard.html', output)
 
 
