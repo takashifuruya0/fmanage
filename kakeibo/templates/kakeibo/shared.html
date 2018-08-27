@@ -90,10 +90,10 @@
           </tr>
         </thead>
         <tbody>
-        {% for key,val in shared_grouped_by_usage.items %}
+        {% for su in shared_grouped_by_usage %}
           <tr>
-            <td>{{key}}</td>
-            <td class="right">¥{{val | intcomma}}</td>
+            <td>{{su.name}}</td>
+            <td class="right">¥{{su.val | intcomma}}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -104,7 +104,8 @@
       <canvas id="pie_shared_usage"></canvas>
     </div>
     <div class="col-sm-4">
-      <p class="resizeimage"><img src="{% url 'kakeibo:bars_shared_eom' %}?year={{today.year}}&month={{today.month}}"></p>
+      <!--<p class="resizeimage"><img src="{% url 'kakeibo:bars_shared_eom' %}?year={{today.year}}&month={{today.month}}"></p>-->
+      <canvas id="bar_eom" width="320" height="360"></canvas>
     </div>
   </div>
 
@@ -117,7 +118,7 @@
           <tr>
             <th></th>
             {% for i in usage_list %}
-            <th class="right">¥{{i | intcomma}}</th>
+            <th class="right">{{i}}</th>
             {% endfor%}
           </tr>
         </thead>
@@ -152,10 +153,10 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for name in shared_grouped_by_usage.keys%}"{{name}}",{%endfor%}],
+      labels: [{%for su in shared_grouped_by_usage%}"{{su.name}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for val in shared_grouped_by_usage.values%}{{val}},{%endfor%}],
+        data: [{%for su in shared_grouped_by_usage%}{{su.val}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
@@ -167,6 +168,42 @@
          ]
       }]
     }
+  });
+</script>
+
+<!-- bar_eom -->
+<script>
+  var ctx = document.getElementById('bar_eom').getContext('2d');
+  var options = {
+    scales: {
+      yAxes: [{
+        stacked: true
+      }]
+    }
+  }
+  var colors = [
+    "rgba(250,153,  0,0.4)",
+    "rgba(  0,153,253,0.4)",
+    "rgba(153,250,  0,0.4)",
+    "rgba(153,  0,253,0.4)",
+    "rgba(253,  0,150,0.4)",
+    "rgba(  0,253,153,0.4)",
+  ]
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [{%for l in bar_eom.labels%}"{{l}}",{%endfor%}],
+      datasets: [
+        {%for key,val in bar_eom.data.items%}
+        {
+          label: "{{key}}",
+          data: [{%for v in val%}{{v}},{%endfor%}],
+          backgroundColor: colors[{{ forloop.counter0 }}]
+        },
+        {% endfor %}
+      ],
+    },
+    options: options
   });
 </script>
 {% endblock %}

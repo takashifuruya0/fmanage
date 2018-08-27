@@ -265,48 +265,54 @@ def shared(request):
         year = date.today().year
         month = date.today().month
 
-    # data
-    skakeibos_year = SharedKakeibos.objects.filter(date__year=year)
-    skakeibos = skakeibos_year.filter(date__month=month)
-    paidbyt = mylib.cal_sum_or_0(skakeibos.filter(paid_by="敬士"))
-    paidbyh = mylib.cal_sum_or_0(skakeibos.filter(paid_by="朋子"))
-
-    # inout
-    expense = mylib.cal_sum_or_0(skakeibos)
-    budget = budget_h + budget_t
-    inout_shared = budget - expense
-
-    # shared_grouped_by_usage
-    shared_usages = skakeibos.values('usage').annotate(sum=Sum('fee'))
-    shared_grouped_by_usage = dict()
-    if shared_usages.__len__() != 0:
-        for su in shared_usages:
-            us = Usages.objects.get(pk=su['usage']).name
-            shared_grouped_by_usage[us] = su['sum']
-
-    # End of Month
+    # shared
+    seisan = mylib.seisan(year, month)
+    budget_shared = {
+        "t": seisan['budget']['taka'],
+        "h": seisan['budget']['hoko'],
+        "all": seisan['budget']['hoko'] + seisan['budget']['taka']
+    }
+    expense_shared = {
+        "t": seisan['payment']['taka'],
+        "h": seisan['payment']['hoko'],
+        "all": seisan['payment']['hoko'] + seisan['payment']['taka']
+    }
+    shared = SharedKakeibos.objects.filter(date__month=month, date__year=year)
+    inout_shared = seisan["inout"]
+    rb_name = seisan['status']
+    move = seisan['seisan']
     # 赤字→精算あり
-    if inout_shared <= 0:
-        move = budget_h - inout_shared / 2 - paidbyh
+    if rb_name == "赤字":
         status_shared = "danger"
-        pb_shared_in = int(budget_shared / expense * 100)
-        pb_shared_out = 100
-    # 黒字
+        pb_shared = {"in": int(budget_shared['all'] / expense_shared['all'] * 100), "out": 100}
     else:
         status_shared = "primary"
-        pb_shared_in = 100
-        pb_shared_out = int(expense / budget * 100)
-        # 朋子さん支払いが朋子さん予算以下→精算あり
-        if -inout_shared + budget_h - paidbyh >= 0:
-            move = budget_h - inout_shared - paidbyh
-        # 朋子さん支払い＜朋子さん予算→精算なし
-        else:
-            move = 0
+        pb_shared = {"in": 100, "out": int(expense_shared['all'] / budget_shared['all'] * 100)}
+    # shared_grouped_by_usage
+    shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
+    shared_grouped_by_usage = list()
+    if shared_usages.__len__() != 0:
+        for su in shared_usages:
+            tmp = dict()
+            tmp['name'] = Usages.objects.get(pk=su['usage']).name
+            tmp['val'] = su['sum']
+            shared_grouped_by_usage.append(tmp)
+        logger.info(shared_grouped_by_usage)
+    # chart.js
+    data = {
+        "現金精算": [0, seisan['seisan'], 0, 0],
+        "予算": [seisan['budget']['hoko'], 0, seisan['budget']['taka'], 0],
+        "支払": [0, seisan['payment']['hoko'], 0, seisan['payment']['taka']],
+        rb_name: seisan['rb'],
+    }
+    labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
+    bar_eom = {"data": data, "labels": labels}
 
     # 年間
     data_year = list()
     usage_list = ["家賃", "食費", "日常消耗品", "ガス", "電気", "水道", "その他"]
     logger.info("usage_list:" + str(usage_list))
+    skakeibos_year = SharedKakeibos.objects.filter(date__year=year)
     for i in range(1, 13):
         data_tmp = dict()
         sk = skakeibos_year.filter(date__month=i)
@@ -323,8 +329,8 @@ def shared(request):
                 data_tmp2.append(tmp)
             val_tmp = mylib.cal_sum_or_0(sk)
             data_tmp["sum"] = val_tmp
-            data_tmp["percent"] = val_tmp / (budget + 30000) * 100
-            if val_tmp < budget:
+            data_tmp["percent"] = val_tmp / (budget_shared['all'] + 30000) * 100
+            if val_tmp < budget_shared['all']:
                 data_tmp["color"] = "success"
             else:
                 data_tmp["color"] = "danger"
@@ -339,13 +345,14 @@ def shared(request):
         # status
         "status": status_shared,
         # progress_bar
-        "pb_shared": {"in": pb_shared_in, "out": pb_shared_out},
+        "pb_shared": pb_shared,
         # shared
         "inout": inout_shared,
-        "budget": {"t": budget_t, "h": budget_h, "all": budget_shared},
-        "expense": {"t": paidbyt, "h": paidbyh, "all": paidbyh + paidbyt},
+        "budget": budget_shared,
+        "expense": expense_shared,
         "move": move,
         "shared_grouped_by_usage": shared_grouped_by_usage,
+        "bar_eom": bar_eom,
         #table
         "data_year": data_year,
         "usage_list": usage_list,
