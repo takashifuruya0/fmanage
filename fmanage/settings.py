@@ -185,10 +185,15 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
+        'logfile': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler', 
+            'filename': "/var/log/gunicorn/logfile", 
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['logfile'],
             'level': 'INFO',
         },
     }
