@@ -40,7 +40,9 @@ def dashboard(request):
     current_way = dict()
     for w in ways_sum:
         current_way[w['way']] = w['fee__sum']
-    current_way.pop("振替")
+    if "振替" in current_way.keys():
+        current_way.pop("振替")
+        logger.info("振替 is poped out")
     # resource
     current_resource = dict()
     resources_chart = list()
@@ -136,7 +138,7 @@ def dashboard(request):
         "pb": {"kakeibo": pb_kakeibo, "shared": pb_shared},
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
     }
-    # logger.info("output: " + str(output))
+    logger.info("output: " + str(output))
     return render(request, 'kakeibo/dashboard.html', output)
 
 
