@@ -22,6 +22,7 @@ from kakeibo.functions import update_records, money, figure, mylib
 
 @login_required
 def dashboard(request):
+    start = mylib.time_start()
     today = date.today()
     # kakeibo
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
@@ -29,12 +30,17 @@ def dashboard(request):
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
     expense = mylib.cal_sum_or_0(ekakeibos)
     # status, progress_bar
-    if income > expense:
+    try:
+        if income > expense:
+            status_kakeibo = "primary"
+            pb_kakeibo = {"in": 100, "out": int(expense / income * 100)}
+        else:
+            status_kakeibo = "danger"
+            pb_kakeibo = {"in": int(income / expense * 100), "out": 100}
+    except Exception as e:
+        logger.error("Failed to set status and progress_bar")
         status_kakeibo = "primary"
-        pb_kakeibo = {"in": 100, "out": int(expense / income * 100)}
-    else:
-        status_kakeibo = "danger"
-        pb_kakeibo = {"in": int(income / expense * 100), "out": 100}
+        pb_kakeibo = {"in": 100, "out": 100}
     # way
     ways_sum = kakeibos.values('way').annotate(Sum('fee'))
     current_way = dict()
@@ -139,6 +145,7 @@ def dashboard(request):
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
     }
     logger.info("output: " + str(output))
+    logger.info("time:" + str(mylib.time_end(start)))
     return render(request, 'kakeibo/dashboard.html', output)
 
 
@@ -257,6 +264,7 @@ def mine(request):
 
 @login_required
 def shared(request):
+    start = mylib.time_start()
     if request.GET.get(key="yearmonth") is not None:
         year = request.GET.get(key="yearmonth")[0:4]
         month = request.GET.get(key="yearmonth")[5:]
@@ -359,6 +367,7 @@ def shared(request):
         "data_year": data_year,
         "usage_list": usage_list,
     }
+    logger.info("time: "+str(mylib.time_end(start)))
     return render(request, 'kakeibo/shared.html', output)
 
 

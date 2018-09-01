@@ -3,7 +3,7 @@ from django.db.models import Sum, Avg
 from django.conf import settings
 from kakeibo.models import SharedKakeibos
 from datetime import date
-
+import time
 
 # calculate sum or 0
 def cal_sum_or_0(model):
@@ -65,4 +65,13 @@ def seisan(year=date.today().year, month=date.today().month):
     }
 
     return data
+
+
+def time_start():
+    return time.time()
+
+
+def time_end(start):
+    return time.time()-start
+
 
