@@ -187,7 +187,8 @@ LOGGING = {
         },
         'logfile': {
             'level': 'INFO',
-            'class': 'logging.FileHandler', 
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
             'filename': "/var/log/gunicorn/logfile", 
         },
     },
