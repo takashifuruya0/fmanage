@@ -1,5 +1,5 @@
 {% extends "./base.html" %}
-
+{% load humanize %}
 {% block title %}
     Credit Dashboard
 {% endblock %}
@@ -9,24 +9,26 @@
 
   <hr>
   <div class="row">
-    <div class="col-sm-5">
+    <div class="col-sm-6">
       <h1>
-        <i class="fab fa-cc-visa"></i> Credit Dashboard
+        <i class="fab fa-cc-visa"></i> Credit：{{today.year}}年{{today.month}}月
       </h1>
     </div>
-    <div class="col-sm-7">
-      <div class="row">
-        <div class="col-6 col-sm-3">
-          <button type="button" class="btn btn-outline-secondary btn-block btn-sm" data-toggle="collapse" data-target=".multi-collapse1">
-            <h3>Row1</h3>
-          </button>
+    <div class="col-sm-6">
+      <form class="form-horizontal" method="get" action="{% url 'kakeibo:credit' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="control-label col-xs-2">Year&Month</label>
+          <div class="row">
+            <div class="col-5">
+              <input type="month" name="yearmonth">
+            </div>
+            <div class="col-4">
+              <input type="submit" value="Check">
+            </div>
+          </div>
         </div>
-        <div class="col-6 col-sm-3">
-          <button type="button" class="btn btn-outline-secondary btn-block btn-sm" data-toggle="collapse" data-target=".multi-collapse2">
-            <h3>Row2</h3>
-          </button>
-        </div>
-      </div>
+      </form>
     </div>
   </div>
 
@@ -34,10 +36,10 @@
   <hr>
   <div class="row">
     <div class="col-md-4">
-      <h4>クレジット総支出：{{credits_sum}}</h4>
+      <h4>クレジット総支出：¥{{credits_sum | intcomma}}</h4>
     </div>
     <div class="col-md-4">
-      <h4>今月の請求額：{{credits_month_sum}}</h4>
+      <h4>今月の請求額：¥{{credits_month_sum | intcomma}}</h4>
     </div>
     <div class="col-md-4">
       <h4>利用回数：{{credits_month_count}}回</h4>
@@ -53,11 +55,9 @@
           <h3><i class="fas fa-chart-pie"></i> クレジット支出内訳</h3>
         </a>
         <div class="collapse multi-collapse1 show" id="1-1-1">
-            Hello world.<br>It is supposed to show a figure.
-            <div>
-            <p class="resizeimage">
-              <img src="{% url 'kakeibo:pie_credit' %}?year={{today.year}}&month={{today.month|add:'-1'}}">
-            </p>
+          <div>
+            <!--<p class="resizeimage"><img src="{% url 'kakeibo:pie_credit' %}?year={{today.year}}&month={{today.month|add:'-1'}}"></p>-->
+            <canvas id="pie_credit" width="320" height="360"></canvas>
           </div>
         </div>
       </div>
@@ -68,22 +68,21 @@
         </a>
         <div class="collapse multi-collapse1 show" id="1-1-2">
           <div>
-            <p class="resizeimage">
-              <img src="{% url 'kakeibo:pie_credititem' %}">
-            </p>
+            <!--<p class="resizeimage"><img src="{% url 'kakeibo:pie_credititem' %}"></p>-->
+            <canvas id="pie_credit_usage" width="320" height="360"></canvas>
           </div>
           <table class="table table-light table-hover table-sm">
             <thead>
               <tr>
                 <th>Kind</th>
-                <th>Sum</th>
+                <th class="right">Sum</th>
               </tr>
             </thead>
             <tbody>
-              {% for k, v in sum_usage.items %}
+              {% for su in sum_usage %}
               <tr>
-                <td>{{k}}</td>
-                <td class="right">{{v}}</td>
+                <td>{{su.1.name}}</td>
+                <td class="right">¥{{su.1.sum | intcomma}}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -103,9 +102,9 @@
               <tr>
                 <th>Name</th>
                 <th>Usage</th>
-                <th>Sum</th>
-                <th>Avg</th>
-                <th>Count</th>
+                <th class="right">Sum</th>
+                <th class="right">Avg</th>
+                <th class="right">Count</th>
               </tr>
             </thead>
             <tbody>
@@ -113,8 +112,8 @@
               <tr>
                 <td>{{credit.1.name}}</td>
                 <td>{{credit.1.usage}}</td>
-                <td class="right">{{credit.1.sum}}</td>
-                <td class="right">{{credit.1.avg}}</td>
+                <td class="right">¥{{credit.1.sum | intcomma}}</td>
+                <td class="right">¥{{credit.1.avg | intcomma}}</td>
                 <td class="right">{{credit.1.count}}</td>
               </tr>
               {% endfor %}
@@ -123,10 +122,87 @@
         </div>
       </div>
     </div>
-
-
   </div>
-
-
 </div>
+
+<!-- pie_credit_usage -->
+<script>
+  var ctx = document.getElementById('pie_credit_usage').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for cu in sum_usage%}"{{cu.1.name}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for cu in sum_usage%}{{cu.1.sum}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+         ]
+      }]
+    }
+  });
+</script>
+
+<!-- pie_credit -->
+<script>
+  var ctx = document.getElementById('pie_credit').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for cu in credits_month%}"{{cu.name}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for cu in credits_month%}{{cu.val}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+         ]
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      }
+    }
+  });
+</script>
 {% endblock %}
