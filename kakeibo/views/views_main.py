@@ -332,20 +332,16 @@ def shared(request):
     data_year = [
         {"month": i, "sum": "", "color": "", "percent": "", "data": list()} for i in range(smonth, lmonth+1)
     ]
-    for i in range(0, lmonth+1-smonth):
-        m = i + smonth
-        su = suy.filter(month=date(int(year), m, 1))
-        for j in usage_list:
-            for s in su:
-                tmp = 0
-                if Usages.objects.get(pk=s['usage']).name == j:
-                    tmp = s['sum']
-                    break
-            data_year[i]["data"].append(tmp)
+    for i in range(lmonth+1-smonth):
+        data_year[i]['data'] = [0 for j in range(len(usage_list))]
+    for s in suy:
+        for u in range(len(usage_list)):
+            if Usages.objects.get(pk=s['usage']).name == usage_list[u]:
+                data_year[s['month'].month-smonth]['data'][u] = s['sum']
+    for i in range(lmonth+1-smonth):
         data_year[i]['sum'] = sum(data_year[i]['data'])
         data_year[i]["percent"] = data_year[i]['sum'] / (budget_shared['all'] + 30000) * 100
         data_year[i]["color"] = "success" if data_year[i]['sum'] < budget_shared['all'] else "danger"
-
     # usage_listに合計追加
     usage_list.insert(0, "合計")
 
