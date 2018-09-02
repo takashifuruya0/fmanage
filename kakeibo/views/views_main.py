@@ -66,6 +66,9 @@ def dashboard(request):
             move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
             move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
             val = rs.initial_val + move_to - move_from
+            move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
+            move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
+            val2 = val - move_to + move_from
         if val is not 0:
             current_resource[rs.name] = val
             tmp = {"name": rs.name, "this_month": val, "last_month": val2}
