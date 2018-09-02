@@ -15,6 +15,9 @@ import requests, json
 from datetime import datetime, date, timedelta
 # function
 from kakeibo.functions import update_records, money, figure, mylib
+# grouped by month
+from django.db.models.functions import TruncMonth
+
 
 
 # Create your views here.
@@ -319,36 +322,33 @@ def shared(request):
     bar_eom = {"data": data, "labels": labels}
 
     # 年間
-    data_year = list()
     usage_list = ["家賃", "食費", "日常消耗品", "ガス", "電気", "水道", "その他"]
-    logger.info("usage_list:" + str(usage_list))
-    skakeibos_year = SharedKakeibos.objects.filter(date__year=year)
-    for i in range(1, 13):
-        data_tmp = dict()
-        sk = skakeibos_year.filter(date__month=i)
-        if sk.__len__() is not 0:
-            data_tmp["month"] = i
-            data_tmp2 = list()
-            sus = sk.values('usage').annotate(sum=Sum('fee'))
-            for j in usage_list:
-                for su in sus:
-                    tmp = 0
-                    if Usages.objects.get(pk=su['usage']).name == j:
-                        tmp = su['sum']
-                        break
-                data_tmp2.append(tmp)
-            val_tmp = mylib.cal_sum_or_0(sk)
-            data_tmp["sum"] = val_tmp
-            data_tmp["percent"] = val_tmp / (budget_shared['all'] + 30000) * 100
-            if val_tmp < budget_shared['all']:
-                data_tmp["color"] = "success"
-            else:
-                data_tmp["color"] = "danger"
-            data_tmp["data"] = data_tmp2
-            data_year.append(data_tmp)
+    suy = SharedKakeibos.objects.filter(date__year=year)\
+        .annotate(month=TruncMonth('date'))\
+        .values('month', 'usage').order_by('month')\
+        .annotate(sum=Sum('fee'))
+    smonth = suy.first()['month'].month
+    lmonth = suy.last()['month'].month
+    data_year = [
+        {"month": i, "sum": "", "color": "", "percent": "", "data": list()} for i in range(smonth, lmonth+1)
+    ]
+    for i in range(0, lmonth+1-smonth):
+        m = i + smonth
+        su = suy.filter(month=date(int(year), m, 1))
+        for j in usage_list:
+            for s in su:
+                tmp = 0
+                if Usages.objects.get(pk=s['usage']).name == j:
+                    tmp = s['sum']
+                    break
+            data_year[i]["data"].append(tmp)
+        data_year[i]['sum'] = sum(data_year[i]['data'])
+        data_year[i]["percent"] = data_year[i]['sum'] / (budget_shared['all'] + 30000) * 100
+        data_year[i]["color"] = "success" if data_year[i]['sum'] < budget_shared['all'] else "danger"
+
+    # usage_listに合計追加
     usage_list.insert(0, "合計")
 
-    logger.info("data_year"+str(data_year))
     # output
     output = {
         "today": {"year": year, "month": month},
