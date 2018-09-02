@@ -335,8 +335,9 @@ def shared(request):
     for i in range(lmonth+1-smonth):
         data_year[i]['data'] = [0 for j in range(len(usage_list))]
     for s in suy:
+        name = Usages.objects.get(pk=s['usage']).name
         for u in range(len(usage_list)):
-            if Usages.objects.get(pk=s['usage']).name == usage_list[u]:
+            if name == usage_list[u]:
                 data_year[s['month'].month-smonth]['data'][u] = s['sum']
     for i in range(lmonth+1-smonth):
         data_year[i]['sum'] = sum(data_year[i]['data'])
