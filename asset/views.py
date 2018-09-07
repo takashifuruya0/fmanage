@@ -3,15 +3,20 @@ from django.shortcuts import render
 import logging
 logger = logging.getLogger("django")
 import requests
+
 from bs4 import BeautifulSoup
 from datetime import date, datetime
+from kakeibo.functions.mylib import time_measure
 from asset.models import Stocks, HoldingStocks, AssetStatus
 from asset.functions import get_info, mylib_asset
 # Template-view
 from django.views.generic.edit import CreateView
-
+# login
+from django.contrib.auth.decorators import login_required
 
 # 概要
+@login_required
+@time_measure
 def dashboard(request):
 
     # 保有株リスト

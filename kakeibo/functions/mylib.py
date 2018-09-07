@@ -4,6 +4,10 @@ from django.conf import settings
 from kakeibo.models import SharedKakeibos
 from datetime import date
 import time
+# logging
+import logging
+logger = logging.getLogger("django")
+
 
 # calculate sum or 0
 def cal_sum_or_0(model):
@@ -74,4 +78,16 @@ def time_start():
 def time_end(start):
     return time.time()-start
 
+
+def time_measure(func):
+    import functools
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        res = func.__name__ + " " + str(end-start)
+        logger.info(res)
+        return result
+    return wrapper
 

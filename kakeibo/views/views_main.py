@@ -15,6 +15,7 @@ import requests, json
 from datetime import datetime, date, timedelta
 # function
 from kakeibo.functions import update_records, money, figure, mylib
+from kakeibo.functions.mylib import time_measure
 # grouped by month
 from django.db.models.functions import TruncMonth
 
@@ -22,6 +23,7 @@ from django.db.models.functions import TruncMonth
 
 
 @login_required
+@time_measure
 def dashboard(request):
     start = mylib.time_start()
     today = date.today()
@@ -191,6 +193,7 @@ def redirect_sharedform(request):
 
 
 @login_required
+@time_measure
 def mine(request):
     if request.GET.get(key="yearmonth") is not None:
         year = request.GET.get(key="yearmonth")[0:4]
@@ -267,6 +270,7 @@ def mine(request):
 
 
 @login_required
+@time_measure
 def shared(request):
     start = mylib.time_start()
     if request.GET.get(key="yearmonth") is not None:
@@ -370,6 +374,7 @@ def shared(request):
 
 
 @login_required
+@time_measure
 def credit(request):
     if request.GET.get(key="yearmonth") is not None:
         year = request.GET.get(key="yearmonth")[0:4]
@@ -444,6 +449,7 @@ def credit(request):
     return render(request, 'kakeibo/cdashboard.html', output)
 
 
+@time_measure
 def test(request):
     today = date.today()
     year = request.GET.get(key="year")
@@ -465,5 +471,5 @@ def test(request):
 
     res = figure.fig_pie_basic(data=data, figtitle=figtitle)
     return res
-    return True
+
 
