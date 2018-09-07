@@ -14,6 +14,7 @@ from django.views.generic.edit import CreateView
 # login
 from django.contrib.auth.decorators import login_required
 
+
 # 概要
 @login_required
 @time_measure

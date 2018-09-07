@@ -183,13 +183,17 @@ def updates_shared(request):
 @login_required
 def redirect_form(request):
     url = settings.URL_FORM
-    return redirect(url)
+    # return redirect(url)
+    output = {"url": url}
+    return render(request, 'kakeibo/form.html', output)
 
 
 @login_required
 def redirect_sharedform(request):
     url = settings.URL_SHAREDFORM
-    return redirect(url)
+    # return redirect(url)
+    output = {"url": url}
+    return render(request, 'kakeibo/form.html', output)
 
 
 @login_required

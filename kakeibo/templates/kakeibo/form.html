@@ -1,0 +1,26 @@
+{% extends "./base.html" %}
+{% load humanize %}
+{% block title %}
+    Kakeibo form
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-6">
+      <h1>
+        <i class="fab fa-wpforms"></i> フォーム
+      </h1>
+    </div>
+  </div>
+
+  <hr>
+  <div class="embed-responsive embed-responsive-16by9">
+    <iframe class="embed-responsive-item" src="{{url}}"></iframe>
+  </div>
+</div>
+
+
+{% endblock %}
