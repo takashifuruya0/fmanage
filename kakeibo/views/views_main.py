@@ -392,10 +392,11 @@ def credit(request):
 
     citems = CreditItems.objects.all()
     credits = Credits.objects.all()
-    credits_month = credits.filter(debit_date__month=month, debit_date__year=year)
+    credits_month = credits.filter(debit_date__year=year, debit_date__month=month)
 
     res_credits = dict()
     sum_usage = dict()
+    credits_sum = 0
     for citem in citems:
         credit = credits.filter(credit_item=citem).aggregate(Sum('fee'), Count('fee'), Avg('fee'))
         temp = dict()
@@ -407,6 +408,7 @@ def credit(request):
             temp['usage'] = ""
             tag = "その他"
         temp['sum'] = credit['fee__sum']
+        credits_sum += credit['fee__sum']
         temp['avg'] = round(credit['fee__avg'])
         temp['count'] = credit['fee__count']
         if tag in sum_usage.keys():
@@ -416,11 +418,13 @@ def credit(request):
         res_credits[citem.pk] = temp
     # credit_month
     res_month = list()
+    credits_month_sum = 0
     for cm in credits_month:
         tmp = {
             "name": cm.credit_item.name,
             "val": cm.fee,
         }
+        credits_month_sum += cm.fee
         res_month.append(tmp)
     # 支出項目の円表示
     res_sum_usage = dict()
@@ -428,22 +432,14 @@ def credit(request):
         res_sum_usage[k] = {"sum": v, "name": k}
     # Sumの降順に並び替え
     res_credits = sorted(res_credits.items(), key=lambda x: -x[1]['sum'])
-    logger.info(res_credits)
     res_sum_usage = sorted(res_sum_usage.items(), key=lambda x: -x[1]['sum'])
-    logger.info(res_sum_usage)
-
-    # クレジット支出一覧から5レコード
-    credit_list = credits[:5]
-    # Sum
-    credits_sum = mylib.cal_sum_or_0(credits)
-    credits_month_sum = mylib.cal_sum_or_0(credits_month)
-    credits_month_count = credits_month.aggregate(Count('fee'))['fee__count']
+    # count
+    credits_month_count = credits_month.__len__()
     # return
     output = {
         "today": {"year": year, "month": month},
         "credits": res_credits,
         "sum_usage": res_sum_usage,
-        "credit_list": credit_list,
         "credits_sum": credits_sum,
         "credits_month": res_month,
         "credits_month_sum": credits_month_sum,
