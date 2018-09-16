@@ -210,65 +210,81 @@ def mine(request):
         month = date.today().month
 
     kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
+    ekakeibos = kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）"))
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    expense = mylib.cal_sum_or_0(kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）")))
+    expense = mylib.cal_sum_or_0(ekakeibos)
+
     # status, progress_bar
-    if income > expense:
-        status = "primary"
-        pb_kakeibo_in = 100
-        pb_kakeibo_out = int(expense / income * 100)
-    else:
-        status = "danger"
-        pb_kakeibo_in = int(income / expense * 100)
-        pb_kakeibo_out = 100
-    pb_kakeibo = {"in": pb_kakeibo_in, "out": pb_kakeibo_out}
+    try:
+        if income > expense:
+            status_kakeibo = "primary"
+            pb_kakeibo = {"in": 100, "out": int(expense / income * 100)}
+        else:
+            status_kakeibo = "danger"
+            pb_kakeibo = {"in": int(income / expense * 100), "out": 100}
+    except Exception as e:
+        logger.error("Failed to set status and progress_bar")
+        status_kakeibo = "primary"
+        pb_kakeibo = {"in": 100, "out": 100}
     # way
     ways_sum = kakeibos.values('way').annotate(Sum('fee'))
-    current_way = dict()
+    current_way = list()
     for w in ways_sum:
         if w['way'] != "振替":
-            current_way[w['way']] = money.convert_yen(w['fee__sum'])
-    # resource
-    current_resource = dict()
-    for rs in Resources.objects.all():
-        # current_valがあれば早い
-        if rs.current_val is not None:
-            val = rs.current_val
-        else:
-            move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
-            move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
-            val = rs.initial_val + move_to - move_from
-            logger.info(rs.name + ":" + str(val))
-        if val is not 0:
-            current_resource[rs.name] = money.convert_yen(val)
-    # usage
-    usages = Usages.objects.all()
-    current_usage = dict()
-    for us in usages:
-        val = mylib.cal_sum_or_0(kakeibos.filter(usage=us))
-        if val is not 0 and us.is_expense:
-            current_usage[us.name] = money.convert_yen(val)
+            tmp = {"val": w['fee__sum'], "name": w['way']}
+            current_way.append(tmp)
     # saved
     rs = Resources.objects.get(name="SBI敬士")
     move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
     move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
     saved = move_to - move_from
 
+    # resource
+    current_resource = dict()
+    resources_chart = list()
+    for rs in Resources.objects.all():
+        # current_valがあれば早い
+        if rs.current_val is not None:
+            val = rs.current_val
+            move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
+            move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
+            val2 = val - move_to + move_from
+        else:
+            move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
+            move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
+            val = rs.initial_val + move_to - move_from
+            move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
+            move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
+            val2 = val - move_to + move_from
+        if val is not 0:
+            current_resource[rs.name] = val
+            tmp = {"name": rs.name, "this_month": val, "last_month": val2}
+            resources_chart.append(tmp)
+    # usage
+    current_usage = list()
+    cash_usages = ekakeibos.values('usage').annotate(sum=Sum('fee')).order_by("sum").reverse()
+    for cu in cash_usages:
+        name = Usages.objects.get(pk=cu['usage']).name
+        val = cu['sum']
+        current_usage.append({"name": name, "val": val})
+
     # output
     output = {
         "today": {"year": year, "month": month},
         # status
-        "status": status,
-        "saved": money.convert_yen(saved),
-        "inout": money.convert_yen(income - expense),
+        "status": status_kakeibo,
+        "saved": saved,
+        "inout": income - expense,
         # progress_bar
         "pb_kakeibo": pb_kakeibo,
-        "income": money.convert_yen(income),
-        "expense": money.convert_yen(expense),
+        "income": income,
+        "expense": expense,
         # current list
         "current_resource": current_resource,
-        "current_usage": current_usage,
         "current_way": current_way,
+        # chart js
+        "resources": resources_chart,
+        "current_usage": current_usage,
     }
     return render(request, 'kakeibo/mine.html', output)
 

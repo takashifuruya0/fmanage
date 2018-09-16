@@ -1,5 +1,5 @@
 {% extends "kakeibo/base.html" %}
-
+{% load humanize %}
 {% block title %}
     My Dashboard
 {% endblock %}
@@ -36,20 +36,20 @@
   <hr>
   <div class="row">
     <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-outline-info">貯金 {{saved}}</button>
+      <button class="btn btn-block btn-lg btn-outline-info">貯金 ¥{{saved | intcomma}}</button>
     </div>
     <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-outline-{{status}}">収支 {{inout}}</button>
+      <button class="btn btn-block btn-lg btn-outline-{{status}}">収支 ¥{{inout | intcomma}}</button>
     </div>
     <div class="col-sm-4">
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_kakeibo.in}}%; height:25px">
-          収入 {{income}}
+          収入 ¥{{income | intcomma}}
         </div>
       </div>
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_kakeibo.out}}%; height:25px">
-          支出 {{expense}}
+          支出 ¥{{expense | intcomma}}
         </div>
       </div>
     </div>
@@ -70,10 +70,10 @@
           </tr>
         </thead>
         <tbody>
-          {% for key, val in current_way.items %}
+          {% for cw in current_way %}
           <tr>
-            <td>{{key}}</td>
-            <td class="right">{{val}}</td>
+            <td>{{cw.name}}</td>
+            <td class="right">¥{{cw.val | intcomma}}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -82,9 +82,7 @@
 
     <div class="col-sm-4">
       <h4>資産状態</h4>
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:bars_resource' %}?year={{today.year}}&month={{today.month}}">
-      </p>
+      <canvas id="bar_resources" width="320" height="360"></canvas>
       <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
@@ -96,7 +94,7 @@
           {% for key, val in current_resource.items %}
           <tr>
             <td>{{key}}</td>
-            <td class="right">{{val}}</td>
+            <td class="right">¥{{val | intcomma}}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -105,9 +103,7 @@
 
     <div class="col-sm-4">
       <h4>支出用途</h4>
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:pie_usage' %}?year={{today.year}}&month={{today.month}}">
-      </p>
+      <canvas id="pie_usage" width="320" height="360"></canvas>
       <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
@@ -116,10 +112,10 @@
           </tr>
         </thead>
         <tbody class="">
-          {% for key, val in current_usage.items %}
+          {% for cu in current_usage %}
           <tr>
-            <td>{{key}}</td>
-            <td class="right">{{val}}</td>
+            <td>{{cu.name}}</td>
+            <td class="right">¥{{cu.val | intcomma}}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -127,50 +123,112 @@
     </div>
   </div>
 
-  <hr>
-  <div class="row">
-    <div class="col-sm-4">
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:pie_expense' %}?year={{today.year}}&month={{today.month}}">
-      </p>
-    </div>
-    <div class="col-sm-4">
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:pie_resource' %}?year={{today.year}}&month={{today.month}}">
-      </p>
-    </div>
-    <div class="col-sm-4">
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:pie_usage_cash' %}?year={{today.year}}&month={{today.month}}">
-      </p>
-    </div>
-  </div>
-
-  <hr>
-  <div class="row">
-    <div class="col-sm-6">
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:barline_expense_cash' %}?year={{today.year}}&month={{today.month}}">
-      </p>
-    </div>
-    <div class="col-sm-6">
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:barline_expense_cash' %}?year={{today.year}}">
-      </p>
-    </div>
-  </div>
-
-  <!--
-  <hr>
-  <div class="row">
-    {% for usage_id in usage_list %}
-    <div class="col-sm-3">
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:barline_usage' %}?usageid={{usage_id}}">
-      </p>
-    </div>
-    {% endfor %}
-  </div>
-  -->
 </div>
+
+<!-- pie_usage -->
+<script>
+  var ctx = document.getElementById('pie_usage').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for cu in current_usage%}"{{cu.name}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for cu in current_usage%}{{cu.val}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+         ]
+      }]
+    }
+  });
+</script>
+
+
+<!-- bar_resources -->
+<script>
+  var ctx = document.getElementById('bar_resources').getContext('2d');
+  var options = {
+    scales: {
+      yAxes: [{
+        stacked: true
+      }]
+    }
+  }
+  var colors = [
+    "rgba(250,153,0,0.4)",
+    "rgba(0,153,253,0.4)",
+    "rgba(153,250,0,0.4)",
+    "rgba(153,0,253, 0.4)",
+    "rgba(253,0,150,0.4)",
+  ]
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ["今月", "先月"],
+      datasets: [
+        {%for r in resources%}
+        {
+          label: "{{r.name}}",
+          data: [{{r.this_month}}, {{r.last_month}}],
+          backgroundColor: colors[{{ forloop.counter0 }}]
+        },
+        {% endfor %}
+      ],
+    },
+    options: options
+  });
+</script>
+
+<!-- bar_eom -->
+<script>
+  var ctx = document.getElementById('bar_eom').getContext('2d');
+  var options = {
+    scales: {
+      yAxes: [{
+        stacked: true
+      }]
+    }
+  }
+  var colors = [
+    "rgba(250,153,  0,0.4)",
+    "rgba(  0,153,253,0.4)",
+    "rgba(153,250,  0,0.4)",
+    "rgba(153,  0,253,0.4)",
+    "rgba(253,  0,150,0.4)",
+    "rgba(  0,253,153,0.4)",
+  ]
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [{%for l in bar_eom.labels%}"{{l}}",{%endfor%}],
+      datasets: [
+        {%for key,val in bar_eom.data.items%}
+        {
+          label: "{{key}}",
+          data: [{%for v in val%}{{v}},{%endfor%}],
+          backgroundColor: colors[{{ forloop.counter0 }}]
+        },
+        {% endfor %}
+      ],
+    },
+    options: options
+  });
+</script>
+
 {% endblock %}
