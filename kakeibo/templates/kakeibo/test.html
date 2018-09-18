@@ -1,0 +1,50 @@
+{% extends "kakeibo/base.html" %}
+{% load humanize %}
+{% block title %}
+    Test Dashboard
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <canvas id="bar_resources"></canvas>
+    </div>
+  </div>
+</div>
+<!-- bar_resources -->
+<script>
+  var ctx = document.getElementById('bar_resources').getContext('2d');
+  var options = {
+    scales: {
+      yAxes: [{
+        stacked: true
+      }]
+    }
+  }
+  var colors = [
+    "rgba(250,153,0,0.4)",
+    "rgba(0,153,253,0.4)",
+    "rgba(153,250,0,0.4)",
+    "rgba(153,0,253, 0.4)",
+    "rgba(253,0,150,0.4)",
+  ]
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [{% for i in months_chart %}"{{i}}", {%endfor%}],
+      datasets: [
+        {%for r in resources_chart%}
+        {
+          label: "{{r.name}}",
+          data: {{r.val}},
+          backgroundColor: colors[{{ forloop.counter0 }}]
+        },
+        {% endfor %}
+      ],
+    },
+    options: options
+  });
+</script>
+
+{% endblock %}

@@ -451,25 +451,32 @@ def credit(request):
 
 @time_measure
 def test(request):
+    num=18
+    # resource
     today = date.today()
-    year = request.GET.get(key="year")
-    month = request.GET.get(key="month")
-    rs = Resources.objects.get(name=request.GET.get(key="resource"))
-    figtitle = "Usage-Breakdown @" + rs.name
-    if year is None:
-        kakeibos = Kakeibos.objects.filter(move_from=rs)
-    elif month is None:
-        kakeibos = Kakeibos.objects.filter(date__year=year, move_from=rs)
-        figtitle = figtitle + "(CY" + str(year) + ")"
-    else:
-        kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year, move_from=rs)
-        figtitle = figtitle + "(" + str(year) + "/" + str(month) + ")"
-    usages = Usages.objects.filter(is_expense=True)
-    data = dict()
-    for us in usages:
-        data[us.name] = mylib.cal_sum_or_0(kakeibos.filter(usage=us))
-
-    res = figure.fig_pie_basic(data=data, figtitle=figtitle)
-    return res
+    resources_chart = list()
+    months = [(today + relativedelta(months=-i)) for i in range(num)]
+    months_chart = [(str(m.year)+"/"+str(m.month)) for m in months]
+    print(months_chart)
+    for rs in Resources.objects.all():
+        # kakeibo
+        kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
+        val = list()
+        val.append(rs.current_val)
+        ll = today
+        print("=====")
+        print(ll.month, ll.year)
+        for i in range(1, num):
+            move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
+            move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
+            val.append(val[i-1] - move_to + move_from)
+            ll = ll + relativedelta(months=-1)
+            logger.info(ll)
+            print(ll.month, ll.year, move_from, move_to, kakeibos.__len__())
+            kakeibos = Kakeibos.objects.filter(date__month=ll.month, date__year=ll.year)
+        tmp = {"name": rs.name, "val": val,}
+        resources_chart.append(tmp)
+    output = {"resources_chart": resources_chart, "months_chart": months_chart}
+    return render(request, 'kakeibo/test.html', output)
 
 
