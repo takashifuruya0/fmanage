@@ -457,7 +457,8 @@ def test(request):
     resources_chart = list()
     months = [(today + relativedelta(months=-i)) for i in range(num)]
     months_chart = [(str(m.year)+"/"+str(m.month)) for m in months]
-    print(months_chart)
+    months_chart.reverse()
+
     for rs in Resources.objects.all():
         # kakeibo
         kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
@@ -474,8 +475,10 @@ def test(request):
             logger.info(ll)
             print(ll.month, ll.year, move_from, move_to, kakeibos.__len__())
             kakeibos = Kakeibos.objects.filter(date__month=ll.month, date__year=ll.year)
+        val.reverse()
         tmp = {"name": rs.name, "val": val,}
         resources_chart.append(tmp)
+
     output = {"resources_chart": resources_chart, "months_chart": months_chart}
     return render(request, 'kakeibo/test.html', output)
 
