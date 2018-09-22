@@ -293,12 +293,11 @@ def mine(request):
         tmp = {"name": rs.name, "val": val, }
         resources_year_chart.append(tmp)
     # kakeibo-usage
-    # kut = middleware.usage_kakeibo_table()
-        usage_list = [
-            "食費", "外食費", "日常消耗品", "交際費", "交通費",
-            "散髪・衣服", "共通支出", "クレジット（個人）",
-            "喫茶店", "書籍", "娯楽費", "コンビニ", "その他"
-        ]
+    usage_list = [
+        "食費", "外食費", "日常消耗品", "交際費", "交通費",
+        "散髪・衣服", "共通支出", "クレジット（個人）",
+        "喫茶店", "書籍", "娯楽費", "コンビニ", "その他"
+    ]
     kakeibo_usage = middleware.usage_kakeibo_table(usage_list)
 
     # output
@@ -320,8 +319,7 @@ def mine(request):
         "resources_year_chart": resources_year_chart,
         "months_chart": months_chart,
         # kus
-        # "kakeibo_usage_table": kut,
-        "kakeibo_usage_table2": kakeibo_usage,
+        "kakeibo_usage_table": kakeibo_usage,
         "usage_list": usage_list,
     }
     return render(request, 'kakeibo/mine.html', output)
@@ -386,28 +384,7 @@ def shared(request):
 
     # 年間
     usage_list = ["家賃", "食費", "日常消耗品", "ガス", "電気", "水道", "その他"]
-    suy = SharedKakeibos.objects.filter(date__year=year)\
-        .annotate(month=TruncMonth('date'))\
-        .values('month', 'usage').order_by('month')\
-        .annotate(sum=Sum('fee'))
-    smonth = suy.first()['month'].month
-    lmonth = suy.last()['month'].month
-    data_year = [
-        {"month": i, "sum": "", "color": "", "percent": "", "data": list()} for i in range(smonth, lmonth+1)
-    ]
-    for i in range(lmonth+1-smonth):
-        data_year[i]['data'] = [0 for j in range(len(usage_list))]
-    for s in suy:
-        name = Usages.objects.get(pk=s['usage']).name
-        for u in range(len(usage_list)):
-            if name == usage_list[u]:
-                data_year[s['month'].month-smonth]['data'][u] = s['sum']
-    for i in range(lmonth+1-smonth):
-        data_year[i]['sum'] = sum(data_year[i]['data'])
-        data_year[i]["percent"] = data_year[i]['sum'] / (budget_shared['all'] + 30000) * 100
-        data_year[i]["color"] = "success" if data_year[i]['sum'] < budget_shared['all'] else "danger"
-    # usage_listに合計追加
-    usage_list.insert(0, "合計")
+    data_year = middleware.usage_shared_table(usage_list)
 
     # output
     output = {

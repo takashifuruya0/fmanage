@@ -157,7 +157,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for i in kakeibo_usage_table2 %}
+          {% for i in kakeibo_usage_table %}
           <tr>
             <td>{{i.month}}月</td>
             <td class="right">¥{{i.sum | intcomma}}</td>
@@ -169,30 +169,6 @@
         </tbody>
       </table>
     </div>
-    <!--<div class="col-sm-12">-->
-      <!--<table class="table table-light table-hover table-sm">-->
-        <!--<thead>-->
-          <!--<tr>-->
-            <!--<th>月</th>-->
-            <!--<th>用途</th>-->
-            <!--<th class="right">合計</th>-->
-            <!--<th class="right">平均</th>-->
-            <!--<th class="right">回数</th>-->
-          <!--</tr>-->
-        <!--</thead>-->
-        <!--<tbody class="">-->
-          <!--{% for kut in kakeibo_usage_table %}-->
-          <!--<tr>-->
-            <!--<td>{{kut.date.year}}/{{kut.date.month}}</td>-->
-            <!--<td>{{kut.name}}</td>-->
-            <!--<td class="right">¥{{kut.sum | intcomma}}</td>-->
-            <!--<td class="right">¥{{kut.avg | intcomma}}</td>-->
-            <!--<td class="right">{{kut.count}}</td>-->
-          <!--</tr>-->
-          <!--{% endfor %}-->
-        <!--</tbody>-->
-      <!--</table>-->
-    <!--</div>-->
   </div>
 
 </div>
