@@ -58,3 +58,16 @@ def usage_kakeibo_table(usage_list):
         data_year[i]['sum'] = sum(data_year[i]['data'])
     data_year.reverse()
     return data_year
+
+
+def yearmonth(request):
+    if request.GET.get(key="yearmonth") is not None:
+        year = request.GET.get(key="yearmonth")[0:4]
+        month = request.GET.get(key="yearmonth")[5:]
+    else:
+        year = request.GET.get(key="year")
+        month = request.GET.get(key="month")
+    if year is None or month is None:
+        year = date.today().year
+        month = date.today().month
+    return year, month

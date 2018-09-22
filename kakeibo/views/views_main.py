@@ -26,7 +26,6 @@ from django.db.models.functions import TruncMonth
 @login_required
 @time_measure
 def dashboard(request):
-    start = mylib.time_start()
     today = date.today()
     # kakeibo
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
@@ -152,7 +151,6 @@ def dashboard(request):
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
     }
     logger.info("output: " + str(output))
-    logger.info("time:" + str(mylib.time_end(start)))
     return render(request, 'kakeibo/dashboard.html', output)
 
 
@@ -200,15 +198,8 @@ def redirect_sharedform(request):
 @login_required
 @time_measure
 def mine(request):
-    if request.GET.get(key="yearmonth") is not None:
-        year = request.GET.get(key="yearmonth")[0:4]
-        month = request.GET.get(key="yearmonth")[5:]
-    else:
-        year = request.GET.get(key="year")
-        month = request.GET.get(key="month")
-    if year is None or month is None:
-        year = date.today().year
-        month = date.today().month
+    # check year and month from GET parameter
+    year, month = middleware.yearmonth(request)
 
     kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
     ekakeibos = kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）"))
@@ -328,16 +319,8 @@ def mine(request):
 @login_required
 @time_measure
 def shared(request):
-    start = mylib.time_start()
-    if request.GET.get(key="yearmonth") is not None:
-        year = request.GET.get(key="yearmonth")[0:4]
-        month = request.GET.get(key="yearmonth")[5:]
-    else:
-        year = request.GET.get(key="year")
-        month = request.GET.get(key="month")
-    if year is None or month is None:
-        year = date.today().year
-        month = date.today().month
+    # check year and month from GET parameter
+    year, month = middleware.yearmonth(request)
 
     # shared
     seisan = mylib.seisan(year, month)
@@ -404,22 +387,14 @@ def shared(request):
         "data_year": data_year,
         "usage_list": usage_list,
     }
-    logger.info("time: "+str(mylib.time_end(start)))
     return render(request, 'kakeibo/shared.html', output)
 
 
 @login_required
 @time_measure
 def credit(request):
-    if request.GET.get(key="yearmonth") is not None:
-        year = request.GET.get(key="yearmonth")[0:4]
-        month = request.GET.get(key="yearmonth")[5:]
-    else:
-        year = request.GET.get(key="year")
-        month = request.GET.get(key="month")
-    if year is None or month is None:
-        year = date.today().year
-        month = date.today().month
+    # check year and month from GET parameter
+    year, month = middleware.yearmonth(request)
 
     citems = CreditItems.objects.all()
     credits = Credits.objects.all()
