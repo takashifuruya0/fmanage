@@ -246,7 +246,7 @@ def mine(request):
 
     # resources_year
     today = date.today()
-    num = 18
+    num = 12
     resources_year_chart = list()
     months = [(today + relativedelta(months=-i)) for i in range(num)]
     months_chart = [(str(m.year) + "/" + str(m.month)) for m in months]
