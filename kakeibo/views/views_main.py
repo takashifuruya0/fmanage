@@ -76,8 +76,9 @@ def dashboard(request):
     # usage
     current_usage = list()
     cash_usages = ekakeibos.values('usage').annotate(sum=Sum('fee'))
+    usage_names = {u.pk: u.name for u in Usages.objects.all()}
     for cu in cash_usages:
-        name = Usages.objects.get(pk=cu['usage']).name
+        name = usage_names[cu['usage']]
         val = cu['sum']
         current_usage.append({"name": name, "val": val})
     logger.info(current_usage)
@@ -111,7 +112,7 @@ def dashboard(request):
     if shared_usages.__len__() != 0:
         for su in shared_usages:
             tmp = dict()
-            tmp['name'] = Usages.objects.get(pk=su['usage']).name
+            tmp['name'] = name = usage_names[su['usage']]
             tmp['val'] = su['sum']
             shared_grouped_by_usage.append(tmp)
         logger.info(shared_grouped_by_usage)
@@ -232,31 +233,14 @@ def mine(request):
     saved = move_to - move_from
 
     # resource
-    current_resource = dict()
-    resources_chart = list()
-    for rs in Resources.objects.all():
-        # current_valがあれば早い
-        if rs.current_val is not None:
-            val = rs.current_val
-            move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
-            move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
-            val2 = val - move_to + move_from
-        else:
-            move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
-            move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
-            val = rs.initial_val + move_to - move_from
-            move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
-            move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
-            val2 = val - move_to + move_from
-        if val is not 0:
-            current_resource[rs.name] = val
-            tmp = {"name": rs.name, "this_month": val, "last_month": val2}
-            resources_chart.append(tmp)
+    resources = Resources.objects.all()
+
     # usage
     usages_chart = list()
     cash_usages = ekakeibos.values('usage').annotate(sum=Sum('fee')).order_by("sum").reverse()
+    usage_names = {u.pk: u.name for u in Usages.objects.all()}
     for cu in cash_usages:
-        name = Usages.objects.get(pk=cu['usage']).name
+        name = usage_names[cu['usage']]
         val = cu['sum']
         usages_chart.append({"name": name, "val": val})
 
@@ -275,11 +259,10 @@ def mine(request):
         val.append(rs.current_val)
         target_month = today
         for i in range(1, num):
-            move_to = mylib.cal_sum_or_0(kakeibosr.filter(move_to=rs))
-            move_from = mylib.cal_sum_or_0(kakeibosr.filter(move_from=rs))
+            move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs, date__month=target_month.month, date__year=target_month.year))
+            move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs, date__month=target_month.month, date__year=target_month.year))
             val.append(val[i - 1] - move_to + move_from)
             target_month = target_month + relativedelta(months=-1)
-            kakeibosr = Kakeibos.objects.filter(date__month=target_month.month, date__year=target_month.year)
         val.reverse()
         tmp = {"name": rs.name, "val": val, }
         resources_year_chart.append(tmp)
@@ -311,8 +294,9 @@ def mine(request):
         "expense": expense,
         # current list
         "ways": ways,
+        # table
+        "resources_table": resources,
         # chart js
-        "resources_chart": resources_chart,
         "usages_chart": usages_chart,
         "resources_year_chart": resources_year_chart,
         "months_chart": months_chart,
@@ -359,10 +343,11 @@ def shared(request):
     # shared_grouped_by_usage
     shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
     shared_grouped_by_usage = list()
+    usage_names = {u.pk: u.name for u in Usages.objects.all()}
     if shared_usages.__len__() != 0:
         for su in shared_usages:
             tmp = dict()
-            tmp['name'] = Usages.objects.get(pk=su['usage']).name
+            tmp['name'] = name = usage_names[su['usage']]
             tmp['val'] = su['sum']
             shared_grouped_by_usage.append(tmp)
         logger.info(shared_grouped_by_usage)

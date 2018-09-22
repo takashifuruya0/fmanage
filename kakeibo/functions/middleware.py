@@ -23,8 +23,9 @@ def usage_shared_table(usage_list):
     ]
     for i in range(last_month + 1 - start_month):
         data_year[i]['data'] = [0 for j in range(len(usage_list))]
+    usage_names = {u.pk: u.name for u in Usages.objects.all()}
     for s in suy:
-        name = Usages.objects.get(pk=s['usage']).name
+        name = usage_names[s['usage']]
         for u in range(len(usage_list)):
             if name == usage_list[u]:
                 data_year[s['month'].month - start_month]['data'][u] = s['sum']
@@ -49,8 +50,9 @@ def usage_kakeibo_table(usage_list):
     ]
     for i in range(lmonth + 1 - smonth):
         data_year[i]['data'] = [0 for j in range(len(usage_list))]
+    usage_names = {u.pk: u.name for u in Usages.objects.all()}
     for s in kakeibos:
-        name = Usages.objects.get(pk=s['usage']).name
+        name = usage_names[s['usage']]
         for u in range(len(usage_list)):
             if name == usage_list[u]:
                 data_year[s['month'].month - smonth]['data'][u] = s['sum']
@@ -79,8 +81,9 @@ def consolidated_usages():
     res = {u.name: 0 for u in usages}
     # Kakeibos
     kus = Kakeibos.objects.exclude(usage=None).values('usage').annotate(sum=Sum('fee'))
+    uname = {u.pk: u.name for u in Usages.objects.all()}
     for ku in kus:
-        name = Usages.objects.get(pk=ku['usage']).name
+        name = uname[ku['usage']]
         res[name] += ku['sum']
     # Credits
     cis = CreditItems.objects.all()

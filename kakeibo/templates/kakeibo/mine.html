@@ -105,10 +105,10 @@
           </tr>
         </thead>
         <tbody class="">
-          {% for r in resources_chart %}
+          {% for r in resources_table %}
           <tr>
             <td>{{r.name}}</td>
-            <td class="right">¥{{r.this_month | intcomma}}</td>
+            <td class="right">¥{{r.current_val | intcomma}}</td>
           </tr>
           {% endfor %}
         </tbody>
