@@ -291,6 +291,13 @@ def mine(request):
     ]
     kakeibo_usage = middleware.usage_kakeibo_table(usage_list)
 
+    # Consolidated_usages
+    consolidated_usages_chart = middleware.consolidated_usages()
+
+    # total
+    total = Resources.objects.all().aggregate(sum=Sum('current_val'))['sum']
+    total_saved = rs.current_val + Resources.objects.get(name="貯金口座").current_val
+
     # output
     output = {
         "today": {"year": year, "month": month},
@@ -309,9 +316,13 @@ def mine(request):
         "usages_chart": usages_chart,
         "resources_year_chart": resources_year_chart,
         "months_chart": months_chart,
+        "consolidated_usages_chart": consolidated_usages_chart,
         # kus
         "kakeibo_usage_table": kakeibo_usage,
         "usage_list": usage_list,
+        # total
+        "total": total,
+        "total_saved": total_saved,
     }
     return render(request, 'kakeibo/mine.html', output)
 

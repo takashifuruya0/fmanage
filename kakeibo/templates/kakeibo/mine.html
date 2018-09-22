@@ -71,6 +71,11 @@
   <hr>
   <div class="row">
     <div class="col-sm-4">
+      <h5>クレジット含む用途別支出統計</h5>
+      <canvas id="pie_consolidated_usage" height="360" width="320"></canvas>
+    </div>
+
+    <div class="col-sm-4">
       <h5>推移について</h5>
       <table class="table table-light table-hover table-sm">
         <thead>
@@ -81,27 +86,16 @@
         </thead>
         <tbody class="">
           <tr>
-            <td>合計貯金額</td>
-            <td class="right">¥100,000</td>
-          </tr>
-          <tr>
-            <td>年間貯金推移 {{resources_year_chart.1.val.1}}</td>
-            <td class="right"><font color="red">-¥50,000</font></td>
-          </tr>
-          <tr>
             <td>合計資産</td>
-            <td class="right">¥1,250,000</td>
+            <td class="right">¥{{total | intcomma}}</td>
           </tr>
           <tr>
-            <td>年間資産推移</td>
-            <td class="right"><font color="red">-¥50,000</font></td>
+            <td>合計貯金額</td>
+            <td class="right">¥{{total_saved | intcomma}}</td>
           </tr>
-
         </tbody>
       </table>
-    </div>
-
-    <div class="col-sm-4">
+      <hr>
       <h5>資産内訳</h5>
       <table class="table table-light table-hover table-sm">
         <thead>
@@ -311,6 +305,58 @@
       ],
     },
     options: options
+  });
+</script>
+
+<!-- pie_usage -->
+<script>
+  var ctx = document.getElementById('pie_consolidated_usage').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for u in consolidated_usages_chart.keys %}"{{u}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for u in consolidated_usages_chart.values %}{{u}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+         ]
+      }]
+    }
   });
 </script>
 

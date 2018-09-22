@@ -71,3 +71,39 @@ def yearmonth(request):
         year = date.today().year
         month = date.today().month
     return year, month
+
+
+def consolidated_usages():
+    # responseの型を設定
+    usages = Usages.objects.all()
+    res = {u.name: 0 for u in usages}
+    # Kakeibos
+    kus = Kakeibos.objects.exclude(usage=None).values('usage').annotate(sum=Sum('fee'))
+    for ku in kus:
+        name = Usages.objects.get(pk=ku['usage']).name
+        res[name] += ku['sum']
+    # Credits
+    cis = CreditItems.objects.all()
+    for ci in cis:
+        c_sum = Credits.objects.filter(credit_item=ci).aggregate(Sum('fee'))['fee__sum']
+        try:
+            res[ci.usage.name] += c_sum
+        # CreditItemsとUsagesの紐づけがされていない場合→その他へ
+        except Exception as e:
+            res["その他"] += c_sum
+    # クレジットは削除
+    res.pop("クレジット（個人）")
+    res.pop("クレジット（家族）")
+    # is_expense=False は削除
+    for u in usages:
+        if u.is_expense is False:
+            res.pop(u.name)
+    # 並び替え
+    res = dict(sorted(res.items(), key=lambda x: -x[1]))
+    print(res)
+    # res2 = dict()
+
+    # for key, val in sorted(res.items(), key=lambda x: -x[1]):
+    #     res2[key] = val
+    # print(res2)
+    return res
