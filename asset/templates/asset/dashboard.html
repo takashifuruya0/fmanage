@@ -1,5 +1,5 @@
 {% extends "kakeibo/base.html" %}
-
+{% load humanize %}
 {% block title %}
     Asset dashboard
 {% endblock %}
@@ -8,12 +8,12 @@
   <div class="container-fluid">
     <hr>
     <div class="row">
-      <div class="col-sm-6">
+      <div class="col-sm-9">
         <h1>
           <i class="fab fa-servicestack"></i> 資産運用概要: {{today.year}}年{{today.month}}月{{today.day}}日
         </h1>
       </div>
-      <div class="col-sm-6">
+      <div class="col-sm-3">
       </div>
     </div>
     <hr>
@@ -38,23 +38,23 @@
           <tbody>
             <tr>
               <td>保有株式</td>
-              <td class="right">{{total}}</td>
+              <td class="right">¥ {{total| intcomma}}</td>
             </tr>
             <tr>
               <td>買付余力</td>
-              <td class="right">{{buying_power}}</td>
+              <td class="right">¥{{buying_power | intcomma}}</td>
             </tr>
             <tr>
               <td>総計</td>
-              <td class="right">{{total_b}}</td>
+              <td class="right">¥{{total_b| intcomma}}</td>
             </tr>
             <tr>
               <td>収益</td>
-              <td class="right"><font color="{{total_color}}">{{benefit}}</font></td>
+              <td class="right"><font color="{{total_color}}">¥{{benefit| intcomma}}</font></td>
             </tr>
             <tr>
               <td>投資額</td>
-              <td class="right">{{investment}}</td>
+              <td class="right">¥{{investment| intcomma}}</td>
             </tr>
           </tbody>
         </table>
@@ -86,10 +86,10 @@
               <td>{{hs.code}}</td>
               <td>{{hs.name}}</td>
               <td class="right">{{hs.num}}</td>
-              <td class="right">{{hs.aprice}}</td>
-              <td class="right">{{hs.cprice}}</td>
-              <td class="right">{{hs.ctotal}}</td>
-              <td class="right"><font color="{{hs.color}}">{{hs.benefit}}</font></td>
+              <td class="right">¥{{hs.aprice | intcomma}}</td>
+              <td class="right">¥{{hs.cprice | intcomma}}</td>
+              <td class="right">¥{{hs.ctotal | intcomma}}</td>
+              <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | intcomma}}</font></td>
             </tr>
             {% endfor %}
           </tbody>
