@@ -16,6 +16,7 @@ from datetime import datetime, date, timedelta
 # function
 from kakeibo.functions import update_records, money, figure, mylib
 from kakeibo.functions.mylib import time_measure
+from kakeibo.functions import middleware
 # grouped by month
 from django.db.models.functions import TruncMonth
 
@@ -228,11 +229,11 @@ def mine(request):
         pb_kakeibo = {"in": 100, "out": 100}
     # way
     ways_sum = kakeibos.values('way').annotate(Sum('fee'))
-    current_way = list()
+    ways = list()
     for w in ways_sum:
         if w['way'] != "振替":
             tmp = {"val": w['fee__sum'], "name": w['way']}
-            current_way.append(tmp)
+            ways.append(tmp)
     # saved
     rs = Resources.objects.get(name="SBI敬士")
     move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
@@ -261,12 +262,44 @@ def mine(request):
             tmp = {"name": rs.name, "this_month": val, "last_month": val2}
             resources_chart.append(tmp)
     # usage
-    current_usage = list()
+    usages_chart = list()
     cash_usages = ekakeibos.values('usage').annotate(sum=Sum('fee')).order_by("sum").reverse()
     for cu in cash_usages:
         name = Usages.objects.get(pk=cu['usage']).name
         val = cu['sum']
-        current_usage.append({"name": name, "val": val})
+        usages_chart.append({"name": name, "val": val})
+
+    # resources_year
+    today = date.today()
+    num = 18
+    resources_year_chart = list()
+    months = [(today + relativedelta(months=-i)) for i in range(num)]
+    months_chart = [(str(m.year) + "/" + str(m.month)) for m in months]
+    months_chart.reverse()
+    kakeibos_org = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
+    for rs in Resources.objects.all():
+        # kakeibo
+        kakeibosr = kakeibos_org
+        val = list()
+        val.append(rs.current_val)
+        target_month = today
+        for i in range(1, num):
+            move_to = mylib.cal_sum_or_0(kakeibosr.filter(move_to=rs))
+            move_from = mylib.cal_sum_or_0(kakeibosr.filter(move_from=rs))
+            val.append(val[i - 1] - move_to + move_from)
+            target_month = target_month + relativedelta(months=-1)
+            kakeibosr = Kakeibos.objects.filter(date__month=target_month.month, date__year=target_month.year)
+        val.reverse()
+        tmp = {"name": rs.name, "val": val, }
+        resources_year_chart.append(tmp)
+    # kakeibo-usage
+    # kut = middleware.usage_kakeibo_table()
+        usage_list = [
+            "食費", "外食費", "日常消耗品", "交際費", "交通費",
+            "散髪・衣服", "共通支出", "クレジット（個人）",
+            "喫茶店", "書籍", "娯楽費", "コンビニ", "その他"
+        ]
+    kakeibo_usage = middleware.usage_kakeibo_table(usage_list)
 
     # output
     output = {
@@ -280,11 +313,16 @@ def mine(request):
         "income": income,
         "expense": expense,
         # current list
-        "current_resource": current_resource,
-        "current_way": current_way,
+        "ways": ways,
         # chart js
-        "resources": resources_chart,
-        "current_usage": current_usage,
+        "resources_chart": resources_chart,
+        "usages_chart": usages_chart,
+        "resources_year_chart": resources_year_chart,
+        "months_chart": months_chart,
+        # kus
+        # "kakeibo_usage_table": kut,
+        "kakeibo_usage_table2": kakeibo_usage,
+        "usage_list": usage_list,
     }
     return render(request, 'kakeibo/mine.html', output)
 

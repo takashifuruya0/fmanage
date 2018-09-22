@@ -57,70 +57,142 @@
 
   <hr>
   <div class="row">
+
+    <div class="col-sm-8">
+      <h4>推移</h4>
+      <canvas id="bar_resources_year"></canvas>
+    </div>
     <div class="col-sm-4">
-      <h4>収支</h4>
-      <p class="resizeimage">
-        <img src="{% url 'kakeibo:bars_balance' %}?year={{today.year}}&month={{today.month}}">
-      </p>
+      <h4>支出用途</h4>
+      <canvas id="pie_usage" height="360" width="320"></canvas>
+    </div>
+  </div>
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-4">
+      <h5>推移について</h5>
       <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
             <th>Key</th>
             <th class="right">Value</th>
+          </tr>
+        </thead>
+        <tbody class="">
+          <tr>
+            <td>合計貯金額</td>
+            <td class="right">¥100,000</td>
+          </tr>
+          <tr>
+            <td>年間貯金推移 {{resources_year_chart.1.val.1}}</td>
+            <td class="right"><font color="red">-¥50,000</font></td>
+          </tr>
+          <tr>
+            <td>合計資産</td>
+            <td class="right">¥1,250,000</td>
+          </tr>
+          <tr>
+            <td>年間資産推移</td>
+            <td class="right"><font color="red">-¥50,000</font></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-sm-4">
+      <h5>資産内訳</h5>
+      <table class="table table-light table-hover table-sm">
+        <thead>
+          <tr>
+            <th>口座</th>
+            <th class="right">金額</th>
+          </tr>
+        </thead>
+        <tbody class="">
+          {% for r in resources_chart %}
+          <tr>
+            <td>{{r.name}}</td>
+            <td class="right">¥{{r.this_month | intcomma}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-sm-4">
+      <h5>用途別支出内訳</h5>
+      <table class="table table-light table-hover table-sm">
+        <thead>
+          <tr>
+            <th>用途</th>
+            <th class="right">金額</th>
+          </tr>
+        </thead>
+        <tbody class="">
+          {% for u in usages_chart %}
+          <tr>
+            <td>{{u.name}}</td>
+            <td class="right">¥{{u.val | intcomma}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-12">
+      <h4>{{today.year}}年実績</h4>
+      <table class="table table-light table-hover table-sm table-responsive-md">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="right">合計</th>
+            {% for i in usage_list %}
+            <th class="right">{{i}}</th>
+            {% endfor%}
           </tr>
         </thead>
         <tbody>
-          {% for cw in current_way %}
+          {% for i in kakeibo_usage_table2 %}
           <tr>
-            <td>{{cw.name}}</td>
-            <td class="right">¥{{cw.val | intcomma}}</td>
+            <td>{{i.month}}月</td>
+            <td class="right">¥{{i.sum | intcomma}}</td>
+            {% for j in i.data %}
+            <td class="right">¥{{j | intcomma}}</td>
+            {% endfor %}
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-
-    <div class="col-sm-4">
-      <h4>資産状態</h4>
-      <canvas id="bar_resources" width="320" height="360"></canvas>
-      <table class="table table-light table-hover table-sm">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th class="right">Value</th>
-          </tr>
-        </thead>
-        <tbody class="">
-          {% for key, val in current_resource.items %}
-          <tr>
-            <td>{{key}}</td>
-            <td class="right">¥{{val | intcomma}}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="col-sm-4">
-      <h4>支出用途</h4>
-      <canvas id="pie_usage" width="320" height="360"></canvas>
-      <table class="table table-light table-hover table-sm">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th class="right">Value</th>
-          </tr>
-        </thead>
-        <tbody class="">
-          {% for cu in current_usage %}
-          <tr>
-            <td>{{cu.name}}</td>
-            <td class="right">¥{{cu.val | intcomma}}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <!--<div class="col-sm-12">-->
+      <!--<table class="table table-light table-hover table-sm">-->
+        <!--<thead>-->
+          <!--<tr>-->
+            <!--<th>月</th>-->
+            <!--<th>用途</th>-->
+            <!--<th class="right">合計</th>-->
+            <!--<th class="right">平均</th>-->
+            <!--<th class="right">回数</th>-->
+          <!--</tr>-->
+        <!--</thead>-->
+        <!--<tbody class="">-->
+          <!--{% for kut in kakeibo_usage_table %}-->
+          <!--<tr>-->
+            <!--<td>{{kut.date.year}}/{{kut.date.month}}</td>-->
+            <!--<td>{{kut.name}}</td>-->
+            <!--<td class="right">¥{{kut.sum | intcomma}}</td>-->
+            <!--<td class="right">¥{{kut.avg | intcomma}}</td>-->
+            <!--<td class="right">{{kut.count}}</td>-->
+          <!--</tr>-->
+          <!--{% endfor %}-->
+        <!--</tbody>-->
+      <!--</table>-->
+    <!--</div>-->
   </div>
 
 </div>
@@ -131,10 +203,10 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for cu in current_usage%}"{{cu.name}}",{%endfor%}],
+      labels: [{%for u in usages_chart%}"{{u.name}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for cu in current_usage%}{{cu.val}},{%endfor%}],
+        data: [{%for u in usages_chart%}{{u.val}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
@@ -182,7 +254,7 @@
     data: {
       labels: ["今月", "先月"],
       datasets: [
-        {%for r in resources%}
+        {%for r in resources_chart%}
         {
           label: "{{r.name}}",
           data: [{{r.this_month}}, {{r.last_month}}],
@@ -222,6 +294,41 @@
         {
           label: "{{key}}",
           data: [{%for v in val%}{{v}},{%endfor%}],
+          backgroundColor: colors[{{ forloop.counter0 }}]
+        },
+        {% endfor %}
+      ],
+    },
+    options: options
+  });
+</script>
+
+<!-- bar_resources_year -->
+<script>
+  var ctx = document.getElementById('bar_resources_year').getContext('2d');
+  var options = {
+    scales: {
+      yAxes: [{
+        stacked: true
+      }]
+    }
+  }
+  var colors = [
+    "rgba(250,153,0,0.4)",
+    "rgba(0,153,253,0.4)",
+    "rgba(153,250,0,0.4)",
+    "rgba(153,0,253, 0.4)",
+    "rgba(253,0,150,0.4)",
+  ]
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [{% for i in months_chart %}"{{i}}", {%endfor%}],
+      datasets: [
+        {%for r in resources_year_chart%}
+        {
+          label: "{{r.name}}",
+          data: {{r.val}},
           backgroundColor: colors[{{ forloop.counter0 }}]
         },
         {% endfor %}
