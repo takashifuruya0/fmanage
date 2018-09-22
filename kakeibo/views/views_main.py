@@ -251,10 +251,8 @@ def mine(request):
     months = [(today + relativedelta(months=-i)) for i in range(num)]
     months_chart = [(str(m.year) + "/" + str(m.month)) for m in months]
     months_chart.reverse()
-    kakeibos_org = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
     for rs in Resources.objects.all():
         # kakeibo
-        kakeibosr = kakeibos_org
         val = list()
         val.append(rs.current_val)
         target_month = today
