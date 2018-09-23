@@ -32,18 +32,10 @@ def dashboard(request):
     ekakeibos = kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）"))
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
     expense = mylib.cal_sum_or_0(ekakeibos)
+
     # status, progress_bar
-    try:
-        if income > expense:
-            status_kakeibo = "primary"
-            pb_kakeibo = {"in": 100, "out": int(expense / income * 100)}
-        else:
-            status_kakeibo = "danger"
-            pb_kakeibo = {"in": int(income / expense * 100), "out": 100}
-    except Exception as e:
-        logger.error("Failed to set status and progress_bar")
-        status_kakeibo = "primary"
-        pb_kakeibo = {"in": 100, "out": 100}
+    pb_kakeibo, status_kakeibo = middleware.kakeibo_status(income, expense)
+
     # way
     ways_sum = kakeibos.values('way').annotate(Sum('fee'))
     current_way = dict()
@@ -52,6 +44,7 @@ def dashboard(request):
     if "振替" in current_way.keys():
         current_way.pop("振替")
         logger.info("振替 is poped out")
+
     # resource
     current_resource = dict()
     resources_chart = list()
@@ -73,6 +66,7 @@ def dashboard(request):
             current_resource[rs.name] = val
             tmp = {"name": rs.name, "this_month": val, "last_month": val2}
             resources_chart.append(tmp)
+
     # usage
     current_usage = list()
     cash_usages = ekakeibos.values('usage').annotate(sum=Sum('fee'))
@@ -156,32 +150,7 @@ def dashboard(request):
 
 
 @login_required
-def updates(request):
-    smsg = ["", "", ""]
-    emsg = ["", "", ""]
-    smsg[0], emsg[0] = update_records.init_resources_usages()
-    smsg[1], emsg[1] = update_records.save_kakeibo_to_sql()
-    smsg[2], emsg[2] = update_records.save_credit_to_sql()
-    for i in range(smsg.__len__()):
-        if smsg[i] != "":
-            logger.info(smsg[i])
-        if emsg[i] != "":
-            logger.error(emsg[i])
-    return redirect('kakeibo:dashboard')
-
-
-@login_required
-def updates_shared(request):
-    smsg, emsg = update_records.save_shared_to_sql()
-    if smsg != "":
-        logger.info(smsg)
-    if emsg != "":
-        logger.error(emsg)
-    return redirect('kakeibo:dashboard')
-
-
-@login_required
-def redirect_form(request):
+def form_kakeibo(request):
     url = settings.URL_FORM
     # return redirect(url)
     output = {"url": url}
@@ -189,7 +158,7 @@ def redirect_form(request):
 
 
 @login_required
-def redirect_sharedform(request):
+def form_shared(request):
     url = settings.URL_SHAREDFORM
     # return redirect(url)
     output = {"url": url}
@@ -208,17 +177,8 @@ def mine(request):
     expense = mylib.cal_sum_or_0(ekakeibos)
 
     # status, progress_bar
-    try:
-        if income > expense:
-            status_kakeibo = "primary"
-            pb_kakeibo = {"in": 100, "out": int(expense / income * 100)}
-        else:
-            status_kakeibo = "danger"
-            pb_kakeibo = {"in": int(income / expense * 100), "out": 100}
-    except Exception as e:
-        logger.error("Failed to set status and progress_bar")
-        status_kakeibo = "primary"
-        pb_kakeibo = {"in": 100, "out": 100}
+    pb_kakeibo, status_kakeibo = middleware.kakeibo_status(income, expense)
+
     # way
     ways_sum = kakeibos.values('way').annotate(Sum('fee'))
     ways = list()
@@ -245,25 +205,9 @@ def mine(request):
         usages_chart.append({"name": name, "val": val})
 
     # resources_year
-    today = date.today()
-    num = 12
-    resources_year_chart = list()
-    months = [(today + relativedelta(months=-i)) for i in range(num)]
-    months_chart = [(str(m.year) + "/" + str(m.month)) for m in months]
-    months_chart.reverse()
-    for rs in Resources.objects.all():
-        # kakeibo
-        val = list()
-        val.append(rs.current_val)
-        target_month = today
-        for i in range(1, num):
-            move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs, date__month=target_month.month, date__year=target_month.year))
-            move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs, date__month=target_month.month, date__year=target_month.year))
-            val.append(val[i - 1] - move_to + move_from)
-            target_month = target_month + relativedelta(months=-1)
-        val.reverse()
-        tmp = {"name": rs.name, "val": val, }
-        resources_year_chart.append(tmp)
+    resources_year_chart, months_chart = middleware.resources_year_rev(12)
+    logger.info(resources_year_chart)
+
     # kakeibo-usage
     usage_list = [
         "食費", "外食費", "日常消耗品", "交際費", "交通費",

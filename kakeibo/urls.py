@@ -10,13 +10,10 @@ from kakeibo.views import views_redirect as views_redirect
 
 app_name = 'kakeibo'
 urlpatterns = [
-    # updates
-    url(r'^updates$', views.updates, name='update'),
-    url(r'^updates/shared$', views.updates_shared, name='update_shared'),
     
     # redirect_to_link
-    url(r'^form$', views.redirect_form, name='form'),
-    url(r'^sharedform$', views.redirect_sharedform, name='shared_form'),
+    url(r'^form$', views.form_kakeibo, name='form'),
+    url(r'^sharedform$', views.form_shared, name='shared_form'),
     url(r'^metabase$', views_redirect.redirect_metabase, name='metabase'),
     url(r'^knowledge$', views_redirect.redirect_knowledge, name='knowledge'),
     # mine
