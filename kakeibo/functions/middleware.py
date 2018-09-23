@@ -115,7 +115,6 @@ def consolidated_usages():
     return res
 
 
-
 @time_measure
 def resources_year_rev(num=12):
     resources = Resources.objects.all()
@@ -125,6 +124,7 @@ def resources_year_rev(num=12):
     today = date.today()
     months = [(today + relativedelta(months=-i)) for i in range(num)]
     months_chart = [(str(m.year) + "/" + str(m.month)) for m in months]
+    months_chart.reverse()
 
     start_month = today + relativedelta(months=-num)
     kfs = Kakeibos.objects.exclude(move_from=None).exclude(date__lt=start_month)\
