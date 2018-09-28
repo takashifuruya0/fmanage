@@ -2,9 +2,8 @@
                                                                                 
 from django.conf.urls import url                                                
 from django.contrib.auth import views as auth_views                             
-                                                                                
 
-from kakeibo.views import views_figure, views_list
+from kakeibo.views import views_figure, views_list, views_detail
 from kakeibo.views import views_main as views
 from kakeibo.views import views_redirect as views_redirect
 
@@ -27,6 +26,9 @@ urlpatterns = [
     # list
     url(r'^mine/list$', views_list.KakeiboList.as_view(), name="kakeibo_list"),
     url(r'^shared/list$', views_list.SharedList.as_view(), name="shared_list"),
+    # detail
+    url(r'^mine/detail/(?P<pk>\d+)/$', views_detail.KakeiboDetail.as_view(), name="kakeibo_detail"),
+    url(r'^shared/detail/(?P<pk>\d+)/$', views_detail.SharedDetail.as_view(), name="shared_detail"),
 
     # test
     url(r'^test$', views.test, name='test'),

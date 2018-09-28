@@ -1,0 +1,40 @@
+{% extends "kakeibo/base.html" %}
+
+{% block title %}
+    Kakeibo-Detail
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>共通家計簿詳細</h1>
+    <hr>
+
+    <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+        <tr>
+            <th>id</th>
+            <td>{{object.pk}}</td>
+        </tr>
+        <tr>
+            <th>Date</th>
+            <td>{{object.date | date}}</td>
+        </tr>
+        <tr>
+            <th>Fee</th>
+            <td>{{object.fee_yen}}</td>
+        </tr>
+        <tr>
+            <th>Usage</th>
+            <td>{{object.usage}}</td>
+        </tr>
+        <tr>
+            <th>Paid By</th>
+            <td>{{object.paid_by}}</td>
+        </tr>
+        <tr>
+            <th>Memo</th>
+            <td>{{object.memo}}</td>
+        </tr>
+    </table>
+</div>
+
+{% endblock %}
