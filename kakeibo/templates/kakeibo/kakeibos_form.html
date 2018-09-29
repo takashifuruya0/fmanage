@@ -1,0 +1,73 @@
+{% extends "kakeibo/base.html" %}
+
+{% block title %}
+    Kakeibo-Update
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>家計簿編集</h1>
+    <hr>
+
+    <form method="post">
+        <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+            <tr>
+                <th>id</th>
+                <td>{{object.pk}}</td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td>{{form.date}}</td>
+            </tr>
+            <tr>
+                <th>Fee</th>
+                <td>{{form.fee}}</td>
+            </tr>
+            <tr>
+                <th>Way</th>
+                <td>{{form.way}}</td>
+            </tr>
+            <tr>
+                <th>Usage</th>
+                <td>{{form.usage}}</td>
+            </tr>
+            <tr>
+                <th>From</th>
+                <td>{{form.move_from}}</td>
+            </tr>
+            <tr>
+                <th>To</th>
+                <td>{{form.move_to}}</td>
+            </tr>
+            <tr>
+                <th>Memo</th>
+                <td>{{form.memo}}</td>
+            </tr>
+        </table>
+        <div class="row">
+            <div class="col-sm-6">
+                <button class="btn btn-primary">Save</button>
+                <a href="{% url 'kakeibo:kakeibo_detail' pk=object.pk %}" class="btn btn-secondary">Back to detail</a>
+            </div>
+        </div>
+        {% csrf_token %}
+    </form>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<!-- カレンダー -->
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/i18n/jquery.ui.datepicker-ja.min.js"></script>
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/ui-lightness/jquery-ui.css" >
+<script>
+  $(function() {
+      var dateFormat = 'yy-mm-dd';
+      $('#id_date').datepicker({
+          dateFormat: dateFormat
+      });
+
+  });
+</script>
+{% endblock %}

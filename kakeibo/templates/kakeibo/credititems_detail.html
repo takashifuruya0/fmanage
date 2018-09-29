@@ -1,0 +1,46 @@
+{% extends "kakeibo/base.html" %}
+{% load humanize %}
+{% block title %}
+    Credit-Detail
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>クレジット項目詳細</h1>
+    <hr>
+
+    <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+        <tr>
+            <th>id</th>
+            <td>{{object.pk}}</td>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <td>{{object.name}}</td>
+        </tr>
+        <tr>
+            <th>Usage</th>
+            <td>{{object.usage}}</td>
+        </tr>
+        <tr>
+            <th>Count</th>
+            <td>{{object.count_credit}}</td>
+        </tr>
+        <tr>
+            <th>Sum</th>
+            <td>¥{{object.sum_credit | intcomma}}</td>
+        </tr>
+        <tr>
+            <th>Average</th>
+            <td>¥{{object.avg_credit | intcomma}}</td>
+        </tr>
+    </table>
+    <div class="row">
+        <div class="col-sm-6">
+            <a href="{% url 'kakeibo:credit_item_update' pk=object.pk %}" class="btn btn-info">Edit</a>
+            <a href="{% url 'kakeibo:credit_item_list' %}" class="btn btn-secondary">Back to list</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

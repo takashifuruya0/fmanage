@@ -1,12 +1,12 @@
 {% extends "kakeibo/base.html" %}
 
 {% block title %}
-    Shared-list
+    Credit-list
 {% endblock %}
 
 {% block body %}
 <div class="container">
-    <h1>共通支出記録</h1>
+    <h1>クレジット記録</h1>
     <hr>
 
     <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
@@ -14,47 +14,52 @@
             <tr>
                 <th class="right">id</th>
                 <th class="right">Date</th>
+                <th class="right">Debit Date</th>
                 <th class="right">Fee</th>
-                <th class="right">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Paid By</a>
+                <th class="ritht">
+                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Credit Item
+                    </a>
                     <div class="nav-item dropdown active">
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'kakeibo:shared_list' %}">all</a>
-                            {% for pb in paid_by %}
-                            <a class="dropdown-item" href="{% url 'kakeibo:shared_list' %}?paid_by={{pb}}">{{pb}}</a>
+                            <a class="dropdown-item" href="{% url 'kakeibo:credit_list' %}">all</a>
+                            {% for ci in credit_items %}
+                            <a class="dropdown-item" href="?credit_item={{ci.id}}">{{ci.name}}</a>
                             {% endfor %}
                         </div>
                     </div>
                 </th>
                 <th class="right">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Usage</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Usage
+                    </a>
                     <div class="nav-item dropdown active">
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'kakeibo:shared_list' %}">all</a>
+                            <a class="dropdown-item" href="{% url 'kakeibo:credit_list' %}">All</a>
+                            <a class="dropdown-item" href="{% url 'kakeibo:credit_list' %}?usage=0">None</a>
                             {% for u in usages %}
-                            <a class="dropdown-item" href="{% url 'kakeibo:shared_list' %}?usage={{u.id}}">{{u.name}}</a>
+                            <a class="dropdown-item" href="{% url 'kakeibo:credit_list' %}?usage={{u.id}}">{{u.name}}</a>
                             {% endfor %}
                         </div>
                     </div>
                 </th>
-                <th class="right">Memo</th>
             </tr>
         </thead>
         <tbody>
-            {% for shared in object_list %}
+            {% for credit in object_list %}
             <tr>
-                <td class="right"><a href="{% url 'kakeibo:shared_detail' pk=shared.pk%}?">{{shared.pk}}</a></td>
-                <td class="right">{{shared.date}}</td>
-                <td class="right">{{shared.fee_yen}}</td>
-                <td class="right">{{shared.paid_by}}</td>
-                <td class="right">{{shared.usage}}</td>
-                <td class="right">{{kakeibo.memo}}</td>
+                <td class="right"><a href="{% url 'kakeibo:credit_detail' pk=credit.pk%}?">{{credit.pk}}</a></td>
+                <td class="right">{{credit.date}}</td>
+                <td class="right">{{credit.debit_date.year}}年{{credit.debit_date.month}}月</td>
+                <td class="right">{{credit.fee_yen}}</td>
+                <td class="right">{{credit.credit_item}}</td>
+                <td class="right">{{credit.credit_item.usage}}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
- {% if is_paginated %}
+{% if is_paginated %}
   <ul class="pagination">
       {% if page_obj.has_previous %}
         <li><a class="page-link text-primary d-inline-block" href="?{{ page_obj.previous_page_number.querystring }}">前</a></li>

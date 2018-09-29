@@ -1,7 +1,7 @@
 {% extends "kakeibo/base.html" %}
 
 {% block title %}
-    Kakeibo-Detail
+    Shared-Detail
 {% endblock %}
 
 {% block body %}
@@ -35,6 +35,12 @@
             <td>{{object.memo}}</td>
         </tr>
     </table>
+    <div class="row">
+        <div class="col-sm-6">
+            <a href="{% url 'kakeibo:shared_update' pk=object.pk %}" class="btn btn-info">Edit</a>
+            <a href="{% url 'kakeibo:shared_list' %}" class="btn btn-secondary">Back to list</a>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

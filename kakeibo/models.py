@@ -117,6 +117,16 @@ class CreditItems(BaseModel):
     usage = models.ForeignKey(Usages, null=True, blank=True)
     color = models.OneToOneField(Colors, blank=True, null=True)
 
+    def count_credit(self):
+        return Credits.objects.filter(credit_item=self).__len__()
+
+    def sum_credit(self):
+        return Credits.objects.filter(credit_item=self).aggregate(sum=models.Sum('fee'))['sum']
+
+    def avg_credit(self):
+        return int(Credits.objects.filter(credit_item=self).aggregate(avg=models.Avg('fee'))['avg'])
+
+
 
 class Credits(models.Model):
     objects = None
@@ -126,4 +136,10 @@ class Credits(models.Model):
     credit_item = models.ForeignKey(CreditItems)
     card = models.ForeignKey(Cards, related_name="credits", null=True)
 
+    def fee_yen(self):
+        if self.fee >= 0:
+            new_val = '¥{:,}'.format(self.fee)
+        else:
+            new_val = '-¥{:,}'.format(-self.fee)
+        return new_val
 

@@ -1,12 +1,12 @@
 {% extends "kakeibo/base.html" %}
 
 {% block title %}
-    Kakeibo-Detail
+    Credit-Detail
 {% endblock %}
 
 {% block body %}
 <div class="container">
-    <h1>家計簿編集</h1>
+    <h1>クレジット詳細</h1>
     <hr>
 
     <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
@@ -19,30 +19,28 @@
             <td>{{object.date | date}}</td>
         </tr>
         <tr>
+            <th>Debit Date</th>
+            <td>{{object.debit_date | date}}</td>
+        </tr>
+        <tr>
             <th>Fee</th>
             <td>{{object.fee_yen}}</td>
         </tr>
         <tr>
-            <th>Way</th>
-            <td>{{object.way}}</td>
+            <th>Credit Item</th>
+            <td>{{object.credit_item}}</td>
         </tr>
         <tr>
             <th>Usage</th>
-            <td>{{object.usage}}</td>
-        </tr>
-        <tr>
-            <th>From</th>
-            <td>{%if object.move_from%}{{object.move_from}}{% endif %}</td>
-        </tr>
-        <tr>
-            <th>To</th>
-            <td>{%if object.move_to%}{{object.move_to}}{% endif %}</td>
-        </tr>
-        <tr>
-            <th>Memo</th>
-            <td>{{object.memo}}</td>
+            <td>{{object.credit_item.usage}}</td>
         </tr>
     </table>
+    <div class="row">
+        <div class="col-sm-6">
+            <a href="{% url 'kakeibo:credit_update' pk=object.pk %}" class="btn btn-info">Edit</a>
+            <a href="{% url 'kakeibo:credit_list' %}" class="btn btn-secondary">Back to list</a>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

@@ -11,24 +11,33 @@ app_name = 'kakeibo'
 urlpatterns = [
     
     # redirect_to_link
-    url(r'^form$', views.form_kakeibo, name='form'),
-    url(r'^sharedform$', views.form_shared, name='shared_form'),
-    url(r'^metabase$', views_redirect.redirect_metabase, name='metabase'),
-    url(r'^knowledge$', views_redirect.redirect_knowledge, name='knowledge'),
+    url(r'^form/$', views.form_kakeibo, name='form'),
+    url(r'^sharedform/$', views.form_shared, name='shared_form'),
+    url(r'^metabase/$', views_redirect.redirect_metabase, name='metabase'),
+    url(r'^knowledge/$', views_redirect.redirect_knowledge, name='knowledge'),
     # mine
-    url(r'^mine$', views.mine, name='mine'),
+    url(r'^mine/$', views.mine, name='mine'),
     # credit
-    url(r'^credit$', views.credit, name='credit'),
+    url(r'^credit/$', views.credit, name='credit'),
     # shared
-    url(r'^shared$', views.shared, name='shared'),
+    url(r'^shared/$', views.shared, name='shared'),
     # dashboard
     url(r'^$', views.dashboard, name='dashboard'),
     # list
-    url(r'^mine/list$', views_list.KakeiboList.as_view(), name="kakeibo_list"),
-    url(r'^shared/list$', views_list.SharedList.as_view(), name="shared_list"),
+    url(r'^mine/list/$', views_list.KakeiboList.as_view(), name="kakeibo_list"),
+    url(r'^shared/list/$', views_list.SharedList.as_view(), name="shared_list"),
+    url(r'^credit/list/$', views_list.CreditList.as_view(), name="credit_list"),
+    url(r'^credit/items/list/$', views_list.CreditItemList.as_view(), name="credit_item_list"),
     # detail
     url(r'^mine/detail/(?P<pk>\d+)/$', views_detail.KakeiboDetail.as_view(), name="kakeibo_detail"),
     url(r'^shared/detail/(?P<pk>\d+)/$', views_detail.SharedDetail.as_view(), name="shared_detail"),
+    url(r'^credit/detail/(?P<pk>\d+)/$', views_detail.CreditDetail.as_view(), name="credit_detail"),
+    url(r'^credit/items/detail/(?P<pk>\d+)/$', views_detail.CreditItemDetail.as_view(), name="credit_item_detail"),
+    # update
+    url(r'^mine/update/(?P<pk>\d+)/$', views_detail.KakeiboUpdate.as_view(), name="kakeibo_update"),
+    url(r'^shared/update/(?P<pk>\d+)/$', views_detail.SharedUpdate.as_view(), name="shared_update"),
+    url(r'^credit/update/(?P<pk>\d+)/$', views_detail.CreditUpdate.as_view(), name="credit_update"),
+    url(r'^credit/items/update/(?P<pk>\d+)/$', views_detail.CreditItemUpdate.as_view(), name="credit_item_update"),
 
     # test
     url(r'^test$', views.test, name='test'),

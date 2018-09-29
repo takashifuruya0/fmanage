@@ -43,6 +43,12 @@
             <td>{{object.memo}}</td>
         </tr>
     </table>
+    <div class="row">
+        <div class="col-sm-6">
+            <a href="{% url 'kakeibo:kakeibo_update' pk=object.pk %}" class="btn btn-info">Edit</a>
+            <a href="{% url 'kakeibo:kakeibo_list' %}" class="btn btn-secondary">Back to list</a>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
