@@ -38,7 +38,7 @@ def seisan(year=date.today().year, month=date.today().month):
     inout = budget['sum'] - payment['sum'] 
     # 赤字→精算あり
     if inout <= 0:
-        rb = [int(-inout/2), 0, int(inout/2), 0]
+        rb = [int(-inout/2), 0, int(-inout/2), 0]
         rb_name="赤字"
         seisan = int(-inout / 2) + budget['hoko'] - payment['hoko']
     # 黒字＋朋子さん支払いが朋子さん予算以下→精算あり
