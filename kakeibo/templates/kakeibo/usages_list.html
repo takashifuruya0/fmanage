@@ -1,48 +1,29 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
 {% block title %}
-    Credit-list
+    Usage-list
 {% endblock %}
 
 {% block body %}
 <div class="container">
     <hr>
-    <h1><i class="far fa-credit-card"></i> クレジット項目一覧</h1>
+    <h1><i class="fas fa-american-sign-language-interpreting"></i> 用途一覧</h1>
     <hr>
 
     <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
         <thead>
             <tr>
-                <th class="right">id</th>
-                <th class="lett">Credit Item</th>
-                <th class="left">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Usage
-                    </a>
-                    <div class="nav-item dropdown active">
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'kakeibo:credit_item_list' %}">All</a>
-                            <a class="dropdown-item" href="{% url 'kakeibo:credit_item_list' %}?usage=0">None</a>
-                            {% for u in usages %}
-                            <a class="dropdown-item" href="{% url 'kakeibo:credit_item_list' %}?usage={{u.id}}">{{u.name}}</a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </th>
-                <th class="right">Count</th>
-                <th class="right">Sum</th>
-                <th class="right">Avg</th>
+                <th class="right">ID</th>
+                <th class="lett">Name</th>
+                <th class="left">Is expense</th>
             </tr>
         </thead>
         <tbody>
-            {% for credit_item in object_list %}
+            {% for usage in object_list %}
             <tr>
-                <td class="right"><a href="{% url 'kakeibo:credit_item_detail' pk=credit_item.pk %}">{{credit_item.pk}}</a></td>
-                <td class="left">{{credit_item.name}}</td>
-                <td class="left">{{credit_item.usage}}</td>
-                <td class="right">{{credit_item.count_credit}}</td>
-                <td class="right">¥{{credit_item.sum_credit | intcomma}}</td>
-                <td class="right">¥{{credit_item.avg_credit | intcomma}}</td>
+                <td class="right"><a href="{% url 'kakeibo:usage_detail' pk=usage.pk %}">{{usage.pk}}</a></td>
+                <td class="left">{{usage.name}}</td>
+                <td class="left">{{usage.is_expense}}</td>
             </tr>
             {% endfor %}
         </tbody>

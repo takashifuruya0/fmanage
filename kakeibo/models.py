@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 # Create your models here.
 # ==============================
 #            Base
@@ -29,6 +30,33 @@ class Usages(BaseModel):
     objects = None
     is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
     color = models.OneToOneField(Colors, blank=True, null=True)
+
+    def get_kakeibos(self):
+        return Kakeibos.objects.filter(usage=self)
+
+    def get_shared(self):
+        return SharedKakeibos.objects.filter(usage=self)
+
+    def get_credit_items(self):
+        return CreditItems.objects.filter(usage=self)
+
+    def get_kakeibos_month(self):
+        today = date.today()
+        return Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month)
+
+    def sum_kakeibos(self):
+        today = date.today()
+        res = dict()
+        res["all"] = Kakeibos.objects.filter(usage=self).aggregate(sum=models.Sum('fee'))['sum']
+        res["month"] = Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month).aggregate(sum=models.Sum('fee'))['sum']
+        return res
+
+    def avg_kakeibos(self):
+        today = date.today()
+        res = dict()
+        res["all"] = int(Kakeibos.objects.filter(usage=self).aggregate(avg=models.Avg('fee'))['avg'])
+        res["month"] = int(Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month).aggregate(avg=models.Avg('fee'))['avg'])
+        return res
 
 
 class Resources(BaseModel):
@@ -126,6 +154,8 @@ class CreditItems(BaseModel):
     def avg_credit(self):
         return int(Credits.objects.filter(credit_item=self).aggregate(avg=models.Avg('fee'))['avg'])
 
+    def get_credits(self):
+        return Credits.objects.filter(credit_item=self).order_by('-date')
 
 
 class Credits(models.Model):
@@ -135,6 +165,7 @@ class Credits(models.Model):
     fee = models.IntegerField()
     credit_item = models.ForeignKey(CreditItems)
     card = models.ForeignKey(Cards, related_name="credits", null=True)
+    memo = models.CharField(null=True, blank=True, max_length=255)
 
     def fee_yen(self):
         if self.fee >= 0:

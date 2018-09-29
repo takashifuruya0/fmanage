@@ -24,11 +24,13 @@ urlpatterns = [
     # dashboard
     url(r'^$', views.dashboard, name='dashboard'),
     # list
+    url(r'^usage/list/$', views_list.UsageList.as_view(), name="usage_list"),
     url(r'^mine/list/$', views_list.KakeiboList.as_view(), name="kakeibo_list"),
     url(r'^shared/list/$', views_list.SharedList.as_view(), name="shared_list"),
     url(r'^credit/list/$', views_list.CreditList.as_view(), name="credit_list"),
     url(r'^credit/items/list/$', views_list.CreditItemList.as_view(), name="credit_item_list"),
     # detail
+    url(r'^usages/detail/(?P<pk>\d+)/$', views_detail.UsageDetail.as_view(), name="usage_detail"),
     url(r'^mine/detail/(?P<pk>\d+)/$', views_detail.KakeiboDetail.as_view(), name="kakeibo_detail"),
     url(r'^shared/detail/(?P<pk>\d+)/$', views_detail.SharedDetail.as_view(), name="shared_detail"),
     url(r'^credit/detail/(?P<pk>\d+)/$', views_detail.CreditDetail.as_view(), name="credit_detail"),

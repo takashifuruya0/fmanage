@@ -6,7 +6,8 @@
 
 {% block body %}
 <div class="container">
-    <h1>クレジット詳細</h1>
+    <hr>
+    <h1><i class="far fa-credit-card"></i> クレジット詳細</h1>
     <hr>
 
     <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
@@ -28,11 +29,19 @@
         </tr>
         <tr>
             <th>Credit Item</th>
-            <td>{{object.credit_item}}</td>
+            <td>
+                <a href="{%url 'kakeibo:credit_item_detail' pk=object.credit_item.pk%}">
+                    {{object.credit_item}}
+                </a>
+            </td>
         </tr>
         <tr>
             <th>Usage</th>
             <td>{{object.credit_item.usage}}</td>
+        </tr>
+        <tr>
+            <th>Memo</th>
+            <td>{{object.memo}}</td>
         </tr>
     </table>
     <div class="row">

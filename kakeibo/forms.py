@@ -53,7 +53,7 @@ class CreditForm(forms.ModelForm):
 
     class Meta:
         model = Credits
-        fields = ['date', 'debit_date', 'fee', 'credit_item']
+        fields = ['date', 'debit_date', 'fee', 'credit_item', "memo"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

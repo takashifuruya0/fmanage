@@ -6,7 +6,8 @@
 
 {% block body %}
 <div class="container">
-    <h1>クレジット項目編集</h1>
+    <hr>
+    <h1><i class="far fa-credit-card"></i> クレジット項目編集</h1>
     <hr>
 
     <form method="post">
@@ -27,7 +28,7 @@
         <div class="row">
             <div class="col-sm-6">
                 <button class="btn btn-primary">Save</button>
-                <a href="{% url 'kakeibo:credit_item_list' %}" class="btn btn-secondary">Back to detail</a>
+                <a href="{% url 'kakeibo:credit_item_detail' pk=object.pk%}" class="btn btn-secondary">Back to detail</a>
             </div>
         </div>
         {%csrf_token%}

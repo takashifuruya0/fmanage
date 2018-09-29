@@ -127,3 +127,16 @@ class CreditItemList(PaginationMixin, ListView):
                 queryset = queryset.filter(usage=usage)
         return queryset
 
+
+class UsageList(PaginationMixin, ListView):
+    model = Usages
+    paginate_by = 20
+
+    @time_measure
+    def get_context_data(self, **kwargs):
+        res = super().get_context_data(**kwargs)
+        return res
+
+    def get_queryset(self):
+        queryset = Usages.objects.all()  # Default: Model.objects.all()
+        return queryset

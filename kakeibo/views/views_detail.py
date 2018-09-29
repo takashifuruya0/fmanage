@@ -45,6 +45,14 @@ class CreditItemDetail(DetailView):
         return res
 
 
+class UsageDetail(DetailView):
+    model = Usages
+
+    def get_context_data(self, **kwargs):
+        res = super().get_context_data(**kwargs)
+        return res
+
+
 class KakeiboUpdate(UpdateView):
     model = Kakeibos
     form_class =KakeiboForm

@@ -6,7 +6,8 @@
 
 {% block body %}
 <div class="container">
-    <h1>クレジット編集</h1>
+    <hr>
+    <h1><i class="far fa-credit-card"></i> クレジット編集</h1>
     <hr>
 
     <form method="post">
@@ -30,6 +31,10 @@
             <tr>
                 <th>Credit Item</th>
                 <td>{{form.credit_item}}</td>
+            </tr>
+            <tr>
+                <th>Memo</th>
+                <td>{{form.memo}}</td>
             </tr>
         </table>
         <div class="row">
