@@ -30,10 +30,10 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item dropdown active">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink_mine" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="fas fa-user-circle"></i> Kakeibo
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink_mine">
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" href="{% url 'kakeibo:mine' %}">
                 <i class="far fa-calendar-plus"></i> Dashboard
               </a>
@@ -50,10 +50,10 @@
           </li>
 
           <li class="nav-item dropdown active">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink_credit" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="far fa-credit-card"></i> Credit
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink_credit">
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" href="{% url 'kakeibo:credit' %}">
                 <i class="fab fa-cc-visa"></i> Dashboard
               </a>
@@ -67,10 +67,10 @@
           </li>
 
           <li class="nav-item dropdown active">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink_shared" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="fas fa-people-carry"></i> Shared
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink_shared">
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" href="{% url 'kakeibo:shared' %}">
                 <i class="far fa-calendar-plus"></i> Dashboard
               </a>
@@ -90,10 +90,10 @@
           </li>
 
           <li class="nav-item dropdown active">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink_link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="fas fa-link"></i> Link
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink_link">
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" href="{% url 'kakeibo:knowledge' %}">
                 <i class="fas fa-book"></i> Knowledge
               </a>
@@ -130,12 +130,13 @@
     {% block body %}{% endblock %}
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
     <script src="/document/bootstrap/js/bootstrap.min.js"></script>
     <!-- jQuery first, then Tether, then Bootstrap JS.a -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+
 
     <!-- Optional JavaScript -->
     {% block script %}{% endblock %}

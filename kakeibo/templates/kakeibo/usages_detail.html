@@ -107,7 +107,7 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for k in object.get_kakeibos_month %}"{{k.date}}: {{k.memo}}",{%endfor%}],
+      labels: [{%for k in object.get_kakeibos_month %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
       datasets: [{
         label: "alice",
         data: [{%for k in object.get_kakeibos_month %}{{k.fee}},{%endfor%}],
@@ -141,7 +141,7 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for k in object.get_shared_month %}"{{k.date}}: {{k.paid_by}}",{%endfor%}],
+      labels: [{%for k in object.get_shared_month %}"{{k.date}}/{{k.paid_by}}",{%endfor%}],
       datasets: [{
         label: "alice",
         data: [{%for k in object.get_shared_month %}{{k.fee}},{%endfor%}],

@@ -75,7 +75,7 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for c in object.get_credits %}"{{c.date}}",{%endfor%}],
+      labels: [{%for c in object.get_credits %}"{{c.date}}{%if c.memo%}/{{c.memo}}{%endif%}",{%endfor%}],
       datasets: [{
         label: "alice",
         data: [{%for c in object.get_credits %}{{c.fee}},{%endfor%}],
