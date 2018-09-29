@@ -31,18 +31,38 @@ class Usages(BaseModel):
     is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
     color = models.OneToOneField(Colors, blank=True, null=True)
 
+    def check_kakeibo(self):
+        today = date.today()
+        if Kakeibos.objects.filter(usage=self).__len__() == 0:
+            res = {"month": False, "all": False, }
+        elif Kakeibos.objects.filter(usage=self, date__month=today.month, date__year=today.year).__len__() == 0:
+            res = {"month": False, "all": True, }
+        else:
+            res = {"month": True, "all": True, }
+        return res
+
+    def check_shared(self):
+        today = date.today()
+        if SharedKakeibos.objects.filter(usage=self).__len__() == 0:
+            res = {"month": False, "all": False, }
+        elif SharedKakeibos.objects.filter(usage=self, date__month=today.month, date__year=today.year).__len__() == 0:
+            res = {"month": False, "all": True, }
+        else:
+            res = {"month": True, "all": True, }
+        return res
+
     def get_kakeibos(self):
-        return Kakeibos.objects.filter(usage=self)
+        return Kakeibos.objects.filter(usage=self).order_by('-date')
 
     def get_shared(self):
-        return SharedKakeibos.objects.filter(usage=self)
+        return SharedKakeibos.objects.filter(usage=self).order_by('-date')
 
     def get_credit_items(self):
         return CreditItems.objects.filter(usage=self)
 
     def get_kakeibos_month(self):
         today = date.today()
-        return Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month)
+        return Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month).order_by('-date')
 
     def sum_kakeibos(self):
         today = date.today()
@@ -57,6 +77,10 @@ class Usages(BaseModel):
         res["all"] = int(Kakeibos.objects.filter(usage=self).aggregate(avg=models.Avg('fee'))['avg'])
         res["month"] = int(Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month).aggregate(avg=models.Avg('fee'))['avg'])
         return res
+
+    def get_shared_month(self):
+        today = date.today()
+        return SharedKakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month).order_by('-date')
 
 
 class Resources(BaseModel):

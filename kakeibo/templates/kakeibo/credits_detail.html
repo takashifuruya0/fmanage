@@ -37,7 +37,7 @@
         </tr>
         <tr>
             <th>Usage</th>
-            <td>{{object.credit_item.usage}}</td>
+            <td><a href="{%url 'kakeibo:usage_detail' pk=object.credit_item.usage.pk%}">{{object.credit_item.usage}}</a></td>
         </tr>
         <tr>
             <th>Memo</th>

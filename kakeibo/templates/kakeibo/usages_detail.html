@@ -15,29 +15,34 @@
             <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
                 <tr>
                     <th>id</th>
-                    <td>{{object.pk}}</td>
+                    <td class="right">{{object.pk}}</td>
                 </tr>
                 <tr>
                     <th>Name</th>
-                    <td>{{object.name}}</td>
+                    <td class="right">{{object.name}}</td>
                 </tr>
                 <tr>
                     <th>Sum (Month / All)</th>
                     <td class="right">
+                        {% if object.check_kakeibo.month %}
                         ¥{{object.sum_kakeibos.month | intcomma}} / ¥{{object.sum_kakeibos.all | intcomma}}
+                        {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <th>Average (Month / All)</th>
                     <td class="right">
+                        {% if object.check_kakeibo.month %}
                         ¥{{object.avg_kakeibos.month | intcomma}} / ¥{{object.avg_kakeibos.all | intcomma}}
+                        {% endif %}
                     </td>
                 </tr>
             </table>
             <a href="{%url 'kakeibo:usage_list' %}" class="btn btn-secondary">Back to list</a>
 
+            {%if object.check_kakeibo.month %}
             <hr>
-            <h4>一覧</h4>
+            <h4>今月の一覧</h4>
             <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
                 <tr>
                     <th>ID</th>
@@ -54,10 +59,41 @@
                 </tr>
                 {% endfor %}
             </table>
+            {% endif %}
+
+            {%if object.check_shared.month %}
+            <hr>
+            <h4>今月の共通一覧</h4>
+            <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th class="right">Fee</th>
+                    <th>Paid By</th>
+                </tr>
+                {%for k in object.get_shared_month %}
+                <tr>
+                    <td><a href="{%url 'kakeibo:shared_detail' pk=k.pk%}">{{k.pk}}</a></td>
+                    <td>{{k.date}}</td>
+                    <td class="right">{{k.fee_yen}}</td>
+                    <td>{{k.paid_by}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
         </div>
+
         <div class="col-sm-5">
-            <h4>内訳</h4>
+            {%if object.check_kakeibo.month %}
+            <h4>今月の内訳</h4>
             <canvas id="pie_usage"></canvas>
+            {% endif %}
+            <hr>
+            {%if object.check_shared.month %}
+            <h4>今月の共通内訳</h4>
+            <canvas id="pie_usage_shared"></canvas>
+
+            {% endif %}
         </div>
     </div>
 </div>
@@ -75,6 +111,40 @@
       datasets: [{
         label: "alice",
         data: [{%for k in object.get_kakeibos_month %}{{k.fee}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+         ]
+      }]
+    }
+  });
+</script>
+
+<!-- pie_usage -->
+<script>
+  var ctx = document.getElementById('pie_usage_shared').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for k in object.get_shared_month %}"{{k.date}}: {{k.paid_by}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for k in object.get_shared_month %}{{k.fee}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
