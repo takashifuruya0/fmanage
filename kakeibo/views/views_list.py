@@ -1,6 +1,7 @@
 # coding:utf-8
 from django.conf import settings
 from django.views.generic import ListView
+from django.db.models import Count
 from pure_pagination.mixins import PaginationMixin
 # logging
 import logging
@@ -51,10 +52,8 @@ class SharedList(PaginationMixin, ListView):
     def get_context_data(self, **kwargs):
         res = super().get_context_data(**kwargs)
         res['paid_by'] = ["敬士", "朋子"]
-        res['usages'] = list()
-        for u in Usages.objects.all():
-            if SharedKakeibos.objects.filter(usage=u).__len__() > 0:
-                res['usages'].append(u)
+        sks = SharedKakeibos.objects.exclude(usage=None).values('usage').annotate(c=Count('pk'))
+        res['usages'] = [Usages.objects.get(pk=sk['usage']) for sk in sks]
         return res
 
     def get_queryset(self):
@@ -111,10 +110,8 @@ class CreditItemList(PaginationMixin, ListView):
     @time_measure
     def get_context_data(self, **kwargs):
         res = super().get_context_data(**kwargs)
-        res['usages'] = list()
-        for u in Usages.objects.all():
-            if CreditItems.objects.filter(usage=u).__len__() > 0:
-                res['usages'].append(u)
+        cis = CreditItems.objects.exclude(usage=None).values('usage').annotate(c=Count('pk'))
+        res['usages'] = [Usages.objects.get(pk=ci['usage']) for ci in cis]
         return res
 
     def get_queryset(self):
