@@ -31,36 +31,31 @@ def dashboard(request):
 
         # label
         r = requests.get(url3, params=params)
-        listid = r.json()
-        labels = [i["name"] for i in listid]
-        resl = {i: 0 for i in labels}
+        labels = [i["name"] for i in r.json()]
+        res_label = {i: 0 for i in labels}
 
         # lists
         r = requests.get(url2, params=params)
         listid = r.json()
 
         # cards
-        res = dict()
+        res_status = dict()
         for i in range(listid.__len__()):
             r = requests.get(url + listid[i]["id"] + "/cards", params=params)
             data = r.json()
-            res[listid[i]["name"]] = len(data)
+            res_status[listid[i]["name"]] = len(data)
             for d in data:
-                print("======================")
                 if d['due'] is not None:
                     s = d['due']
                     d['due'] = datetime(
-                        int(s[0:4]),
-                        int(s[5:7]),
-                        int(s[8:10]),
-                        int(s[11:13]),
-                        int(s[14:16])
+                        int(s[0:4]), int(s[5:7]), int(s[8:10]),
+                        int(s[11:13]), int(s[14:16])
                     )
                 datalist.append(d)
                 for label in d["labels"]:
                     if label["name"] in labels:
-                        resl[label["name"]] += 1
-        tdata[bname] = {"status": res, "label": resl}
+                        res_label[label["name"]] += 1
+        tdata[bname] = {"status": res_status, "label": res_label}
     output["data"] = tdata
     output["datalist"] = datalist
 
@@ -108,4 +103,93 @@ def dashboard(request):
 #     'idList': '5a8c074085c5cfe1a6c5bcd9',
 #     'shortLink': '0PWBWmjI',
 #     'checkItemStates': None
+# }
+
+def data_processing():
+    boardids = {
+        "Private": "5a8c05d2a0ae077733249613",
+        "Task": "5a8a19124ba2f6c961ff9393",
+    }
+
+    key = "b003b9b25dbd2f9bfe6420262ae9a1c8"
+    token = "748c7d5622f3c04e4803ad49aa35c1d6be209203bdd532878f4919e06f38678a"
+    params = {
+        "key": key,
+        "token": token,
+    }
+
+    output = {
+        "name": [bname for bname in boardids.keys()],
+        "today": date.today(),
+        "data": list(),
+        "datalist": list(),
+    }
+
+    for bname, bid in boardids.items():
+        url = "https://trello.com/1/lists/"
+        url2 = "https://trello.com/1/boards/" + bid + "/lists"
+        url3 = "https://trello.com/1/boards/" + bid + "/labels"
+
+        # label
+        r = requests.get(url3, params=params)
+        labels = [i["name"] for i in r.json()]
+        data_table = {i: list() for i in labels}
+
+        # lists
+        listid = requests.get(url2, params=params).json()
+
+        # cards
+        for i in range(listid.__len__()):
+            data = requests.get(url + listid[i]["id"] + "/cards", params=params).json()
+            lists = [l["name"] for l in listid]
+            for d in data:
+                if d['due'] is not None:
+                    s = d['due']
+                    d['due'] = datetime(
+                        int(s[0:4]), int(s[5:7]), int(s[8:10]),
+                        int(s[11:13]), int(s[14:16])
+                    )
+                output["datalist"].append(d)
+                for label in d["labels"]:
+                    if label["name"] in labels:
+                        data_table[label["name"]].append(d)
+        output["data"].append(data_table)
+
+    return output
+
+# data = {
+#     "Board1": {
+#         "label1": {
+#             "status1": [],
+#             "status2": [],
+#             "status3": [],
+#         },
+#         "label2": {
+#             "status1": [],
+#             "status2": [],
+#             "status3": [],
+#         },
+#         "label3": {
+#             "status1": [],
+#             "status2": [],
+#             "status3": [],
+#         },
+#     },
+#     "Board2": {
+#         "label1": {
+#             "status1": [],
+#             "status2": [],
+#             "status3": [],
+#         },
+#         "label2": {
+#             "status1": [],
+#             "status2": [],
+#             "status3": [],
+#         },
+#         "label3": {
+#             "status1": [],
+#             "status2": [],
+#             "status3": [],
+#         },
+#     },
 # }
