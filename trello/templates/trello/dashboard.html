@@ -1,0 +1,147 @@
+{% extends "kakeibo/base.html" %}
+{% load humanize %}
+{% block title %}
+    Trello dashboard
+{% endblock %}
+
+{% block body %}
+  <div class="container-fluid">
+    <hr>
+    <div class="row">
+      <div class="col-sm-9">
+        <h1>
+          <i class="fab fa-servicestack"></i> Trello: {{today.year}}年{{today.month}}月{{today.day}}日
+        </h1>
+      </div>
+      <div class="col-sm-3">
+      </div>
+    </div>
+    <hr>
+
+    {% for name, d in data.items %}
+    <h2>{{name}}</h2>
+    <div class="row">
+      <div class="col-sm-3">
+        <canvas id="pie_{{name}}_status"></canvas>
+      </div>
+      <div class="col-sm-3">
+        <table class="table table-light table-hover table-sm">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th class="right">Val</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for k,v in d.status.items %}
+            <tr>
+              <td>{{k}}</td>
+              <td class="right">{{v}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="col-sm-3">
+        <canvas id="pie_{{name}}_label"></canvas>
+      </div>
+      <div class="col-sm-3">
+        <table class="table table-light table-hover table-sm">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th class="right">Val</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for k,v in d.label.items %}
+            <tr>
+              <td>{{k}}</td>
+              <td class="right">{{v}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <hr>
+    {% endfor %}
+    <div class="row">
+      <div class="col-sm-12">
+        <table class="table table-light table-hover table-sm">
+          <thead>
+            <tr>
+              <th>Due</th>
+              <th>Name</th>
+              <th>Desc</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for d in datalist %}
+            {% if d.due %}
+            <tr>
+              <td>{{d.due|naturaltime}}</td>
+              <td><a href="{{d.shortUrl}}">{{d.name}}</a></td>
+              <td>{{d.desc}}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+
+{% for name, d in data.items %}
+  <script>
+    var ctx = document.getElementById('pie_{{name}}_status').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: [{%for s in d.status.keys%}"{{s}}",{%endfor%}],
+        datasets: [{
+          label: "alice",
+          data: [{%for s in d.status.values%}"{{s}}",{%endfor%}],
+          backgroundColor: [
+            "#2ecc71",
+            "#3498db",
+            "#95a5a6",
+            "#9b59b6",
+            "#f1c40f",
+            "#e74c3c",
+            "#34495e"
+           ]
+        }]
+      }
+    });
+  </script>
+
+  <script>
+    var ctx = document.getElementById('pie_{{name}}_label').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: [{%for s in d.label.keys%}"{{s}}",{%endfor%}],
+        datasets: [{
+          label: "alice",
+          data: [{%for s in d.label.values%}"{{s}}",{%endfor%}],
+          backgroundColor: [
+            "#2ecc71",
+            "#3498db",
+            "#95a5a6",
+            "#9b59b6",
+            "#f1c40f",
+            "#e74c3c",
+            "#34495e"
+           ]
+        }]
+      }
+    });
+  </script>
+{% endfor %}
+
+
+{% endblock %}
