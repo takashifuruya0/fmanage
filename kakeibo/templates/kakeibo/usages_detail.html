@@ -15,26 +15,37 @@
             <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
                 <tr>
                     <th>id</th>
-                    <td class="right">{{object.pk}}</td>
+                    <td class="right" colspan="2">{{object.pk}}</td>
                 </tr>
                 <tr>
                     <th>Name</th>
-                    <td class="right">{{object.name}}</td>
+                    <td class="right" colspan="2">{{object.name}}</td>
                 </tr>
                 <tr>
-                    <th>Sum (Month / All)</th>
+                    <th></th>
+                    <th class="right">This month</th>
+                    <th class="right">All</th>
+                </tr>
+                <tr>
+                    <th>Sum</th>
                     <td class="right">
                         {% if object.check_kakeibo.month %}
-                        ¥{{object.sum_kakeibos.month | intcomma}} / ¥{{object.sum_kakeibos.all | intcomma}}
+                        ¥{{object.sum_kakeibos.month | intcomma}}
                         {% endif %}
+                    </td>
+                    <td class="right">
+                        ¥{{object.sum_kakeibos.all | intcomma}}
                     </td>
                 </tr>
                 <tr>
-                    <th>Average (Month / All)</th>
+                    <th>Average</th>
                     <td class="right">
                         {% if object.check_kakeibo.month %}
-                        ¥{{object.avg_kakeibos.month | intcomma}} / ¥{{object.avg_kakeibos.all | intcomma}}
+                        ¥{{object.avg_kakeibos.month | intcomma}}
                         {% endif %}
+                    </td>
+                    <td class="right">
+                        ¥{{object.avg_kakeibos.all | intcomma}}
                     </td>
                 </tr>
             </table>

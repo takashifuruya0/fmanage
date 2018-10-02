@@ -75,7 +75,9 @@ class Usages(BaseModel):
         today = date.today()
         res = dict()
         res["all"] = int(Kakeibos.objects.filter(usage=self).aggregate(avg=models.Avg('fee'))['avg'])
-        res["month"] = int(Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month).aggregate(avg=models.Avg('fee'))['avg'])
+        month = Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month)
+        if month.__len__() > 0:
+            res["month"] = int(month.aggregate(avg=models.Avg('fee'))['avg'])
         return res
 
     def get_shared_month(self):
