@@ -316,3 +316,64 @@ def update_credit_to_sql():
         emsg = "Updating credit-records failed: " + str(e)
     # Dashboardへリダイレクト
     return smsg, emsg
+
+
+def update_kakeibo_to_sql():
+    try:
+        # transaction starts
+        check_date = Kakeibos.objects.all().order_by('-date')[0].date
+        with transaction.atomic():
+            # SSから取得
+            url = settings.URL_KAKEIBO
+            r = requests.get(url+"?method=kakeibo")
+            data = r.json()
+            for k, val in data.items():
+                date = parser.parse(val['タイムスタンプ']).astimezone(timezone('Asia/Tokyo')).date()
+                if date < check_date:
+                    continue
+                elif val['金額'] is not 0:
+                    fee = (val['金額'])
+                    way = val['項目']
+                    memo = val['メモ']
+                    tag = val['タグ']
+                    move_to = None
+                    move_from = None
+                    usage = None
+                    if way == "引き落とし":
+                        move_from = Resources.objects.get(name=val['引き落とし対象'])
+                        usage = Usages.objects.get(name=val['引き落とし項目'])
+                    elif way == "振替":
+                        move_from = Resources.objects.get(name=val['From'])
+                        move_to = Resources.objects.get(name=val['To'])
+                    elif way == "収入":
+                        move_to = Resources.objects.get(name=val['振込先'])
+                        if val['収入源'] == 'その他':
+                            val['収入源'] = 'その他収入'
+                        usage = Usages.objects.get(name=val['収入源'])
+                    elif way == "支出（現金）":
+                        move_from = Resources.objects.get(name='財布')
+                        usage = Usages.objects.get(name=val['支出項目'])
+                    elif way == "支出（クレジット）":
+                        usage = Usages.objects.get(name=val['支出項目'])
+                    elif way == "共通支出":
+                        usage = Usages.objects.get(name="共通支出")
+                        move_from = Resources.objects.get(name="財布")
+                # 既存データがなければセーブ
+                check = Kakeibos.objects.filter(
+                    date=date, fee=fee, way=way,
+                    move_to=move_to, move_from=move_from, usage=usage
+                ).__len__()
+                if check == 0:
+                    data = {
+                        "date": date, "fee": fee, "way": way,
+                        "move_to": move_to, "move_from": move_from,
+                        "usage": usage, "memo": memo, "tag": tag
+                    }
+                    Kakeibos(**data).save()
+
+            smsg = "Updating kakeibo-records completed successfully"
+            emsg = ""
+    except Exception as e:
+        smsg = ""
+        emsg = "Updating kakeibo-records failed: " + str(e)
+    return smsg, emsg
