@@ -14,7 +14,8 @@ class Command(BaseCommand):
 
     # コマンドが実行された際に呼ばれるメソッド
     def handle(self, *args, **options):
-        smsg, emsg = update_records.save_credit_to_sql()
+        # smsg, emsg = update_records.save_credit_to_sql()
+        smsg, emsg = update_records.update_credit_to_sql()
         if smsg != "":
             self.stdout.write(self.style.SUCCESS(smsg))
             logger.info(smsg)

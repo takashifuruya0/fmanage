@@ -270,3 +270,49 @@ def consolidate_kakeibo():
         emsg = "Consolidating kakeibo-records failed: " + str(e)
         logger.error(val)
     return smsg, emsg
+
+
+def update_credit_to_sql():
+    try:
+        # transaction starts
+        with transaction.atomic():
+            # GASのAPI
+            url = settings.URL_KAKEIBO
+            r = requests.get(url+"?method=credit")
+            data = r.json()
+            # 登録
+            for k, v in data.items():
+                # Credit Item
+                credititems = CreditItems.objects.filter(name=v['name'])
+                if credititems.__len__() is 0:
+                    new_item = CreditItems()
+                    new_item.name = v['name']
+                    new_item.date = v['date'][0:10]
+                    new_item.save()
+                    citem = new_item
+                else:
+                    citem = CreditItems.objects.get(name=v['name'])
+                # 既存データ確認
+                fee_date = parser.parse(v['date']).astimezone(timezone('Asia/Tokyo'))
+                fee = v['fee']
+                debit_year = "20" + v['debit_date'][0:2]
+                debit_month = v['debit_date'][3:5]
+                debit_date = debit_year + "-" + debit_month + "-01"
+                check = Credits.objects.filter(date=fee_date, fee=fee, debit_date=debit_date).__len__()
+                if check > 0:
+                    continue
+                # 存在しない場合のみ新規作成
+                else:
+                    credit = Credits()
+                    credit.date = fee_date
+                    credit.credit_item = citem
+                    credit.fee = fee
+                    credit.debit_date = debit_date
+                    credit.save()
+            smsg = "Updating credit-records completed successfully"
+            emsg = ""
+    except Exception as e:
+        smsg = ""
+        emsg = "Updating credit-records failed: " + str(e)
+    # Dashboardへリダイレクト
+    return smsg, emsg
