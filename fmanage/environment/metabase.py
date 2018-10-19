@@ -8,7 +8,8 @@ DATABASES = {
         'NAME': "fkmanage",
         "USER": env('FKMANAGE_DB_USER'),
         "PASSWORD": env('FKMANAGE_DB_PASSWORD'),
-        "HOST": "10.142.0.2",
+        #"HOST": "10.142.0.2",
+        'HOST': "127.0.0.1",
         "POST": "",
     }
 }
