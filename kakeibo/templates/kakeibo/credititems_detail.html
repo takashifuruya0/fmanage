@@ -23,7 +23,7 @@
                 </tr>
                 <tr>
                     <th>Usage</th>
-                    <td><a href="{%url 'kakeibo:usage_detail' pk=object.usage.pk%}">{{object.usage}}</a></td>
+                    <td><a href="{%if object.usage%}{%url 'kakeibo:usage_detail' pk=object.usage.pk%}{%endif%}">{{object.usage}}</a></td>
                 </tr>
                 <tr>
                     <th>Count</th>
