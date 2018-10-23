@@ -12,18 +12,18 @@ class Stocks(models.Model):
         return self.name
 
 
-class BuyOrders(models.Model):
-    objects = None
-    datetime = models.DateTimeField()
-    stock = models.ForeignKey(Stocks)
-    num = models.IntegerField(null=False, blank=False)
-    price = models.FloatField(null=False, blank=False)
-    commission = models.IntegerField()  # 手数料
-    is_nisa = models.BooleanField()
-
-    def __str__(self):
-        return "B/"+self.datetime+":"+self.stock
-
+# class BuyOrders(models.Model):
+#     objects = None
+#     datetime = models.DateTimeField()
+#     stock = models.ForeignKey(Stocks)
+#     num = models.IntegerField(null=False, blank=False)
+#     price = models.FloatField(null=False, blank=False)
+#     commission = models.IntegerField()  # 手数料
+#     is_nisa = models.BooleanField()
+#
+#     def __str__(self):
+#         return "B/"+str(self.datetime)+":"+self.stock
+#
 #
 # class SellOrders(models.Model):
 #     objects = None
@@ -35,7 +35,21 @@ class BuyOrders(models.Model):
 #     is_nisa = models.BooleanField()
 #
 #     def __str__(self):
-#         return "S/"+self.datetime+":"+self.stock
+#         return "S/"+str(self.datetime)+":"+self.stock
+
+
+class Orders(models.Model):
+    objects = None
+    datetime = models.DateTimeField()
+    order_type = models.CharField(null=False, blank=False, max_length=20)
+    stock = models.ForeignKey(Stocks)
+    num = models.IntegerField(null=False, blank=False)
+    price = models.FloatField(null=False, blank=False)
+    commission = models.IntegerField()
+    is_nisa = models.BooleanField()
+
+    def __str__(self):
+        return "S/"+str(self.datetime)+":"+self.stock
 
 
 class HoldingStocks(models.Model):
@@ -43,7 +57,7 @@ class HoldingStocks(models.Model):
     date = models.DateField()
     stock = models.ForeignKey(Stocks)
     num = models.IntegerField()
-    average_price = models.FloatField()
+    price = models.FloatField()
 
     def __str__(self):
         return self.stock.name

@@ -41,15 +41,15 @@ class StocksAdmin(admin.ModelAdmin):
 
 
 class HoldingStocksAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'stock', 'num', 'average_price']
+    list_display = ['id', 'date', 'stock', 'num', 'price']
 
 
 class AssetStatusAdmin(admin.ModelAdmin):
     list_display = ["date", "total", "buying_power", "stocks_value", "other_value", "investment"]
 
 
-class BuyOrdersAdmin(admin.ModelAdmin):
-    list_display = ["datetime", "stock", "num", "price", "commission", "is_nisa"]
+class OrdersAdmin(admin.ModelAdmin):
+    list_display = ["datetime", "order_type", "stock", "num", "price", "commission", "is_nisa"]
 
 
 admin.site.register(Kakeibos, KakeibosAdmin)
@@ -63,4 +63,4 @@ admin.site.register(Colors, ColorsAdmin)
 admin.site.register(Stocks, StocksAdmin)
 admin.site.register(HoldingStocks, HoldingStocksAdmin)
 admin.site.register(AssetStatus, AssetStatusAdmin)
-admin.site.register(BuyOrders, BuyOrdersAdmin)
+admin.site.register(Orders, OrdersAdmin)

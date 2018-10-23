@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib, calc_val
 from asset.functions import mylib_asset, get_info
-from asset.models import BuyOrders, Stocks
+from asset.models import Orders, Stocks
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
@@ -393,24 +393,24 @@ def asset_order(request):
         }
     elif request.method == "POST":
         val = json.loads(request.body.decode())
-        if val["kind"] == "buy_order":
-            # jsonに変換するデータを準備
-            bo = BuyOrders()
-            bo.datetime = val["datetime"]
-            # request.POST["order_id"]
-            if Stocks.objects.filter(code=val["code"]) == 0:
-                stock = Stocks()
-                stock.code = val["code"]
-                stock.name = get_info.stock_overview(val["code"])['name']
-                stock.save()
-            else:
-                stock = Stocks.objects.get(code=val["code"])
-            bo.stock = stock
-            bo.num = val["num"]
-            bo.price = val["price"]
-            bo.is_nisa = False
-            bo.commission = 0
-            bo.save()
+        # jsonに変換するデータを準備
+        bo = Orders()
+        bo.datetime = val["datetime"]
+        bo.order_type = val["kind"]
+        # request.POST["order_id"]
+        if Stocks.objects.filter(code=val["code"]) == 0:
+            stock = Stocks()
+            stock.code = val["code"]
+            stock.name = get_info.stock_overview(val["code"])['name']
+            stock.save()
+        else:
+            stock = Stocks.objects.get(code=val["code"])
+        bo.stock = stock
+        bo.num = val["num"]
+        bo.price = val["price"]
+        bo.is_nisa = False
+        bo.commission = 0
+        bo.save()
         data = {
             "message": "Successfully recorded",
             "status": True,
