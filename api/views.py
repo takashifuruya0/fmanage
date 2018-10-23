@@ -383,6 +383,7 @@ def asset(request):
     return response
 
 
+@csrf_exempt
 def asset_order(request):
     if request.method != "POST":
         # GET以外はFalse
