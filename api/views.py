@@ -392,21 +392,22 @@ def asset_order(request):
             "status": False,
         }
     elif request.method == "POST":
-        if request.POST["kind"] == "buy_order":
+        val = json.loads(request.body.decode())
+        if val["kind"] == "buy_order":
             # jsonに変換するデータを準備
             bo = BuyOrders()
-            bo.datetime = request.POST["datetime"]
+            bo.datetime = val["datetime"]
             # request.POST["order_id"]
-            if Stocks.objects.filter(code=request.POST["code"]) == 0:
+            if Stocks.objects.filter(code=val["code"]) == 0:
                 stock = Stocks()
-                stock.code = request.POST["code"]
-                stock.name = get_info.stock_overview(request.POST["code"])['name']
+                stock.code = val["code"]
+                stock.name = get_info.stock_overview(val["code"])['name']
                 stock.save()
             else:
-                stock = Stocks.objects.get(code=request.POST["code"])
+                stock = Stocks.objects.get(code=val["code"])
             bo.stock = stock
-            bo.num = request.POST["num"]
-            bo.price = request.POST["price"]
+            bo.num = val["num"]
+            bo.price = val["price"]
             bo.is_nisa = False
             bo.commission = 0
             bo.save()
