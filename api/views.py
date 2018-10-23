@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib, calc_val
+from asset.functions import mylib_asset
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
@@ -363,6 +364,19 @@ def shared_month(request):
             data['status'] = True
         data['date'] = {"year": year, "month": month, }
     # json
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response
+
+
+def asset(request):
+    data = mylib_asset.benefit_all()
+    # json
+    print(data)
+    for d in data['data_all']:
+        d['data']['date'] = str(d['data']['date'].year) + "/" \
+                            + str(d['data']['date'].month) + "/" \
+                            + str(d['data']['date'].day)
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response

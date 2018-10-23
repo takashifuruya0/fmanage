@@ -22,7 +22,7 @@ def benefit(hs_id):
     holding_time = date.today() - hs.date
     res = {
         "data": {
-            "id": id,
+            "id": hs_id,
             "date": hs.date,
             "code": code,
             "name": hs.stock.name,
