@@ -28,7 +28,7 @@ def dashboard(request):
         code = hs.stock.code
         num = hs.num
         date = hs.date
-        aprice = hs.average_price
+        aprice = hs.price
         # scraping
         data = get_info.stock_overview(code)
         if data['status']:
@@ -85,4 +85,4 @@ class StocksCreateView(CreateView):
 
 class HoldingStocksCreateView(CreateView):
     model = HoldingStocks
-    fields = ("stock", "date", "average_price", "num")  # リストもしくはタプル
+    fields = ("stock", "date", "price", "num")  # リストもしくはタプル

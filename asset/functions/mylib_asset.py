@@ -13,7 +13,7 @@ def benefit(hs_id):
     data = get_info.stock_overview(code)
     if data['status']:
         cval = data['price']
-        val = (data['price'] - hs.average_price) * hs.num
+        val = (data['price'] - hs.price) * hs.num
         total = hs.num * data['price']
     else:
         cval = "-"
@@ -27,7 +27,7 @@ def benefit(hs_id):
             "code": code,
             "name": hs.stock.name,
             "num": hs.num,
-            "average_price": hs.average_price,
+            "price": hs.price,
         },
         "current_price": cval,
         "total": total,
