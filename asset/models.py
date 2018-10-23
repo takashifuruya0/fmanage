@@ -12,17 +12,18 @@ class Stocks(models.Model):
         return self.name
 
 
-# class BuyOrders(models.Model):
-#     objects = None
-#     datetime = models.DateTimeField()
-#     stock = models.ForeignKey(Stocks)
-#     num = models.IntegerField(null=False, blank=False)
-#     price = models.FloatField(null=False, blank=False)
-#     commission = models.IntegerField()
-#
-#     def __str__(self):
-#         return "B/"+self.datetime+":"+self.stock
-#
+class BuyOrders(models.Model):
+    objects = None
+    datetime = models.DateTimeField()
+    stock = models.ForeignKey(Stocks)
+    num = models.IntegerField(null=False, blank=False)
+    price = models.FloatField(null=False, blank=False)
+    commission = models.IntegerField()  # 手数料
+    is_nisa = models.BooleanField()
+
+    def __str__(self):
+        return "B/"+self.datetime+":"+self.stock
+
 #
 # class SellOrders(models.Model):
 #     objects = None
@@ -31,7 +32,7 @@ class Stocks(models.Model):
 #     num = models.IntegerField(null=False, blank=False)
 #     price = models.FloatField(null=False, blank=False)
 #     commission = models.IntegerField()
-#     account = models.CharField()
+#     is_nisa = models.BooleanField()
 #
 #     def __str__(self):
 #         return "S/"+self.datetime+":"+self.stock

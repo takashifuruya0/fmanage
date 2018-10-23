@@ -7,7 +7,8 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib, calc_val
-from asset.functions import mylib_asset
+from asset.functions import mylib_asset, get_info
+from asset.models import BuyOrders, Stocks
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
@@ -377,6 +378,43 @@ def asset(request):
         d['data']['date'] = str(d['data']['date'].year) + "/" \
                             + str(d['data']['date'].month) + "/" \
                             + str(d['data']['date'].day)
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response
+
+
+def asset_order(request):
+    if request.method != "POST":
+        # GET以外はFalse
+        data = {
+            "message": "POST request is only acceptable",
+            "status": False,
+        }
+    elif request.method == "POST":
+        if request.POST["kind"] == "buy_order":
+            # jsonに変換するデータを準備
+            bo = BuyOrders()
+            bo.datetime = request.POST["datetime"]
+            # request.POST["order_id"]
+            if Stocks.objects.filter(code=request.POST["code"]) == 0:
+                stock = Stocks()
+                stock.code = request.POST["code"]
+                stock.name = get_info.stock_overview(request.POST["code"])['name']
+                stock.save()
+            else:
+                stock = Stocks.objects.get(code=request.POST["code"])
+            bo.stock = stock
+            bo.num = request.POST["num"]
+            bo.price = request.POST["price"]
+            bo.is_nisa = False
+            bo.commission = 0
+            bo.save()
+        data = {
+            "message": "Successfully recorded",
+            "status": True,
+        }
+
+    # json
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response

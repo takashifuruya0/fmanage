@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^seisan$', views.seisan, name='seisan'),
     url(r'^kakeibo_month$', views.kakeibo_month, name="kakeibo_month"),
     url(r'^shared_month$', views.shared_month, name="shared_month"),
+    url(r'^asset/order$', views.asset_order, name="asset_order"),
     url(r'^asset$', views.asset, name="asset"),
 ]
