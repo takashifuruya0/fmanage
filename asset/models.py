@@ -49,7 +49,7 @@ class Orders(models.Model):
     is_nisa = models.BooleanField()
 
     def __str__(self):
-        return "S/"+str(self.datetime)+":"+self.stock
+        return "S/"+str(self.datetime)+":"+self.stock.name
 
 
 class HoldingStocks(models.Model):
