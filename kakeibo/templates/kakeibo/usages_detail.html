@@ -27,84 +27,192 @@
                     <th class="right">All</th>
                 </tr>
                 <tr>
-                    <th>Sum</th>
+                    <th>Sum (Cash)</th>
                     <td class="right">
                         {% if object.check_kakeibo.month %}
                         ¥{{object.sum_kakeibos.month | intcomma}}
+                        {% else %}
+                        ¥0
                         {% endif %}
                     </td>
                     <td class="right">
+                        {% if object.sum_kakeibos.all %}
                         ¥{{object.sum_kakeibos.all | intcomma}}
+                        {% else %}
+                        ¥0
+                        {% endif %}
                     </td>
                 </tr>
                 <tr>
-                    <th>Average</th>
+                    <th>Sum (Credit)</th>
                     <td class="right">
-                        {% if object.check_kakeibo.month %}
-                        ¥{{object.avg_kakeibos.month | intcomma}}
+                        {% if object.check_credit.month %}
+                        ¥{{object.sum_credits.month | intcomma}}
+                        {% else %}
+                        ¥0
                         {% endif %}
                     </td>
                     <td class="right">
+                        {% if object.sum_credits.all %}
+                        ¥{{object.sum_credits.all | intcomma}}
+                        {% else %}
+                        ¥0
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Average (Cash)</th>
+                    <td class="right">
+                        {% if object.check_kakeibo.month %}
+                        ¥{{object.avg_kakeibos.month | intcomma}}
+                        {% else %}
+                        ¥0
+                        {% endif %}
+                    </td>
+                    <td class="right">
+                        {% if object.avg_kakeibos.all %}
                         ¥{{object.avg_kakeibos.all | intcomma}}
+                        {% else %}
+                        ¥0
+                        {% endif %}
                     </td>
                 </tr>
             </table>
             <a href="{%url 'kakeibo:usage_list' %}" class="btn btn-secondary">Back to list</a>
 
-            {%if object.check_kakeibo.month %}
+            <!--リスト-->
             <hr>
-            <h4>今月の一覧</h4>
-            <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
-                <tr>
-                    <th>ID</th>
-                    <th>Date</th>
-                    <th class="right">Fee</th>
-                    <th>Memo</th>
-                </tr>
-                {%for k in object.get_kakeibos_month %}
-                <tr>
-                    <td><a href="{%url 'kakeibo:kakeibo_detail' pk=k.pk%}">{{k.pk}}</a></td>
-                    <td>{{k.date}}</td>
-                    <td class="right">{{k.fee_yen}}</td>
-                    <td>{{k.memo}}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% endif %}
+            <h4>一覧</h4>
+            <!-- タブボタン部分 -->
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a href="#list1" class="nav-link active" data-toggle="tab">今月の現金支出</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#list2" class="nav-link" data-toggle="tab">現金支出</a>
+                </li>
+                {%if object.check_shared.all %}
+                <li class="nav-item">
+                  <a href="#list3" class="nav-link" data-toggle="tab">今月の共通支出</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#list4" class="nav-link" data-toggle="tab">共通支出</a>
+                </li>
+                {% endif %}
+            </ul>
 
-            {%if object.check_shared.month %}
-            <hr>
-            <h4>今月の共通一覧</h4>
-            <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
-                <tr>
-                    <th>ID</th>
-                    <th>Date</th>
-                    <th class="right">Fee</th>
-                    <th>Paid By</th>
-                </tr>
-                {%for k in object.get_shared_month %}
-                <tr>
-                    <td><a href="{%url 'kakeibo:shared_detail' pk=k.pk%}">{{k.pk}}</a></td>
-                    <td>{{k.date}}</td>
-                    <td class="right">{{k.fee_yen}}</td>
-                    <td>{{k.paid_by}}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% endif %}
+            <!--タブのコンテンツ部分-->
+            <div class="tab-content">
+                <div id="list1" class="tab-pane active">
+                    <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th class="right">Fee</th>
+                            <th>Memo</th>
+                        </tr>
+                        {%for k in object.get_kakeibos.month %}
+                        <tr>
+                            <td><a href="{%url 'kakeibo:kakeibo_detail' pk=k.pk%}">{{k.pk}}</a></td>
+                            <td>{{k.date}}</td>
+                            <td class="right">{{k.fee_yen}}</td>
+                            <td>{{k.memo}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div id="list2" class="tab-pane">
+                    <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th class="right">Fee</th>
+                            <th>Memo</th>
+                        </tr>
+                        {%for k in object.get_kakeibos.all %}
+                        <tr>
+                            <td><a href="{%url 'kakeibo:kakeibo_detail' pk=k.pk%}">{{k.pk}}</a></td>
+                            <td>{{k.date}}</td>
+                            <td class="right">{{k.fee_yen}}</td>
+                            <td>{{k.memo}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div id="list3" class="tab-pane">
+                    <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th class="right">Fee</th>
+                            <th>Paid By</th>
+                        </tr>
+                        {%for k in object.get_shared.month %}
+                        <tr>
+                            <td><a href="{%url 'kakeibo:shared_detail' pk=k.pk%}">{{k.pk}}</a></td>
+                            <td>{{k.date}}</td>
+                            <td class="right">{{k.fee_yen}}</td>
+                            <td>{{k.paid_by}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div id="list4" class="tab-pane">
+                    <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th class="right">Fee</th>
+                            <th>Paid By</th>
+                        </tr>
+                        {%for k in object.get_shared.all %}
+                        <tr>
+                            <td><a href="{%url 'kakeibo:shared_detail' pk=k.pk%}">{{k.pk}}</a></td>
+                            <td>{{k.date}}</td>
+                            <td class="right">{{k.fee_yen}}</td>
+                            <td>{{k.paid_by}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
         </div>
 
+        <!--グラフ-->
         <div class="col-sm-5">
-            {%if object.check_kakeibo.month %}
-            <h4>今月の内訳</h4>
-            <canvas id="pie_usage"></canvas>
-            {% endif %}
-            <hr>
-            {%if object.check_shared.month %}
-            <h4>今月の共通内訳</h4>
-            <canvas id="pie_usage_shared"></canvas>
-
-            {% endif %}
+            <h4>グラフ</h4>
+            <!-- タブボタン部分 -->
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a href="#fig1" class="nav-link active" data-toggle="tab">今月の現金支出</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#fig2" class="nav-link" data-toggle="tab">現金支出</a>
+                </li>
+                {%if object.check_shared.all %}
+                <li class="nav-item">
+                  <a href="#fig3" class="nav-link" data-toggle="tab">今月の共通支出</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#fig4" class="nav-link" data-toggle="tab">共通支出</a>
+                </li>
+                {% endif %}
+            </ul>
+            <!--タブのコンテンツ部分-->
+            <div class="tab-content">
+                <div id="fig1" class="tab-pane active">
+                    <canvas id="pie_usage"></canvas>
+                </div>
+                <div id="fig2" class="tab-pane">
+                    <canvas id="pie_usage_all"></canvas>
+                </div>
+                <div id="fig3" class="tab-pane">
+                    <canvas id="pie_usage_shared"></canvas>
+                </div>
+                <div id="fig4" class="tab-pane">
+                    <canvas id="pie_usage_shared_all"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -118,10 +226,10 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for k in object.get_kakeibos_month %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
+      labels: [{%for k in object.get_kakeibos.month %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for k in object.get_kakeibos_month %}{{k.fee}},{%endfor%}],
+        data: [{%for k in object.get_kakeibos.month %}{{k.fee}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
@@ -146,16 +254,16 @@
   });
 </script>
 
-<!-- pie_usage -->
+<!-- pie_usage_shared -->
 <script>
   var ctx = document.getElementById('pie_usage_shared').getContext('2d');
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for k in object.get_shared_month %}"{{k.date}}/{{k.paid_by}}",{%endfor%}],
+      labels: [{%for k in object.get_shared.month %}"{{k.date}}/{{k.paid_by}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for k in object.get_shared_month %}{{k.fee}},{%endfor%}],
+        data: [{%for k in object.get_shared.month %}{{k.fee}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
@@ -174,6 +282,60 @@
           "#e74c3c",
           "#34495e",
           "#bee95e",
+         ]
+      }]
+    }
+  });
+</script>
+
+<!-- pie_usage_all -->
+<script>
+  var ctx = document.getElementById('pie_usage_all').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for k in object.get_kakeibos.all %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for k in object.get_kakeibos.all %}{{k.fee}},{%endfor%}],
+        backgroundColor: [
+          {% for i in object.get_kakeibos.all %}
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+          {% endfor %}
+         ]
+      }]
+    }
+  });
+</script>
+
+<!-- pie_usage_shared_all -->
+<script>
+  var ctx = document.getElementById('pie_usage_shared_all').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for k in object.get_shared.all %}"{{k.date}}/{{k.paid_by}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for k in object.get_shared.all %}{{k.fee}},{%endfor%}],
+        backgroundColor: [
+          {% for i in object.get_shared.all %}
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+          {% endfor %}
          ]
       }]
     }

@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib, calc_val
 from asset.functions import mylib_asset, get_info
-from asset.models import Orders, Stocks
+from asset.models import Orders, Stocks, HoldingStocks, AssetStatus
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
@@ -393,15 +393,14 @@ def asset_order(request):
         }
     elif request.method == "POST":
         val = json.loads(request.body.decode())
-        # jsonに変換するデータを準備
+        stockinfo = get_info.stock_overview(val["code"])
         bo = Orders()
         bo.datetime = val["datetime"]
         bo.order_type = val["kind"]
-        # request.POST["order_id"]
-        if Stocks.objects.filter(code=val["code"]) == 0:
+        if Stocks.objects.filter(code=val["code"]).__len__() == 0:
             stock = Stocks()
             stock.code = val["code"]
-            stock.name = get_info.stock_overview(val["code"])['name']
+            stock.name = stockinfo['name']
             stock.save()
         else:
             stock = Stocks.objects.get(code=val["code"])
@@ -411,11 +410,44 @@ def asset_order(request):
         bo.is_nisa = False
         bo.commission = 0
         bo.save()
+
+        # holding stackの設定
+        check = HoldingStocks.objects.filter(stock=stock)
+        astatus = AssetStatus.objects.all().last()
+        if bo.order_type == "現物買":
+            # 買い
+            if check.__len__() == 0:
+                ho = HoldingStocks()
+                ho.stock = stock
+                ho.num = bo.num
+                ho.price = bo.price
+                ho.date = bo.datetime.date()
+            else:
+                ho = check[0]
+                ho.price = (ho.price * ho.num + bo.price * bo.num) / (ho.num + bo.num)
+                ho.num = ho.num + bo.num
+            ho.save()
+            # status
+            astatus.buying_power = astatus.buying_power - bo.price * bo.num - bo.commission
+            astatus.stocks_value = astatus.stocks_value + bo.price * bo.num
+            astatus.total = astatus.stocks_value + astatus.other_value + astatus.buying_power
+            astatus.save()
+        elif bo.order_type == "現物売":
+            # 売り
+            ho = check[0]
+            ho.num = ho.num - bo.num
+            ho.save()
+            # status
+            astatus.buying_power = astatus.buying_power + bo.price * bo.num - bo.commission
+            astatus.stocks_value = astatus.stocks_value - bo.price * bo.num
+            astatus.total = astatus.stocks_value + astatus.other_value + astatus.buying_power
+            astatus.save()
+
+        # message
         data = {
             "message": "Successfully recorded",
             "status": True,
         }
-
     # json
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
