@@ -51,6 +51,17 @@ class Usages(BaseModel):
             res = {"month": True, "all": True, }
         return res
 
+    def check_credit(self):
+        today = date.today()
+        cis = CreditItems.objects.filter(usage=self)
+        if Credits.objects.filter(credit_item__in=cis).__len__() == 0:
+            res = {"month": False, "all": False, }
+        elif Credits.objects.filter(credit_item__in=cis, date__month=today.month, date__year=today.year).__len__() == 0:
+            res = {"month": False, "all": True, }
+        else:
+            res = {"month": True, "all": True, }
+        return res
+
     def get_kakeibos(self):
         return Kakeibos.objects.filter(usage=self).order_by('-date')
 
@@ -74,7 +85,9 @@ class Usages(BaseModel):
     def avg_kakeibos(self):
         today = date.today()
         res = dict()
-        res["all"] = int(Kakeibos.objects.filter(usage=self).aggregate(avg=models.Avg('fee'))['avg'])
+        ks = Kakeibos.objects.filter(usage=self)
+        if ks.__len__() > 0:
+            res["all"] = int(ks.aggregate(avg=models.Avg('fee'))['avg'])
         month = Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month)
         if month.__len__() > 0:
             res["month"] = int(month.aggregate(avg=models.Avg('fee'))['avg'])
@@ -83,6 +96,17 @@ class Usages(BaseModel):
     def get_shared_month(self):
         today = date.today()
         return SharedKakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month).order_by('-date')
+
+    def sum_credits(self):
+        today = date.today()
+        res = {"all": 0, "month": 0}
+        cis = CreditItems.objects.filter(usage=self)
+        for ci in cis:
+            res["all"] += ci.sum_credit()
+        res["month"] = Credits.objects.filter(date__year=today.year, date__month=today.month, credit_item__in=cis).aggregate(
+            sum=models.Sum('fee'))['sum']
+
+        return res
 
 
 class Resources(BaseModel):
