@@ -111,7 +111,7 @@
                             <th class="right">Fee</th>
                             <th>Memo</th>
                         </tr>
-                        {%for k in object.get_kakeibos_month %}
+                        {%for k in object.get_kakeibos.month %}
                         <tr>
                             <td><a href="{%url 'kakeibo:kakeibo_detail' pk=k.pk%}">{{k.pk}}</a></td>
                             <td>{{k.date}}</td>
@@ -129,7 +129,7 @@
                             <th class="right">Fee</th>
                             <th>Memo</th>
                         </tr>
-                        {%for k in object.get_kakeibos %}
+                        {%for k in object.get_kakeibos.all %}
                         <tr>
                             <td><a href="{%url 'kakeibo:kakeibo_detail' pk=k.pk%}">{{k.pk}}</a></td>
                             <td>{{k.date}}</td>
@@ -147,7 +147,7 @@
                             <th class="right">Fee</th>
                             <th>Paid By</th>
                         </tr>
-                        {%for k in object.get_shared_month %}
+                        {%for k in object.get_shared.month %}
                         <tr>
                             <td><a href="{%url 'kakeibo:shared_detail' pk=k.pk%}">{{k.pk}}</a></td>
                             <td>{{k.date}}</td>
@@ -165,7 +165,7 @@
                             <th class="right">Fee</th>
                             <th>Paid By</th>
                         </tr>
-                        {%for k in object.get_shared %}
+                        {%for k in object.get_shared.all %}
                         <tr>
                             <td><a href="{%url 'kakeibo:shared_detail' pk=k.pk%}">{{k.pk}}</a></td>
                             <td>{{k.date}}</td>
@@ -226,10 +226,10 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for k in object.get_kakeibos_month %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
+      labels: [{%for k in object.get_kakeibos.month %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for k in object.get_kakeibos_month %}{{k.fee}},{%endfor%}],
+        data: [{%for k in object.get_kakeibos.month %}{{k.fee}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
@@ -260,10 +260,10 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for k in object.get_shared_month %}"{{k.date}}/{{k.paid_by}}",{%endfor%}],
+      labels: [{%for k in object.get_shared.month %}"{{k.date}}/{{k.paid_by}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for k in object.get_shared_month %}{{k.fee}},{%endfor%}],
+        data: [{%for k in object.get_shared.month %}{{k.fee}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
@@ -294,12 +294,12 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for k in object.get_kakeibos %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
+      labels: [{%for k in object.get_kakeibos.all %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for k in object.get_kakeibos %}{{k.fee}},{%endfor%}],
+        data: [{%for k in object.get_kakeibos.all %}{{k.fee}},{%endfor%}],
         backgroundColor: [
-          {% for i in object.get_kakeibos %}
+          {% for i in object.get_kakeibos.all %}
           "#2ecc71",
           "#3498db",
           "#95a5a6",
@@ -321,12 +321,12 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for k in object.get_shared %}"{{k.date}}/{{k.paid_by}}",{%endfor%}],
+      labels: [{%for k in object.get_shared.all %}"{{k.date}}/{{k.paid_by}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for k in object.get_shared %}{{k.fee}},{%endfor%}],
+        data: [{%for k in object.get_shared.all %}{{k.fee}},{%endfor%}],
         backgroundColor: [
-          {% for i in object.get_shared %}
+          {% for i in object.get_shared.all %}
           "#2ecc71",
           "#3498db",
           "#95a5a6",
