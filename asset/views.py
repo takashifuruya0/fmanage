@@ -74,6 +74,7 @@ def dashboard(request):
         "total_b": total_b,
         "investment": investment,
         "astatus": astatus,
+        "astatus_recent": astatus[len(astatus)-15:len(astatus)],
     }
     return render(request, 'asset/dashboard.html', output)
 

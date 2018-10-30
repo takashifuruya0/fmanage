@@ -101,7 +101,22 @@
     <h2>Date shift</h2>
     <div class="row">
       <div class="col-sm-12">
-        <canvas id="date_shift"></canvas>
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a href="#fig1" class="nav-link" data-toggle="tab">全データ</a>
+          </li>
+          <li class="nav-item">
+            <a href="#fig2" class="nav-link active" data-toggle="tab">最近のデータ</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div id="fig1" class="tab-pane">
+            <canvas id="date_shift_all"></canvas>
+          </div>
+          <div id="fig2" class="tab-pane active">
+            <canvas id="date_shift"></canvas>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -151,7 +166,7 @@
     });
   </script>
 
-  <!-- Date shift -->
+  <!-- Date shift all -->
   <script>
     var lineChartData = {
       labels : [{%for ass in astatus%} "{{ass.date}}", {%endfor%}],
@@ -184,7 +199,7 @@
       },
       responsive: true,
     }
-    var ctx = document.getElementById("date_shift").getContext("2d");
+    var ctx = document.getElementById("date_shift_all").getContext("2d");
     var myChart = new Chart(ctx, {
         type: "line",
         data: lineChartData,
@@ -194,4 +209,47 @@
     });
   </script>
 
+
+ <!-- Date shift -->
+  <script>
+    var lineChartData = {
+      labels : [{%for ass in astatus_recent%} "{{ass.date}}", {%endfor%}],
+      datasets : [
+        {
+          label: "その他投資",
+          data: [{%for ass in astatus_recent%} {{ass.other_value}}, {%endfor%}],
+          backgroundColor: "rgba(53,255,151,0.4)",
+          //fill: false,
+        },
+        {
+          label: "株式",
+          data: [{%for ass in astatus_recent%} {{ass.stocks_value}}, {%endfor%}],
+          backgroundColor: "rgba(255,153,0,0.4)",
+          //fill: false,
+        },
+        {
+          label: "買付余力",
+          data: [{%for ass in astatus_recent%} {{ass.buying_power}}, {%endfor%}],
+          backgroundColor: "rgba(153,255,51,0.4)",
+          //fill: false,
+        },
+      ]
+    }
+    var options = {
+      scales: {
+        yAxes: [{
+          stacked: true
+        }]
+      },
+      responsive: true,
+    }
+    var ctx = document.getElementById("date_shift").getContext("2d");
+    var myChart = new Chart(ctx, {
+        type: "line",
+        data: lineChartData,
+        options: options,
+        // 下記を追加すると線がまっすぐになります
+        /* bezierCurve: false */
+    });
+  </script>
 {% endblock %}
