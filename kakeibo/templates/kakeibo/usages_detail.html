@@ -10,7 +10,7 @@
     <h1><i class="fas fa-american-sign-language-interpreting"></i> 用途詳細</h1>
     <hr>
     <div class="row">
-        <div class="col-sm-7">
+        <div class="col-sm-6">
             <h4>詳細</h4>
             <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
                 <tr>
@@ -47,14 +47,14 @@
                     <th>Sum (Credit)</th>
                     <td class="right">
                         {% if object.check_credit.month %}
-                        ¥{{object.sum_credits.month | intcomma}}
+                        ¥{{object.sum_credit.month | intcomma}}
                         {% else %}
                         ¥0
                         {% endif %}
                     </td>
                     <td class="right">
-                        {% if object.sum_credits.all %}
-                        ¥{{object.sum_credits.all | intcomma}}
+                        {% if object.sum_credit.all %}
+                        ¥{{object.sum_credit.all | intcomma}}
                         {% else %}
                         ¥0
                         {% endif %}
@@ -85,18 +85,28 @@
             <h4>一覧</h4>
             <!-- タブボタン部分 -->
             <ul class="nav nav-tabs">
+                {% if object.check_kakeibo.all %}
                 <li class="nav-item">
                     <a href="#list1" class="nav-link active" data-toggle="tab">今月の現金支出</a>
                 </li>
                 <li class="nav-item">
                   <a href="#list2" class="nav-link" data-toggle="tab">現金支出</a>
                 </li>
+                {% endif %}
                 {%if object.check_shared.all %}
                 <li class="nav-item">
                   <a href="#list3" class="nav-link" data-toggle="tab">今月の共通支出</a>
                 </li>
                 <li class="nav-item">
                   <a href="#list4" class="nav-link" data-toggle="tab">共通支出</a>
+                </li>
+                {% endif %}
+                {%if object.check_credit.all %}
+                <li class="nav-item">
+                  <a href="#list5" class="nav-link" data-toggle="tab">今月のクレジット</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#list6" class="nav-link" data-toggle="tab">クレジット</a>
                 </li>
                 {% endif %}
             </ul>
@@ -163,7 +173,7 @@
                             <th>ID</th>
                             <th>Date</th>
                             <th class="right">Fee</th>
-                            <th>Paid By</th>
+                            <th>Credit Item</th>
                         </tr>
                         {%for k in object.get_shared.all %}
                         <tr>
@@ -175,26 +185,72 @@
                         {% endfor %}
                     </table>
                 </div>
+                <div id="list5" class="tab-pane">
+                    <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th class="right">Fee</th>
+                            <th>Credit Item</th>
+                        </tr>
+                        {%for k in object.get_credit.month %}
+                        <tr>
+                            <td><a href="{%url 'kakeibo:credit_detail' pk=k.pk%}">{{k.pk}}</a></td>
+                            <td>{{k.date}}</td>
+                            <td class="right">{{k.fee_yen}}</td>
+                            <td><a href="">{{k.credit_item}}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div id="list6" class="tab-pane">
+                    <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th class="right">Fee</th>
+                            <th>Credit Item</th>
+                        </tr>
+                        {%for k in object.get_credit.all %}
+                        <tr>
+                            <td><a href="{%url 'kakeibo:credit_detail' pk=k.pk%}">{{k.pk}}</a></td>
+                            <td>{{k.date}}</td>
+                            <td class="right">{{k.fee_yen}}</td>
+                            <td><a href="{%url 'kakeibo:credit_item_detail' pk=k.credit_item.pk %}">{{k.credit_item}}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
             </div>
         </div>
 
         <!--グラフ-->
-        <div class="col-sm-5">
+        <div class="col-sm-6">
             <h4>グラフ</h4>
             <!-- タブボタン部分 -->
             <ul class="nav nav-tabs">
+                {% if object.check_kakeibo.all %}
                 <li class="nav-item">
                     <a href="#fig1" class="nav-link active" data-toggle="tab">今月の現金支出</a>
                 </li>
                 <li class="nav-item">
                   <a href="#fig2" class="nav-link" data-toggle="tab">現金支出</a>
                 </li>
+                {% endif %}
                 {%if object.check_shared.all %}
                 <li class="nav-item">
                   <a href="#fig3" class="nav-link" data-toggle="tab">今月の共通支出</a>
                 </li>
                 <li class="nav-item">
                   <a href="#fig4" class="nav-link" data-toggle="tab">共通支出</a>
+                </li>
+                {% endif %}
+                {%if object.check_credit.all %}
+                <li class="nav-item">
+                  <a href="#fig5" class="nav-link" data-toggle="tab">今月のクレジット</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#fig6" class="nav-link" data-toggle="tab">クレジット</a>
                 </li>
                 {% endif %}
             </ul>
@@ -211,6 +267,12 @@
                 </div>
                 <div id="fig4" class="tab-pane">
                     <canvas id="pie_usage_shared_all"></canvas>
+                </div>
+                <div id="fig5" class="tab-pane">
+                    <canvas id="pie_usage_credit"></canvas>
+                </div>
+                <div id="fig6" class="tab-pane">
+                    <canvas id="pie_usage_credit_all"></canvas>
                 </div>
             </div>
         </div>
@@ -288,6 +350,38 @@
   });
 </script>
 
+<!-- pie_usage_credit -->
+<script>
+  var ctx = document.getElementById('pie_usage_credit').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for k in object.get_credit.month %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for k in object.get_credit.month %}{{k.fee}},{%endfor%}],
+        backgroundColor: [
+          {% for i in object.get_credit.month %}
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+          {% endfor %}
+         ]
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      }
+    }
+  });
+</script>
+
 <!-- pie_usage_all -->
 <script>
   var ctx = document.getElementById('pie_usage_all').getContext('2d');
@@ -332,6 +426,38 @@
         data: [{%for k in object.get_shared.all %}{{k.fee}},{%endfor%}],
         backgroundColor: [
           {% for i in object.get_shared.all %}
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+          {% endfor %}
+         ]
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      }
+    }
+  });
+</script>
+
+<!-- pie_usage_credit_all -->
+<script>
+  var ctx = document.getElementById('pie_usage_credit_all').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for k in object.get_credit.all %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for k in object.get_credit.all %}{{k.fee}},{%endfor%}],
+        backgroundColor: [
+          {% for i in object.get_credit.all %}
           "#2ecc71",
           "#3498db",
           "#95a5a6",

@@ -78,6 +78,14 @@ class Usages(BaseModel):
             .filter(usage=self, date__year=today.year, date__month=today.month).order_by('-date')
         return res
 
+    def get_credit(self):
+        today = date.today()
+        res = dict()
+        cis = CreditItems.objects.filter(usage=self)
+        res['all'] = Credits.objects.filter(credit_item__in=cis).order_by('-date')
+        res['month'] = Credits.objects.filter(credit_item__in=cis, date__month=today.month, date__year=today.year).order_by('-date')
+        return res
+
     def get_credit_items(self):
         return CreditItems.objects.filter(usage=self)
 
@@ -99,7 +107,7 @@ class Usages(BaseModel):
             res["month"] = int(month.aggregate(avg=models.Avg('fee'))['avg'])
         return res
 
-    def sum_credits(self):
+    def sum_credit(self):
         today = date.today()
         res = {"all": 0, "month": 0}
         cis = CreditItems.objects.filter(usage=self)
