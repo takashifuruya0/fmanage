@@ -83,10 +83,24 @@
             </div>
           </li>
 
-          <li class="nav-item active">
-            <a href="{% url 'asset:dashboard' %}" class="nav-link">
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="fas fa-chart-area"></i> Asset
             </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="{% url 'asset:dashboard' %}">
+                <i class="far fa-calendar-plus"></i> Dashboard
+              </a>
+              <a class="dropdown-item" href="{% url 'asset:dashboard' %}">
+                <i class="far fa-sticky-note"></i> Stock
+              </a>
+              <a class="dropdown-item" href="{% url 'asset:dashboard' %}">
+                <i class="fas fa-sticky-note"></i> Holiding Stock
+              </a>
+              <a class="dropdown-item" href="{% url 'asset:dashboard' %}">
+                <i class="fab fa-qq"></i> Order
+              </a>
+            </div>
           </li>
 
           <li class="nav-item active">
