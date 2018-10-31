@@ -1,5 +1,5 @@
 from django.db import models
-
+from .functions import get_info
 # Create your models here.
 
 

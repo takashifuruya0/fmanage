@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import date, datetime
 from kakeibo.functions.mylib import time_measure
-from asset.models import Stocks, HoldingStocks, AssetStatus
+from asset.models import Stocks, HoldingStocks, AssetStatus, Orders
 from asset.functions import get_info, mylib_asset
 # Template-view
 from django.views.generic.edit import CreateView
@@ -87,3 +87,8 @@ class StocksCreateView(CreateView):
 class HoldingStocksCreateView(CreateView):
     model = HoldingStocks
     fields = ("stock", "date", "price", "num")  # リストもしくはタプル
+
+
+class OrdersCreateView(CreateView):
+    model = Orders
+    fields = ("datetime", "order_type", "stock", "num", "price", "commission", "is_nisa")

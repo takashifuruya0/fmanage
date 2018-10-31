@@ -8,12 +8,19 @@
   <div class="container-fluid">
     <hr>
     <div class="row">
-      <div class="col-sm-9">
+      <div class="col-sm-7">
         <h1>
-          <i class="fab fa-servicestack"></i> 資産運用概要: {{today.year}}年{{today.month}}月{{today.day}}日
+          <i class="fab fa-servicestack"></i> 資産運用概要: {{today.year}}/{{today.month}}/{{today.day}}
         </h1>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-5">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#add_investment">
+          <i class="fas fa-money-bill-alt"></i> Add investment/Cashing
+        </button>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#register_stock">
+           <i class="far fa-plus-square"></i> Register a new stock
+        </button>
       </div>
     </div>
     <hr>
@@ -116,6 +123,55 @@
           <div id="fig2" class="tab-pane active">
             <canvas id="date_shift"></canvas>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal add_investment-->
+  <div class="modal fade" id="add_investment" tabindex="-1" role="dialog" aria-labelledby="add_investment" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="add_investment_Label">Additional investment / Cashing</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="post_type" value="add_investment">
+            Value <input type="value" name="value">
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal register_stock-->
+  <div class="modal fade" id="register_stock" tabindex="-1" role="dialog" aria-labelledby="register_stock" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="register_stock_Label">Register a new stock</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="post_type" value="register_stock">
+            Code <input type="code" name="code"></td>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
         </div>
       </div>
     </div>
