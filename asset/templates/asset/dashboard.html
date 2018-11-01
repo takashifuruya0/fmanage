@@ -48,6 +48,10 @@
               <td class="right">¥ {{total| intcomma}}</td>
             </tr>
             <tr>
+              <td>その他投資</td>
+              <td class="right">¥{{other_value| intcomma}}</td>
+            </tr>
+            <tr>
               <td>買付余力</td>
               <td class="right">¥{{buying_power | intcomma}}</td>
             </tr>
@@ -209,15 +213,54 @@
       type: 'bar',
       data: {
         labels: [{%for hs in hstocks%}"{{hs.code}}",{%endfor%}],
-        datasets: [{
-          label: 'Buying price',
-          data: [{%for hs in hstocks%}{{hs.atotal}},{%endfor%}],
-          backgroundColor: "rgba(153,255,51,0.4)"
-        }, {
-          label: 'Current price',
-          data: [{%for hs in hstocks%}{{hs.ctotal}},{%endfor%}],
-          backgroundColor: "rgba(255,153,0,0.4)"
-        }]
+        datasets: [
+            {
+                label: 'Buying price',
+                data: [
+                    {%for hs in hstocks%}{{hs.atotal}},{%endfor%}
+                ],
+                backgroundColor: "rgba(153,255,51,0.4)"
+            },
+            {
+                label: 'Current price',
+                data: [
+                    {%for hs in hstocks%}{{hs.ctotal}},{%endfor%}
+                ],
+                backgroundColor: "rgba(255,153,0,0.4)"
+            }
+        ],
+      },
+    });
+  </script>
+
+  <!-- bar_holding_stocks_% -->
+  <script>
+    var ctx = document.getElementById('bar_holding_stocks_percent').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [{%for hs in hstocks%}"{{hs.code}}",{%endfor%}],
+        datasets: [
+            {
+                label: 'Buying price',
+                data: [
+                    {%for hs in hstocks%}{{hs.atotal}}/{{hs.atotal}},{%endfor%}
+                ],
+                backgroundColor: "rgba(153,255,51,0.4)"
+            },
+            {
+                label: 'Current price',
+                data: [
+                    {%for hs in hstocks%}{{hs.ctotal}}/{{hs.atotal}},{%endfor%}
+                ],
+                backgroundColor: "rgba(255,153,0,0.4)"
+            }
+        ],
+      },
+      options: {
+        scales: {
+          yAxes: [{ticks: {beginAtZero: true, min: 0,}}]
+        }
       }
     });
   </script>
@@ -225,23 +268,23 @@
   <!-- Date shift all -->
   <script>
     var lineChartData = {
-      labels : [{%for ass in astatus%} "{{ass.date}}", {%endfor%}],
+      labels : [{%for ass in astatus%} "{{ass.date}}", {%endfor%} "{{ today }}"],
       datasets : [
         {
           label: "その他投資",
-          data: [{%for ass in astatus%} {{ass.other_value}}, {%endfor%}],
+          data: [{%for ass in astatus%} {{ass.other_value}}, {%endfor%} {{other_value}}],
           backgroundColor: "rgba(53,255,151,0.4)",
           //fill: false,
         },
         {
           label: "株式",
-          data: [{%for ass in astatus%} {{ass.stocks_value}}, {%endfor%}],
+          data: [{%for ass in astatus%} {{ass.stocks_value}}, {%endfor%} {{total}}],
           backgroundColor: "rgba(255,153,0,0.4)",
           //fill: false,
         },
         {
           label: "買付余力",
-          data: [{%for ass in astatus%} {{ass.buying_power}}, {%endfor%}],
+          data: [{%for ass in astatus%} {{ass.buying_power}}, {%endfor%} {{buying_power}}],
           backgroundColor: "rgba(153,255,51,0.4)",
           //fill: false,
         },
@@ -269,23 +312,23 @@
  <!-- Date shift -->
   <script>
     var lineChartData = {
-      labels : [{%for ass in astatus_recent%} "{{ass.date}}", {%endfor%}],
+      labels : [{%for ass in astatus_recent%} "{{ass.date}}" {%endfor%} "{{ today }}"],
       datasets : [
         {
           label: "その他投資",
-          data: [{%for ass in astatus_recent%} {{ass.other_value}}, {%endfor%}],
+          data: [{%for ass in astatus_recent%} {{ass.other_value}} {%endfor%} "{{other_value}}"],
           backgroundColor: "rgba(53,255,151,0.4)",
           //fill: false,
         },
         {
           label: "株式",
-          data: [{%for ass in astatus_recent%} {{ass.stocks_value}}, {%endfor%}],
+          data: [{%for ass in astatus_recent%} {{ass.stocks_value}} {%endfor%} "{{total}}"],
           backgroundColor: "rgba(255,153,0,0.4)",
           //fill: false,
         },
         {
           label: "買付余力",
-          data: [{%for ass in astatus_recent%} {{ass.buying_power}}, {%endfor%}],
+          data: [{%for ass in astatus_recent%} {{ass.buying_power}} {%endfor%} "{{buying_power}}"],
           backgroundColor: "rgba(153,255,51,0.4)",
           //fill: false,
         },

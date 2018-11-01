@@ -61,7 +61,8 @@ def dashboard(request):
     astatus = AssetStatus.objects.all().order_by('date')
     investment = astatus.last().investment
     buying_power = astatus.last().buying_power
-    total_b = total + buying_power
+    other_value = astatus.last().other_value
+    total_b = total + buying_power + other_value
 
     # return
     output = {
@@ -70,11 +71,12 @@ def dashboard(request):
         "total": total,
         "benefit": benefit,
         "buying_power": buying_power,
+        "other_value": other_value,
         "total_color": mylib_asset.val_color(benefit),
         "total_b": total_b,
         "investment": investment,
         "astatus": astatus,
-        "astatus_recent": astatus[len(astatus)-15:len(astatus)],
+        # "astatus_recent": astatus[len(astatus)-15:len(astatus)],
     }
     return render(request, 'asset/dashboard.html', output)
 
