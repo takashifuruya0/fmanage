@@ -346,7 +346,7 @@
       datasets : [
         {
           label: "その他投資",
-          data: [{%for ass in astatus_recent%} {{ass.other_value}} {%endfor%} "{{alatest.other_value}}"],
+          data: [{%for ass in astatus_recent%} {{ass.other_value}} {%endfor%} {{alatest.other_value}}],
           backgroundColor: "rgba(53,255,151,0.4)",
           //fill: false,
         },
