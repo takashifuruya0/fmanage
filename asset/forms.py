@@ -8,7 +8,7 @@ class OrdersForm(forms.ModelForm):
     ModelForm を継承して作れば、HTMLで表示したいフィールドを
     指定するだけで HTML フォームを作ってくれる。
     """
-    choices = ((c, c) for c in ["現物買い", "現物売り",])
+    choices = ((c, c) for c in ["現物買", "現物売",])
     order_type = forms.TypedChoiceField(choices=choices)
 
     class Meta:

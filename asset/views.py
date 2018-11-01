@@ -70,7 +70,7 @@ def dashboard(request):
                 # Status
                 astatus = AssetStatus.objects.all().order_by('date').last()
                 # 買い
-                if order.order_type == "現物買い":
+                if order.order_type == "現物買":
                     astatus.buying_power = astatus.buying_power - order.num * order.price - order.commission
                     astatus.stocks_value = astatus.stocks_value + order.num * order.price
                     astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
@@ -89,7 +89,7 @@ def dashboard(request):
                         ho.date = order.datetime.date()
                         ho.save()
                 # 売り
-                elif order.order_type == "現物売り":
+                elif order.order_type == "現物売":
                     if order.is_nisa:
                         # NISA: TAX=0%
                         astatus.buying_power = astatus.buying_power + order.num * order.price
