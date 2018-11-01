@@ -352,13 +352,13 @@
         },
         {
           label: "株式",
-          data: [{%for ass in astatus_recent%} {{ass.stocks_value}} {%endfor%} "{{total}}"],
+          data: [{%for ass in astatus_recent%} {{ass.stocks_value}} {%endfor%} {{total}}],
           backgroundColor: "rgba(255,153,0,0.4)",
           //fill: false,
         },
         {
           label: "買付余力",
-          data: [{%for ass in astatus_recent%} {{ass.buying_power}} {%endfor%} "{{alatest.buying_power}}"],
+          data: [{%for ass in astatus_recent%} {{ass.buying_power}} {%endfor%} {{alatest.buying_power}}],
           backgroundColor: "rgba(153,255,51,0.4)",
           //fill: false,
         },
