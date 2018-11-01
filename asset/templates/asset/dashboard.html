@@ -15,11 +15,14 @@
       </div>
       <div class="col-sm-5">
         <!-- Button trigger modal -->
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#add_investment">
-          <i class="fas fa-money-bill-alt"></i> Add investment/Cashing
+        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#add_investment">
+          <i class="far fa-plus-square"></i> Additional investment
         </button>
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#register_stock">
-           <i class="far fa-plus-square"></i> Register a new stock
+        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#register_stock">
+           <i class="far fa-plus-square"></i> New stock
+        </button>
+        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#order">
+          <i class="far fa-plus-square"></i> New order
         </button>
       </div>
     </div>
@@ -49,11 +52,11 @@
             </tr>
             <tr>
               <td>その他投資</td>
-              <td class="right">¥{{other_value| intcomma}}</td>
+              <td class="right">¥{{alatest.other_value| intcomma}}</td>
             </tr>
             <tr>
               <td>買付余力</td>
-              <td class="right">¥{{buying_power | intcomma}}</td>
+              <td class="right">¥{{alatest.buying_power | intcomma}}</td>
             </tr>
             <tr>
               <td>総計</td>
@@ -65,7 +68,7 @@
             </tr>
             <tr>
               <td>投資額</td>
-              <td class="right">¥{{investment| intcomma}}</td>
+              <td class="right">¥{{alatest.investment| intcomma}}</td>
             </tr>
           </tbody>
         </table>
@@ -137,22 +140,23 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="add_investment_Label">Additional investment / Cashing</h5>
+          <h5 class="modal-title" id="add_investment_Label">Additional investment</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
-          <form method="post">
+        <form method="post">
+          <div class="modal-body">
             {% csrf_token %}
-            <input type="hidden" name="post_type" value="add_investment">
-            Value <input type="value" name="value">
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
+            <table>
+              {{ add_investment_form.as_table }}
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" name="post_type" value="add_investment">Save changes</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -161,22 +165,48 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="register_stock_Label">Register a new stock</h5>
+          <h5 class="modal-title" id="register_stock_Label">New stock</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
-          <form method="post">
+        <form method="post" action="">
+          <div class="modal-body">
             {% csrf_token %}
-            <input type="hidden" name="post_type" value="register_stock">
-            Code <input type="code" name="code"></td>
-          </form>
+            <table>
+                {{ stock_form }}
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" name="post_type" value="stock_form">Register</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Modal order-->
+  <div class="modal fade" id="order" tabindex="-1" role="dialog" aria-labelledby="order" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="register_stock_Label">New order</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
+        <form method="post" action="">
+          <div class="modal-body">
+            {% csrf_token %}
+            <table>
+                {{ order_form }}
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" name="post_type" value="order_form">Register</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -191,7 +221,7 @@
         labels: ["Buying power", {%for hs in hstocks%}"{{hs.code}}",{%endfor%}],
         datasets: [{
           label: "alice",
-          data: [{{buying_power}}, {%for hs in hstocks%}{{hs.ctotal}},{%endfor%}],
+          data: [{{alatest.buying_power}}, {%for hs in hstocks%}{{hs.ctotal}},{%endfor%}],
           backgroundColor: [
             "#2ecc71",
             "#3498db",
@@ -272,7 +302,7 @@
       datasets : [
         {
           label: "その他投資",
-          data: [{%for ass in astatus%} {{ass.other_value}}, {%endfor%} {{other_value}}],
+          data: [{%for ass in astatus%} {{ass.other_value}}, {%endfor%} {{alatest.other_value}}],
           backgroundColor: "rgba(53,255,151,0.4)",
           //fill: false,
         },
@@ -284,7 +314,7 @@
         },
         {
           label: "買付余力",
-          data: [{%for ass in astatus%} {{ass.buying_power}}, {%endfor%} {{buying_power}}],
+          data: [{%for ass in astatus%} {{ass.buying_power}}, {%endfor%} {{alatest.buying_power}}],
           backgroundColor: "rgba(153,255,51,0.4)",
           //fill: false,
         },
@@ -316,7 +346,7 @@
       datasets : [
         {
           label: "その他投資",
-          data: [{%for ass in astatus_recent%} {{ass.other_value}} {%endfor%} "{{other_value}}"],
+          data: [{%for ass in astatus_recent%} {{ass.other_value}} {%endfor%} "{{alatest.other_value}}"],
           backgroundColor: "rgba(53,255,151,0.4)",
           //fill: false,
         },
@@ -328,7 +358,7 @@
         },
         {
           label: "買付余力",
-          data: [{%for ass in astatus_recent%} {{ass.buying_power}} {%endfor%} "{{buying_power}}"],
+          data: [{%for ass in astatus_recent%} {{ass.buying_power}} {%endfor%} "{{alatest.buying_power}}"],
           backgroundColor: "rgba(153,255,51,0.4)",
           //fill: false,
         },
