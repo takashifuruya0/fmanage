@@ -1,5 +1,5 @@
-from django.shortcuts import render
-
+from django.shortcuts import render, HttpResponse, Http404
+import json
 import logging
 logger = logging.getLogger("django")
 import requests
@@ -194,3 +194,13 @@ class HoldingStocksCreateView(CreateView):
 class OrdersCreateView(CreateView):
     model = Orders
     fields = ("datetime", "order_type", "stock", "num", "price", "commission", "is_nisa")
+
+
+def ajax(request):
+
+    if request.method == 'POST':
+        # response = json.dumps({'your_surprise_txt': "surprise_txt" })  # JSON形式に直して・・
+        # return HttpResponse(response, content_type="text/javascript")  # 返す。JSONはjavascript扱いなのか・・
+        return  HttpResponse("test")
+    else:
+        raise Http404  # GETリクエストを404扱いにしているが、実際は別にしなくてもいいかも

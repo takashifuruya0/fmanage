@@ -160,6 +160,7 @@
       </div>
     </div>
   </div>
+
   <!-- Modal register_stock-->
   <div class="modal fade" id="register_stock" tabindex="-1" role="dialog" aria-labelledby="register_stock" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -182,9 +183,17 @@
             <button type="submit" class="btn btn-primary" name="post_type" value="stock_form">Register</button>
           </div>
         </form>
+
+        <span id="id_div_ajax_response">a</span>
+        <form class="form-horizontal" id="testajax" method="post" action="{% url 'asset:ajax' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn">Submit</button>
+        </form>
+
       </div>
     </div>
   </div>
+
   <!-- Modal order-->
   <div class="modal fade" id="order" tabindex="-1" role="dialog" aria-labelledby="order" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -379,6 +388,28 @@
         options: options,
         // 下記を追加すると線がまっすぐになります
         /* bezierCurve: false */
+    });
+  </script>
+
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript">
+    $('#testajax').submit(function(event){
+        // HTMLでの送信をキャンセル
+        event.preventDefault();
+        var form = $(this);
+        $.ajax({
+          url: form.prop("action"),
+          method: form.prop("method"),
+          data: form.serialize(),
+          timeout: 10000,
+          dataType: "text",
+        })
+        .done( function(data) {
+          alert("done");
+          $("#id_div_ajax_response").text(data);
+        })
     });
   </script>
 {% endblock %}
