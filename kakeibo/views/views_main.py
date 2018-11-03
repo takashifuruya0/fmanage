@@ -93,6 +93,7 @@ def dashboard(request):
     inout_shared = seisan["inout"]
     rb_name = seisan['status']
     move = seisan['seisan']
+
     # 赤字→精算あり
     if rb_name == "赤字":
         status_shared = "danger"
@@ -100,16 +101,18 @@ def dashboard(request):
     else:
         status_shared = "primary"
         pb_shared = {"in": 100, "out": int(expense_shared['all'] / budget_shared['all'] * 100)}
+
     # shared_grouped_by_usage
     shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
     shared_grouped_by_usage = list()
     if shared_usages.__len__() != 0:
         for su in shared_usages:
             tmp = dict()
-            tmp['name'] = name = usage_names[su['usage']]
+            tmp['name'] = usage_names[su['usage']]
             tmp['val'] = su['sum']
             shared_grouped_by_usage.append(tmp)
         logger.info(shared_grouped_by_usage)
+
     # chart.js
     data = {
         "現金精算": [0, seisan['seisan'], 0, 0],
@@ -209,11 +212,7 @@ def mine(request):
     logger.info(resources_year_chart)
 
     # kakeibo-usage
-    usage_list = [
-        "食費", "外食費", "日常消耗品", "交際費", "交通費",
-        "散髪・衣服", "共通支出", "クレジット（個人）",
-        "喫茶店", "書籍", "娯楽費", "コンビニ", "その他"
-    ]
+    usage_list = [u.name for u in Usages.objects.filter(is_expense=True)]
     kakeibo_usage = middleware.usage_kakeibo_table(usage_list)
 
     # Consolidated_usages
@@ -275,6 +274,7 @@ def shared(request):
     inout_shared = seisan["inout"]
     rb_name = seisan['status']
     move = seisan['seisan']
+
     # 赤字→精算あり
     if rb_name == "赤字":
         status_shared = "danger"
@@ -358,6 +358,7 @@ def credit(request):
         else:
             sum_usage[tag] = credit['fee__sum']
         res_credits[citem.pk] = temp
+
     # credit_month
     res_month = list()
     credits_month_sum = 0
@@ -368,15 +369,18 @@ def credit(request):
         }
         credits_month_sum += cm.fee
         res_month.append(tmp)
+
     # 支出項目の円表示
     res_sum_usage = dict()
     for k, v in sorted(sum_usage.items(), key=lambda x: -x[1]):
         res_sum_usage[k] = {"sum": v, "name": k}
+
     # Sumの降順に並び替え
     res_credits = sorted(res_credits.items(), key=lambda x: -x[1]['sum'])
     res_sum_usage = sorted(res_sum_usage.items(), key=lambda x: -x[1]['sum'])
     # count
     credits_month_count = credits_month.__len__()
+
     # return
     output = {
         "today": {"year": year, "month": month},
