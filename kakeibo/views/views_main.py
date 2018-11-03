@@ -282,17 +282,10 @@ def shared(request):
     else:
         status_shared = "primary"
         pb_shared = {"in": 100, "out": int(expense_shared['all'] / budget_shared['all'] * 100)}
+
     # shared_grouped_by_usage
-    shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
-    shared_grouped_by_usage = list()
-    usage_names = {u.pk: u.name for u in Usages.objects.all()}
-    if shared_usages.__len__() != 0:
-        for su in shared_usages:
-            tmp = dict()
-            tmp['name'] = name = usage_names[su['usage']]
-            tmp['val'] = su['sum']
-            shared_grouped_by_usage.append(tmp)
-        logger.info(shared_grouped_by_usage)
+    shared_usages = shared.values('usage__name').annotate(Sum('fee'))
+
     # chart.js
     data = {
         "現金精算": [0, seisan['seisan'], 0, 0],
@@ -307,6 +300,9 @@ def shared(request):
     usage_list = ["家賃", "食費", "日常消耗品", "ガス", "電気", "水道", "その他"]
     data_year = middleware.usage_shared_table(usage_list)
 
+    # who paid ?
+    who_paid = shared.values('usage__name', 'paid_by').annotate(Sum('fee'))
+
     # output
     output = {
         "today": {"year": year, "month": month},
@@ -319,11 +315,13 @@ def shared(request):
         "budget": budget_shared,
         "expense": expense_shared,
         "move": move,
-        "shared_grouped_by_usage": shared_grouped_by_usage,
+        "shared_usages": shared_usages,
         "bar_eom": bar_eom,
-        #table
+        # table
         "data_year": data_year,
         "usage_list": usage_list,
+        # who_paid
+        "who_paid": who_paid,
     }
     return render(request, 'kakeibo/shared.html', output)
 

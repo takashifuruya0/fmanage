@@ -117,8 +117,8 @@
                   <th>Buy/Sell</th>
                   <th>Date</th>
                   <th>Stock</th>
-                  <th>Num</th>
-                  <th>Price</th>
+                  <th class="right">Num</th>
+                  <th class="right">Price</th>
                   <th>NISA</th>
                 </tr>
               </thead>
@@ -128,8 +128,8 @@
                   <td>{{order.order_type}}</td>
                   <td>{{order.datetime}}</td>
                   <td>{{order.stock}}</td>
-                  <td>{{order.num}}</td>
-                  <td>{{order.price | intcomma}}</td>
+                  <td class="right">{{order.num}}</td>
+                  <td class="right">{{order.price | intcomma}}</td>
                   <td>{{order.is_nisa}}</td>
                 </tr>
                 {% endfor %}

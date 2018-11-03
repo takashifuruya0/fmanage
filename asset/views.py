@@ -19,7 +19,7 @@ from django.contrib.auth.decorators import login_required
 # 概要
 @login_required
 @time_measure
-def dashboard(request):
+def asset_dashboard(request):
     # msg
     today = date.today()
     smsg = emsg = ""
@@ -90,6 +90,7 @@ def dashboard(request):
     stock_form = StocksForm()
     order_form = OrdersForm()
     add_investment_form = AddInvestmentForm()
+
     # 保有株リスト：現在値で登録
     hstocks = list()
     hss = HoldingStocks.objects.all()
@@ -177,7 +178,6 @@ class OrdersCreateView(CreateView):
 
 
 def ajax(request):
-
     if request.method == 'POST':
         # response = json.dumps({'your_surprise_txt': "surprise_txt" })  # JSON形式に直して・・
         # return HttpResponse(response, content_type="text/javascript")  # 返す。JSONはjavascript扱いなのか・・

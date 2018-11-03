@@ -37,6 +37,9 @@ class HoldingStocks(models.Model):
     def __str__(self):
         return self.stock.name
 
+    def get_current_price(self):
+        return get_info.stock_overview(self.code)['price']
+
 
 class AssetStatus(models.Model):
     objects = None
@@ -47,14 +50,6 @@ class AssetStatus(models.Model):
     other_value = models.IntegerField()
     investment = models.IntegerField()
 
-# class Results(models.Model):
-#     buy_order = models.ForeignKey(BuyOrders)
-#     sell_order = models.ForeignKey(SellOrders)
-#     holding_time = models.IntegerField()
-#     result = models.IntegerField()
-#
-#     def __str__(self):
-#         return self.buy_order + ":" + self.sell_order
 
 
 

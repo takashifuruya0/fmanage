@@ -57,47 +57,81 @@
   <hr>
   <div class="row">
     <div class="col-sm-4">
-      <h4>支払者別</h4>
-      <table class="table table-light table-hover table-sm">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th class="right">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>合計</td>
-            <td class="right">¥{{expense.all | intcomma}}</td>
-          </tr>
-          <tr>
-            <td>敬士</td>
-            <td class="right">¥{{expense.t | intcomma}}</td>
-          </tr>
-          <tr>
-            <td>朋子</td>
-            <td class="right">¥{{expense.h | intcomma}}</td>
-          </tr>
-        </tbody>
-      </table>
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a href="#tab00" class="nav-link active" data-toggle="tab">Overview</a>
+        </li>
+        <li class="nav-item">
+          <a href="#tab01" class="nav-link" data-toggle="tab">Who paid</a>
+        </li>
+      </ul>
+      <div class="tab-content">
+        <div id="tab00" class="tab-pane active">
+          <h4>支払者別</h4>
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th class="right">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>合計</td>
+                <td class="right">¥{{expense.all | intcomma}}</td>
+              </tr>
+              <tr>
+                <td>敬士</td>
+                <td class="right">¥{{expense.t | intcomma}}</td>
+              </tr>
+              <tr>
+                <td>朋子</td>
+                <td class="right">¥{{expense.h | intcomma}}</td>
+              </tr>
+            </tbody>
+          </table>
 
-      <h4>用途別</h4>
-      <table class="table table-light table-hover table-sm">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th class="right">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for su in shared_grouped_by_usage %}
-          <tr>
-            <td>{{su.name}}</td>
-            <td class="right">¥{{su.val | intcomma}}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+          <h4>用途別</h4>
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th class="right">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for su in shared_usages %}
+              <tr>
+                <td>{{su.usage__name}}</td>
+                <td class="right">¥{{su.fee__sum | intcomma}}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div> <!--tab00-->
+
+        <div id="tab01" class="tab-pane">
+          <h4>Who paid</h4>
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Usage</th>
+                <th>Who</th>
+                <th>Sum</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for w in who_paid %}
+              <tr>
+                <td>{{w.usage__name}}</td>
+                <td>{{w.paid_by}}</td>
+                <td class="right">¥{{w.fee__sum | intcomma}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div> <!--tab01-->
+      </div>
     </div>
     <div class="col-sm-4">
       <!--<p class="resizeimage"><img src="{% url 'kakeibo:pie_shared' %}?year={{today.year}}&month={{today.month}}"></p>-->
