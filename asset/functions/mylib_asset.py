@@ -236,3 +236,66 @@ def inherit_asset_status():
         ass.save()
 
 
+def order_process(order):
+    smsg = emsg = ""
+    try:
+        # Status
+        astatus = AssetStatus.objects.all().order_by('date').last()
+        # 買い
+        if order.order_type == "現物買":
+            # status更新
+            astatus.buying_power = astatus.buying_power - order.num * order.price - order.commission
+            # 買付余力以上は買えません
+            if astatus.buying_power < 0:
+                raise ValueError("buying_power < 0 !")
+            astatus.stocks_value = astatus.stocks_value + order.num * order.price
+            astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
+            astatus.save()
+            # holding stock に追加
+            hos = HoldingStocks.objects.filter(stock=order.stock)
+            if hos:
+                ho = hos[0]
+                ho.price = round((ho.price * ho.num + order.price * order.num) / (ho.num + order.num), 0)
+                ho.num = ho.num + order.num
+                ho.save()
+            else:
+                ho = HoldingStocks()
+                ho.stock = order.stock
+                ho.num = order.num
+                ho.price = order.price
+                ho.date = order.datetime.date()
+                ho.save()
+            smsg = "Buy-order process was completed"
+        # 売り
+        elif order.order_type == "現物売":
+            price = HoldingStocks.objects.get(stock=order.stock).price
+            # status更新
+            if order.is_nisa:
+                # NISA: TAX=0%
+                astatus.buying_power = astatus.buying_power + order.num * order.price
+            elif order.price - price > 0:
+                # 利益あり＋NISA以外: TAX=20%
+                tax = (order.price - price) * order.num * 0.2
+                astatus.buying_power = astatus.buying_power + order.num * order.price - order.commission -tax
+            else:
+                # 利益なし＋NISA以外: TAX=0%
+                astatus.buying_power = astatus.buying_power + order.num * order.price - order.commission
+
+            astatus.stocks_value = astatus.stocks_value - order.num * order.price
+            astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
+            astatus.save()
+            # holding stock から削除
+            ho = HoldingStocks.objects.get(stock=order.stock)
+            if ho.num - order.num == 0:
+                ho.delete()
+            elif ho.num - order.num > 0:
+                ho.price = round((ho.num * ho.price - order.num * order.price) / (ho.num - order.num), 0)
+                ho.num = ho.num - order.num
+                ho.save()
+            else:
+                # 保有数以上は売れません
+                raise ValueError("ho.num - order.num < 0!")
+            smsg = "Sell-order process was completed"
+    except Exception as e:
+        emsg = e
+    return smsg, emsg

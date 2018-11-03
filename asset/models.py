@@ -1,5 +1,6 @@
 from django.db import models
 from .functions import get_info
+from datetime import datetime
 # Create your models here.
 
 
@@ -12,35 +13,9 @@ class Stocks(models.Model):
         return str(self.code) + ": " +self.name
 
 
-# class BuyOrders(models.Model):
-#     objects = None
-#     datetime = models.DateTimeField()
-#     stock = models.ForeignKey(Stocks)
-#     num = models.IntegerField(null=False, blank=False)
-#     price = models.FloatField(null=False, blank=False)
-#     commission = models.IntegerField()  # 手数料
-#     is_nisa = models.BooleanField()
-#
-#     def __str__(self):
-#         return "B/"+str(self.datetime)+":"+self.stock
-#
-#
-# class SellOrders(models.Model):
-#     objects = None
-#     datetime = models.DateTimeField()
-#     stock = models.ForeignKey(Stocks)
-#     num = models.IntegerField(null=False, blank=False)
-#     price = models.FloatField(null=False, blank=False)
-#     commission = models.IntegerField()
-#     is_nisa = models.BooleanField()
-#
-#     def __str__(self):
-#         return "S/"+str(self.datetime)+":"+self.stock
-
-
 class Orders(models.Model):
     objects = None
-    datetime = models.DateTimeField()
+    datetime = models.DateTimeField(default=datetime.now())
     order_type = models.CharField(null=False, blank=False, max_length=20)
     stock = models.ForeignKey(Stocks)
     num = models.IntegerField(null=False, blank=False)

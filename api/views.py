@@ -131,115 +131,6 @@ def shared(request):
     return response
 
 
-# @csrf_exempt
-# def buy_order(request, target_id=0):
-#     status = None
-#     # POST --> save it to DB
-#     if request.method == "POST":
-#         data = json.loads(request.body.decode())
-#         # Buying order
-#         bo = BuyOrders()
-#         bo.datetime = datetime.today()
-#         bo.num = data['num']
-#         bo.price = data['price']
-#         bo.account = data['account'] # Difficult to determine NISA or not based on mails from SBI
-#         bo.commission = data['fee']
-#         # Stock_records
-#         sr = Stocks.objects.filter(code=data['code'])
-#         if sr.__len__ is 1:
-#             bo = sr[0]
-#         else:
-#             sr = Stocks()
-#             sr.code = data['code']
-#             sr.name = data['name']
-#             sr.save()
-#             bo.stock = sr
-#         # Save
-#         bo.save()
-#         # Holding Stocks
-#         ho = HoldingStocks.objects.filter(stock=bo.stock)
-#         # 所有済み
-#         if ho.__len__ is 1:
-#             ho.date = date.today()
-#             ho.average_price = (ho.average_price * ho.num + bo.price * bo.num) / (ho.num + bo.num)
-#             ho.num = ho.num+bo.num
-#         # 所有していない
-#         else:
-#             ho.date = date.today()
-#             ho.stock = bo.stock
-#             ho.average_price = bo.price
-#             ho.num = bo.num
-#         ho.save()
-#
-#         # res
-#         memo = "success: " + str(bo.pk)
-#         res = {
-#           "memo": memo,
-#         }
-#     # GET --> select * from DB
-#     elif request.method == "GET":
-#         if target_id is 0:
-#             bo = BuyOrders().objects.all()
-#         else:
-#             bo = BuyOrders().objects.filter(pk=target_id)
-#         res = {}
-#         for i in bo:
-#             res[i.pk] = {}
-#             res[i.pk]['datetime'] = i.datetime
-#             res[i.pk]['name'] = i.stock.name
-#             res[i.pk]['code'] = i.stock.code
-#             res[i.pk]['num'] = i.num
-#             res[i.pk]['price'] = i.price
-#     # json_str: json形式に整形
-#     json_str = json.dumps(res, ensure_ascii=False, indent=2)
-#     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=status)
-#     return response
-#
-#
-# @csrf_exempt
-# def sell_order(request, target_id=0):
-#     status = None
-#     # POST --> save it to DB
-#     if request.method == "POST":
-#         data = json.loads(request.body.decode())
-#         # Selling order
-#         so = SellOrders()
-#         so.datetime = datetime.today()
-#         so.num = data['num']
-#         so.price = data['price']
-#         so.fee = data['fee']
-#         so.stock = Stocks.objects.get(code=data['code'])
-#         so.commission = data['commission']
-#         so.account = data['account']
-#
-#         # Save
-#         so.save()
-#
-#         # Holding Stocks
-#         # 0になる→result
-#         # その他
-#         memo = "success: " + str(so.pk)
-#         res = {
-#           "memo": memo,
-#         }
-#     # GET --> select * from DB
-#     elif request.method == "GET":
-#         if target_id is 0:
-#             so = SellOrders().objects.all()
-#         else:
-#             so = SellOrders().objects.filter(pk=target_id)
-#         res = {}
-#         for i in so:
-#             res[i.pk] = {}
-#             res[i.pk]['datetime'] = i.datetime
-#             res[i.pk]['name'] = i.stock.name
-#             res[i.pk]['code'] = i.stock.code
-#             res[i.pk]['num'] = i.num
-#             res[i.pk]['price'] = i.price
-#     # json_str: json形式に整形
-#     json_str = json.dumps(res, ensure_ascii=False, indent=2)
-#     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=status)
-#     return response
 @csrf_exempt
 def seisan(request):
     if request.method != "GET":
@@ -411,42 +302,20 @@ def asset_order(request):
         bo.commission = 0
         bo.save()
 
-        # holding stackの設定
-        check = HoldingStocks.objects.filter(stock=stock)
-        astatus = AssetStatus.objects.all().last()
-        if bo.order_type == "現物買":
-            # 買い
-            if check.__len__() == 0:
-                ho = HoldingStocks()
-                ho.stock = stock
-                ho.num = bo.num
-                ho.price = bo.price
-                ho.date = bo.datetime.date()
-            else:
-                ho = check[0]
-                ho.price = (ho.price * ho.num + bo.price * bo.num) / (ho.num + bo.num)
-                ho.num = ho.num + bo.num
-            ho.save()
-            # status
-            astatus.buying_power = astatus.buying_power - bo.price * bo.num - bo.commission
-            astatus.stocks_value = astatus.stocks_value + bo.price * bo.num
-            astatus.total = astatus.stocks_value + astatus.other_value + astatus.buying_power
-            astatus.save()
-        elif bo.order_type == "現物売":
-            # 売り
-            ho = check[0]
-            ho.num = ho.num - bo.num
-            ho.save()
-            # status
-            astatus.buying_power = astatus.buying_power + bo.price * bo.num - bo.commission
-            astatus.stocks_value = astatus.stocks_value - bo.price * bo.num
-            astatus.total = astatus.stocks_value + astatus.other_value + astatus.buying_power
-            astatus.save()
+        # order時のholding stocks, asset status の変更
+        smsg, emsg = mylib_asset.order_process(bo)
 
+        # res
+        if smsg:
+            msg = smsg
+            status = True
+        else:
+            msg = emsg
+            status = False
         # message
         data = {
-            "message": "Successfully recorded",
-            "status": True,
+            "message": msg,
+            "status": status,
         }
     # json
     json_str = json.dumps(data, ensure_ascii=False, indent=2)

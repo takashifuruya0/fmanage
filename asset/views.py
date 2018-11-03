@@ -21,6 +21,7 @@ from django.contrib.auth.decorators import login_required
 @time_measure
 def dashboard(request):
     # msg
+    today = date.today()
     smsg = emsg = ""
     # FormのPost処理
     if request.method == "POST":
@@ -76,51 +77,11 @@ def dashboard(request):
                 smsg = "New order was registered"
                 logger.info(smsg)
                 
-                # Status
-                astatus = AssetStatus.objects.all().order_by('date').last()
-                # 買い
-                if order.order_type == "現物買":
-                    # status更新
-                    astatus.buying_power = astatus.buying_power - order.num * order.price - order.commission
-                    astatus.stocks_value = astatus.stocks_value + order.num * order.price
-                    astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
-                    astatus.save()
-                    # holding stock に追加
-                    hos = HoldingStocks.objects.filter(stock=order.stock)
-                    if hos:
-                        ho = hos[0]
-                        ho.price = round((ho.price * ho.num + order.price * order.num) / (ho.num + order.num), 0)
-                        ho.num = ho.num + order.num
-                        ho.save()
-                    else:
-                        ho = HoldingStocks()
-                        ho.stock = order.stock
-                        ho.num = order.num
-                        ho.price = order.price
-                        ho.date = order.datetime.date()
-                        ho.save()
-                # 売り
-                elif order.order_type == "現物売":
-                    # status更新
-                    if order.is_nisa:
-                        # NISA: TAX=0%
-                        astatus.buying_power = astatus.buying_power + order.num * order.price
-                    else:
-                        # NISA以外: TAX=20%
-                        astatus.buying_power = astatus.buying_power + (order.num * order.price)*0.8 - order.commission
-                    astatus.stocks_value = astatus.stocks_value - order.num * order.price
-                    astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
-                    astatus.save()
-                    # holding stock から削除
-                    ho = HoldingStocks.objects.get(stock=order.stock)
-                    ho.price = round((ho.num * ho.price - order.num * order.price)/(ho.num - order.num), 0)
-                    ho.num = ho.num - order.num
-                    if ho.num == 0:
-                        ho.remove()
-                    else:
-                        ho.save()
-                smsg = "New order was registered and status was updated"
-                logger.info(smsg)
+                smsg, emsg = mylib_asset.order_process(order)
+                if emsg:
+                    raise ValueError(emsg)
+                else:
+                    logger.info(smsg)
             except Exception as e:
                 emsg = e
                 logger.error(emsg)
@@ -136,7 +97,7 @@ def dashboard(request):
         name = hs.stock.name
         code = hs.stock.code
         num = hs.num
-        date = hs.date
+        hsdate = hs.date
         aprice = hs.price
         # scraping
         data = get_info.stock_overview(code)
@@ -150,7 +111,7 @@ def dashboard(request):
             benefit = "-"
 
         res = {
-            "date": date,
+            "date": hsdate,
             "name": name,
             "code": code,
             "num": num,
@@ -176,10 +137,12 @@ def dashboard(request):
         astatus_recent = None
     # 現在のトータル
     total_b = total + alatest.buying_power + alatest.other_value
+    # 最近のorder
+    orders = Orders.objects.all().order_by('-datetime')[:10]
 
     # return
     output = {
-        "today": date.today(),
+        "today": today,
         "hstocks": hstocks,
         "total": total,
         "benefit": benefit,
@@ -191,6 +154,7 @@ def dashboard(request):
         "total_b": total_b,
         "astatus": astatus,
         "astatus_recent": astatus_recent,
+        "orders": orders,
         "smsg": smsg,
         "emsg": emsg,
     }
