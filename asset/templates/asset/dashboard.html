@@ -13,8 +13,12 @@
           <i class="fab fa-servicestack"></i> 資産運用概要: {{today.year}}/{{today.month}}/{{today.day}}
         </h1>
       </div>
-      <div class="col-sm-5">
-        <!-- Button trigger modal -->
+    </div>
+    <hr>
+
+    <!-- Button trigger modal -->
+    <div class="row">
+      <div class="col-sm-12">
         <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#add_investment">
           <i class="far fa-plus-square"></i> Additional investment
         </button>
@@ -28,14 +32,29 @@
     </div>
     <hr>
 
-    <!-- Graphs -->
-    <h2>Graphs</h2>
+    <!-- Overview -->
+    <h2>Overview</h2>
     <div class="row">
       <div class="col-sm-3">
         <canvas id="pie_holding_stocks"></canvas>
       </div>
       <div class="col-sm-5">
-        <canvas id="bar_holding_stocks"></canvas>
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a href="#fig11" class="nav-link active" data-toggle="tab">Val</a>
+          </li>
+          <li class="nav-item">
+            <a href="#fig12" class="nav-link" data-toggle="tab">Percent</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div id="fig11" class="tab-pane active">
+            <canvas id="bar_holding_stocks"></canvas>
+          </div>
+          <div id="fig12" class="tab-pane">
+            <canvas id="bar_holding_stocks_percent"></canvas>
+          </div>
+        </div>
       </div>
       <div class="col-sm-4">
         <table class="table table-light table-hover table-sm">
@@ -171,9 +190,10 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form method="post" action="" id="testajax">
+        <form method="post" id="testajax">
           <div class="modal-body">
             {% csrf_token %}
+            <input type="hidden" name="post_type" value="stock_form">
             <table>
                 {{ stock_form }}
               <tr>
@@ -184,8 +204,8 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-info"    name="post_type" value="ajax">Check stock name</button>
-            <button type="submit" class="btn btn-primary" name="post_type" value="stock_form">Register</button>
+            <button type="button" class="btn btn-info"    id="stock_ajax"  >Check stock name</button>
+            <button type="button" class="btn btn-primary" id="stock_submit">Register</button>
           </div>
         </form>
       </div>
@@ -392,27 +412,34 @@
 {% endblock %}
 
 {% block script %}
+  <!--銘柄名取得-->
   <script type="text/javascript">
-    $('#testajax').submit(function(event){
-        // HTMLでの送信をキャンセル
-        var form = $(this);
-        console.log($('#testajax [name=post_type]').val())
-        console.log(form.serializeArray())
-        if ($('#testajax [name=post_type]').val() == 'ajax'){
-          event.preventDefault();
-          $.ajax({
-            url: "{% url 'asset:ajax' %}",
-            method: form.prop("method"),
-            data: form.serialize(),
-            timeout: 10000,
-            dataType: "text",
-          })
-          .done( function(data) {
-            $('#ajax_response').text(data);
-          })
-        }
+    $('#stock_ajax').click(function(event){
+      var form = $('#testajax');
+      console.log($('#testajax [name=post_type]').val())
+      console.log(form.serializeArray())
+
+      $.ajax({
+        url: "{% url 'asset:ajax' %}",
+        method: form.prop("method"),
+        data: form.serialize(),
+        timeout: 10000,
+        dataType: "text",
+      })
+      .done( function(data) {
+        $('#ajax_response').text(data);
+      })
     });
   </script>
 
+  <!--登録-->
+  <script type="text/javascript">
+    $('#stock_submit').click(function(){
+      var form = $('#testajax');
+      $('#testajax').submit();
+      console.log($('#testajax [name=post_type]').val())
+      console.log(form.serialize())
+    });
+  </script>
 
 {% endblock %}

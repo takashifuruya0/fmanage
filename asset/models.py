@@ -9,7 +9,7 @@ class Stocks(models.Model):
     code = models.CharField(max_length=4, unique=True)
 
     def __str__(self):
-        return self.name
+        return str(self.code) + ": " +self.name
 
 
 # class BuyOrders(models.Model):
