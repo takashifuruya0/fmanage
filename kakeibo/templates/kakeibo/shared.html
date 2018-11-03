@@ -188,10 +188,10 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for su in shared_grouped_by_usage%}"{{su.name}}",{%endfor%}],
+      labels: [{%for su in shared_usages%}"{{su.usage__name}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for su in shared_grouped_by_usage%}{{su.val}},{%endfor%}],
+        data: [{%for su in shared_usages%}{{su.fee__sum}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
