@@ -171,26 +171,23 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form method="post" action="">
+        <form method="post" action="" id="testajax">
           <div class="modal-body">
             {% csrf_token %}
             <table>
                 {{ stock_form }}
+              <tr>
+                <th>Name:</th>
+                <td id="ajax_response"></td>
+              </tr>
             </table>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-info"    name="post_type" value="ajax">Check stock name</button>
             <button type="submit" class="btn btn-primary" name="post_type" value="stock_form">Register</button>
           </div>
         </form>
-
-        <span id="id_div_ajax_response">a</span>
-        <form class="form-horizontal" id="testajax" method="post" action="{% url 'asset:ajax' %}">
-          {% csrf_token %}
-          <input type="number" name="code">
-          <button type="submit" class="btn">Submit</button>
-        </form>
-
       </div>
     </div>
   </div>
@@ -398,19 +395,24 @@
   <script type="text/javascript">
     $('#testajax').submit(function(event){
         // HTMLでの送信をキャンセル
-        event.preventDefault();
         var form = $(this);
-        $.ajax({
-          url: form.prop("action"),
-          method: form.prop("method"),
-          data: form.serialize(),
-          timeout: 10000,
-          dataType: "text",
-        })
-        .done( function(data) {
-          alert("done");
-          $("#id_div_ajax_response").text(data);
-        })
+        console.log($('#testajax [name=post_type]').val())
+        console.log(form.serializeArray())
+        if ($('#testajax [name=post_type]').val() == 'ajax'){
+          event.preventDefault();
+          $.ajax({
+            url: "{% url 'asset:ajax' %}",
+            method: form.prop("method"),
+            data: form.serialize(),
+            timeout: 10000,
+            dataType: "text",
+          })
+          .done( function(data) {
+            $('#ajax_response').text(data);
+          })
+        }
     });
   </script>
+
+
 {% endblock %}
