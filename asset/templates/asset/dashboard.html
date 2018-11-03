@@ -328,10 +328,15 @@
             }
         ],
       },
+      options: {
+        scales: {
+          yAxes: [{ticks: {beginAtZero: true, min: 0,}}]
+        }
+      }
     });
   </script>
 
-  <!-- bar_holding_stocks_% -->
+  <!-- bar_holding_stocks_percent -->
   <script>
     var ctx = document.getElementById('bar_holding_stocks_percent').getContext('2d');
     var myChart = new Chart(ctx, {
