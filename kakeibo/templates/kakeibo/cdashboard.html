@@ -49,16 +49,34 @@
 <!-- row1 -->
   <hr>
   <div class="row">
-    <div class="col-md-5">
+    <!--左側-->
+    <div class="col-md-6">
       <div class="box2">
         <a data-toggle="collapse" href="#1-1-1" role="button" aria-expanded="true" aria-controls="1-1-1">
           <h3><i class="fas fa-chart-pie"></i> クレジット支出内訳</h3>
         </a>
         <div class="collapse multi-collapse1 show" id="1-1-1">
           <div>
-            <!--<p class="resizeimage"><img src="{% url 'kakeibo:pie_credit' %}?year={{today.year}}&month={{today.month|add:'-1'}}"></p>-->
             <canvas id="pie_credit" width="320" height="360"></canvas>
           </div>
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Fee</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in credits_month%}
+              <tr>
+                <td>{{c.date}}</td>
+                <td><a href="{%url 'kakeibo:credit_detail' pk=c.pk%}">{{c.credit_item.name}}</a></td>
+                <td class="right">¥{{c.fee | intcomma}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -89,9 +107,11 @@
           </table>
         </div>
       </div>
+
     </div>
 
-    <div class="col-md-7">
+    <!--右側-->
+    <div class="col-md-6">
       <div class="box2">
         <a data-toggle="collapse" href="#1-2" role="button" aria-expanded="true" aria-controls="1-2">
           <h3><i class="fas fa-yen-sign"></i> クレジット支出統計</h3>
@@ -169,10 +189,10 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for cu in credits_month%}"{{cu.name}}",{%endfor%}],
+      labels: [{%for cu in credits_month%}"{{cu.credit_item.name}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for cu in credits_month%}{{cu.val}},{%endfor%}],
+        data: [{%for cu in credits_month%}{{cu.fee}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",

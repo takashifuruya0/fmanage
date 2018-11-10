@@ -331,44 +331,36 @@ def shared(request):
 def credit(request):
     # check year and month from GET parameter
     year, month = middleware.yearmonth(request)
+    # 今月のクレジット利用履歴と合計値
+    credits_month = Credits.objects.filter(debit_date__year=year, debit_date__month=month).order_by('-fee')
+    credits_sum = sum([ci.sum_credit() for ci in CreditItems.objects.all()])
 
-    citems = CreditItems.objects.all()
-    credits = Credits.objects.all()
-    credits_month = credits.filter(debit_date__year=year, debit_date__month=month)
-
+    # CreditItemとusage別合計
     res_credits = dict()
     sum_usage = dict()
-    credits_sum = 0
-    for citem in citems:
-        credit = credits.filter(credit_item=citem).aggregate(Sum('fee'), Count('fee'), Avg('fee'))
-        temp = dict()
-        temp['name'] = citem.name
+    for citem in CreditItems.objects.all():
+        temp = {
+            'name': citem.name,
+            'sum': citem.sum_credit(),
+            'avg': citem.avg_credit(),
+            'count': citem.count_credit(),
+        }
+        # usageが登録されていない場合を考慮
         if citem.usage:
             temp['usage'] = citem.usage.name
             tag = citem.usage.name
         else:
             temp['usage'] = ""
             tag = "その他"
-        temp['sum'] = credit['fee__sum']
-        credits_sum += credit['fee__sum']
-        temp['avg'] = round(credit['fee__avg'])
-        temp['count'] = credit['fee__count']
+
         if tag in sum_usage.keys():
-            sum_usage[tag] = sum_usage[tag] + credit['fee__sum']
+            sum_usage[tag] += temp['sum']
         else:
-            sum_usage[tag] = credit['fee__sum']
+            sum_usage[tag] = temp['sum']
         res_credits[citem.pk] = temp
 
-    # credit_month
-    res_month = list()
-    credits_month_sum = 0
-    for cm in credits_month:
-        tmp = {
-            "name": cm.credit_item.name,
-            "val": cm.fee,
-        }
-        credits_month_sum += cm.fee
-        res_month.append(tmp)
+    # credit_month_sum
+    credits_month_sum = sum([cm.fee for cm in credits_month])
 
     # 支出項目の円表示
     res_sum_usage = dict()
@@ -377,9 +369,7 @@ def credit(request):
 
     # Sumの降順に並び替え
     res_credits = sorted(res_credits.items(), key=lambda x: -x[1]['sum'])
-    print(res_sum_usage)
     res_sum_usage = sorted(res_sum_usage.items(), key=lambda x: -x[1]['sum'])
-    print(res_sum_usage)
 
     # count
     credits_month_count = credits_month.__len__()
@@ -390,7 +380,7 @@ def credit(request):
         "credits": res_credits,
         "sum_usage": res_sum_usage,
         "credits_sum": credits_sum,
-        "credits_month": res_month,
+        "credits_month": credits_month,
         "credits_month_sum": credits_month_sum,
         "credits_month_count": credits_month_count,
     }
