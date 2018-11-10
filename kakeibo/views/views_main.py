@@ -215,8 +215,8 @@ def mine(request):
     usage_list = [u.name for u in Usages.objects.filter(is_expense=True)]
     kakeibo_usage = middleware.usage_kakeibo_table(usage_list)
 
-    # Consolidated_usages
-    consolidated_usages_chart = middleware.consolidated_usages()
+    # Consolidated_usages: dict --> [(name, val),(name, val),(name, val),...]
+    consolidated_usages_chart = sorted(middleware.consolidated_usages().items(), key=lambda x: -x[1])
 
     # total
     total = Resources.objects.all().aggregate(sum=Sum('current_val'))['sum']
@@ -377,7 +377,10 @@ def credit(request):
 
     # Sumの降順に並び替え
     res_credits = sorted(res_credits.items(), key=lambda x: -x[1]['sum'])
+    print(res_sum_usage)
     res_sum_usage = sorted(res_sum_usage.items(), key=lambda x: -x[1]['sum'])
+    print(res_sum_usage)
+
     # count
     credits_month_count = credits_month.__len__()
 

@@ -322,10 +322,10 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for u in consolidated_usages_chart.keys %}"{{u}}",{%endfor%}],
+      labels: [{%for u in consolidated_usages_chart %}"{{u.0}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for u in consolidated_usages_chart.values %}{{u}},{%endfor%}],
+        data: [{%for u in consolidated_usages_chart %}{{u.1}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
