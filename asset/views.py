@@ -159,7 +159,7 @@ def asset_dashboard(request):
         "smsg": smsg,
         "emsg": emsg,
     }
-    return render(request, 'asset/dashboard.html', output)
+    return render(request, 'asset/adashboard.html', output)
 
 
 class StocksCreateView(CreateView):

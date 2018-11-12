@@ -1,24 +1,20 @@
 # coding:utf-8
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.conf import settings
-from django.db.models import Avg, Sum, Count, Q
-from django.views.generic import ListView
+from django.db.models import Q
 from dateutil.relativedelta import relativedelta
 # logging
 import logging
 logger = logging.getLogger("django")
 # model
 from kakeibo.models import *
-# module
-import requests, json
-from datetime import datetime, date, timedelta
+from datetime import date
 # function
-from kakeibo.functions import update_records, money, figure, mylib
+from kakeibo.functions import mylib
 from kakeibo.functions.mylib import time_measure
 from kakeibo.functions import middleware
-# grouped by month
-from django.db.models.functions import TruncMonth
+
 
 # Create your views here.
 
@@ -68,13 +64,7 @@ def dashboard(request):
             resources_chart.append(tmp)
 
     # usage
-    current_usage = list()
-    cash_usages = ekakeibos.values('usage').annotate(sum=Sum('fee'))
-    usage_names = {u.pk: u.name for u in Usages.objects.all()}
-    for cu in cash_usages:
-        name = usage_names[cu['usage']]
-        val = cu['sum']
-        current_usage.append({"name": name, "val": val})
+    current_usage = ekakeibos.values('usage__name').annotate(sum=Sum('fee')).order_by("sum").reverse()
     logger.info(current_usage)
 
     # shared
@@ -103,15 +93,8 @@ def dashboard(request):
         pb_shared = {"in": 100, "out": int(expense_shared['all'] / budget_shared['all'] * 100)}
 
     # shared_grouped_by_usage
-    shared_usages = shared.values('usage').annotate(sum=Sum('fee'))
-    shared_grouped_by_usage = list()
-    if shared_usages.__len__() != 0:
-        for su in shared_usages:
-            tmp = dict()
-            tmp['name'] = usage_names[su['usage']]
-            tmp['val'] = su['sum']
-            shared_grouped_by_usage.append(tmp)
-        logger.info(shared_grouped_by_usage)
+    shared_grouped_by_usage = shared.values('usage__name').annotate(sum=Sum('fee')).order_by("sum").reverse()
+    logger.info(shared_grouped_by_usage)
 
     # chart.js
     data = {
@@ -199,13 +182,7 @@ def mine(request):
     resources = Resources.objects.all()
 
     # usage
-    usages_chart = list()
-    cash_usages = ekakeibos.values('usage').annotate(sum=Sum('fee')).order_by("sum").reverse()
-    usage_names = {u.pk: u.name for u in Usages.objects.all()}
-    for cu in cash_usages:
-        name = usage_names[cu['usage']]
-        val = cu['sum']
-        usages_chart.append({"name": name, "val": val})
+    usages_chart = ekakeibos.values('usage__name').annotate(sum=Sum('fee')).order_by("sum").reverse()
 
     # resources_year
     resources_year_chart, months_chart = middleware.resources_year_rev(12)

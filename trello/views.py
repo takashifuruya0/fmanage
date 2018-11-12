@@ -59,7 +59,7 @@ def dashboard(request):
     output["data"] = tdata
     output["datalist"] = datalist
 
-    return render(request, 'trello/dashboard.html', output)
+    return render(request, 'trello/adashboard.html', output)
 
 # sample = {
 #     'name': '滝口先生に結婚報告',

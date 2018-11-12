@@ -15,20 +15,21 @@
       </h1>
     </div>
     <div class="col-sm-2">
+      <a href="#link-kakeibo" class="btn btn-info btn-block"><i class="fas fa-user-circle"></i> 家計簿</a>
     </div>
     <div class="col-sm-2">
+      <a href="#link-shared" class="btn btn-info btn-block"><i class="fas fa-people-carry"></i> 共通家計簿</a>
     </div>
     <div class="col-sm-2">
+      <a href="#link-asset" class="btn btn-info btn-block"><i class="far fa-money-bill-alt"></i> 資産運用</a>
     </div>
   </div>
   <hr>
 
-  <button class="btn btn-block btn-info">
-      <h2><i class="fas fa-user-circle"></i> 家計簿</h2>
-  </button>
-  <hr>
-  <div class="row">
+  <!--家計簿-->
+  <div class="row" id="link-kakeibo">
     <div class="col-sm-6">
+      <h2><i class="fas fa-user-circle"></i> 家計簿</h2>
     </div>
   </div>
   <div class="row">
@@ -94,24 +95,13 @@
     <div class="col-sm-4">
       <canvas id="bar_resources" width="320" height="360"></canvas>
     </div>
-    <!--<div class="col-sm-4">-->
-      <!--<p class="resizeimage">-->
-        <!--<img src="{% url 'kakeibo:bars_balance' %}?year={{today.year}}&month={{today.month}}">-->
-      <!--</p>-->
-    <!--</div>-->
-    <!--<div class="col-sm-4">-->
-      <!--<p class="resizeimage">-->
-        <!--<img src="{% url 'kakeibo:bars_resource' %}?year={{today.year}}&month={{today.month}}">-->
-      <!--</p>-->
-    <!--</div>-->
   </div>
-
-  <button class="btn btn-block btn-info">
-      <h2><i class="fas fa-people-carry"></i> 共通家計簿</h2>
-  </button>
   <hr>
-  <div class="row">
+
+  <!--共通家計簿-->
+  <div class="row" id="link-shared">
     <div class="col-sm-6">
+      <h2><i class="fas fa-people-carry"></i> 共通家計簿</h2>
     </div>
   </div>
   <div class="row">
@@ -172,8 +162,8 @@
         <tbody>
         {% for su in shared_grouped_by_usage %}
           <tr>
-            <td>{{su.name}}</td>
-            <td class="right">¥{{su.val|intcomma}}</td>
+            <td>{{su.usage__name}}</td>
+            <td class="right">¥{{su.sum|intcomma}}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -188,13 +178,12 @@
       <!--<p class="resizeimage"><img src="{% url 'kakeibo:bars_shared_eom' %}?year={{today.year}}&month={{today.month}}"></p>-->
     </div>
   </div>
-
-  <button class="btn btn-block btn-info">
-      <h2><i class="far fa-money-bill-alt"></i> 資産運用</h2>
-  </button>
   <hr>
-  <div class="row">
+
+  <!--資産運用-->
+  <div class="row" id="link-asset">
     <div class="col-sm-6">
+      <h2><i class="far fa-money-bill-alt"></i> 資産運用</h2>
     </div>
   </div>
   <div class="row">
@@ -217,10 +206,10 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for cu in current_usage%}"{{cu.name}}",{%endfor%}],
+      labels: [{%for cu in current_usage%}"{{cu.usage__name}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for cu in current_usage%}{{cu.val}},{%endfor%}],
+        data: [{%for cu in current_usage%}{{cu.sum}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
@@ -251,10 +240,10 @@
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: [{%for su in shared_grouped_by_usage%}"{{su.name}}",{%endfor%}],
+      labels: [{%for su in shared_grouped_by_usage%}"{{su.usage__name}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for su in shared_grouped_by_usage%}{{su.val}},{%endfor%}],
+        data: [{%for su in shared_grouped_by_usage%}{{su.sum}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",

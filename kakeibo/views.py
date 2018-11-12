@@ -65,7 +65,7 @@ def dashboard(request):
         "shared_grouped_by_usage": shared_grouped_by_usage,
     }
     logger.info("output: " + str(output))
-    return render(request, 'kakeibo/dashboard.html', output)
+    return render(request, 'kakeibo/adashboard.html', output)
 
 
 @login_required

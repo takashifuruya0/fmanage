@@ -164,7 +164,7 @@
                         <tr>
                             <td>{{k.month.year}}年{{k.month.month}}月</td>
                             <td class="right">¥{{k.sum | intcomma}}</td>
-                            <td class="right">¥{{k.avg | floatformat}}</td>
+                            <td class="right">¥{{k.avg | floatformat | intcomma}}</td>
                             <td class="right">{{k.cnt}}</td>
                         </tr>
                         {% endfor %}
