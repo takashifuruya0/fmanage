@@ -1,5 +1,7 @@
 from django.db import models
 from datetime import date
+from django.db.models.functions import TruncMonth
+from django.db.models import Sum, Avg, Count
 # Create your models here.
 # ==============================
 #            Base
@@ -65,41 +67,36 @@ class Usages(BaseModel):
     def get_kakeibos(self):
         today = date.today()
         res = dict()
-        res['all'] = Kakeibos.objects.filter(usage=self).order_by('-date')
-        res['month'] = Kakeibos.objects\
-            .filter(usage=self, date__year=today.year, date__month=today.month).order_by('-date')
+        res['all'] = self.kakeibos_set.all().order_by('-date')
+        res['month'] = self.kakeibos_set.filter(date__year=today.year, date__month=today.month).order_by('-date')
         return res
 
     def get_shared(self):
         today = date.today()
         res = dict()
-        res['all'] = SharedKakeibos.objects.filter(usage=self).order_by('-date')
-        res['month'] = SharedKakeibos.objects\
-            .filter(usage=self, date__year=today.year, date__month=today.month).order_by('-date')
+        res['all'] = self.sharedkakeibos_set.all().order_by('-date')
+        res['month'] = self.sharedkakeibos_set.filter(date__year=today.year, date__month=today.month).order_by('-date')
         return res
 
     def get_credit(self):
         today = date.today()
         res = dict()
-        cis = CreditItems.objects.filter(usage=self)
+        cis = self.credititems_set.all()
         res['all'] = Credits.objects.filter(credit_item__in=cis).order_by('-date')
         res['month'] = Credits.objects.filter(credit_item__in=cis, date__month=today.month, date__year=today.year).order_by('-date')
         return res
 
-    def get_credit_items(self):
-        return CreditItems.objects.filter(usage=self)
-
     def sum_kakeibos(self):
         today = date.today()
         res = dict()
-        res["all"] = Kakeibos.objects.filter(usage=self).aggregate(sum=models.Sum('fee'))['sum']
-        res["month"] = Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month).aggregate(sum=models.Sum('fee'))['sum']
+        res["all"] = self.kakeibos_set.all().aggregate(sum=models.Sum('fee'))['sum']
+        res["month"] = self.kakeibos_set.filter(date__year=today.year, date__month=today.month).aggregate(sum=models.Sum('fee'))['sum']
         return res
 
     def avg_kakeibos(self):
         today = date.today()
         res = dict()
-        ks = Kakeibos.objects.filter(usage=self)
+        ks = self.kakeibos_set.all()
         if ks.__len__() > 0:
             res["all"] = int(ks.aggregate(avg=models.Avg('fee'))['avg'])
         month = Kakeibos.objects.filter(usage=self, date__year=today.year, date__month=today.month)
@@ -110,13 +107,18 @@ class Usages(BaseModel):
     def sum_credit(self):
         today = date.today()
         res = {"all": 0, "month": 0}
-        cis = CreditItems.objects.filter(usage=self)
+        cis = self.credititems_set.all()
         for ci in cis:
             res["all"] += ci.sum_credit()
         res["month"] = Credits.objects.filter(date__year=today.year, date__month=today.month, credit_item__in=cis).aggregate(
             sum=models.Sum('fee'))['sum']
-
         return res
+
+    def shift_kakeibos(self):
+        ks = self.kakeibos_set.all()
+        shift = ks.annotate(month=TruncMonth('date')).order_by('month').values('month')\
+            .annotate(sum=Sum('fee'), avg=Avg('fee'), cnt=Count('fee'))
+        return shift
 
 
 class Resources(BaseModel):

@@ -92,6 +92,9 @@
                 <li class="nav-item">
                   <a href="#list2" class="nav-link" data-toggle="tab">現金支出</a>
                 </li>
+                <li class="nav-item">
+                  <a href="#list12" class="nav-link" data-toggle="tab">月別現金支出</a>
+                </li>
                 {% endif %}
                 {%if object.check_shared.all %}
                 <li class="nav-item">
@@ -145,6 +148,24 @@
                             <td>{{k.date}}</td>
                             <td class="right">{{k.fee_yen}}</td>
                             <td>{{k.memo}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div id="list12" class="tab-pane">
+                    <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+                        <tr>
+                            <th>Date</th>
+                            <th class="right">Sum</th>
+                            <th class="right">Avg</th>
+                            <th class="right">Count</th>
+                        </tr>
+                        {%for k in object.shift_kakeibos.reverse %}
+                        <tr>
+                            <td>{{k.month.year}}年{{k.month.month}}月</td>
+                            <td class="right">¥{{k.sum | intcomma}}</td>
+                            <td class="right">¥{{k.avg | floatformat}}</td>
+                            <td class="right">{{k.cnt}}</td>
                         </tr>
                         {% endfor %}
                     </table>
@@ -236,6 +257,9 @@
                 <li class="nav-item">
                   <a href="#fig2" class="nav-link" data-toggle="tab">現金支出</a>
                 </li>
+                <li class="nav-item">
+                  <a href="#fig12" class="nav-link" data-toggle="tab">現金支出推移</a>
+                </li>
                 {% endif %}
                 {%if object.check_shared.all %}
                 <li class="nav-item">
@@ -261,6 +285,9 @@
                 </div>
                 <div id="fig2" class="tab-pane">
                     <canvas id="pie_usage_all"></canvas>
+                </div>
+                <div id="fig12" class="tab-pane">
+                    <canvas id="line_usage_shift" width="100" height="100"></canvas>
                 </div>
                 <div id="fig3" class="tab-pane">
                     <canvas id="pie_usage_shared"></canvas>
@@ -475,6 +502,39 @@
         display: false
       }
     }
+  });
+</script>
+
+<!-- bar_resources -->
+<script>
+  var ctx = document.getElementById('line_usage_shift').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [{%for k in object.shift_kakeibos %}"{{k.month.year}}年{{k.month.month}}月",{%endfor%}],
+      datasets: [
+        {
+          type: "line",
+          label: "Sum",
+          data: [{%for k in object.shift_kakeibos %}{{k.sum}},{%endfor%}],
+          borderColor: 'rgba(60, 160, 220, 0.8)',
+          backgroundColor: 'rgba(60, 160, 220, 0.3)',
+        }, {
+          type: "bar",
+          label: "Avg",
+          data: [{%for k in object.shift_kakeibos %}{{k.avg}},{%endfor%}],
+          borderColor: 'rgba(160, 60, 220, 0.8)',
+          backgroundColor: 'rgba(160, 60, 220, 0.3)',
+        },{
+          type: "bar",
+          label: "Count",
+          data: [{%for k in object.shift_kakeibos %}{{k.cnt}},{%endfor%}],
+          borderColor: 'rgba(220, 60, 160, 0.8)',
+          backgroundColor: 'rgba(220, 60, 160, 0.3)',
+        }
+
+      ],
+    },
   });
 </script>
 {% endblock %}
