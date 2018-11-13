@@ -135,8 +135,8 @@
         <tbody class="">
           {% for u in usages_chart %}
           <tr>
-            <td>{{u.name}}</td>
-            <td class="right">¥{{u.val | intcomma}}</td>
+            <td>{{u.usage__name}}</td>
+            <td class="right">¥{{u.sum | intcomma}}</td>
           </tr>
           {% endfor %}
         </tbody>
