@@ -15,7 +15,7 @@ class Stocks(models.Model):
 
 class Orders(models.Model):
     objects = None
-    datetime = models.DateTimeField(default=datetime.now())
+    datetime = models.DateTimeField(default=datetime.now, blank=True)
     order_type = models.CharField(null=False, blank=False, max_length=20)
     stock = models.ForeignKey(Stocks)
     num = models.IntegerField(null=False, blank=False)
