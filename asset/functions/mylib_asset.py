@@ -247,6 +247,10 @@ def order_process(order):
             astatus.buying_power = astatus.buying_power - order.num * order.price - order.commission
             # 買付余力以上は買えません
             if astatus.buying_power < 0:
+                logger.error("buying_power " + str(astatus.buying_power))
+                logger.error("order.num " + str(order.num))
+                logger.error("order.price " + str(order.price))
+                logger.error("order.commision " + str(order.commision))
                 raise ValueError("buying_power < 0 !")
             astatus.stocks_value = astatus.stocks_value + order.num * order.price
             astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
