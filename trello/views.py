@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from fmanage.settings import TRELLO_KEY, TRELLO_TOKEN
 # Create your views here.
 import requests
 from datetime import date, datetime
@@ -12,8 +12,8 @@ def dashboard(request):
         "Task": "5a8a19124ba2f6c961ff9393",
     }
 
-    key = "b003b9b25dbd2f9bfe6420262ae9a1c8"
-    token = "748c7d5622f3c04e4803ad49aa35c1d6be209203bdd532878f4919e06f38678a"
+    key = TRELLO_KEY
+    token = TRELLO_TOKEN
     params = {
         "key": key,
         "token": token,
@@ -59,7 +59,7 @@ def dashboard(request):
     output["data"] = tdata
     output["datalist"] = datalist
 
-    return render(request, 'trello/adashboard.html', output)
+    return render(request, 'trello/tdashboard.html', output)
 
 # sample = {
 #     'name': '滝口先生に結婚報告',
@@ -111,8 +111,8 @@ def data_processing():
         "Task": "5a8a19124ba2f6c961ff9393",
     }
 
-    key = "b003b9b25dbd2f9bfe6420262ae9a1c8"
-    token = "748c7d5622f3c04e4803ad49aa35c1d6be209203bdd532878f4919e06f38678a"
+    key = TRELLO_KEY
+    token = TRELLO_TOKEN
     params = {
         "key": key,
         "token": token,
