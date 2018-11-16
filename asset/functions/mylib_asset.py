@@ -240,7 +240,7 @@ def order_process(order):
     smsg = emsg = ""
     try:
         # Status
-        astatus = AssetStatus.objects.all().order_by('date').last()
+        astatus = AssetStatus.objects.all().last()
         # 買い
         if order.order_type == "現物買":
             # status更新
@@ -250,7 +250,7 @@ def order_process(order):
                 logger.error("buying_power " + str(astatus.buying_power))
                 logger.error("order.num " + str(order.num))
                 logger.error("order.price " + str(order.price))
-                logger.error("order.commision " + str(order.commision))
+                logger.error("order.commision " + str(order.commission))
                 raise ValueError("buying_power < 0 !")
             astatus.stocks_value = astatus.stocks_value + order.num * order.price
             astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
