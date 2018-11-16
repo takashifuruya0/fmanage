@@ -11,6 +11,7 @@ DATABASES = {
         #"HOST": "10.142.0.2",
         'HOST': "127.0.0.1",
         "POST": "",
+        "ATOMIC_REQUESTS": True,
     }
 }
 # update db settings
