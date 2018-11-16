@@ -267,7 +267,7 @@ def order_process(order):
                 ho.stock = order.stock
                 ho.num = order.num
                 ho.price = order.price
-                ho.date = order.datetime.date()
+                ho.date = date.today()
                 ho.save()
             smsg = "Buy-order process was completed"
         # 売り
@@ -298,6 +298,8 @@ def order_process(order):
                 ho.save()
             else:
                 # 保有数以上は売れません
+                logger.error("ho.num " + str(ho.num))
+                logger.error("order.num " + str(order.num))
                 raise ValueError("ho.num - order.num < 0!")
             smsg = "Sell-order process was completed"
     except Exception as e:
