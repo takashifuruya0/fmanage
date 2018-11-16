@@ -305,3 +305,22 @@ def order_process(order):
     except Exception as e:
         emsg = e
     return smsg, emsg
+
+
+def get_commission(fee):
+    if fee < 50000:
+        return 54
+    elif fee < 100000:
+        return 97
+    elif fee < 200000:
+        return 113
+    elif fee < 500000:
+        return 270
+    elif fee < 1000000:
+        return 525
+    elif fee < 1500000:
+        return 628
+    elif fee < 30000000:
+        return 994
+    else:
+        return 1050

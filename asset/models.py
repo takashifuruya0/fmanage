@@ -20,7 +20,7 @@ class Orders(models.Model):
     stock = models.ForeignKey(Stocks)
     num = models.IntegerField(null=False, blank=False)
     price = models.FloatField(null=False, blank=False)
-    commission = models.IntegerField()
+    commission = models.IntegerField(default=0)
     is_nisa = models.BooleanField()
 
     def __str__(self):
