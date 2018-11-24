@@ -299,7 +299,7 @@ def asset_order(request):
         bo.num = val["num"]
         bo.price = val["price"]
         bo.is_nisa = False
-        bo.commission = 0
+        bo.commission = mylib_asset.get_commission(bo.num*bo.price)
         bo.save()
 
         # order時のholding stocks, asset status の変更

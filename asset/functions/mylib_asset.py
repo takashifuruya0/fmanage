@@ -240,13 +240,17 @@ def order_process(order):
     smsg = emsg = ""
     try:
         # Status
-        astatus = AssetStatus.objects.all().order_by('date').last()
+        astatus = AssetStatus.objects.all().last()
         # 買い
         if order.order_type == "現物買":
             # status更新
             astatus.buying_power = astatus.buying_power - order.num * order.price - order.commission
             # 買付余力以上は買えません
             if astatus.buying_power < 0:
+                logger.error("buying_power " + str(astatus.buying_power))
+                logger.error("order.num " + str(order.num))
+                logger.error("order.price " + str(order.price))
+                logger.error("order.commision " + str(order.commission))
                 raise ValueError("buying_power < 0 !")
             astatus.stocks_value = astatus.stocks_value + order.num * order.price
             astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
@@ -263,7 +267,7 @@ def order_process(order):
                 ho.stock = order.stock
                 ho.num = order.num
                 ho.price = order.price
-                ho.date = order.datetime.date()
+                ho.date = date.today()
                 ho.save()
             smsg = "Buy-order process was completed"
         # 売り
@@ -294,8 +298,29 @@ def order_process(order):
                 ho.save()
             else:
                 # 保有数以上は売れません
+                logger.error("ho.num " + str(ho.num))
+                logger.error("order.num " + str(order.num))
                 raise ValueError("ho.num - order.num < 0!")
             smsg = "Sell-order process was completed"
     except Exception as e:
         emsg = e
     return smsg, emsg
+
+
+def get_commission(fee):
+    if fee < 50000:
+        return 54
+    elif fee < 100000:
+        return 97
+    elif fee < 200000:
+        return 113
+    elif fee < 500000:
+        return 270
+    elif fee < 1000000:
+        return 525
+    elif fee < 1500000:
+        return 628
+    elif fee < 30000000:
+        return 994
+    else:
+        return 1050

@@ -71,8 +71,8 @@ def asset_dashboard(request):
                 order.stock = post_data.get('stock')
                 order.num = post_data.get('num')
                 order.price = post_data.get('price')
-                order.commission = post_data.get('commission')
                 order.is_nisa = post_data.get('is_nisa')
+                order.commission = mylib_asset.get_commission(order.num * order.price) if order.is_nisa else 0
                 order.save()
                 smsg = "New order was registered"
                 logger.info(smsg)
