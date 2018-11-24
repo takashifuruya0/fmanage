@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
-from kakeibo.functions import mylib, calc_val
+from kakeibo.functions import mylib
 from asset.functions import mylib_asset, get_info
 from asset.models import Orders, Stocks, HoldingStocks, AssetStatus
 # Create your views here.
@@ -66,9 +66,9 @@ def kakeibo(request):
 
             # save
             kakeibo.save()
-            name = [i.name for i in Resources.objects.all()]
-            for i in name:
-                calc_val.resource_current_val(i, 0)
+            # name = [i.name for i in Resources.objects.all()]
+            # for i in name:
+            #     calc_val.resource_current_val(i, 0)
 
             status = True
             memo = "Successfully completed"

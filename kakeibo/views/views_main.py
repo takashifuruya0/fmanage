@@ -45,19 +45,13 @@ def dashboard(request):
     current_resource = dict()
     resources_chart = list()
     for rs in Resources.objects.all():
-        # current_valがあれば早い
-        if rs.current_val is not None:
-            val = rs.current_val
-            move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
-            move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
-            val2 = val - move_to + move_from
-        else:
-            move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
-            move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
-            val = rs.initial_val + move_to - move_from
-            move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
-            move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
-            val2 = val - move_to + move_from
+        # move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
+        # move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
+        # val = rs.initial_val + move_to - move_from
+        val = rs.current_val()
+        move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
+        move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
+        val2 = val - move_to + move_from
         if val is not 0:
             current_resource[rs.name] = val
             tmp = {"name": rs.name, "this_month": val, "last_month": val2}
@@ -196,8 +190,9 @@ def mine(request):
     consolidated_usages_chart = sorted(middleware.consolidated_usages().items(), key=lambda x: -x[1])
 
     # total
-    total = Resources.objects.all().aggregate(sum=Sum('current_val'))['sum']
-    total_saved = rs.current_val + Resources.objects.get(name="貯金口座").current_val
+    # total = Resources.objects.all().aggregate(sum=Sum('current_val'))['sum']
+    total = sum([r.current_val() for r in Resources.objects.all()])
+    total_saved = rs.current_val() + Resources.objects.get(name="貯金口座").current_val()
 
     # output
     output = {
@@ -379,7 +374,7 @@ def test(request):
         # kakeibo
         kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
         val = list()
-        val.append(rs.current_val)
+        val.append(rs.current_val())
         ll = today
         print("=====")
         print(ll.month, ll.year)

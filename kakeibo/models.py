@@ -2,6 +2,7 @@ from django.db import models
 from datetime import date
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Avg, Count
+
 # Create your models here.
 # ==============================
 #            Base
@@ -125,7 +126,14 @@ class Resources(BaseModel):
     objects = None
     initial_val = models.IntegerField(null=False, blank=False)
     color = models.OneToOneField(Colors, blank=True, null=True)
-    current_val = models.IntegerField(null=True, blank=True)
+    # current_val = models.IntegerField(null=True, blank=True)
+
+    def current_val(self):
+        move_tos = Kakeibos.objects.filter(move_to=self)
+        move_froms = Kakeibos.objects.filter(move_from=self)
+        v_move_to = move_tos.aggregate(Sum('fee'))['fee__sum'] if move_tos else 0
+        v_move_from = move_froms.aggregate(Sum('fee'))['fee__sum'] if move_froms else 0
+        return self.initial_val + v_move_to - v_move_from
 
 
 # UsagesとResourcesの紐付け
@@ -166,6 +174,15 @@ class Kakeibos(models.Model):
         else:
             new_val = '-¥{:,}'.format(-self.fee)
         return new_val
+
+    # def save(self, *args, **kwargs):
+    #     if self.move_from:
+    #         self.move_from.current_val = self.move_from.current_val - self.fee
+    #         self.move_from.save()
+    #     if self.move_to:
+    #         self.move_to.current_val = self.move_to.current_val + self.fee
+    #         self.move_to.save()
+    #     super(Kakeibos, self).save(*args, **kwargs)
 
 
 class SharedKakeibos(models.Model):

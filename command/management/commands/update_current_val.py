@@ -14,12 +14,15 @@ class Command(BaseCommand):
 
     # コマンドが実行された際に呼ばれるメソッド
     def handle(self, *args, **options):
-        name = [i.name for i in Resources.objects.all()]
-        for i in name:
-            r = calc_val.resource_current_val(i, 0)
-            if r['status'] is True:
-                self.stdout.write(self.style.SUCCESS(r['msg']))
-                logger.info(r['msg'])
-            else:
-                self.stderr.write(r['msg'])
-                logger.error(r['msg'])
+        msg = "This command is not activated now"
+        self.stdout.write(self.style.SUCCESS(msg)
+        logger.info(msg)
+        # name = [i.name for i in Resources.objects.all()]
+        # for i in name:
+        #     r = calc_val.resource_current_val(i, 0)
+        #     if r['status'] is True:
+        #         self.stdout.write(self.style.SUCCESS(r['msg']))
+        #         logger.info(r['msg'])
+        #     else:
+        #         self.stderr.write(r['msg'])
+        #         logger.error(r['msg'])

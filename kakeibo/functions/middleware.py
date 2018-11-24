@@ -118,7 +118,7 @@ def consolidated_usages():
 @time_measure
 def resources_year_rev(num=12):
     resources = Resources.objects.all()
-    resources_year_chart = [{"name": r.name, "val": [r.current_val for j in range(num)]} for r in resources]
+    resources_year_chart = [{"name": r.name, "val": [r.current_val() for j in range(num)]} for r in resources]
 
     # months_chart: monthの古い順リスト
     today = date.today()
