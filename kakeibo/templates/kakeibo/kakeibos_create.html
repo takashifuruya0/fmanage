@@ -1,0 +1,43 @@
+{% extends "kakeibo/base.html" %}
+
+{% block title %}
+    Kakeibo-Create
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <hr>
+    <h1><i class="far fa-list-alt"></i> 家計簿追加</h1>
+    <hr>
+
+    <form method="post">
+        <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
+            {{ form.as_table }}
+        </table>
+        <div class="row">
+            <div class="col-sm-6">
+                <button class="btn btn-primary">Save</button>
+                <a href="#" class="btn btn-secondary">Back to ?</a>
+            </div>
+        </div>
+        {% csrf_token %}
+    </form>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<!-- カレンダー -->
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/i18n/jquery.ui.datepicker-ja.min.js"></script>
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/ui-lightness/jquery-ui.css" >
+<script>
+  $(function() {
+      var dateFormat = 'yy-mm-dd';
+      $('#id_date').datepicker({
+          dateFormat: dateFormat
+      });
+
+  });
+</script>
+{% endblock %}

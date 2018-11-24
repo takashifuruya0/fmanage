@@ -3,7 +3,7 @@
 from django.conf.urls import url                                                
 from django.contrib.auth import views as auth_views                             
 
-from kakeibo.views import views_figure, views_list, views_detail
+from kakeibo.views import views_figure, views_list, views_detail, views_create
 from kakeibo.views import views_main as views
 from kakeibo.views import views_redirect as views_redirect
 
@@ -23,6 +23,9 @@ urlpatterns = [
     url(r'^shared/$', views.shared, name='shared'),
     # dashboard
     url(r'^$', views.dashboard, name='dashboard'),
+    # create
+    url(r'^mine/create/$', views_create.KakeiboCreate.as_view(), name="kakeibo_create"),
+    url(r'^shared/create/$', views_create.SharedCerate.as_view(), name="shared_create"),
     # list
     url(r'^usage/list/$', views_list.UsageList.as_view(), name="usage_list"),
     url(r'^mine/list/$', views_list.KakeiboList.as_view(), name="kakeibo_list"),
@@ -40,6 +43,7 @@ urlpatterns = [
     url(r'^shared/update/(?P<pk>\d+)/$', views_detail.SharedUpdate.as_view(), name="shared_update"),
     url(r'^credit/update/(?P<pk>\d+)/$', views_detail.CreditUpdate.as_view(), name="credit_update"),
     url(r'^credit/items/update/(?P<pk>\d+)/$', views_detail.CreditItemUpdate.as_view(), name="credit_item_update"),
+
 
     # test
     url(r'^test$', views.test, name='test'),
