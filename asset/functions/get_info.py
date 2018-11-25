@@ -51,11 +51,14 @@ def kabuoji3(code):
                 tmp.append(r.select('td:nth-of-type(' + str(i+1) + ')')[0].text)
             data.append(tmp)
         msg = "Done"
+        status = True
     except Exception as e:
         msg = e
         data = None
+        status = False
     res = {
         "msg": msg,
+        "status": status,
         "data": data,
     }
     return res

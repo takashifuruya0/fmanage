@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import date, datetime
 from kakeibo.functions.mylib import time_measure
-from asset.models import Stocks, HoldingStocks, AssetStatus, Orders
+from asset.models import Stocks, HoldingStocks, AssetStatus, Orders, StockDataByDate
 from asset.functions import get_info, mylib_asset
 from asset.forms import AddInvestmentForm, OrdersForm, StocksForm
 # Template-view
@@ -185,3 +185,19 @@ def ajax(request):
         return HttpResponse(name)
     else:
         raise Http404  # GETリクエストを404扱いにしているが、実際は別にしなくてもいいかも
+
+
+def test(request):
+    stocks = Stocks.objects.all()
+    code = request.GET['code']
+    if code:
+        print(code)
+        sdbds = StockDataByDate.objects.filter(stock__code=code).order_by('date')
+        print(sdbds.__len__())
+    else:
+        sdbds = None
+    output = {
+        "sdbds": sdbds,
+        "stocks": stocks,
+    }
+    return render(request, 'asset/test.html', output)

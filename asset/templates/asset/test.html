@@ -1,0 +1,142 @@
+{% extends "kakeibo/base.html" %}
+{% load humanize %}
+{% block title %}
+    Asset dashboard test
+{% endblock %}
+
+{% block body %}
+  <div class="container-fluid">
+    <hr>
+    <div class="row">
+      <div class="col-10">
+        <h1>
+          <i class="fab fa-servicestack"></i> {{sdbds.0.stock.code}} {{sdbds.0.stock.name}}
+        </h1>
+      </div>
+      <div class="col-2">
+        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#stocks">
+          <i class="far fa-plus-square"></i> Stocks
+        </button>
+      </div>
+    </div>
+    <hr>
+
+
+    <!-- Overview -->
+    <h2>Overview</h2>
+    <div class="row">
+      <div class="col-sm-7">
+        <canvas id="line" width="300" height="200"></canvas>
+      </div>
+      <div class="col-sm-5">
+        <table class="table table-light table-hover table-sm">
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th class="right">始値</th>
+              <th class="right">高値</th>
+              <th class="right">低値</th>
+              <th class="right">終値</th>
+              <th class="right">出来高</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sdbd in sdbds.reverse %}
+            <tr>
+              <td>{{sdbd.date}}</td>
+              <td class="right">¥ {{sdbd.val_start| intcomma}}</td>
+              <td class="right">¥ {{sdbd.val_high| intcomma}}</td>
+              <td class="right">¥ {{sdbd.val_low| intcomma}}</td>
+              <td class="right">¥ {{sdbd.val_end| intcomma}}</td>
+              <td class="right">{{sdbd.turnover| intcomma}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal add_investment-->
+  <div class="modal fade" id="stocks" tabindex="-1" role="dialog" aria-labelledby="stocks" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="stocks_Label">Stocks</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in stocks %}
+              <tr>
+                  <td><a href="{%url 'asset:test'%}?code={{s.code}}">{{s.code}}</a></td>
+                  <td>{{s.name}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- bar_holding_stocks -->
+  <script>
+    var ctx = document.getElementById('line').getContext('2d');
+    var options = {
+      responsive: true,
+      scales: {
+        yAxes: [{
+          id: "y-axis-1",   // Y軸のID
+          type: "linear",   // linear固定
+          position: "left", // どちら側に表示される軸か？
+        },
+        {
+          id: "y-axis-2",
+          type: "linear",
+          position: "right",
+        }],
+      }
+    }
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [{%for s in sdbds%}"{{s.date}}",{%endfor%}],
+        datasets: [
+            {
+                type: "bar",
+                label: '出来高',
+                data: [
+                    {%for s in sdbds%}{{s.turnover}},{%endfor%}
+                ],
+                backgroundColor: "rgba(255,153,0, 0.4)",
+                yAxisID: "y-axis-2",
+            },
+            {
+                type: "line",
+                label: '終値',
+                data: [
+                    {%for s in sdbds%}{{s.val_end}},{%endfor%}
+                ],
+                backgroundColor: "rgba(255,3,150, 0.4)",
+                borderColor: "rgba(255,3,150, 0.4)",
+                fill: false,
+                yAxisID: "y-axis-1",
+            },
+        ],
+      },
+      options: options,
+    });
+  </script>
+
+{% endblock %}

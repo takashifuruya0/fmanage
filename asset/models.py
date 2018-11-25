@@ -66,6 +66,7 @@ class AssetStatus(models.Model):
 
 
 class StockDataByDate(models.Model):
+    objects = None
     stock = models.ForeignKey(Stocks)
     date = models.DateField()
     val_start = models.FloatField()
