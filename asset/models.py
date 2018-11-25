@@ -49,10 +49,6 @@ class AssetStatus(models.Model):
     stocks_value = models.IntegerField()
     other_value = models.IntegerField()
     investment = models.IntegerField()
-
-
-
-
     # 国内株式約定通知
     # ----------------
     # 約定日時
@@ -67,3 +63,16 @@ class AssetStatus(models.Model):
     # ＰＴＳ
     # 株数: 120
     # 価格: 1, 738
+
+
+class StockDataByDate(models.Model):
+    stock = models.ForeignKey(Stocks)
+    date = models.DateField()
+    val_start = models.FloatField()
+    val_high = models.FloatField()
+    val_low = models.FloatField()
+    val_end = models.FloatField()
+    turnover = models.IntegerField()
+
+    def __str__(self):
+        return str(self.date) + " " + self.stock.name

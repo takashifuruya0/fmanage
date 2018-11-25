@@ -52,6 +52,10 @@ class OrdersAdmin(admin.ModelAdmin):
     list_display = ["datetime", "order_type", "stock", "num", "price", "commission", "is_nisa"]
 
 
+class StockDataByDateAdmin(admin.ModelAdmin):
+    list_display = ["stock", "date", "val_start", "val_high", "val_low", "val_end", "turnover"]
+
+
 admin.site.register(Kakeibos, KakeibosAdmin)
 admin.site.register(Resources, ResourcesAdmin)
 admin.site.register(Usages, UsagesAdmin)
@@ -64,3 +68,4 @@ admin.site.register(Stocks, StocksAdmin)
 admin.site.register(HoldingStocks, HoldingStocksAdmin)
 admin.site.register(AssetStatus, AssetStatusAdmin)
 admin.site.register(Orders, OrdersAdmin)
+admin.site.register(StockDataByDate, StockDataByDateAdmin)

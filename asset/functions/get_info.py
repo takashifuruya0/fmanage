@@ -31,3 +31,31 @@ def stock_overview(code):
         "memo": memo,
     }
     return res
+
+
+def kabuoji3(code):
+    base_url = "https://kabuoji3.com/stock/" + str(code) + "/"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
+    }
+    ret = requests.get(base_url, headers=headers)
+    try:
+        soup = BeautifulSoup(ret.content, "lxml")
+        stocktable = soup.find('table', {'class': 'stock_table stock_data_table'})
+        records = stocktable.find_all('tr')
+        records.pop(0)
+        data = list()
+        for r in records:
+            tmp = list()
+            for i in range(7):
+                tmp.append(r.select('td:nth-of-type(' + str(i+1) + ')')[0].text)
+            data.append(tmp)
+        msg = "Done"
+    except Exception as e:
+        msg = e
+        data = None
+    res = {
+        "msg": msg,
+        "data": data,
+    }
+    return res
