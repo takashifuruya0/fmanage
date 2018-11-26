@@ -1,0 +1,217 @@
+{% extends "kakeibo/base.html" %}
+{% load humanize %}
+{% block title %}
+    Asset dashboard test
+{% endblock %}
+
+{% block body %}
+  <div class="container-fluid">
+    <hr>
+    <div class="row">
+      <div class="col-10">
+        <h1>
+          <i class="fas fa-chart-line"></i> {{stock.code}} {{stock.name}}
+        </h1>
+      </div>
+      <div class="col-2">
+        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#stocks">
+          <i class="far fa-plus-square"></i> Stocks
+        </button>
+      </div>
+    </div>
+    <hr>
+
+
+    <!-- Overview -->
+    <h2>Overview</h2>
+    <div class="row">
+      <div class="col-sm-8">
+        <canvas id="line" width="300" height="150"></canvas>
+      </div>
+      <div class="col-sm-4">
+        <table class="table table-light table-hover table-sm">
+          <tr>
+            <th>たくり線・勢力線 下ひげ</th>
+            <td>◯</td>
+          </tr>
+          <tr>
+            <th>包み線 前日レンジを完全に包む値動き</th>
+            <td>☓</td>
+          </tr>
+          <tr>
+            <th>はらみ線 前日レンジ内での値動き</th>
+            <td>◯</td>
+          </tr>
+          <tr>
+            <th>上げ三法 大陽線後、三本の陰線</th>
+            <td>☓</td>
+          </tr>
+          <tr>
+            <th>三空叩き込み 陰線4本が窓空きで出る</th>
+            <td>◯</td>
+          </tr>
+          <tr>
+            <th>三手大陰線 三本の大陰線</th>
+            <td>☓</td>
+          </tr>
+          <tr>
+            <th>終値前日比</th>
+            <td>¥ {{df.val_end_diff.0}}</td>
+          </tr>
+          <tr>
+            <th>出来高前日比</th>
+            <td>{{df.turnover_diff.0}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+
+    <hr>
+    <h2>データ</h2>
+    <div class="row">
+      <!--<div class="col-sm-6">-->
+        <!--<table class="table table-light table-hover table-sm">-->
+          <!--<thead>-->
+            <!--<tr>-->
+              <!--<th>日付</th>-->
+              <!--<th class="right">始値</th>-->
+              <!--<th class="right">高値</th>-->
+              <!--<th class="right">低値</th>-->
+              <!--<th class="right">終値</th>-->
+              <!--<th class="right">出来高</th>-->
+            <!--</tr>-->
+          <!--</thead>-->
+          <!--<tbody>-->
+            <!--{% for sdbd in sdbds.reverse %}-->
+            <!--<tr>-->
+              <!--<td>{{sdbd.date}}</td>-->
+              <!--<td class="right">¥ {{sdbd.val_start| intcomma}}</td>-->
+              <!--<td class="right">¥ {{sdbd.val_high| intcomma}}</td>-->
+              <!--<td class="right">¥ {{sdbd.val_low| intcomma}}</td>-->
+              <!--<td class="right">¥ {{sdbd.val_end| intcomma}}</td>-->
+              <!--<td class="right">{{sdbd.turnover| intcomma}}</td>-->
+            <!--</tr>-->
+            <!--{% endfor %}-->
+          <!--</tbody>-->
+        <!--</table>-->
+      <!--</div>-->
+
+      <div class="col-sm-8">
+        <table class="table table-light table-hover table-sm">
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th class="right">始値</th>
+              <th class="right">高値</th>
+              <th class="right">低値</th>
+              <th class="right">終値</th>
+              <th class="right">終値前日比</th>
+              <th class="right">出来高</th>
+              <th class="right">出来高前日比</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i,r in df.iterrows %}
+            <tr>
+              <td>{{r.date}}</td>
+              <td class="right">¥ {{r.val_start| intcomma}}</td>
+              <td class="right">¥ {{r.val_high| intcomma}}</td>
+              <td class="right">¥ {{r.val_low| intcomma}}</td>
+              <td class="right">¥ {{r.val_end| intcomma}}</td>
+              <td class="right">¥ {{r.val_end_diff| intcomma}}</td>
+              <td class="right">{{r.turnover| intcomma}}</td>
+              <td class="right">{{r.turnover_diff| intcomma}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal add_investment-->
+  <div class="modal fade" id="stocks" tabindex="-1" role="dialog" aria-labelledby="stocks" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="stocks_Label">Stocks</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in stocks %}
+              <tr>
+                  <td><a href="{%url 'asset:analysis'%}?code={{s.code}}">{{s.code}}</a></td>
+                  <td>{{s.name}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<!-- line -->
+<script>
+  var ctx = document.getElementById('line').getContext('2d');
+  var options = {
+    responsive: true,
+    scales: {
+      yAxes: [{
+        id: "y-axis-1",   // Y軸のID
+        type: "linear",   // linear固定
+        position: "left", // どちら側に表示される軸か？
+      },
+      {
+        id: "y-axis-2",
+        type: "linear",
+        position: "right",
+      }],
+    }
+  }
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [{%for s in sdbds%}"{{s.date}}",{%endfor%}],
+      datasets: [
+          {
+              type: "bar",
+              label: '出来高',
+              data: [
+                  {%for s in sdbds%}{{s.turnover}},{%endfor%}
+              ],
+              backgroundColor: "rgba(255,153,0, 0.4)",
+              yAxisID: "y-axis-2",
+          },
+          {
+              type: "line",
+              label: '終値',
+              data: [
+                  {%for s in sdbds%}{{s.val_end}},{%endfor%}
+              ],
+              backgroundColor: "rgba(255,3,150, 0.4)",
+              borderColor: "rgba(255,3,150, 0.4)",
+              fill: false,
+              yAxisID: "y-axis-1",
+          },
+      ],
+    },
+    options: options,
+  });
+</script>
+
+
+{% endblock %}

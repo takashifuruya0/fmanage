@@ -14,6 +14,8 @@ from asset.forms import AddInvestmentForm, OrdersForm, StocksForm
 from django.views.generic.edit import CreateView
 # login
 from django.contrib.auth.decorators import login_required
+# pandas
+from django_pandas.io import read_frame
 
 
 # 概要
@@ -187,17 +189,26 @@ def ajax(request):
         raise Http404  # GETリクエストを404扱いにしているが、実際は別にしなくてもいいかも
 
 
-def test(request):
+def analysis(request):
     stocks = Stocks.objects.all()
-    code = request.GET['code']
+    code = request.GET.get(key='code', default=None)
     if code:
-        print(code)
+        stock = stocks.get(code=code)
         sdbds = StockDataByDate.objects.filter(stock__code=code).order_by('date')
-        print(sdbds.__len__())
+        df = read_frame(sdbds.reverse())
+        # 終値前日比
+        df['val_end_diff'] = -(df['val_end'].shift(-1) - df['val_end'])
+        df['turnover_diff'] = -(df['turnover'].shift(-1) - df['turnover'])
+        # 最終行を削除
+        df = df.drop(df.__len__() - 1)
     else:
+        stock = None
         sdbds = None
+        df = None
     output = {
         "sdbds": sdbds,
         "stocks": stocks,
+        "stock": stock,
+        "df": df,
     }
-    return render(request, 'asset/test.html', output)
+    return render(request, 'asset/analysis.html', output)
