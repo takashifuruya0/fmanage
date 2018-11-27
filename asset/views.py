@@ -192,23 +192,59 @@ def ajax(request):
 def analysis(request):
     stocks = Stocks.objects.all()
     code = request.GET.get(key='code', default=None)
+    length = int(request.GET.get(key='length', default=100))
     if code:
         stock = stocks.get(code=code)
-        sdbds = StockDataByDate.objects.filter(stock__code=code).order_by('date')
+        sdbds = StockDataByDate.objects.filter(stock__code=code).order_by('date')[0:length]
         df = read_frame(sdbds.reverse())
-        # 終値前日比
+        # 終値前日比, 出来高前日比
         df['val_end_diff'] = -(df['val_end'].shift(-1) - df['val_end'])
+        df['val_end_diff_percent'] = round(-(df['val_end'].shift(-1) - df['val_end'])/df['val_end'].shift(-1)*100, 1)
         df['turnover_diff'] = -(df['turnover'].shift(-1) - df['turnover'])
-        # 最終行を削除
-        df = df.drop(df.__len__() - 1)
+        df['turnover_diff_percent'] = round(-(df['turnover'].shift(-1) - df['turnover'])/df['turnover'].shift(-1)*100, 1)
+        # 終値-始値
+        df['val_end-start'] = df['val_end'] - df['val_start']
+        # 陽線/陰線
+        df['is_positive'] = False
+        df['is_positive'] = df['is_positive'].where(df['val_end-start'] < 0, True)
+        # 下ひげ
+        df['lower_mustache'] = (df['val_start'] - df['val_low']).where(df['is_positive'], df['val_end'] - df['val_low'])
+        # 上ひげ
+        df['upper_mustache'] = (df['val_high'] - df['val_end']).where(df['is_positive'], df['val_high'] - df['val_start'])
+        # NaN行を削除
+        df = df.dropna()
+
+        # mark
+        mark = list()
+        # 0. たくり線・勢力線// 5日前~2日前で陰線、かつ前日にカラカサか下影陰線
+        if not df['is_positive'][1] and not df['is_positive'][2] and not df['is_positive'][3] \
+                and df['lower_mustache'][0] > df['upper_mustache'][0]:
+            mark.append("◯")
+        else:
+            mark.append("")
+        # 1. 包線
+        mark.append("")
+        # 2. はらみ線
+        mark.append("")
+        # 3. 上げ三法
+        mark.append("")
+        # 4. 三空叩き込み
+        mark.append("")
+        # 5. 三手大陰線
+        mark.append("")
+
     else:
+        # code=Noneの場合、全てNoneで返す
         stock = None
         sdbds = None
         df = None
+        mark = None
+
     output = {
         "sdbds": sdbds,
         "stocks": stocks,
         "stock": stock,
         "df": df,
+        "mark": mark,
     }
     return render(request, 'asset/analysis.html', output)

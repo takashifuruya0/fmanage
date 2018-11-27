@@ -6,57 +6,6 @@
 
 {% block body %}
 
-<style>
-
-    body {
-        font: 10px sans-serif;
-    }
-
-    path.candle {
-        stroke: #000000;
-    }
-
-    path.candle.body {
-        stroke-width: 0;
-    }
-
-    path.candle.up {
-        fill: #00AA00;
-        stroke: #00AA00;
-    }
-
-    path.candle.down {
-        fill: #FF0000;
-        stroke: #FF0000;
-    }
-
-    .y.annotation.left path {
-        fill: #00AA00;
-    }
-
-    .y.annotation.right path {
-        fill: #FF0000;
-    }
-
-    .x.annotation path {
-        fill: #DDD80E;
-    }
-
-    .crosshair {
-        cursor: crosshair;
-    }
-
-    .crosshair path.wire {
-        stroke: #DDDDDD;
-        stroke-dasharray: 1, 1;
-    }
-
-    .crosshair .axisannotation path {
-        fill: #DDDDDD;
-    }
-
-</style>
-
   <div class="container-fluid">
     <hr>
     <div class="row">
@@ -78,33 +27,52 @@
     <h2>Overview</h2>
     <div class="row">
       <div class="col-sm-8">
-        <canvas id="line" width="300" height="150"></canvas>
+
       </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-8">
+        <div>
+          <h4>ローソク</h4>
+          <canvas id="canvas" width="300" height="300"></canvas>
+        </div>
+        <div>
+          <h4>出来高と終値</h4>
+          <canvas id="line" width="300" height="150"></canvas>
+        </div>
+        <div>
+          <h4>出来高と終値前日比</h4>
+          <canvas id="diff" width="300" height="150"></canvas>
+        </div>
+
+      </div>
+
       <div class="col-sm-4">
+        <h4>状態</h4>
         <table class="table table-light table-hover table-sm">
           <tr>
-            <th>たくり線・勢力線 下ひげ</th>
-            <td>◯</td>
+            <th>たくり線・勢力線</th>
+            <td style="color:red;">{{mark.0}}</td>
           </tr>
           <tr>
             <th>包み線 前日レンジを完全に包む値動き</th>
-            <td>☓</td>
+            <td>{{mark.1}}</td>
           </tr>
           <tr>
             <th>はらみ線 前日レンジ内での値動き</th>
-            <td>◯</td>
+            <td>{{mark.2}}</td>
           </tr>
           <tr>
             <th>上げ三法 大陽線後、三本の陰線</th>
-            <td>☓</td>
+            <td>{{mark.3}}</td>
           </tr>
           <tr>
             <th>三空叩き込み 陰線4本が窓空きで出る</th>
-            <td>◯</td>
+            <td>{{mark.4}}</td>
           </tr>
           <tr>
             <th>三手大陰線 三本の大陰線</th>
-            <td>☓</td>
+            <td>{{mark.5}}</td>
           </tr>
           <tr>
             <th>終値前日比</th>
@@ -149,7 +117,7 @@
         <!--</table>-->
       <!--</div>-->
 
-      <div class="col-sm-8">
+      <div class="col-sm-12">
         <table class="table table-light table-hover table-sm">
           <thead>
             <tr>
@@ -161,20 +129,26 @@
               <th class="right">終値前日比</th>
               <th class="right">出来高</th>
               <th class="right">出来高前日比</th>
+              <th class="right">上ヒゲ</th>
+              <th class="right">下ヒゲ</th>
             </tr>
           </thead>
           <tbody>
             {% for i,r in df.iterrows %}
+            {% if i < 10 %}
             <tr>
               <td>{{r.date}}</td>
               <td class="right">¥ {{r.val_start| intcomma}}</td>
               <td class="right">¥ {{r.val_high| intcomma}}</td>
               <td class="right">¥ {{r.val_low| intcomma}}</td>
               <td class="right">¥ {{r.val_end| intcomma}}</td>
-              <td class="right">¥ {{r.val_end_diff| intcomma}}</td>
+              <td class="right">¥ {{r.val_end_diff| intcomma}} ({{r.val_end_diff_percent}}%)</td>
               <td class="right">{{r.turnover| intcomma}}</td>
-              <td class="right">{{r.turnover_diff| intcomma}}</td>
+              <td class="right">{{r.turnover_diff| intcomma}} ({{r.turnover_diff_percent}}%)</td>
+              <td class="right">{{r.upper_mustache | intcomma}}</td>
+              <td class="right">{{r.lower_mustache | intcomma}}</td>
             </tr>
+            {% endif %}
             {% endfor %}
           </tbody>
         </table>
@@ -231,9 +205,15 @@
         id: "y-axis-2",
         type: "linear",
         position: "right",
+        display: false,
       }],
+      xAxes: [{
+        display: false,
+      }]
     }
   }
+  ctx.canvas.width = 1000;
+  ctx.canvas.height = 350;
   var myChart = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -265,163 +245,177 @@
   });
 </script>
 
-<!--TechanJS-->
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="http://techanjs.org/techan.min.js"></script>
-<!--https://goodbyegangster.hatenablog.com/entry/2017/02/23/214850-->
+<!-- diff -->
+<script>
+  var ctx = document.getElementById('diff').getContext('2d');
+  var options = {
+    responsive: true,
+    scales: {
+      yAxes: [{
+        id: "y-axis-1",   // Y軸のID
+        type: "linear",   // linear固定
+        position: "left", // どちら側に表示される軸か？
+      },
+      {
+        id: "y-axis-2",
+        type: "linear",
+        position: "right",
+        display: false,
+      }],
+      xAxes: [{
+        display: false,
+      }]
+    }
+  }
+  ctx.canvas.width = 1000;
+  ctx.canvas.height = 350;
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [{%for i, s in df.iterrows%}"{{s.date}}",{%endfor%}],
+      datasets: [
+          {
+              type: "bar",
+              label: '出来高',
+              data: [
+                  {%for i, s in df.iterrows%}{{s.turnover_diff}},{%endfor%}
+              ],
+              backgroundColor: "rgba(255,153,0, 0.4)",
+              yAxisID: "y-axis-2",
+          },
+          {
+              type: "line",
+              label: '終値',
+              data: [
+                  {%for i, s in df.iterrows%}{{s.val_end_diff}},{%endfor%}
+              ],
+              backgroundColor: "rgba(255,3,150, 0.4)",
+              borderColor: "rgba(255,3,150, 0.4)",
+              fill: false,
+              yAxisID: "y-axis-1",
+          },
+      ],
+    },
+    options: options,
+  });
+</script>
+
+<!--&lt;!&ndash;chart JS boxplot&ndash;&gt;-->
+<!--<script src="https://unpkg.com/chart.js@2.7.3/dist/Chart.bundle.js"></script>-->
+<!--<script src="https://unpkg.com/chartjs-chart-box-and-violin-plot@1.1.2/build/Chart.BoxPlot.js"></script>-->
+<!--<script>-->
+<!--function randomValues(count, min, max) {-->
+  <!--const delta = max - min;-->
+  <!--return Array.from({length: count}).map(() => Math.random() * delta + min);-->
+<!--}-->
+<!--console.log(randomValues(100, 0, 100))-->
+<!--const boxplotData = {-->
+  <!--// define label tree-->
+  <!--labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],-->
+  <!--datasets: [{-->
+    <!--label: 'Dataset 1',-->
+    <!--backgroundColor: 'rgba(255,0,0,0.5)',-->
+    <!--borderColor: 'red',-->
+    <!--borderWidth: 1,-->
+    <!--outlierColor: '#999999',-->
+    <!--padding: 10,-->
+    <!--itemRadius: 0,-->
+    <!--outlierColor: '#999999',-->
+    <!--data: [-->
+      <!--randomValues(100, 0, 100),-->
+      <!--randomValues(100, 0, 20),-->
+      <!--randomValues(100, 20, 70),-->
+      <!--randomValues(100, 60, 100),-->
+      <!--randomValues(40, 50, 100),-->
+      <!--randomValues(100, 60, 120),-->
+      <!--randomValues(100, 80, 100)-->
+    <!--]-->
+  <!--}, {-->
+    <!--label: 'Dataset 2',-->
+    <!--backgroundColor:  'rgba(0,0,255,0.5)',-->
+    <!--borderColor: 'blue',-->
+    <!--borderWidth: 1,-->
+    <!--outlierColor: '#999999',-->
+    <!--padding: 10,-->
+    <!--itemRadius: 0,-->
+    <!--outlierColor: '#999999',-->
+    <!--data: [-->
+      <!--randomValues(100, 60, 100),-->
+      <!--randomValues(100, 0, 100),-->
+      <!--randomValues(100, 0, 20),-->
+      <!--randomValues(100, 20, 70),-->
+      <!--randomValues(40, 60, 120),-->
+      <!--randomValues(100, 20, 100),-->
+      <!--randomValues(100, 80, 100)-->
+    <!--]-->
+  <!--}]-->
+<!--};-->
+
+  <!--var ctx = document.getElementById("canvas").getContext("2d");-->
+  <!--var myChart = new Chart(ctx, {-->
+    <!--type: 'boxplot',-->
+    <!--data: boxplotData,-->
+    <!--options: {-->
+      <!--responsive: true,-->
+      <!--legend: {-->
+        <!--position: 'top',-->
+      <!--},-->
+      <!--title: {-->
+        <!--display: true,-->
+        <!--text: 'Chart.js Box Plot Chart'-->
+      <!--}-->
+    <!--}-->
+  <!--});-->
+
+<!--</script>-->
+
+<!--candlestick-->
+<script src="https://www.chartjs.org/chartjs-chart-financial/moment.js"></script>
+<script src="https://www.chartjs.org/chartjs-chart-financial/Chart.js"></script>
+<script src="https://www.chartjs.org/chartjs-chart-financial/Chart.Financial.js"></script>
+<script src="https://www.chartjs.org/chartjs-chart-financial/utils.js"></script>
 <script>
 
-    var margin = {top: 20, right: 50, bottom: 30, left: 50},
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+var candleCount = 60;
 
-    var parseDate = d3.timeParse("%d-%b-%y");
+data = [
+{% for s in sdbds %}
+  {
+    h: {{s.val_high}},
+    l: {{s.val_low}},
+    o: {{s.val_start}},
+    c: {{s.val_end}},
+    t: new Date("{{s.date.year}}/{{s.date.month}}/{{s.date.day}}")
+  },
+{% endfor %}
+]
+//var data = getRandomData('April 01 2017', candleCount);
 
-    var x = techan.scale.financetime()
-            .range([0, width]);
-
-    var y = d3.scaleLinear()
-            .range([height, 0]);
-
-    var candlestick = techan.plot.candlestick()
-            .xScale(x)
-            .yScale(y);
-
-    var xAxis = d3.axisBottom(x);
-
-    var xTopAxis = d3.axisTop(x);
-
-    var yAxis = d3.axisLeft(y);
-
-    var yRightAxis = d3.axisRight(y);
-
-    var ohlcAnnotation = techan.plot.axisannotation()
-            .axis(yAxis)
-            .orient('left')
-            .format(d3.format(',.2f'));
-
-    var ohlcRightAnnotation = techan.plot.axisannotation()
-            .axis(yRightAxis)
-            .orient('right')
-            .translate([width, 0]);
-
-    var timeAnnotation = techan.plot.axisannotation()
-            .axis(xAxis)
-            .orient('bottom')
-            .format(d3.timeFormat('%Y-%m-%d'))
-            .width(65)
-            .translate([0, height]);
-
-    var timeTopAnnotation = techan.plot.axisannotation()
-            .axis(xTopAxis)
-            .orient('top');
-
-    var crosshair = techan.plot.crosshair()
-            .xScale(x)
-            .yScale(y)
-            .xAnnotation([timeAnnotation, timeTopAnnotation])
-            .yAnnotation([ohlcAnnotation, ohlcRightAnnotation])
-            .on("enter", enter)
-            .on("out", out)
-            .on("move", move);
-
-    var svg = d3.select("body").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    var coordsText = svg.append('text')
-            .style("text-anchor", "end")
-            .attr("class", "coords")
-            .attr("x", width - 5)
-            .attr("y", 15);
-
-    d3.csv("/document/data.csv", function(error, data) {
-        var accessor = candlestick.accessor();
-
-        data = data.slice(0, 200).map(function(d) {
-            return {
-                date: parseDate(d.Date),
-                open: +d.Open,
-                high: +d.High,
-                low: +d.Low,
-                close: +d.Close,
-                volume: +d.Volume
-            };
-        }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
-        console.log(data)
-        x.domain(data.map(accessor.d));
-        y.domain(techan.scale.plot.ohlc(data, accessor).domain());
-
-        svg.append("g")
-                .datum(data)
-                .attr("class", "candlestick")
-                .call(candlestick);
-
-        svg.append("g")
-                .attr("class", "x axis")
-                .call(xTopAxis);
-
-        svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
-
-        svg.append("g")
-                .attr("class", "y axis")
-                .call(yAxis);
-
-        svg.append("g")
-                .attr("class", "y axis")
-                .attr("transform", "translate(" + width + ",0)")
-                .call(yRightAxis);
-
-        svg.append("g")
-                .attr("class", "y annotation left")
-                .datum([{value: 74}, {value: 67.5}, {value: 58}, {value:40}]) // 74 should not be rendered
-                .call(ohlcAnnotation);
-
-        svg.append("g")
-                .attr("class", "x annotation bottom")
-                .datum([{value: x.domain()[30]}])
-                .call(timeAnnotation);
-
-        svg.append("g")
-                .attr("class", "y annotation right")
-                .datum([{value: 61}, {value:52}])
-                .call(ohlcRightAnnotation);
-
-        svg.append("g")
-                .attr("class", "x annotation top")
-                .datum([{value: x.domain()[80]}])
-                .call(timeTopAnnotation);
-
-        svg.append('g')
-                .attr("class", "crosshair")
-                .datum({ x: x.domain()[80], y: 67.5 })
-                .call(crosshair)
-                .each(function(d) { move(d); }); // Display the current data
-
-        svg.append('text')
-                .attr("x", 5)
-                .attr("y", 15)
-                .text("Facebook, Inc. (FB)");
-    });
-
-    function enter() {
-        coordsText.style("display", "inline");
-    }
-
-    function out() {
-        coordsText.style("display", "none");
-    }
-
-    function move(coords) {
-        coordsText.text(
-            timeAnnotation.format()(coords.x) + ", " + ohlcAnnotation.format()(coords.y)
-        );
-    }
+// Candlestick
+var ctx = document.getElementById("canvas").getContext("2d");
+ctx.canvas.width = 1000;
+ctx.canvas.height = 350;
+var candlestickChart = new Chart(ctx, {
+	type: 'candlestick',
+	data: {
+      datasets: [{
+        label: "{{stock.code}} {{stock.name}}",
+        data: data,
+        fractionalDigitsCount: 2,
+      }]
+	},
+	options: {
+	  tooltips: {
+	    position: 'nearest',
+	    mode: 'index',
+      },
+      scales: {
+       xAxes: [{
+        display: false,
+       }]
+      }
+    },
+});
 
 </script>
 {% endblock %}
