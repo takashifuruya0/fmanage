@@ -195,7 +195,7 @@ def analysis(request):
     length = int(request.GET.get(key='length', default=100))
     if code:
         stock = stocks.get(code=code)
-        sdbds = StockDataByDate.objects.filter(stock__code=code).order_by('date')[0:length]
+        sdbds = StockDataByDate.objects.filter(stock__code=code).order_by('date')
         df = read_frame(sdbds.reverse())
         # 終値前日比, 出来高前日比
         df['val_end_diff'] = -(df['val_end'].shift(-1) - df['val_end'])
