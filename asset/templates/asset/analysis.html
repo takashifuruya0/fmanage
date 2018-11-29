@@ -147,7 +147,7 @@
           </thead>
           <tbody>
             {% for i,r in df_descending.iterrows %}
-            {% if i < 10 %}
+
             <tr>
               <td>{{r.date}}</td>
               <td class="right">¥ {{r.val_start| intcomma}}</td>
@@ -160,7 +160,7 @@
               <td class="right">{{r.upper_mustache | intcomma}}</td>
               <td class="right">{{r.lower_mustache | intcomma}}</td>
             </tr>
-            {% endif %}
+            
             {% endfor %}
           </tbody>
         </table>

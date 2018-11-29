@@ -238,7 +238,6 @@ def analysis(request):
                 cross['golden'].append(None)
                 cross['dead'].append(None)
             cross['date'].append(df.iloc[i]["date"])
-        print(cross)
 
         # NaN行を削除
         # df = df.dropna()
@@ -266,20 +265,27 @@ def analysis(request):
         mark.append(mark_golden)
         # 7. デッドクロス
         mark.append(mark_dead)
+
+        # 降順
+        df_descending = df.sort_values('date', ascending=False).reindex()
+
     else:
         # code=Noneの場合、全てNoneで返す
         stock = None
         sdbds = None
         df = None
+        df_descending = None
         mark = None
+        cross = None
 
     output = {
         "sdbds": sdbds,
         "stocks": stocks,
         "stock": stock,
         "df": df,
-        "df_descending": df.sort_values('date', ascending=False),
+        "df_descending": df_descending,
         "mark": mark,
         "cross": cross,
     }
+    print(df_descending.iterrows())
     return render(request, 'asset/analysis.html', output)
