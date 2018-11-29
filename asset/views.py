@@ -192,11 +192,11 @@ def ajax(request):
 def analysis(request):
     stocks = Stocks.objects.all()
     code = request.GET.get(key='code', default=None)
-    length = int(request.GET.get(key='length', default=100))
+    length = int(request.GET.get(key='length', default=1000))
     if code:
         stock = stocks.get(code=code)
         sdbds = StockDataByDate.objects.filter(stock__code=code).order_by('date')
-        df = read_frame(sdbds.reverse())
+        df = read_frame(sdbds)
         # 終値前日比, 出来高前日比
         df['val_end_diff'] = -(df['val_end'].shift(-1) - df['val_end'])
         df['val_end_diff_percent'] = round(-(df['val_end'].shift(-1) - df['val_end'])/df['val_end'].shift(-1)*100, 1)
@@ -211,15 +211,44 @@ def analysis(request):
         df['lower_mustache'] = (df['val_start'] - df['val_low']).where(df['is_positive'], df['val_end'] - df['val_low'])
         # 上ひげ
         df['upper_mustache'] = (df['val_high'] - df['val_end']).where(df['is_positive'], df['val_high'] - df['val_start'])
+        # 移動平均
+        df['ma25'] = df.val_end.rolling(window=25, min_periods=1).mean()
+        df['ma75'] = df.val_end.rolling(window=75, min_periods=1).mean()
+        df['madiff'] = df.ma25 - df.ma75
+        # GOLDEN CROSS / DEAD CROSS
+        cross = {
+            "golden": list(),
+            "dead": list(),
+            "date": list()
+        }
+        mark_golden = None
+        mark_dead = None
+        for i in range(1, len(df)):
+            if df.iloc[i - 1]['madiff'] < 0 and df.iloc[i]['madiff'] > 0:
+                print("{}:GGOLDEN CROSS".format(df.iloc[i]["date"]))
+                cross['golden'].append(df.iloc[i]['ma25'])
+                cross['dead'].append(None)
+                mark_golden = df.iloc[i]["date"]
+            elif df.iloc[i - 1]['madiff'] > 0 and df.iloc[i]['madiff'] < 0:
+                print("{}:DEAD CROSS".format(df.iloc[i]["date"]))
+                cross['golden'].append(None)
+                cross['dead'].append(df.iloc[i]['ma25'])
+                mark_dead = df.iloc[i]["date"]
+            else:
+                cross['golden'].append(None)
+                cross['dead'].append(None)
+            cross['date'].append(df.iloc[i]["date"])
+        print(cross)
+
         # NaN行を削除
-        df = df.dropna()
+        # df = df.dropna()
 
         # mark
         mark = list()
         # 0. たくり線・勢力線// 前日にカラカサか下影陰線→◯。3日前~2日前で陰線だったら◎
-        if df['lower_mustache'][0] > df['upper_mustache'][0]:
+        if df.iloc[0]['lower_mustache'] > df.iloc[0]['upper_mustache']:
             mark.append("◯")
-            if not df['is_positive'][1] and not df['is_positive'][2]:
+            if not df.iloc[1]['is_positive'] and not df.iloc[2]['is_positive']:
                 mark.append("◎")
         else:
             mark.append("")
@@ -233,7 +262,10 @@ def analysis(request):
         mark.append("")
         # 5. 三手大陰線
         mark.append("")
-
+        # 6. ゴールデンクロス
+        mark.append(mark_golden)
+        # 7. デッドクロス
+        mark.append(mark_dead)
     else:
         # code=Noneの場合、全てNoneで返す
         stock = None
@@ -246,7 +278,8 @@ def analysis(request):
         "stocks": stocks,
         "stock": stock,
         "df": df,
-        "df_ascending": df.sort_values('date'),
+        "df_descending": df.sort_values('date', ascending=False),
         "mark": mark,
+        "cross": cross,
     }
     return render(request, 'asset/analysis.html', output)
