@@ -18,7 +18,7 @@ prop = mpl.font_manager.FontProperties(fname=settings.FONT_PATH)
 
 
 # basic: 円グラフ作成
-def fig_pie_basic(data={}, figtitle="", threshold=5, figsize=(8, 8), figid=1):
+def fig_pie_basic(data={}, figtitle="", threshold=5, figsize=(8, 8), figid=1, xkcd=False):
     """
     円グラフ作成
     :param data:  dict
@@ -56,6 +56,8 @@ def fig_pie_basic(data={}, figtitle="", threshold=5, figsize=(8, 8), figid=1):
             datas.append(0)
 
     # create figure
+    if xkcd:
+        plt.xkcd()
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.075, bottom=0.05, right=0.95, top=0.95, wspace=0.05, hspace=0.05)
@@ -76,7 +78,7 @@ def fig_pie_basic(data={}, figtitle="", threshold=5, figsize=(8, 8), figid=1):
 
 
 # basic: 円グラフ作成
-def fig_pie_basic_colored(data={}, figtitle="", colors={}, threshold=5, figsize=(8, 8), figid=2):
+def fig_pie_basic_colored(data={}, figtitle="", colors={}, threshold=5, figsize=(8, 8), figid=2, xkcd=False):
     """
     円グラフ作成
     :param data:  dict
@@ -117,6 +119,8 @@ def fig_pie_basic_colored(data={}, figtitle="", colors={}, threshold=5, figsize=
             datas.append(0)
 
     # create figure
+    if xkcd:
+        plt.xkcd()
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.075, bottom=0.05, right=0.95, top=0.95, wspace=0.05, hspace=0.05)
@@ -141,7 +145,7 @@ def fig_pie_basic_colored(data={}, figtitle="", colors={}, threshold=5, figsize=
     return response
 
 
-def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figsize=(8, 8), figid=3):
+def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figsize=(8, 8), figid=3, xkcd=False):
     """
     複数の棒グラフ
     :param data: listにlistを内包
@@ -200,6 +204,8 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
         hbar_labels.append(money.convert_yen(i))
 
     # create figure
+    if xkcd:
+        plt.xkcd()
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.125, bottom=0.085, right=0.95, top=0.95, wspace=0.05, hspace=0.05)
@@ -239,7 +245,7 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
     return response
 
 
-def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid=4):
+def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid=4, xkcd=False):
     """
     複数の棒グラフ
     :param data: listにlistを内包
@@ -295,6 +301,8 @@ def fig_bars_basic(data={}, vbar_labels = [], figtitle="", figsize=(8, 8), figid
         hbar_labels.append(money.convert_yen(i))
 
     # create figure
+    if xkcd:
+        plt.xkcd()
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.125, bottom=0.085, right=0.95, top=0.95, wspace=0.05, hspace=0.05)
@@ -340,7 +348,7 @@ def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
                       left_dot=list(), height_dot=list(), label_dot="",
                       xlabel="", xlim=list(), xticklabel=list(),
                       ylabel="", ylim=list(), yticklabel=list(),
-                      figsize=(8,8), figid=5, figtitle="", width_bar=0.4):
+                      figsize=(8,8), figid=5, figtitle="", width_bar=0.4, xkcd=False):
 
     # lim
     if not xlim:
@@ -349,6 +357,8 @@ def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
         ylim = [min(height_bar+height_line+height_dot), max(height_bar+height_line+height_dot)]
 
     # create figure
+    if xkcd:
+        plt.xkcd()
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.125, bottom=0.085, right=0.95, top=0.95, wspace=0.05, hspace=0.05)
@@ -405,7 +415,7 @@ def fig_barline_basic(left_bar=list(), height_bar=list(), label_bar="",
 def fig_lines_basic(lefts=list(), heights=list(), labels=list(), colors=list(),
                       xlabel="", xlim=list(), xticklabel=list(),
                       ylabel="", ylim=list(), yticklabel=list(),
-                      figsize=(8,8), figid=6, figtitle="",):
+                      figsize=(8,8), figid=6, figtitle="", xkcd=False):
     # # test data
     # lefts = [
     #     [i for i in range(0, 11)],
@@ -426,6 +436,8 @@ def fig_lines_basic(lefts=list(), heights=list(), labels=list(), colors=list(),
         logger.info(ylim)
 
     # create figure
+    if xkcd:
+        plt.xkcd()
     fig = plt.figure(figid, figsize=figsize)
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.125, bottom=0.085, right=0.95, top=0.95, wspace=0.05, hspace=0.05)

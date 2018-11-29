@@ -52,7 +52,13 @@ def bars_balance(request):
         "収入": "tomato",
     }
     vbar_labels = ['Income', 'Expense']
-    res = figure.fig_bars_basic_color(data=data, figtitle=figtitle, vbar_labels=vbar_labels, colors=colors, figsize=(10,10))
+    res = figure.fig_bars_basic_color(
+        data=data,
+        figtitle=figtitle,
+        vbar_labels=vbar_labels,
+        colors=colors,
+        figsize=(10, 10),
+    )
     return res
 
 
@@ -72,7 +78,11 @@ def bars_shared_eom(request):
     }
 
     vbar_labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
-    res = figure.fig_bars_basic(data=data, figtitle=figtitle, vbar_labels=vbar_labels, figsize=(10, 10))
+    res = figure.fig_bars_basic(
+        data=data, figtitle=figtitle,
+        vbar_labels=vbar_labels, figsize=(10, 10),
+        xkcd=True,
+    )
     return res
 
 
@@ -105,7 +115,7 @@ def pie_expense(request):
         "Shared_expense": "orange",
         "Card": "gray",
     }
-    res = figure.fig_pie_basic_colored(data=data, figtitle=figtitle, colors=colors)
+    res = figure.fig_pie_basic_colored(data=data, figtitle=figtitle, colors=colors, xkcd=True)
     return res
 
 
@@ -199,7 +209,7 @@ def pie_shared(request):
     data = dict()
     for us in usages:
         data[us.name] = mylib.cal_sum_or_0(shared.filter(usage=us))
-    res = figure.fig_pie_basic(data=data, figtitle=figtitle,  figid=figid, threshold=5, )
+    res = figure.fig_pie_basic(data=data, figtitle=figtitle,  figid=figid, threshold=5, xkcd=True)
     return res
 
 
@@ -227,7 +237,7 @@ def barline_usage(request):
     res = figure.fig_barline_basic(height_bar=height, left_bar=xlim, label_bar=label,
                                    height_line=height_sum, left_line=xlim, label_line="cumulative",
                                    ylim=ylim, yticklabel=yticklabel, xlim=xlim, xticklabel=xticklabel,
-                                   figsize=(10, 10), figid=figid)
+                                   figsize=(10, 10), figid=figid, xkcd=True)
     return res
 
 
