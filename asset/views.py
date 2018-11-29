@@ -216,10 +216,11 @@ def analysis(request):
 
         # mark
         mark = list()
-        # 0. たくり線・勢力線// 5日前~2日前で陰線、かつ前日にカラカサか下影陰線
-        if not df['is_positive'][1] and not df['is_positive'][2] and not df['is_positive'][3] \
-                and df['lower_mustache'][0] > df['upper_mustache'][0]:
+        # 0. たくり線・勢力線// 前日にカラカサか下影陰線→◯。3日前~2日前で陰線だったら◎
+        if df['lower_mustache'][0] > df['upper_mustache'][0]:
             mark.append("◯")
+            if not df['is_positive'][1] and not df['is_positive'][2]:
+                mark.append("◎")
         else:
             mark.append("")
         # 1. 包線
@@ -245,6 +246,7 @@ def analysis(request):
         "stocks": stocks,
         "stock": stock,
         "df": df,
+        "df_ascending": df.sort_values('date'),
         "mark": mark,
     }
     return render(request, 'asset/analysis.html', output)
