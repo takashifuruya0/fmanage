@@ -195,17 +195,22 @@ def analysis_list(request):
     stocks = dict()
     for stock in Stocks.objects.all():
         sdbd = StockDataByDate.objects.filter(stock=stock).order_by('date')
-        df = analysis_asset.analyse_stock_data(read_frame(sdbd)).sort_values('date', ascending=False).head(1)
+        df = analysis_asset.analyse_stock_data(read_frame(sdbd))
+        mark = analysis_asset.check_mark(df)
+        # date降順に並び替えて、先頭を取得
+        df = df.sort_values('date', ascending=False).head(1)
         stocks[stock.code] = {
             "name": stock.name,
             "val_end": df.val_end,
-            "val_end_diff_percent": df.val_end_diff_percent,
+            "val_end_diff_percent": float(df.val_end_diff_percent),
             "turnover": df.turnover,
-            "turnover_diff_percent": df.turnover_diff_percent,
+            "turnover_diff_percent": float(df.turnover_diff_percent),
+            "mark": mark,
         }
     # for stock in stocks:
     output = {
         "stocks": stocks,
+        "mark": mark,
     }
     return render(request, 'asset/analysis_list.html', output)
 
@@ -228,28 +233,7 @@ def analysis_detail(request, code):
     cross = analysis_asset.get_cross(df)
 
     # mark
-    mark = list()
-    # 0. たくり線・勢力線// 前日にカラカサか下影陰線→◯。3日前~2日前で陰線だったら◎
-    if df.iloc[0]['lower_mustache'] > df.iloc[0]['upper_mustache']:
-        mark.append("◯")
-        if not df.iloc[1]['is_positive'] and not df.iloc[2]['is_positive']:
-            mark.append("◎")
-    else:
-        mark.append("")
-    # 1. 包線
-    mark.append("")
-    # 2. はらみ線
-    mark.append("")
-    # 3. 上げ三法
-    mark.append("")
-    # 4. 三空叩き込み
-    mark.append("")
-    # 5. 三手大陰線
-    mark.append("")
-    # 6. ゴールデンクロス
-    mark.append(cross['recent_golden'])
-    # 7. デッドクロス
-    mark.append(cross['recent_dead'])
+    mark = analysis_asset.check_mark(df)
 
     # 降順
     df_descending = df.sort_values('date', ascending=False)

@@ -63,15 +63,100 @@ def get_cross(df_orig):
     return cross
 
 
-def bollinger(df, window=25):
-    df1 = df.copy()
-    df1["ma"] = df1.close.rolling(window=window).mean()
-    df1["sigma"] =  df1.close.rolling(window=window).std()
-    df1["ma+2sigma"] = df1.ma + 2*df1.sigma
-    df1["ma-2sigma"] = df1.ma - 2*df1.sigma
-    df1["diffplus"] = df1.close - df1["ma+2sigma"]
-    df1["diffminus"] = df1["ma-2sigma"] - df1.close
-    s_up = df1[df1["diffplus"]>0]["close"]
-    s_down = df1[df1["diffminus"]>0]["close"]
+def check_mark(df):
+    # mark
+    mark = list()
 
-    return
+    # 0. たくり線・勢力線// 前日にカラカサか下影陰線→◯。3日前~2日前で陰線だったら◎
+    if df.iloc[0]['lower_mustache'] > df.iloc[0]['upper_mustache']:
+        mark.append("◯")
+        if not df.iloc[1]['is_positive'] and not df.iloc[2]['is_positive']:
+            mark.append("◎")
+    else:
+        mark.append("")
+
+    # 1. 包線
+    if not df.iloc[1]['is_positive'] and df.iloc[0]['is_positive']:
+        # 陰線→陽線
+        print("陰線→陽線", df[['val_start', 'val_end']][0:2])
+        if df.iloc[1]['val_end'] < df.iloc[0]['val_start'] and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
+            # 長→短
+            mark.append("包み陽線：天井")
+        elif df.iloc[1]['val_end'] > df.iloc[0]['val_start'] and df.iloc[1]['val_start'] < df.iloc[0]['val_end']:
+            # 短→長
+            mark.append("包み陽線：底")
+        else:
+            mark.append("")
+    elif df.iloc[1]['is_positive'] and not df.iloc[0]['is_positive']:
+        # 陽線→陰線
+        print("陽線→陰線", df[['val_start', 'val_end']][0:2])
+        if df.iloc[1]['val_end'] < df.iloc[0]['val_start'] and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
+            # 短→長
+            mark.append("包み陰線：底")
+        elif df.iloc[1]['val_end'] > df.iloc[0]['val_start'] and df.iloc[1]['val_start'] < df.iloc[0]['val_end']:
+            # 長→短
+            mark.append("包み陰線：天井")
+        else:
+            mark.append("")
+    else:
+        mark.append("")
+
+    # 2. はらみ線
+    if not df.iloc[1]['is_positive'] \
+            and df.iloc[0]['is_positive'] \
+            and df.iloc[1]['val_end'] < df.iloc[0]['val_start'] \
+            and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
+        # 陰の陽はらみ
+        mark.append("陰の陽はらみ：底")
+    elif not df.iloc[1]['is_positive'] \
+            and not df.iloc[0]['is_positive'] \
+            and df.iloc[1]['val_start'] < df.iloc[0]['val_start'] \
+            and df.iloc[1]['val_end'] > df.iloc[0]['val_end']:
+        # 陰の陰はらみ
+        mark.append("陰の陰はらみ：底")
+    elif df.iloc[1]['is_positive'] \
+            and df.iloc[0]['is_positive'] \
+            and df.iloc[1]['val_start'] < df.iloc[0]['val_start'] \
+            and df.iloc[1]['val_end'] > df.iloc[0]['val_end']:
+        # 陽の陽はらみ
+        mark.append("陽の陽はらみ：天井")
+    elif not df.iloc[1]['is_positive'] \
+            and not df.iloc[0]['is_positive'] \
+            and df.iloc[1]['val_start'] < df.iloc[0]['val_end'] \
+            and df.iloc[1]['val_end'] > df.iloc[0]['val_start']:
+        # 陽の陽はらみ
+        mark.append("陽の陽はらみ：天井")
+    else:
+        mark.append("")
+
+    # 3. 上げ三法: 1本目の安値を割り込まない, 4本目が1本目の終値を超える
+    if not df.iloc[3]['is_positive'] and not df.iloc[2]['is_positive'] \
+            and not df.iloc[1]['is_positive'] and df.iloc[0]['is_positive'] \
+            and df.iloc[3]['val_start'] > df.iloc[2]['val_start'] \
+            and df.iloc[3]['val_start'] > df.iloc[1]['val_start'] \
+            and df.iloc[1]['val_end'] > df.iloc[0]['val_start'] \
+            and df.iloc[3]['val_start'] > df.iloc[0]['val_end']:
+        mark.append("◯")
+    else:
+        mark.append("")
+
+    # 4. 三空叩き込み
+    if not df.iloc[3]['is_positive'] and not df.iloc[2]['is_positive'] \
+            and not df.iloc[1]['is_positive'] and not df.iloc[0]['is_positive'] \
+            and df.iloc[3]['val_start'] < df.iloc[2]['val_end'] \
+            and df.iloc[2]['val_start'] < df.iloc[1]['val_end'] \
+            and df.iloc[1]['val_start'] < df.iloc[0]['val_end']:
+        mark.append("◯")
+    else:
+        mark.append("")
+
+    # 5. 三手大陰線
+    if not df.iloc[2]['is_positive'] and not df.iloc[1]['is_positive'] and not df.iloc[0]['is_positive'] \
+            and -df.iloc[2]['val_end-start'] / df.iloc[2]['val_end'] > 0.05 \
+            and -df.iloc[1]['val_end-start'] / df.iloc[1]['val_end'] > 0.05 \
+            and -df.iloc[0]['val_end-start'] / df.iloc[0]['val_end'] > 0.05:
+        mark.append("◯")
+    else:
+        mark.append("")
+
+    return mark
