@@ -48,12 +48,12 @@ def get_cross(df_orig):
     }
     for i in range(1, len(df)):
         if df.iloc[i - 1]['ma_diff'] < 0 and df.iloc[i]['ma_diff'] > 0:
-            logger.log("{}:GOLDEN CROSS".format(df.iloc[i]["date"]))
+            logger.info("{}:GOLDEN CROSS".format(df.iloc[i]["date"]))
             cross['golden'].append(df.iloc[i]['ma_25'])
             cross['dead'].append(None)
             cross['recent_golden'] = df.iloc[i]["date"]
         elif df.iloc[i - 1]['ma_diff'] > 0 and df.iloc[i]['ma_diff'] < 0:
-            logger.log("{}:DEAD CROSS".format(df.iloc[i]["date"]))
+            logger.info("{}:DEAD CROSS".format(df.iloc[i]["date"]))
             cross['golden'].append(None)
             cross['dead'].append(df.iloc[i]['ma_25'])
             cross['recent_dead'] = df.iloc[i]["date"]
@@ -81,7 +81,7 @@ def check_mark(df):
     # 1. 包線
     if not df.iloc[1]['is_positive'] and df.iloc[0]['is_positive']:
         # 陰線→陽線
-        logger.log("陰線→陽線"+str(df[['val_start', 'val_end']][0:2]))
+        logger.info("陰線→陽線"+str(df[['val_start', 'val_end']][0:2]))
         if df.iloc[1]['val_end'] < df.iloc[0]['val_start'] and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
             # 長→短
             mark.append("包み陽線：天井")
@@ -92,7 +92,7 @@ def check_mark(df):
             mark.append("")
     elif df.iloc[1]['is_positive'] and not df.iloc[0]['is_positive']:
         # 陽線→陰線
-        logger.log("陽線→陰線"+str(df[['val_start', 'val_end']][0:2]))
+        logger.info("陽線→陰線"+str(df[['val_start', 'val_end']][0:2]))
         if df.iloc[1]['val_end'] < df.iloc[0]['val_start'] and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
             # 短→長
             mark.append("包み陰線：底")
@@ -111,28 +111,28 @@ def check_mark(df):
             and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
         # 陰の陽はらみ
         mark.append("陰の陽はらみ：底")
-        logger.log("陰の陽はらみ：底")
+        logger.info("陰の陽はらみ：底")
     elif not df.iloc[1]['is_positive'] \
             and not df.iloc[0]['is_positive'] \
             and df.iloc[1]['val_start'] < df.iloc[0]['val_start'] \
             and df.iloc[1]['val_end'] > df.iloc[0]['val_end']:
         # 陰の陰はらみ
         mark.append("陰の陰はらみ：底")
-        logger.log("陰の陰はらみ：底")
+        logger.info("陰の陰はらみ：底")
     elif df.iloc[1]['is_positive'] \
             and df.iloc[0]['is_positive'] \
             and df.iloc[1]['val_start'] < df.iloc[0]['val_start'] \
             and df.iloc[1]['val_end'] > df.iloc[0]['val_end']:
         # 陽の陽はらみ
         mark.append("陽の陽はらみ：天井")
-        logger.log("陽の陽はらみ：天井")
+        logger.info("陽の陽はらみ：天井")
     elif not df.iloc[1]['is_positive'] \
             and not df.iloc[0]['is_positive'] \
             and df.iloc[1]['val_start'] < df.iloc[0]['val_end'] \
             and df.iloc[1]['val_end'] > df.iloc[0]['val_start']:
         # 陽の陽はらみ
         mark.append("陽の陽はらみ：天井")
-        logger.log("陽の陽はらみ：天井")
+        logger.info("陽の陽はらみ：天井")
     else:
         mark.append("")
 
@@ -154,7 +154,7 @@ def check_mark(df):
             and df.iloc[2]['val_start'] < df.iloc[1]['val_end'] \
             and df.iloc[1]['val_start'] < df.iloc[0]['val_end']:
         mark.append("◯")
-        logger.log("三空叩き込み")
+        logger.info("三空叩き込み")
     else:
         mark.append("")
 
@@ -164,7 +164,7 @@ def check_mark(df):
             and -df.iloc[1]['val_end-start'] / df.iloc[1]['val_end'] > 0.05 \
             and -df.iloc[0]['val_end-start'] / df.iloc[0]['val_end'] > 0.05:
         mark.append("◯")
-        logger.log("三手大陰線")
+        logger.info("三手大陰線")
     else:
         mark.append("")
 
