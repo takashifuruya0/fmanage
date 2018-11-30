@@ -191,20 +191,38 @@ def ajax(request):
 
 @login_required
 @time_measure
-def analysis(request):
+def analysis_list(request):
+    stocks = dict()
+    for stock in Stocks.objects.all():
+        sdbd = StockDataByDate.objects.filter(stock=stock).order_by('date')
+        df = analysis_asset.analyse_stock_data(read_frame(sdbd)).sort_values('date', ascending=False).head(1)
+        stocks[stock.code] = {
+            "name": stock.name,
+            "val_end": df.val_end,
+            "val_end_diff_percent": df.val_end_diff_percent,
+            "turnover": df.turnover,
+            "turnover_diff_percent": df.turnover_diff_percent,
+        }
+    # for stock in stocks:
+    output = {
+        "stocks": stocks,
+    }
+    return render(request, 'asset/analysis_list.html', output)
+
+
+@login_required
+@time_measure
+def analysis_detail(request, code):
     stocks = Stocks.objects.all()
-    code = request.GET.get(key='code', default=None)
     length = request.GET.get(key='length', default=None)
-    # GETパラメータcodeが指定無しの場合、Stocksの1番目を利用
-    if not code:
-        code = Stocks.objects.first().code
     stock = stocks.get(code=code)
     sdbds = StockDataByDate.objects.filter(stock__code=code).order_by('date')
-    df = analysis_asset.set_analysis_to_df(read_frame(sdbds))
+    df = analysis_asset.analyse_stock_data(read_frame(sdbds))
 
     # length指定ありの場合
     if length:
         df = df.tail(int(length))
+        print(int(length))
 
     # GOLDEN CROSS / DEAD CROSS
     cross = analysis_asset.get_cross(df)
@@ -245,4 +263,4 @@ def analysis(request):
         "cross": cross,
         "length": length,
     }
-    return render(request, 'asset/analysis.html', output)
+    return render(request, 'asset/analysis_detail.html', output)

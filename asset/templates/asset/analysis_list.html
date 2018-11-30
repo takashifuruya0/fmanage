@@ -1,0 +1,54 @@
+{% extends "kakeibo/base.html" %}
+{% load humanize %}
+{% block title %}
+    Analysis list
+{% endblock %}
+
+{% block body %}
+
+  <div class="container-fluid">
+    <hr>
+    <div class="row">
+      <div class="col-10">
+        <h1>
+          <i class="fas fa-chart-line"></i> Analysis list
+        </h1>
+      </div>
+      <div class="col-2">
+        <!--<button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#stocks">-->
+          <!--<i class="far fa-plus-square"></i> Stocks-->
+        <!--</button>-->
+      </div>
+    </div>
+    <hr>
+
+
+    <!-- Overview -->
+    <h2>Overview</h2>
+    <div class="row">
+      {% for code, stock in stocks.items %}
+      <div class="col-md-4">
+        <div class="box2">
+          <h5><a href="{% url 'asset:analysis_detail' code=code %}">{{stock.name}}</a></h5>
+          <table class="table table-light table-sm table-hover">
+            <tr>
+              <th>銘柄コード</th>
+              <td>{{code}}</td>
+            </tr>
+            <tr>
+              <th>終値 (前日比)</th>
+              <td>¥{{stock.val_end | intcomma}} ({{stock.val_end_diff_percent | intcomma}}%)</td>
+            </tr>
+            <tr>
+              <th>出来高 (前日比)</th>
+              <td>{{stock.turnover | intcomma}} ({{stock.turnover_diff_percent | intcomma}}%)</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+
+{% endblock %}

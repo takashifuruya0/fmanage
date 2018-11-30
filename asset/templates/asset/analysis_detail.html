@@ -1,7 +1,7 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
 {% block title %}
-    Asset dashboard test
+    Analysis detail
 {% endblock %}
 
 {% block body %}
@@ -15,8 +15,12 @@
         </h1>
       </div>
       <div class="col-2">
-        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#stocks">
+        <button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#stocks">
           <i class="far fa-plus-square"></i> Stocks
+        </button>
+
+        <button type="button" class="btn btn-secondary btn-block" onClick=location.href="{%url 'asset:analysis_list' %}">
+          <i class="far fa-caret-square-left"></i> Back to the list
         </button>
       </div>
     </div>
@@ -156,7 +160,7 @@
             <tbody>
               {% for s in stocks %}
               <tr>
-                  <td><a href="{%url 'asset:analysis'%}?code={{s.code}}">{{s.code}}</a></td>
+                  <td><a href="{%url 'asset:analysis_detail' code=s.code%}">{{s.code}}</a></td>
                   <td>{{s.name}}</td>
               </tr>
               {% endfor %}
@@ -225,7 +229,9 @@
 
 
 <!-- analysis -->
+<script src="/document/fill_between.js"></script>
 <script>
+  Chart.pluginService.register(fillBetweenLinesPlugin);
   var ctx = document.getElementById('analysis').getContext('2d');
   var options = {
     responsive: true,
@@ -303,6 +309,26 @@
 
               backgroundColor: "rgba(5,253,150, 0.4)",
               borderColor: "rgba(5,253,150, 0.4)",
+              fill: false,
+              pointRadius: 0,
+          },{
+              type: "line",
+              label: '+2σ',
+              data: [
+                  {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25p2sigma}},{%endfor%}
+              ],
+              borderColor: "rgba(205,3,150, 0.1)",
+              fill: false,
+              pointRadius: 0,
+              fillBetweenSet: 6,
+              fillBetweenColor: "rgba(205,3,150, 0.1)"
+          },{
+              type: "line",
+              label: '-2σ',
+              data: [
+                  {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25m2sigma}},{%endfor%}
+              ],
+              borderColor: "rgba(205,3,150, 0.1)",
               fill: false,
               pointRadius: 0,
           },{

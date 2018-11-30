@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^hstocks/create$', views.HoldingStocksCreateView.as_view(), name='hstocks_create'),
     url(r'^orders/create$', views.OrdersCreateView.as_view(), name='orders_create'),
     url(r'^ajax/$', views.ajax, name='ajax'),
-    url(r'^analysis/$', views.analysis, name='analysis'),
+    url(r'^analysis/$', views.analysis_list, name='analysis_list'),
+    url(r'^analysis/(?P<code>\d+)/$', views.analysis_detail, name='analysis_detail'),
 ]
 
