@@ -81,7 +81,7 @@ def check_mark(df):
     # 1. 包線
     if not df.iloc[1]['is_positive'] and df.iloc[0]['is_positive']:
         # 陰線→陽線
-        logger.log("陰線→陽線", df[['val_start', 'val_end']][0:2])
+        logger.log("陰線→陽線"+str(df[['val_start', 'val_end']][0:2]))
         if df.iloc[1]['val_end'] < df.iloc[0]['val_start'] and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
             # 長→短
             mark.append("包み陽線：天井")
@@ -92,7 +92,7 @@ def check_mark(df):
             mark.append("")
     elif df.iloc[1]['is_positive'] and not df.iloc[0]['is_positive']:
         # 陽線→陰線
-        logger.log("陽線→陰線", df[['val_start', 'val_end']][0:2])
+        logger.log("陽線→陰線"+str(df[['val_start', 'val_end']][0:2]))
         if df.iloc[1]['val_end'] < df.iloc[0]['val_start'] and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
             # 短→長
             mark.append("包み陰線：底")
