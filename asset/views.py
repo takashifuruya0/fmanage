@@ -226,7 +226,6 @@ def analysis_detail(request, code):
     # length指定ありの場合
     if length:
         df = df.tail(int(length))
-        print(int(length))
 
     # GOLDEN CROSS / DEAD CROSS
     cross = analysis_asset.get_cross(df)
