@@ -66,6 +66,7 @@ def get_cross(df_orig):
 def check_mark(df):
     # mark
     mark = list()
+    df = df.sort_values('date', ascending=False)
 
     # 0. たくり線・勢力線// 前日にカラカサか下影陰線→◯。3日前~2日前で陰線だったら◎
     if df.iloc[0]['lower_mustache'] > 2*df.iloc[0]['upper_mustache'] \
@@ -81,7 +82,7 @@ def check_mark(df):
     # 1. 包線
     if not df.iloc[1]['is_positive'] and df.iloc[0]['is_positive']:
         # 陰線→陽線
-        logger.info("陰線→陽線"+str(df[['val_start', 'val_end']][0:2]))
+        logger.info("陰線→陽線"+str(df[['date', 'val_start', 'val_end']][0:2]))
         if df.iloc[1]['val_end'] < df.iloc[0]['val_start'] and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
             # 長→短
             mark.append("包み陽線：天井")
@@ -92,7 +93,7 @@ def check_mark(df):
             mark.append("")
     elif df.iloc[1]['is_positive'] and not df.iloc[0]['is_positive']:
         # 陽線→陰線
-        logger.info("陽線→陰線"+str(df[['val_start', 'val_end']][0:2]))
+        logger.info("陽線→陰線"+str(df[['date', 'val_start', 'val_end']][0:2]))
         if df.iloc[1]['val_end'] < df.iloc[0]['val_start'] and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
             # 短→長
             mark.append("包み陰線：底")
