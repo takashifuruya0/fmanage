@@ -194,17 +194,19 @@ def ajax(request):
 def analysis_list(request):
     stocks = dict()
     for stock in Stocks.objects.all():
-        sdbd = StockDataByDate.objects.filter(stock=stock).order_by('date')
-        df = analysis_asset.analyse_stock_data(read_frame(sdbd))
-        mark = analysis_asset.check_mark(df)
+        # sdbd_ascending = StockDataByDate.objects.filter(stock=stock).order_by('date')
+        sdbd_descending = StockDataByDate.objects.filter(stock=stock).order_by('-date')
+        # df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbd_ascending))
+        df_descending = analysis_asset.analyse_stock_data(read_frame(sdbd_descending))
+        mark = analysis_asset.check_mark(df_descending)
         # date降順に並び替えて、先頭を取得
-        df = df.sort_values('date', ascending=False).head(1)
+        df_latest = df_descending.head(1)
         stocks[stock.code] = {
             "name": stock.name,
-            "val_end": df.val_end,
-            "val_end_diff_percent": float(df.val_end_diff_percent),
-            "turnover": df.turnover,
-            "turnover_diff_percent": float(df.turnover_diff_percent),
+            "val_end": df_latest.val_end,
+            "val_end_diff_percent": float(df_latest.val_end_diff_percent),
+            "turnover": df_latest.turnover,
+            "turnover_diff_percent": float(df_latest.turnover_diff_percent),
             "mark": mark,
         }
     # for stock in stocks:
@@ -220,26 +222,26 @@ def analysis_detail(request, code):
     stocks = Stocks.objects.all()
     length = request.GET.get(key='length', default=None)
     stock = stocks.get(code=code)
-    sdbds = StockDataByDate.objects.filter(stock__code=code).order_by('date')
-    df = analysis_asset.analyse_stock_data(read_frame(sdbds))
-
+    sdbds_ascending = StockDataByDate.objects.filter(stock__code=code).order_by('date')
+    df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbds_ascending))
+    df_descending = analysis_asset.analyse_stock_data(read_frame(sdbds_ascending.reverse()))
     # length指定ありの場合
     if length:
-        df = df.tail(int(length))
+        df_ascending = df_ascending.tail(int(length))
 
     # GOLDEN CROSS / DEAD CROSS
-    cross = analysis_asset.get_cross(df)
+    cross = analysis_asset.get_cross(df_descending)
 
     # mark
-    mark = analysis_asset.check_mark(df)
+    mark = analysis_asset.check_mark(df_ascending)
 
-    # 降順
-    df_descending = df.sort_values('date', ascending=False)
+    # 逆向き
+    df_descending = df_ascending.sort_values('date', ascending=False)
 
     output = {
         "stocks": stocks,
         "stock": stock,
-        "df_ascending": df,
+        "df_ascending": df_ascending,
         "df_descending": df_descending,
         "mark": mark,
         "cross": cross,

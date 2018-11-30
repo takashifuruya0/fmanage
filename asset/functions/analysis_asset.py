@@ -74,33 +74,44 @@ def check_mark(df):
             and df.iloc[2]['val_end_diff'] < 0:
         if not df.iloc[1]['is_positive'] and not df.iloc[2]['is_positive']:
             mark.append("◎")
+            logger.info("たくり線：◎")
         else:
             mark.append("◯")
+            logger.info("たくり線：◯")
     else:
         mark.append("")
 
     # 1. 包線
-    if not df.iloc[1]['is_positive'] and df.iloc[0]['is_positive']:
+    if not df.iloc[1]['is_positive'] and df.iloc[0]['is_positive'] \
+            and df.iloc[1]['val_end'] > df.iloc[0]['val_start'] \
+            and df.iloc[1]['val_start'] < df.iloc[0]['val_end']:
         # 陰線→陽線
-        logger.info("陰線→陽線"+str(df[['date', 'val_start', 'val_end']][0:2]))
-        if df.iloc[1]['val_end'] < df.iloc[0]['val_start'] and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
-            # 長→短
+        if df.iloc[1]['val_end_diff'] < 0 and df.iloc[2]['val_end_diff'] < 0:
+            # 上昇傾向
             mark.append("包み陽線：天井")
-        elif df.iloc[1]['val_end'] > df.iloc[0]['val_start'] and df.iloc[1]['val_start'] < df.iloc[0]['val_end']:
-            # 短→長
+            logger.info("包み陽線：天井")
+        elif df.iloc[1]['val_end_diff'] > 0 and df.iloc[2]['val_end_diff'] > 0:
+            # 下落傾向
             mark.append("包み陽線：底")
+            logger.info("包み陽線：底")
         else:
+            # 傾向なし
             mark.append("")
-    elif df.iloc[1]['is_positive'] and not df.iloc[0]['is_positive']:
+    elif df.iloc[1]['is_positive'] and not df.iloc[0]['is_positive'] \
+            and df.iloc[1]['val_end'] < df.iloc[0]['val_start'] \
+            and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
         # 陽線→陰線
         logger.info("陽線→陰線"+str(df[['date', 'val_start', 'val_end']][0:2]))
-        if df.iloc[1]['val_end'] < df.iloc[0]['val_start'] and df.iloc[1]['val_start'] > df.iloc[0]['val_end']:
-            # 短→長
-            mark.append("包み陰線：底")
-        elif df.iloc[1]['val_end'] > df.iloc[0]['val_start'] and df.iloc[1]['val_start'] < df.iloc[0]['val_end']:
-            # 長→短
+        if df.iloc[1]['val_end_diff'] < 0 and df.iloc[2]['val_end_diff'] < 0:
+            # 上昇傾向
             mark.append("包み陰線：天井")
+            logger.info("包み陰線：天井")
+        elif df.iloc[1]['val_end_diff'] > 0 and df.iloc[2]['val_end_diff'] > 0:
+            # 下落傾向
+            mark.append("包み陰線：底")
+            logger.info("包み陰線：底")
         else:
+            # 傾向なし
             mark.append("")
     else:
         mark.append("")
