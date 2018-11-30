@@ -68,10 +68,13 @@ def check_mark(df):
     mark = list()
 
     # 0. たくり線・勢力線// 前日にカラカサか下影陰線→◯。3日前~2日前で陰線だったら◎
-    if df.iloc[0]['lower_mustache'] > df.iloc[0]['upper_mustache']:
-        mark.append("◯")
+    if df.iloc[0]['lower_mustache'] > 2*df.iloc[0]['upper_mustache'] \
+            and df.iloc[1]['val_end_diff'] < 0 \
+            and df.iloc[2]['val_end_diff'] < 0:
         if not df.iloc[1]['is_positive'] and not df.iloc[2]['is_positive']:
             mark.append("◎")
+        else:
+            mark.append("◯")
     else:
         mark.append("")
 

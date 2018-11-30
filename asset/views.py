@@ -210,7 +210,6 @@ def analysis_list(request):
     # for stock in stocks:
     output = {
         "stocks": stocks,
-        "mark": mark,
     }
     return render(request, 'asset/analysis_list.html', output)
 
