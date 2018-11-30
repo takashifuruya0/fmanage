@@ -199,8 +199,7 @@ def analysis(request):
     stock = stocks.get(code=code)
     sdbds = StockDataByDate.objects.filter(stock__code=code).order_by('date')
     df = read_frame(sdbds)
-    if length:
-        df = df.tail(int(length))
+
     # 終値前日比, 出来高前日比
     df['val_end_diff'] = -(df['val_end'].shift() - df['val_end'])
     df['val_end_diff_percent'] = round(-(df['val_end'].shift() - df['val_end'])/df['val_end'].shift()*100, 1)
@@ -219,6 +218,11 @@ def analysis(request):
     df['ma25'] = df.val_end.rolling(window=25, min_periods=1).mean()
     df['ma75'] = df.val_end.rolling(window=75, min_periods=1).mean()
     df['madiff'] = df.ma25 - df.ma75
+
+    # length指定ありの場合
+    if length:
+        df = df.tail(int(length))
+
     # GOLDEN CROSS / DEAD CROSS
     cross = {
         "golden": list(),
