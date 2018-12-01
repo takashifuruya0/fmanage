@@ -194,13 +194,14 @@ def ajax(request):
 def analysis_list(request):
     stocks = dict()
     for stock in Stocks.objects.all():
-        # sdbd_ascending = StockDataByDate.objects.filter(stock=stock).order_by('date')
-        sdbd_descending = StockDataByDate.objects.filter(stock=stock).order_by('-date')
-        # df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbd_ascending))
-        df_descending = analysis_asset.analyse_stock_data(read_frame(sdbd_descending))
-        mark = analysis_asset.check_mark(df_descending)
-        # date降順に並び替えて、先頭を取得
-        df_latest = df_descending.head(1)
+        sdbd_ascending = StockDataByDate.objects.filter(stock=stock).order_by('date')
+        df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbd_ascending))
+        # トレンドを取得
+        trend = analysis_asset.get_trend(df_ascending)
+        # トレンド転換マークをチェック
+        mark = analysis_asset.check_mark(df_ascending)
+        # 最新データである最後尾を取得
+        df_latest = df_ascending.tail(1)
         stocks[stock.code] = {
             "name": stock.name,
             "val_end": df_latest.val_end,
@@ -208,6 +209,7 @@ def analysis_list(request):
             "turnover": df_latest.turnover,
             "turnover_diff_percent": float(df_latest.turnover_diff_percent),
             "mark": mark,
+            "trend": trend,
         }
     # for stock in stocks:
     output = {
@@ -224,25 +226,25 @@ def analysis_detail(request, code):
     stock = stocks.get(code=code)
     sdbds_ascending = StockDataByDate.objects.filter(stock__code=code).order_by('date')
     df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbds_ascending))
-    df_descending = analysis_asset.analyse_stock_data(read_frame(sdbds_ascending.reverse()))
+
     # length指定ありの場合
     if length:
         df_ascending = df_ascending.tail(int(length))
 
     # GOLDEN CROSS / DEAD CROSS
-    cross = analysis_asset.get_cross(df_descending)
+    cross = analysis_asset.get_cross(df_ascending)
 
     # mark
     mark = analysis_asset.check_mark(df_ascending)
 
     # 逆向き
-    df_descending = df_ascending.sort_values('date', ascending=False)
+    df_ascending_reverse = df_ascending.sort_values('date', ascending=False)
 
     output = {
         "stocks": stocks,
         "stock": stock,
         "df_ascending": df_ascending,
-        "df_descending": df_descending,
+        "df_ascending_reverse": df_ascending_reverse,
         "mark": mark,
         "cross": cross,
         "length": length,
