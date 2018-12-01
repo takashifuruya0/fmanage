@@ -127,7 +127,7 @@
                 <tr>
                   <td>{{order.order_type}}</td>
                   <td>{{order.datetime}}</td>
-                  <td>{{order.stock}}</td>
+                  <td><a href="{%url 'asset:analysis_detail' code=order.stock.code%}">{{order.stock}}</a></td>
                   <td class="right">{{order.num}}</td>
                   <td class="right">{{order.price | intcomma}}</td>
                   <td>{{order.is_nisa}}</td>
@@ -156,7 +156,7 @@
                 <tr>
                   <td>{{hs.date}}</td>
                   <td>{{hs.code}}</td>
-                  <td>{{hs.name}}</td>
+                  <td><a href="{%url 'asset:analysis_detail' code=hs.code%}">{{hs.name}}</a></td>
                   <td class="right">{{hs.num}}</td>
                   <td class="right">¥{{hs.aprice | intcomma}}</td>
                   <td class="right">¥{{hs.cprice | intcomma}}</td>

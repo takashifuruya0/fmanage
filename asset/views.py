@@ -227,6 +227,9 @@ def analysis_detail(request, code):
     sdbds_ascending = StockDataByDate.objects.filter(stock__code=code).order_by('date')
     df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbds_ascending))
 
+    # trend
+    trend = analysis_asset.get_trend(df_ascending)
+
     # length指定ありの場合
     if length:
         df_ascending = df_ascending.tail(int(length))
@@ -248,5 +251,6 @@ def analysis_detail(request, code):
         "mark": mark,
         "cross": cross,
         "length": length,
+        "trend": trend,
     }
     return render(request, 'asset/analysis_detail.html', output)

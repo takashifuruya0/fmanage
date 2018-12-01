@@ -38,7 +38,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-sm-8">
+      <div class="col-md-8">
         <div>
           <h4>ローソク</h4>
           <canvas id="canvas" width="300" height="300"></canvas>
@@ -54,32 +54,54 @@
 
       </div>
 
-      <div class="col-sm-4">
+      <div class="col-md-4">
         <h4>状態</h4>
         <table class="table table-light table-hover table-sm">
           <tr>
+            <td colspan="2">
+                {%if trend.is_upper_25%}
+                <span class="badge badge-success">
+                  25日トレンド <i class="fas fa-level-up-alt"></i> <span class="badge badge-light">{{trend.period_25}}日継続中</span>
+                </span>
+                {%else%}
+                <span class="badge badge-danger">
+                   25日トレンド <i class="fas fa-level-down-alt"></i> <span class="badge badge-light">{{trend.period_25}}日継続中</span>
+                </span>
+                {%endif%}
+                {%if trend.is_upper_75%}
+                <span class="badge badge-success">
+                  75日トレンド <i class="fas fa-level-up-alt"></i> <span class="badge badge-light">{{trend.period_75}}日継続中</span>
+                </span>
+                {%else%}
+                <span class="badge badge-danger">
+                  75日トレンド <i class="fas fa-level-down-alt"></i> <span class="badge badge-light">{{trend.period_75}}日継続中</span>
+                </span>
+                {%endif%}
+              </td>
+          </tr>
+          <tr>
             <th>たくり線</th>
-            <td style="color:red;">{{mark.0}}</td>
+            <td><span class="badge badge-warning badge-md">{{mark.0}}</span></td>
           </tr>
           <tr>
             <th>包み線</th>
-            <td>{{mark.1}}</td>
+            <td><span class="badge badge-warning">{{mark.1}}</span></td>
           </tr>
           <tr>
             <th>はらみ線</th>
-            <td>{{mark.2}}</td>
+            <td><span class="badge badge-warning">{{mark.2}}</span></td>
           </tr>
           <tr>
             <th>上げ三法</th>
-            <td>{{mark.3}}</td>
+            <td><span class="badge badge-warning">{{mark.3}}</span></td>
           </tr>
           <tr>
             <th>三空叩き込み</th>
-            <td>{{mark.4}}</td>
+            <td><span class="badge badge-warning">{{mark.4}}</span></td>
           </tr>
           <tr>
             <th>三手大陰線</th>
-            <td>{{mark.5}}</td>
+            <td><span class="badge badge-warning">{{mark.5}}</span></td>
           </tr>
           <tr>
             <th>直近ゴールデンクロス</th>
