@@ -245,42 +245,6 @@
   });
 </script>
 
-<!-- bar_eom -->
-<script>
-  var ctx = document.getElementById('bar_eom').getContext('2d');
-  var options = {
-    scales: {
-      yAxes: [{
-        stacked: true
-      }]
-    }
-  }
-  var colors = [
-    "rgba(250,153,  0,0.4)",
-    "rgba(  0,153,253,0.4)",
-    "rgba(153,250,  0,0.4)",
-    "rgba(153,  0,253,0.4)",
-    "rgba(253,  0,150,0.4)",
-    "rgba(  0,253,153,0.4)",
-  ]
-  var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: [{%for l in bar_eom.labels%}"{{l}}",{%endfor%}],
-      datasets: [
-        {%for key,val in bar_eom.data.items%}
-        {
-          label: "{{key}}",
-          data: [{%for v in val%}{{v}},{%endfor%}],
-          backgroundColor: colors[{{ forloop.counter0 }}]
-        },
-        {% endfor %}
-      ],
-    },
-    options: options
-  });
-</script>
-
 <!-- bar_resources_year -->
 <script>
   var ctx = document.getElementById('bar_resources_year').getContext('2d');
@@ -290,6 +254,10 @@
         stacked: true
       }]
     }
+  }
+  if (window.innerWidth < 768) {
+    ctx.canvas.width = 450
+    ctx.canvas.height = 450
   }
   var colors = [
     "rgba(250,153,0,0.4)",

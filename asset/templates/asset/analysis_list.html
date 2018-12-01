@@ -32,25 +32,23 @@
           <h5><a href="{% url 'asset:analysis_detail' code=code %}">{{stock.name}}</a></h5>
           <table class="table table-light table-sm table-hover">
             <tr>
-              <td>
+              <td colspan="2">
                 {%if stock.trend.is_upper_25%}
                 <span class="badge badge-success">
-                  上昇（25日）<span class="badge badge-light">{{stock.trend.period_25}}</span>
+                  25D <i class="fas fa-level-up-alt"></i> <span class="badge badge-light">{{stock.trend.period_25}}day</span>
                 </span>
                 {%else%}
                 <span class="badge badge-danger">
-                  下落（25日）<span class="badge badge-light">{{stock.trend.period_25}}</span>
+                   25D <i class="fas fa-level-down-alt"></i> <span class="badge badge-light">{{stock.trend.period_25}}day</span>
                 </span>
                 {%endif%}
-              </td>
-              <td>
                 {%if stock.trend.is_upper_75%}
                 <span class="badge badge-success">
-                  上昇（75日）<span class="badge badge-light">{{stock.trend.period_75}}</span>
+                  75D <i class="fas fa-level-up-alt"></i> <span class="badge badge-light">{{stock.trend.period_75}}day</span>
                 </span>
                 {%else%}
                 <span class="badge badge-danger">
-                  下落（75日）<span class="badge badge-light">{{stock.trend.period_75}}</span>
+                  75D <i class="fas fa-level-down-alt"></i> <span class="badge badge-light">{{stock.trend.period_75}}day</span>
                 </span>
                 {%endif%}
               </td>

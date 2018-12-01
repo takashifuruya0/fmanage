@@ -308,6 +308,10 @@
   <!-- bar_holding_stocks -->
   <script>
     var ctx = document.getElementById('bar_holding_stocks').getContext('2d');
+    if (window.innerWidth < 768) {
+      ctx.canvas.width = 450
+      ctx.canvas.height = 450
+    }
     var myChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -340,6 +344,10 @@
   <!-- bar_holding_stocks_percent -->
   <script>
     var ctx = document.getElementById('bar_holding_stocks_percent').getContext('2d');
+    if (window.innerWidth < 768) {
+      ctx.canvas.width = 450
+      ctx.canvas.height = 450
+    }
     var myChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -403,6 +411,10 @@
       responsive: true,
     }
     var ctx = document.getElementById("date_shift_all").getContext("2d");
+    if (window.innerWidth < 768) {
+      ctx.canvas.width = 450
+      ctx.canvas.height = 450
+    }
     var myChart = new Chart(ctx, {
         type: "line",
         data: lineChartData,
@@ -447,6 +459,10 @@
       responsive: true,
     }
     var ctx = document.getElementById("date_shift").getContext("2d");
+      if (window.innerWidth < 768) {
+      ctx.canvas.width = 450
+      ctx.canvas.height = 450
+    }
     var myChart = new Chart(ctx, {
         type: "line",
         data: lineChartData,

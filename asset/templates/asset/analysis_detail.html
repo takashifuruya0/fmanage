@@ -9,18 +9,17 @@
   <div class="container-fluid">
     <hr>
     <div class="row">
-      <div class="col-10">
+      <div class="col-sm-10">
         <h1>
           <i class="fas fa-chart-line"></i> {{stock.code}} {{stock.name}}
         </h1>
       </div>
-      <div class="col-2">
+      <div class="col-sm-2">
         <button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#stocks">
           <i class="far fa-plus-square"></i> Stocks
         </button>
-
         <button type="button" class="btn btn-secondary btn-block" onClick=location.href="{%url 'asset:analysis_list' %}">
-          <i class="far fa-caret-square-left"></i> Back to the list
+          <i class="far fa-caret-square-left"></i> Back to list
         </button>
       </div>
     </div>
@@ -30,8 +29,12 @@
     <!-- Overview -->
     <h2>Overview{%if length%} ({{length}}日分){%endif%}</h2>
     <div class="row">
-      <div class="col-sm-8">
-
+      <div class="col-sm-4">
+        <div class="box2">
+          <label>Range of data length <span class="badge badge-info" id="value_data_length">{%if length%}{{length}}{%endif%}</span>
+          <input type="range" class="form-control-range" id="range_data_length"  value="{{length}}" min="10" max="200" step="10">
+        </label>
+        </div>
       </div>
     </div>
     <div class="row">
@@ -55,32 +58,28 @@
         <h4>状態</h4>
         <table class="table table-light table-hover table-sm">
           <tr>
-            <th>たくり線・勢力線</th>
+            <th>たくり線</th>
             <td style="color:red;">{{mark.0}}</td>
           </tr>
           <tr>
-            <th>包み線 前日レンジを完全に包む値動き</th>
+            <th>包み線</th>
             <td>{{mark.1}}</td>
           </tr>
           <tr>
-            <th>はらみ線 前日レンジ内での値動き</th>
+            <th>はらみ線</th>
             <td>{{mark.2}}</td>
           </tr>
           <tr>
-            <th>上げ三法 大陽線後、三本の陰線</th>
+            <th>上げ三法</th>
             <td>{{mark.3}}</td>
           </tr>
           <tr>
-            <th>三空叩き込み 陰線4本が窓空きで出る</th>
+            <th>三空叩き込み</th>
             <td>{{mark.4}}</td>
           </tr>
           <tr>
-            <th>三手大陰線 三本の大陰線</th>
+            <th>三手大陰線</th>
             <td>{{mark.5}}</td>
-          </tr>
-          <tr>
-            <th></th>
-            <th></th>
           </tr>
           <tr>
             <th>直近ゴールデンクロス</th>
@@ -174,176 +173,190 @@
 
 <!-- diff -->
 <script>
-  var ctx = document.getElementById('diff').getContext('2d');
-  var options = {
-    responsive: true,
-    scales: {
-      yAxes: [{
-        id: "y-axis-1",   // Y軸のID
-        type: "linear",   // linear固定
-        position: "left", // どちら側に表示される軸か？
-      },
-      {
-        id: "y-axis-2",
-        type: "linear",
-        position: "right",
-        display: false,
-      }],
-      xAxes: [{
-        display: false,
-      }]
-    }
+var ctx = document.getElementById('diff').getContext('2d');
+var options = {
+  responsive: true,
+  scales: {
+    yAxes: [{
+      id: "y-axis-1",   // Y軸のID
+      type: "linear",   // linear固定
+      position: "left", // どちら側に表示される軸か？
+    },
+    {
+      id: "y-axis-2",
+      type: "linear",
+      position: "right",
+      display: false,
+    }],
+    xAxes: [{
+      display: false,
+    }]
   }
+}
+
+if (window.innerWidth > 768) {
   ctx.canvas.width = 1000;
   ctx.canvas.height = 350;
-  var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: [{%for i, s in df_ascending.dropna.iterrows%}"{{s.date}}",{%endfor%}],
-      datasets: [
-          {
-              type: "bar",
-              label: '出来高',
-              data: [
-                  {%for i, s in df_ascending.dropna.iterrows%}{{s.turnover_diff}},{%endfor%}
-              ],
-              backgroundColor: "rgba(255,153,0, 0.4)",
-              yAxisID: "y-axis-2",
-          },
-          {
-              type: "line",
-              label: '終値',
-              data: [
-                  {%for i, s in df_ascending.dropna.iterrows%}{{s.val_end_diff}},{%endfor%}
-              ],
-              backgroundColor: "rgba(255,3,150, 0.4)",
-              borderColor: "rgba(255,3,150, 0.4)",
-              fill: false,
-              yAxisID: "y-axis-1",
-          },
-      ],
-    },
-    options: options,
-  });
+}else{
+  ctx.canvas.width = 450;
+  ctx.canvas.height = 450;
+}
+
+var myChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: [{%for i, s in df_ascending.dropna.iterrows%}"{{s.date}}",{%endfor%}],
+    datasets: [
+        {
+            type: "bar",
+            label: '出来高',
+            data: [
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.turnover_diff}},{%endfor%}
+            ],
+            backgroundColor: "rgba(255,153,0, 0.4)",
+            yAxisID: "y-axis-2",
+        },
+        {
+            type: "line",
+            label: '終値',
+            data: [
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.val_end_diff}},{%endfor%}
+            ],
+            backgroundColor: "rgba(255,3,150, 0.4)",
+            borderColor: "rgba(255,3,150, 0.4)",
+            fill: false,
+            yAxisID: "y-axis-1",
+        },
+    ],
+  },
+  options: options,
+});
 </script>
 
 
 <!-- analysis -->
 <script src="/document/fill_between.js"></script>
 <script>
-  Chart.pluginService.register(fillBetweenLinesPlugin);
-  var ctx = document.getElementById('analysis').getContext('2d');
-  var options = {
-    responsive: true,
-    scales: {
-      yAxes: [{
-        id: "y-axis-1",   // Y軸のID
-        type: "linear",   // linear固定
-        position: "left", // どちら側に表示される軸か？
-      },
-      {
-        id: "y-axis-2",
-        type: "linear",
-        position: "right",
-        display: false,
-      }],
-      xAxes: [{
-        display: false,
-      }]
-    }
+Chart.pluginService.register(fillBetweenLinesPlugin);
+var ctx = document.getElementById('analysis').getContext('2d');
+var options = {
+  responsive: true,
+  scales: {
+    yAxes: [{
+      id: "y-axis-1",   // Y軸のID
+      type: "linear",   // linear固定
+      position: "left", // どちら側に表示される軸か？
+    },
+    {
+      id: "y-axis-2",
+      type: "linear",
+      position: "right",
+      display: false,
+    }],
+    xAxes: [{
+      display: false,
+    }]
   }
+}
+
+if (window.innerWidth > 768) {
   ctx.canvas.width = 1000;
   ctx.canvas.height = 350;
-  var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: [{%for i, s in df_ascending.dropna.iterrows%}"{{s.date}}",{%endfor%}],
-      datasets: [
-          {
-              type: "line",
-              label: 'Golden Cross',
-              data: [
-                  {% for c in cross.golden %}"{{c}}",{%endfor%}
-              ],
-              backgroundColor: "rgba(255, 215, 0, 1)",
-              borderColor: "rgba(0, 0, 0, 1)",
-              pointRadius: 7,
-              //fill: false,
-              showLines: false,
-          },{
-              type: "line",
-              label: 'Dead Cross',
-              data: [
-                  {% for c in cross.dead %}"{{c}}",{%endfor%}
-              ],
-              backgroundColor: "rgba(30, 30, 30, 1)",
-              borderColor: "rgba(0, 0, 0, 1)",
-              pointRadius: 7,
-              //fill: false,
-              showLines: false,
-          },{
-              type: "line",
-              label: '終値',
-              data: [
-                  {%for i, s in df_ascending.dropna.iterrows%}{{s.val_end}},{%endfor%}
-              ],
-              backgroundColor: "rgba(155,3,250, 0.4)",
-              borderColor: "rgba(155,3,250, 0.4)",
-              fill: false,
-          },{
-              type: "line",
-              label: '25日移動平均線',
-              data: [
-                  {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25}},{%endfor%}
-              ],
-              backgroundColor: "rgba(255,3,150, 0.4)",
-              borderColor: "rgba(255,3,150, 0.4)",
-              fill: false,
-              pointRadius: 0,
-          },{
-              type: "line",
-              label: '75日移動平均線',
-              data: [
-                  {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_75}},{%endfor%}
-              ],
+}else{
+  ctx.canvas.width = 450;
+  ctx.canvas.height = 450;
+}
 
-              backgroundColor: "rgba(5,253,150, 0.4)",
-              borderColor: "rgba(5,253,150, 0.4)",
-              fill: false,
-              pointRadius: 0,
-          },{
-              type: "line",
-              label: '+2σ',
-              data: [
-                  {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25p2sigma}},{%endfor%}
-              ],
-              borderColor: "rgba(205,3,150, 0.1)",
-              fill: false,
-              pointRadius: 0,
-              fillBetweenSet: 6,
-              fillBetweenColor: "rgba(205,3,150, 0.1)"
-          },{
-              type: "line",
-              label: '-2σ',
-              data: [
-                  {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25m2sigma}},{%endfor%}
-              ],
-              borderColor: "rgba(205,3,150, 0.1)",
-              fill: false,
-              pointRadius: 0,
-          },{
-              type: "bar",
-              label: '出来高',
-              data: [
-                  {%for i, s in df_ascending.dropna.iterrows%}{{s.turnover}},{%endfor%}
-              ],
-              backgroundColor: "rgba(255,153,0, 0.4)",
-              yAxisID: "y-axis-2",
-          },
-      ],
-    },
-    options: options,
-  });
+var myChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: [{%for i, s in df_ascending.dropna.iterrows%}"{{s.date}}",{%endfor%}],
+    datasets: [
+        {
+            type: "line",
+            label: 'Golden Cross',
+            data: [
+                {% for c in cross.golden %}"{{c}}",{%endfor%}
+            ],
+            backgroundColor: "rgba(255, 215, 0, 1)",
+            borderColor: "rgba(0, 0, 0, 1)",
+            pointRadius: 7,
+            //fill: false,
+            showLines: false,
+        },{
+            type: "line",
+            label: 'Dead Cross',
+            data: [
+                {% for c in cross.dead %}"{{c}}",{%endfor%}
+            ],
+            backgroundColor: "rgba(30, 30, 30, 1)",
+            borderColor: "rgba(0, 0, 0, 1)",
+            pointRadius: 7,
+            //fill: false,
+            showLines: false,
+        },{
+            type: "line",
+            label: '終値',
+            data: [
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.val_end}},{%endfor%}
+            ],
+            backgroundColor: "rgba(155,3,250, 0.4)",
+            borderColor: "rgba(155,3,250, 0.4)",
+            fill: false,
+        },{
+            type: "line",
+            label: '25日移動平均線',
+            data: [
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25}},{%endfor%}
+            ],
+            backgroundColor: "rgba(255,3,150, 0.4)",
+            borderColor: "rgba(255,3,150, 0.4)",
+            fill: false,
+            pointRadius: 0,
+        },{
+            type: "line",
+            label: '75日移動平均線',
+            data: [
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_75}},{%endfor%}
+            ],
+
+            backgroundColor: "rgba(5,253,150, 0.4)",
+            borderColor: "rgba(5,253,150, 0.4)",
+            fill: false,
+            pointRadius: 0,
+        },{
+            type: "line",
+            label: '+2σ',
+            data: [
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25p2sigma}},{%endfor%}
+            ],
+            borderColor: "rgba(205,3,150, 0.1)",
+            fill: false,
+            pointRadius: 0,
+            fillBetweenSet: 6,
+            fillBetweenColor: "rgba(205,3,150, 0.1)"
+        },{
+            type: "line",
+            label: '-2σ',
+            data: [
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25m2sigma}},{%endfor%}
+            ],
+            borderColor: "rgba(205,3,150, 0.1)",
+            fill: false,
+            pointRadius: 0,
+        },{
+            type: "bar",
+            label: '出来高',
+            data: [
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.turnover}},{%endfor%}
+            ],
+            backgroundColor: "rgba(255,153,0, 0.4)",
+            yAxisID: "y-axis-2",
+        },
+    ],
+  },
+  options: options,
+});
 </script>
 
 <!--candlestick-->
@@ -369,8 +382,13 @@ data = [
 
 // Candlestick
 var ctx = document.getElementById("canvas").getContext("2d");
-ctx.canvas.width = 1000;
-ctx.canvas.height = 350;
+if (window.innerWidth > 768) {
+  ctx.canvas.width = 1000;
+  ctx.canvas.height = 350;
+}else{
+  ctx.canvas.width = 450;
+  ctx.canvas.height = 450;
+}
 var candlestickChart = new Chart(ctx, {
 	type: 'candlestick',
 	data: {
@@ -393,5 +411,23 @@ var candlestickChart = new Chart(ctx, {
     },
 });
 
+</script>
+
+
+<!--input range-->
+<script>
+var slider = document.getElementById("range_data_length");
+var target = document.getElementById("value_data_length");
+
+slider.addEventListener("input", function() {
+    // ドラッグ中のイベント
+    target.innerText = slider.value
+}, false);
+
+slider.addEventListener("change", function() {
+    // マウスアップした際のイベント
+    target.innerText = slider.value
+    location.href = location.origin + location.pathname + "?length=" + slider.value
+}, false);
 </script>
 {% endblock %}
