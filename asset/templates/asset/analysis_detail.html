@@ -16,7 +16,7 @@
       </div>
       <div class="col-sm-2">
         <button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#stocks">
-          <i class="far fa-plus-square"></i> Data length
+          <i class="fas fa-sliders-h"></i> Data length
           {%if length%}
           <span class="badge badge-light">
             {{length}}
@@ -167,7 +167,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="stocks_Label">Data length</h5>
+          <h5 class="modal-title" id="stocks_Label"><i class="fas fa-sliders-h"></i> Data length</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -175,16 +175,21 @@
         <div class="modal-body">
           <div class="row">
 
-            <div class="col-sm-7">
-              <label>
-                Data length
-                <input type="range" class="form-control-range" id="range_data_length"  value="{{length}}" min="10" max="200" step="10">
-              </label>
+            <div class="col-sm-4">
+              <input type="range" class="form-control-range" id="range_data_length" value="{{length}}" min="10" max="200" step="10">
             </div>
-            <div class="col-sm-5">
-              <h2>
-                <span class="badge badge-info" id="value_data_length">{%if length%}{{length}}days{%endif%}</span>
-              </h2>
+            <div class="col-sm-4">
+              <h3>
+                <span class="badge badge-info" id="value_data_length">
+                  <i class="far fa-calendar-check"></i>
+                  {%if length%}{{length}}days{%else%}All{%endif%}
+                </span>
+              </h3>
+            </div>
+            <div class="col-sm-4">
+              <button id="all_data_length" type="button" class="btn btn-secondary">
+                <i class="fas fa-reply-all"></i> Set all
+              </button>
             </div>
 
           </div>
@@ -441,16 +446,22 @@ var candlestickChart = new Chart(ctx, {
 <script>
 var slider = document.getElementById("range_data_length");
 var target = document.getElementById("value_data_length");
+var set_all = document.getElementById("all_data_length");
+var fontawesome = '<i class="far fa-calendar-check"></i> ';
 
 slider.addEventListener("input", function() {
     // ドラッグ中のイベント
-    target.innerText = slider.value + "days"
+    target.innerHTML = fontawesome + slider.value + "days"
 }, false);
 
 slider.addEventListener("change", function() {
     // マウスアップした際のイベント
-    target.innerText = slider.value + "days"
+    target.innerHTML = fontawesome + slider.value + "days"
     location.href = location.origin + location.pathname + "?length=" + slider.value
 }, false);
+
+set_all.onclick = function(){
+  location.href = location.origin + location.pathname
+}
 </script>
 {% endblock %}
