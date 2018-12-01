@@ -16,7 +16,12 @@
       </div>
       <div class="col-sm-2">
         <button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#stocks">
-          <i class="far fa-plus-square"></i> Stocks
+          <i class="far fa-plus-square"></i> Data length
+          {%if length%}
+          <span class="badge badge-light">
+            {{length}}
+          </span>
+          {%endif%}
         </button>
         <button type="button" class="btn btn-secondary btn-block" onClick=location.href="{%url 'asset:analysis_list' %}">
           <i class="far fa-caret-square-left"></i> Back to list
@@ -27,33 +32,30 @@
 
 
     <!-- Overview -->
-    <h2>Overview{%if length%} ({{length}}日分){%endif%}</h2>
-    <div class="row">
-      <div class="col-sm-4">
-        <div class="box2">
-          <label>Range of data length <span class="badge badge-info" id="value_data_length">{%if length%}{{length}}{%endif%}</span>
-          <input type="range" class="form-control-range" id="range_data_length"  value="{{length}}" min="10" max="200" step="10">
-        </label>
-        </div>
-      </div>
-    </div>
+    <h2>
+      Overview
+    </h2>
+
+    <hr>
     <div class="row">
       <div class="col-md-8">
         <div>
           <h4>ローソク</h4>
           <canvas id="canvas" width="300" height="300"></canvas>
         </div>
+        <hr>
         <div>
           <h4>分析</h4>
           <canvas id="analysis" width="300" height="150"></canvas>
         </div>
+        <hr>
         <div>
           <h4>出来高と終値前日比</h4>
           <canvas id="diff" width="300" height="150"></canvas>
         </div>
-
       </div>
 
+      <hr>
       <div class="col-md-4">
         <h4>状態</h4>
         <table class="table table-light table-hover table-sm">
@@ -165,28 +167,27 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="stocks_Label">Stocks</h5>
+          <h5 class="modal-title" id="stocks_Label">Data length</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <table class="table table-light table-hover table-sm">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for s in stocks %}
-              <tr>
-                  <td><a href="{%url 'asset:analysis_detail' code=s.code%}">{{s.code}}</a></td>
-                  <td>{{s.name}}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <div class="row">
+
+            <div class="col-sm-7">
+              <label>
+                Data length
+                <input type="range" class="form-control-range" id="range_data_length"  value="{{length}}" min="10" max="200" step="10">
+              </label>
+            </div>
+            <div class="col-sm-5">
+              <h2>
+                <span class="badge badge-info" id="value_data_length">{%if length%}{{length}}days{%endif%}</span>
+              </h2>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
@@ -443,12 +444,12 @@ var target = document.getElementById("value_data_length");
 
 slider.addEventListener("input", function() {
     // ドラッグ中のイベント
-    target.innerText = slider.value
+    target.innerText = slider.value + "days"
 }, false);
 
 slider.addEventListener("change", function() {
     // マウスアップした際のイベント
-    target.innerText = slider.value
+    target.innerText = slider.value + "days"
     location.href = location.origin + location.pathname + "?length=" + slider.value
 }, false);
 </script>
