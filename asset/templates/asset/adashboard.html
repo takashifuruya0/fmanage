@@ -411,10 +411,13 @@
       responsive: true,
     }
     var ctx = document.getElementById("date_shift_all").getContext("2d");
-    if (window.innerWidth < 768) {
-      ctx.canvas.width = 450
-      ctx.canvas.height = 450
-    }
+    if (window.innerWidth > 768) {
+        ctx.canvas.width = 1000;
+        ctx.canvas.height = 350;
+      }else{
+        ctx.canvas.width = 450;
+        ctx.canvas.height = 450;
+      }
     var myChart = new Chart(ctx, {
         type: "line",
         data: lineChartData,
@@ -459,9 +462,12 @@
       responsive: true,
     }
     var ctx = document.getElementById("date_shift").getContext("2d");
-      if (window.innerWidth < 768) {
-      ctx.canvas.width = 450
-      ctx.canvas.height = 450
+    if (window.innerWidth > 768) {
+      ctx.canvas.width = 1000;
+      ctx.canvas.height = 350;
+    }else{
+      ctx.canvas.width = 450;
+      ctx.canvas.height = 450;
     }
     var myChart = new Chart(ctx, {
         type: "line",

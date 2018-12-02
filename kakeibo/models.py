@@ -2,6 +2,8 @@ from django.db import models
 from datetime import date
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Avg, Count
+# asset
+from asset.models import AssetStatus
 
 # Create your models here.
 # ==============================
@@ -129,11 +131,14 @@ class Resources(BaseModel):
     # current_val = models.IntegerField(null=True, blank=True)
 
     def current_val(self):
-        move_tos = Kakeibos.objects.filter(move_to=self)
-        move_froms = Kakeibos.objects.filter(move_from=self)
-        v_move_to = move_tos.aggregate(Sum('fee'))['fee__sum'] if move_tos else 0
-        v_move_from = move_froms.aggregate(Sum('fee'))['fee__sum'] if move_froms else 0
-        return self.initial_val + v_move_to - v_move_from
+        if self.name == "投資口座":
+            return AssetStatus.objects.last().total
+        else:
+            move_tos = Kakeibos.objects.filter(move_to=self)
+            move_froms = Kakeibos.objects.filter(move_from=self)
+            v_move_to = move_tos.aggregate(Sum('fee'))['fee__sum'] if move_tos else 0
+            v_move_from = move_froms.aggregate(Sum('fee'))['fee__sum'] if move_froms else 0
+            return self.initial_val + v_move_to - v_move_from
 
 
 # UsagesとResourcesの紐付け
