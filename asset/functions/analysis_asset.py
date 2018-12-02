@@ -18,6 +18,7 @@ def analyse_stock_data(df_ascending):
     # 上ひげ
     df_ascending['upper_mustache'] = (df_ascending['val_high'] - df_ascending['val_end']).where(df_ascending['is_positive'], df_ascending['val_high'] - df_ascending['val_start'])
     # 移動平均
+    df_ascending['ma_5'] = df_ascending.val_end.rolling(window=5, min_periods=1).mean()
     df_ascending['ma_25'] = df_ascending.val_end.rolling(window=25, min_periods=1).mean()
     df_ascending['ma_75'] = df_ascending.val_end.rolling(window=75, min_periods=1).mean()
     df_ascending['ma_diff'] = df_ascending.ma_25 - df_ascending.ma_75

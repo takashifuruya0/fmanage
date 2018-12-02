@@ -30,7 +30,7 @@
       <div class="col-md-4">
         <div class="card">
           <div class="card-header">
-            {{stock.name}}<br>
+            <strong>{{stock.name}}</strong><br>
             <!--トレンド-->
             {%if stock.trend.is_upper_25%}
             <span class="badge badge-success">
@@ -71,11 +71,21 @@
               </tr>
               <tr>
                 <th>終値 (前日比)</th>
-                <td class="right">¥{{stock.val_end | intcomma}} ({{stock.val_end_diff_percent | intcomma}}%)</td>
+                <td class="right">
+                  ¥{{stock.val_end | intcomma}}<br>
+                  <span {%if 0 > stock.val_end_diff_percent%}style="color:red;"{%endif%}>
+                    ({{stock.val_end_diff_percent | intcomma}}%)
+                  </span>
+                </td>
               </tr>
               <tr>
                 <th>出来高 (前日比)</th>
-                <td class="right">{{stock.turnover | intcomma}} ({{stock.turnover_diff_percent | intcomma}}%)</td>
+                <td class="right">
+                  {{stock.turnover | intcomma}}<br>
+                  <span {%if 0 > stock.turnover_diff_percent %}style="color:red;"{%endif%}>
+                    ({{stock.turnover_diff_percent | intcomma}}%)
+                  </span>
+                </td>
               </tr>
             </table>
             <a href="{% url 'asset:analysis_detail' code=code %}" class="btn btn-primary">Go to detail</a>

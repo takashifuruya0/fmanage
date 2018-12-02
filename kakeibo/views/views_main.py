@@ -148,6 +148,8 @@ def form_shared(request):
 @login_required
 @time_measure
 def mine(request):
+    # 貯金扱いの口座
+    saving_account = ["SBI敬士", "貯金口座"]
     # check year and month from GET parameter
     year, month = middleware.yearmonth(request)
 
@@ -167,9 +169,9 @@ def mine(request):
             tmp = {"val": w['fee__sum'], "name": w['way']}
             ways.append(tmp)
     # saved
-    rs = Resources.objects.get(name="SBI敬士")
-    move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
-    move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
+    rs_saved = Resources.objects.filter(name__in=saving_account)
+    move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to__in=rs_saved))
+    move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from__in=rs_saved))
     saved = move_to - move_from
 
     # resource
@@ -190,9 +192,20 @@ def mine(request):
     consolidated_usages_chart = sorted(middleware.consolidated_usages().items(), key=lambda x: -x[1])
 
     # total
-    # total = Resources.objects.all().aggregate(sum=Sum('current_val'))['sum']
     total = sum([r.current_val() for r in Resources.objects.all()])
-    total_saved = rs.current_val() + Resources.objects.get(name="貯金口座").current_val()
+    total_saved = sum(rs.current_val() for rs in rs_saved)
+
+    # 1年間での推移
+    for ryc in resources_year_chart:
+        if ryc['name'] in saving_account:
+            saved_one_year_ago = ryc["val"][0]
+            break
+    change = {
+        "total":  total - sum([i['val'][0] for i in resources_year_chart]),
+        "total_saved": total_saved - saved_one_year_ago
+    }
+
+
 
     # output
     output = {
@@ -220,6 +233,7 @@ def mine(request):
         # total
         "total": total,
         "total_saved": total_saved,
+        "change": change,
     }
     return render(request, 'kakeibo/mine.html', output)
 

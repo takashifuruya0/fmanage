@@ -40,13 +40,13 @@
     <div class="row">
       <div class="col-md-8">
         <div>
-          <h4>ローソク</h4>
-          <canvas id="canvas" width="300" height="300"></canvas>
+          <h4>分析</h4>
+          <canvas id="analysis" width="300" height="150"></canvas>
         </div>
         <hr>
         <div>
-          <h4>分析</h4>
-          <canvas id="analysis" width="300" height="150"></canvas>
+          <h4>ローソク</h4>
+          <canvas id="canvas" width="300" height="300"></canvas>
         </div>
         <hr>
         <div>
@@ -58,6 +58,28 @@
       <hr>
       <div class="col-md-4">
         <h4>状態</h4>
+        <table class="table table-light table-hover table-sm">
+          <tr>
+            <th>現在価格</th>
+            <td class="right">
+              ¥ {{df_recent.val_end | intcomma}}<br>
+              <span {%if 0 > df_recent.val_end_diff_percent%}style="color:red;"{%endif%}>
+                ({{df_recent.val_end_diff_percent | intcomma}}%)
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <th>出来高</th>
+            <td class="right">
+              {{df_recent.turnover | intcomma}}<br>
+              <span {%if 0 > df_recent.turnover_diff_percent %}style="color:red;"{%endif%}>
+                ({{df_recent.turnover_diff_percent | intcomma}}%)
+              </span>
+            </td>
+          </tr>
+        </table>
+
+        <h4>トレンド</h4>
         <table class="table table-light table-hover table-sm">
           <tr>
             <td colspan="2">
@@ -147,9 +169,13 @@
               <td class="right">¥ {{r.val_high| intcomma}}</td>
               <td class="right">¥ {{r.val_low| intcomma}}</td>
               <td class="right">¥ {{r.val_end| intcomma}}</td>
-              <td class="right">¥ {{r.val_end_diff| intcomma}} ({{r.val_end_diff_percent}}%)</td>
+              <td class="right" {%if 0 > r.val_end_diff%}style="color:red;"{%endif%}>
+                ¥ {{r.val_end_diff| intcomma}} ({{r.val_end_diff_percent}}%)
+              </td>
               <td class="right">{{r.turnover| intcomma}}</td>
-              <td class="right">{{r.turnover_diff| intcomma}} ({{r.turnover_diff_percent}}%)</td>
+              <td class="right" {%if 0 > r.turnover_diff%}style="color:red;"{%endif%}>
+                {{r.turnover_diff| intcomma}} ({{r.turnover_diff_percent}}%)
+              </td>
               <td class="right">{{r.upper_mustache | intcomma}}</td>
               <td class="right">{{r.lower_mustache | intcomma}}</td>
             </tr>
@@ -254,6 +280,7 @@ var myChart = new Chart(ctx, {
             borderColor: "rgba(255,3,150, 0.4)",
             fill: false,
             yAxisID: "y-axis-1",
+            pointRadius: 1,
         },
     ],
   },
@@ -328,19 +355,30 @@ var myChart = new Chart(ctx, {
             data: [
                 {%for i, s in df_ascending.dropna.iterrows%}{{s.val_end}},{%endfor%}
             ],
-            backgroundColor: "rgba(155,3,250, 0.4)",
-            borderColor: "rgba(155,3,250, 0.4)",
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            borderColor: "rgba(0, 0, 0, 0.4)",
             fill: false,
+            pointRadius: 2,
+        },{
+            type: "line",
+            label: '5日移動平均線',
+            data: [
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_5}},{%endfor%}
+            ],
+            backgroundColor: "rgba(255,3,150, 0.4)",
+            borderColor: "rgba(255,3,150, 0.4)",
+            fill: false,
+            pointRadius: 1,
         },{
             type: "line",
             label: '25日移動平均線',
             data: [
                 {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25}},{%endfor%}
             ],
-            backgroundColor: "rgba(255,3,150, 0.4)",
-            borderColor: "rgba(255,3,150, 0.4)",
+            backgroundColor: "rgba(155,3,250, 0.4)",
+            borderColor: "rgba(155,3,250, 0.4)",
             fill: false,
-            pointRadius: 0,
+            pointRadius: 1,
         },{
             type: "line",
             label: '75日移動平均線',
@@ -351,7 +389,7 @@ var myChart = new Chart(ctx, {
             backgroundColor: "rgba(5,253,150, 0.4)",
             borderColor: "rgba(5,253,150, 0.4)",
             fill: false,
-            pointRadius: 0,
+            pointRadius: 1,
         },{
             type: "line",
             label: '+2σ',
@@ -361,7 +399,7 @@ var myChart = new Chart(ctx, {
             borderColor: "rgba(205,3,150, 0.1)",
             fill: false,
             pointRadius: 0,
-            fillBetweenSet: 6,
+            fillBetweenSet: 7,
             fillBetweenColor: "rgba(205,3,150, 0.1)"
         },{
             type: "line",

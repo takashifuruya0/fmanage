@@ -221,9 +221,8 @@ def analysis_list(request):
 @login_required
 @time_measure
 def analysis_detail(request, code):
-    stocks = Stocks.objects.all()
     length = request.GET.get(key='length', default=None)
-    stock = stocks.get(code=code)
+    stock = Stocks.objects.get(code=code)
     sdbds_ascending = StockDataByDate.objects.filter(stock__code=code).order_by('date')
     df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbds_ascending))
 
@@ -243,11 +242,14 @@ def analysis_detail(request, code):
     # 逆向き
     df_ascending_reverse = df_ascending.sort_values('date', ascending=False)
 
+    # 直近
+    df_recent = df_ascending_reverse.iloc[0]
+
     output = {
-        "stocks": stocks,
         "stock": stock,
         "df_ascending": df_ascending,
         "df_ascending_reverse": df_ascending_reverse,
+        "df_recent": df_recent,
         "mark": mark,
         "cross": cross,
         "length": length,

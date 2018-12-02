@@ -91,7 +91,9 @@
           </tr>
           <tr>
             <td>今年の資産増減</td>
-            <td class="right">¥</td>
+            <td class="right" {%if 0 > change.total%}style="color:red;"{%endif%}>
+              ¥{{change.total | intcomma}}
+            </td>
           </tr>
           <tr>
             <td>合計貯金額</td>
@@ -99,7 +101,9 @@
           </tr>
           <tr>
             <td>今年の貯金増減</td>
-            <td class="right">¥</td>
+            <td class="right" {%if 0 > change.total_saved%}style="color:red;"{%endif%}>
+              ¥{{change.total_saved | intcomma}}
+            </td>
           </tr>
         </tbody>
       </table>
