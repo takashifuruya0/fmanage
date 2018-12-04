@@ -409,7 +409,36 @@ var myChart = new Chart(ctx, {
             borderColor: "rgba(205,3,150, 0.1)",
             fill: false,
             pointRadius: 0,
-        },{
+        },
+        {% if order_points.num_buy > 0 %}
+        {
+            type: "line",
+            label: 'Buy',
+            data: [
+                {% for op in order_points.buy %}"{{op}}",{%endfor%}
+            ],
+            backgroundColor: "red",
+            borderColor: "red",
+            pointRadius: 7,
+            pointStyle: "rectRounded",
+            showLines: false,
+        },
+        {% endif %}
+        {% if order_points.num_sell > 0 %}
+        {
+            type: "line",
+            label: 'Sell',
+            data: [
+                {% for op in order_points.sell %}"{{op}}",{%endfor%}
+            ],
+            backgroundColor: "blue",
+            borderColor: "blue",
+            pointRadius: 7,
+            pointStyle: "rectRounded",
+            showLines: false,
+        },
+        {% endif %}
+        {
             type: "bar",
             label: '出来高',
             data: [
