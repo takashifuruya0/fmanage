@@ -56,6 +56,26 @@ def asset_dashboard(request):
                 stock.code = post_data.get('code')
                 stock.name = get_info.stock_overview(stock.code)['name']
                 stock.save()
+                # kabuoji3よりデータ取得
+                data = get_info.kabuoji3(stock.code)
+                if data['status']:
+                    # 取得成功時
+                    for d in data['data']:
+                        # (date, stock)の組み合わせでデータがなければ追加
+                        if StockDataByDate.objects.filter(stock=stock, date=d[0]).__len__() == 0:
+                            sdbd = StockDataByDate()
+                            sdbd.stock = stock
+                            sdbd.date = d[0]
+                            sdbd.val_start = d[1]
+                            sdbd.val_high = d[2]
+                            sdbd.val_low = d[3]
+                            sdbd.val_end = d[4]
+                            sdbd.turnover = d[5]
+                            sdbd.save()
+                    logger.info('StockDataByDate of "%s" are updated' % stock.code)
+                else:
+                    # 取得失敗時
+                    logger.error(data['msg'])
                 smsg = "New stock was registered"
                 logger.info(smsg)
             except Exception as e:
