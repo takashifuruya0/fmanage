@@ -1,5 +1,6 @@
 import logging
 logger = logging.getLogger("django")
+from asset.models import Orders
 
 
 def analyse_stock_data(df_ascending):
@@ -54,6 +55,37 @@ def get_cross(df_ascending):
             cross['golden'].append(None)
             cross['dead'].append(None)
     return cross
+
+
+def get_order_point(df_ascending):
+    # nanを含む列は除外
+    df = df_ascending.dropna()
+    orders = Orders.objects.filter(stock__code=df_ascending.iloc[0].stock[0:4])
+    orders_date = [o.datetime.date() for o in orders]
+
+    order_point = {
+        "buy": list(),
+        "sell": list(),
+        "num_buy": 0,
+        "num_sell": 0,
+        "orders_date": orders_date
+    }
+
+    for i in range(len(df)):
+        if df.iloc[i].date in orders_date:
+            order = orders.filter(datetime__date=df.iloc[i].date).first()
+            if order.order_type == "現物買":
+                order_point['buy'].append(order.price)
+                order_point['sell'].append(None)
+                order_point["num_buy"] += 1
+            elif order.order_type == "現物売":
+                order_point['buy'].append(None)
+                order_point['sell'].append(order.price)
+                order_point["num_sell"] += 1
+        else:
+            order_point['buy'].append(None)
+            order_point['sell'].append(None)
+    return order_point
 
 
 def check_mark(df_ascending):

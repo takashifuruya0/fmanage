@@ -256,6 +256,9 @@ def analysis_detail(request, code):
     # GOLDEN CROSS / DEAD CROSS
     cross = analysis_asset.get_cross(df_ascending)
 
+    # order
+    order_points = analysis_asset.get_order_point(df_ascending)
+
     # mark
     mark = analysis_asset.check_mark(df_ascending)
 
@@ -274,5 +277,6 @@ def analysis_detail(request, code):
         "cross": cross,
         "length": length,
         "trend": trend,
+        "order_points": order_points,
     }
     return render(request, 'asset/analysis_detail.html', output)
