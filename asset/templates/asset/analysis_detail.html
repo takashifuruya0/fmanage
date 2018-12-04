@@ -200,10 +200,6 @@
         </div>
         <div class="modal-body">
           <div class="row">
-
-            <div class="col-sm-4">
-              <input type="range" class="form-control-range" id="range_data_length" value="{{length}}" min="10" max="200" step="10">
-            </div>
             <div class="col-sm-4">
               <h3>
                 <span class="badge badge-info" id="value_data_length">
@@ -216,6 +212,9 @@
               <button id="all_data_length" type="button" class="btn btn-secondary">
                 <i class="fas fa-reply-all"></i> Set all
               </button>
+            </div>
+            <div class="col-sm-4">
+              <input type="range" class="form-control-range" id="range_data_length" value="{{length}}" min="10" max="200" step="10">
             </div>
 
           </div>
@@ -418,35 +417,7 @@ var myChart = new Chart(ctx, {
             ],
             backgroundColor: "rgba(255,153,0, 0.4)",
             yAxisID: "y-axis-2",
-        },
-        {% if order_points.num_buy > 0 %}
-        {
-            type: "line",
-            label: 'Buy',
-            data: [
-                {% for op in order_points.buy %}"{{op}}",{%endfor%}
-            ],
-            backgroundColor: "red",
-            borderColor: "red",
-            pointRadius: 7,
-            pointStyle: "rectRounded",
-            showLines: false,
-        },
-        {% endif %}
-        {% if order_points.num_sell > 0 %}
-        {
-            type: "line",
-            label: 'Sell',
-            data: [
-                {% for op in order_points.sell %}"{{op}}",{%endfor%}
-            ],
-            backgroundColor: "blue",
-            borderColor: "blue",
-            pointRadius: 7,
-            pointStyle: "rectRounded",
-            showLines: false,
         }
-        {% endif %}
     ],
   },
   options: options,
