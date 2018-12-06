@@ -293,7 +293,7 @@ def order_process(order):
             if ho.num - order.num == 0:
                 ho.delete()
             elif ho.num - order.num > 0:
-                ho.price = round((ho.num * ho.price - order.num * order.price) / (ho.num - order.num), 0)
+                # ho.price = round((ho.num * ho.price - order.num * order.price) / (ho.num - order.num), 0)
                 ho.num = ho.num - order.num
                 ho.save()
             else:
