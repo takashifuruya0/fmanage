@@ -72,6 +72,7 @@ def record_status():
         else:
             astatus = AssetStatus()
             memo = "create AssetStatus for today"
+        logger.info(memo)
         # 保有株式を計算
         data = benefit_all()
         astatus.date = date.today()
@@ -84,12 +85,13 @@ def record_status():
         # total を update
         astatus.total = astatus.stocks_value + astatus.other_value + astatus.buying_power
         astatus.save()
-        logger.info(astatus.total)
+        logger.info("Total: "+str(astatus.total))
         #
         status = True
     except Exception as e:
         status = False
         memo = e
+        logger.error(e)
     res = {"status": status, "memo": memo,}
     return res
 
@@ -130,7 +132,112 @@ def register_stocks(code):
         status = False
         msg = "Code " + str(code) + " was failed to register"
     res = {"status": status, "message": msg,}
+    logger.info(msg)
     return res
+
+
+def order_process(order):
+    smsg = emsg = ""
+    try:
+        # Status
+        astatus = AssetStatus.objects.all().last()
+        # 買い
+        logger.info(order.order_type)
+        if order.order_type == "現物買":
+            # status更新
+            astatus.buying_power = astatus.buying_power - order.num * order.price - order.commission
+            # 買付余力以上は買えません
+            if astatus.buying_power < 0:
+                logger.error("buying_power " + str(astatus.buying_power))
+                logger.error("order.num " + str(order.num))
+                logger.error("order.price " + str(order.price))
+                logger.error("order.commision " + str(order.commission))
+                raise ValueError("buying_power < 0 !")
+            astatus.stocks_value = astatus.stocks_value + order.num * order.price
+            astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
+            astatus.save()
+            logger.info("AssetStatus is updated")
+            logger.info(astatus)
+            # holding stock に追加
+            hos = HoldingStocks.objects.filter(stock=order.stock)
+            if hos:
+                ho = hos[0]
+                ho.price = round((ho.price * ho.num + order.price * order.num) / (ho.num + order.num), 0)
+                ho.num = ho.num + order.num
+                ho.save()
+                logger.info("HoldingStock is updated")
+                logger.info(ho)
+            else:
+                ho = HoldingStocks()
+                ho.stock = order.stock
+                ho.num = order.num
+                ho.price = order.price
+                ho.date = date.today()
+                ho.save()
+                logger.info("New HoldingStock is created")
+                logger.info(ho)
+            smsg = "Buy-order process was completed"
+        # 売り
+        elif order.order_type == "現物売":
+            price = HoldingStocks.objects.get(stock=order.stock).price
+            # status更新
+            if order.is_nisa:
+                # NISA: TAX=0%
+                astatus.buying_power = astatus.buying_power + order.num * order.price
+                logger.info("TAX 0%:NISA")
+            elif order.price - price > 0:
+                # 利益あり＋NISA以外: TAX=20%
+                tax = (order.price - price) * order.num * 0.2
+                astatus.buying_power = astatus.buying_power + order.num * order.price - order.commission -tax
+                logger.info("TAX 20%:Has benefit and not NISA")
+            else:
+                # 利益なし＋NISA以外: TAX=0%
+                astatus.buying_power = astatus.buying_power + order.num * order.price - order.commission
+                logger.info("TAX 0%: Has not benefit and not NISA")
+
+            astatus.stocks_value = astatus.stocks_value - order.num * order.price
+            astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
+            astatus.save()
+            logger.info("AssetStatus is updated")
+            logger.info(astatus)
+            # holding stock から削除
+            ho = HoldingStocks.objects.get(stock=order.stock)
+            if ho.num - order.num == 0:
+                ho.delete()
+                logger.info("This entry is exited")
+            elif ho.num - order.num > 0:
+                # ho.price = round((ho.num * ho.price - order.num * order.price) / (ho.num - order.num), 0)
+                ho.num = ho.num - order.num
+                ho.save()
+                logger.info("This entry is still on")
+            else:
+                # 保有数以上は売れません
+                logger.error("ho.num " + str(ho.num))
+                logger.error("order.num " + str(order.num))
+                raise ValueError("ho.num - order.num < 0!")
+            smsg = "Sell-order process was completed"
+    except Exception as e:
+        emsg = e
+    return smsg, emsg
+
+
+def get_commission(fee):
+    if fee < 50000:
+        return 54
+    elif fee < 100000:
+        return 97
+    elif fee < 200000:
+        return 113
+    elif fee < 500000:
+        return 270
+    elif fee < 1000000:
+        return 525
+    elif fee < 1500000:
+        return 628
+    elif fee < 30000000:
+        return 994
+    else:
+        return 1050
 
 
 # これまでの資産運用状況を引き継ぎ
@@ -234,93 +341,3 @@ def inherit_asset_status():
         ass.buying_power = 0
         ass.other_value = 0
         ass.save()
-
-
-def order_process(order):
-    smsg = emsg = ""
-    try:
-        # Status
-        astatus = AssetStatus.objects.all().last()
-        # 買い
-        if order.order_type == "現物買":
-            # status更新
-            astatus.buying_power = astatus.buying_power - order.num * order.price - order.commission
-            # 買付余力以上は買えません
-            if astatus.buying_power < 0:
-                logger.error("buying_power " + str(astatus.buying_power))
-                logger.error("order.num " + str(order.num))
-                logger.error("order.price " + str(order.price))
-                logger.error("order.commision " + str(order.commission))
-                raise ValueError("buying_power < 0 !")
-            astatus.stocks_value = astatus.stocks_value + order.num * order.price
-            astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
-            astatus.save()
-            # holding stock に追加
-            hos = HoldingStocks.objects.filter(stock=order.stock)
-            if hos:
-                ho = hos[0]
-                ho.price = round((ho.price * ho.num + order.price * order.num) / (ho.num + order.num), 0)
-                ho.num = ho.num + order.num
-                ho.save()
-            else:
-                ho = HoldingStocks()
-                ho.stock = order.stock
-                ho.num = order.num
-                ho.price = order.price
-                ho.date = date.today()
-                ho.save()
-            smsg = "Buy-order process was completed"
-        # 売り
-        elif order.order_type == "現物売":
-            price = HoldingStocks.objects.get(stock=order.stock).price
-            # status更新
-            if order.is_nisa:
-                # NISA: TAX=0%
-                astatus.buying_power = astatus.buying_power + order.num * order.price
-            elif order.price - price > 0:
-                # 利益あり＋NISA以外: TAX=20%
-                tax = (order.price - price) * order.num * 0.2
-                astatus.buying_power = astatus.buying_power + order.num * order.price - order.commission -tax
-            else:
-                # 利益なし＋NISA以外: TAX=0%
-                astatus.buying_power = astatus.buying_power + order.num * order.price - order.commission
-
-            astatus.stocks_value = astatus.stocks_value - order.num * order.price
-            astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
-            astatus.save()
-            # holding stock から削除
-            ho = HoldingStocks.objects.get(stock=order.stock)
-            if ho.num - order.num == 0:
-                ho.delete()
-            elif ho.num - order.num > 0:
-                # ho.price = round((ho.num * ho.price - order.num * order.price) / (ho.num - order.num), 0)
-                ho.num = ho.num - order.num
-                ho.save()
-            else:
-                # 保有数以上は売れません
-                logger.error("ho.num " + str(ho.num))
-                logger.error("order.num " + str(order.num))
-                raise ValueError("ho.num - order.num < 0!")
-            smsg = "Sell-order process was completed"
-    except Exception as e:
-        emsg = e
-    return smsg, emsg
-
-
-def get_commission(fee):
-    if fee < 50000:
-        return 54
-    elif fee < 100000:
-        return 97
-    elif fee < 200000:
-        return 113
-    elif fee < 500000:
-        return 270
-    elif fee < 1000000:
-        return 525
-    elif fee < 1500000:
-        return 628
-    elif fee < 30000000:
-        return 994
-    else:
-        return 1050

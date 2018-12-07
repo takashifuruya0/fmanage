@@ -82,6 +82,7 @@ def kakeibo(request):
     else:
         status = False
         memo = "you should use POST"
+        logger.error("POST is not acceptable")
 
     # json
     data = {"message": memo, "status": status,}
@@ -123,6 +124,7 @@ def shared(request):
     else:
         memo = "you should use POST"
         status = False
+        logger.error("POST is not acceptable")
 
     # json
     data = {"message": memo, "status": status,}
