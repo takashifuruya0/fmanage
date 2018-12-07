@@ -43,6 +43,7 @@
                 <a href="{% url 'kakeibo:shared_detail' pk=object.pk %}" class="btn btn-secondary">Back to detail</a>
             </div>
         </div>
+        {% csrf_token %}
     </form>
 </div>
 

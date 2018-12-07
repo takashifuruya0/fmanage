@@ -19,8 +19,8 @@ def kakeibo(request):
     # add data to DB
     if request.method == "POST":
         try:
-            logger.info("kakeibo api is called by POST")
             val = json.loads(request.body.decode())
+            logger.info(val)
 
             kakeibo = Kakeibos()
             kakeibo.date = date.today()
@@ -31,45 +31,24 @@ def kakeibo(request):
             if kakeibo.way == "引き落とし":
                 kakeibo.move_from = Resources.objects.get(name=val['引き落とし対象'])
                 kakeibo.usage = Usages.objects.get(name=val['引き落とし項目'])
-                # update current_val
-                # calc_val.resource_current_val(val['引き落とし対象'], -kakeibo.fee)
-
             elif kakeibo.way == "振替":
                 kakeibo.move_from = Resources.objects.get(name=val['From'])
                 kakeibo.move_to = Resources.objects.get(name=val['To'])
-                # update current_val
-                # calc_val.resource_current_val(val['From'], -kakeibo.fee)
-                # calc_val.resource_current_val(val['To'], kakeibo.fee)
-
             elif kakeibo.way == "収入":
                 kakeibo.move_to = Resources.objects.get(name=val['振込先'])
                 if val['収入源'] == 'その他':
                     val['収入源'] = 'その他収入'
                 kakeibo.usage = Usages.objects.get(name=val['収入源'])
-                # update current_val
-                # calc_val.resource_current_val(val['振込先'], kakeibo.fee)
-
             elif kakeibo.way == "支出（現金）":
                 kakeibo.move_from = Resources.objects.get(name='財布')
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
-                # update current_val
-                # calc_val.resource_current_val('財布', -kakeibo.fee)
-
             elif kakeibo.way == "支出（クレジット）":
                 kakeibo.usage = Usages.objects.get(name=val['支出項目'])
-
             elif kakeibo.way == "共通支出":
                 kakeibo.usage = Usages.objects.get(name="共通支出")
                 kakeibo.move_from = Resources.objects.get(name="財布")
-                # update current_val
-                # calc_val.resource_current_val('財布', -kakeibo.fee)
-
             # save
             kakeibo.save()
-            # name = [i.name for i in Resources.objects.all()]
-            # for i in name:
-            #     calc_val.resource_current_val(i, 0)
-
             status = True
             memo = "Successfully completed"
             logger.info(memo)
@@ -96,6 +75,7 @@ def shared(request):
     # add data to DB
     if request.method == "POST":
         val = json.loads(request.body.decode())
+        logger.info(val)
         try:
             kakeibo = SharedKakeibos()
             kakeibo.date = date.today()
@@ -120,6 +100,7 @@ def shared(request):
         except Exception as e:
             memo = e
             status = False
+            logger.error(str(e))
 
     else:
         memo = "you should use POST"
@@ -168,6 +149,7 @@ def kakeibo_month(request):
             "message": "GET request is only acceptable",
             "status": False,
         }
+        logger.error(data)
     elif request.method == "GET":
         # jsonに変換するデータを準備
         data = {
@@ -219,6 +201,7 @@ def shared_month(request):
             "message": "GET request is only acceptable",
             "status": False,
         }
+        logger.error(data)
     elif request.method == "GET":
         # jsonに変換するデータを準備
         data = {
@@ -266,7 +249,7 @@ def shared_month(request):
 def asset(request):
     data = mylib_asset.benefit_all()
     # json
-    print(data)
+    logger.info(data)
     for d in data['data_all']:
         d['data']['date'] = str(d['data']['date'].year) + "/" \
                             + str(d['data']['date'].month) + "/" \
@@ -285,40 +268,46 @@ def asset_order(request):
             "status": False,
         }
     elif request.method == "POST":
-        val = json.loads(request.body.decode())
-        stockinfo = get_info.stock_overview(val["code"])
-        bo = Orders()
-        bo.datetime = val["datetime"]
-        bo.order_type = val["kind"]
-        if Stocks.objects.filter(code=val["code"]).__len__() == 0:
-            stock = Stocks()
-            stock.code = val["code"]
-            stock.name = stockinfo['name']
-            stock.save()
-        else:
-            stock = Stocks.objects.get(code=val["code"])
-        bo.stock = stock
-        bo.num = val["num"]
-        bo.price = val["price"]
-        bo.is_nisa = False
-        bo.commission = mylib_asset.get_commission(bo.num*bo.price)
-        bo.save()
+        try:
+            val = json.loads(request.body.decode())
+            stockinfo = get_info.stock_overview(val["code"])
+            bo = Orders()
+            bo.datetime = val["datetime"]
+            bo.order_type = val["kind"]
+            if Stocks.objects.filter(code=val["code"]).__len__() == 0:
+                stock = Stocks()
+                stock.code = val["code"]
+                stock.name = stockinfo['name']
+                stock.save()
+            else:
+                stock = Stocks.objects.get(code=val["code"])
+            bo.stock = stock
+            bo.num = val["num"]
+            bo.price = val["price"]
+            bo.is_nisa = False
+            bo.commission = mylib_asset.get_commission(bo.num*bo.price)
+            bo.save()
+            logger.info("New Order is created")
 
-        # order時のholding stocks, asset status の変更
-        smsg, emsg = mylib_asset.order_process(bo)
+            # order時のholding stocks, asset status の変更
+            smsg, emsg = mylib_asset.order_process(bo)
 
-        # res
-        if smsg:
-            msg = smsg
-            status = True
-        else:
-            msg = emsg
-            status = False
-        # message
-        data = {
-            "message": msg,
-            "status": status,
-        }
+            # res
+            if smsg:
+                msg = smsg
+                status = True
+                logger.info(smsg)
+            else:
+                msg = emsg
+                status = False
+                logger.error(emsg)
+            # message
+            data = {
+                "message": msg,
+                "status": status,
+            }
+        except Exception as e:
+            logger.error(e)
     # json
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)

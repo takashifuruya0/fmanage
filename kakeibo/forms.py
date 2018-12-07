@@ -28,7 +28,6 @@ class SharedKakeiboForm(forms.ModelForm):
     ModelForm を継承して作れば、HTMLで表示したいフィールドを
     指定するだけで HTML フォームを作ってくれる。
     """
-    choices_way = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "引き落とし", "共通支出", "収入"])
     choices_paid_by = ((c, c) for c in ["敬士", "朋子",])
     paid_by = forms.TypedChoiceField(choices=choices_paid_by)
     date = forms.DateField()

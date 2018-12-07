@@ -194,8 +194,8 @@ def check_mark(df_ascending):
             and not df_ascending_reverse.iloc[1]['is_positive'] and df_ascending_reverse.iloc[0]['is_positive'] \
             and df_ascending_reverse.iloc[3]['val_start'] > df_ascending_reverse.iloc[2]['val_start'] \
             and df_ascending_reverse.iloc[3]['val_start'] > df_ascending_reverse.iloc[1]['val_start'] \
-            and df_ascending_reverse.iloc[1]['val_end'] > df_ascending_reverse.iloc[0]['val_start'] \
-            and df_ascending_reverse.iloc[3]['val_start'] > df_ascending_reverse.iloc[0]['val_end']:
+            and df_ascending_reverse.iloc[1]['val_end'] < df_ascending_reverse.iloc[0]['val_start'] \
+            and df_ascending_reverse.iloc[3]['val_start'] < df_ascending_reverse.iloc[0]['val_end']:
         mark.append("上げ三法：◯")
         logger.info("上げ三法：◯")
     else:
@@ -233,31 +233,31 @@ def get_trend(df_ascending):
     trend_period_25 = 1
     trend_period_75 = 1
 
-    if ma_25.iloc[1] > ma_25.iloc[2]:
+    if ma_25.iloc[0] > ma_25.iloc[1]:
         res['is_upper_25'] = True
-        for i in range(3, len(df_ascending_reverse)):
+        for i in range(2, len(df_ascending_reverse)):
             if ma_25.iloc[i-1] > ma_25.iloc[i]:
                 trend_period_25 += 1
             else:
                 break
-    elif ma_25.iloc[1] < ma_25.iloc[2]:
+    elif ma_25.iloc[0] < ma_25.iloc[1]:
         res['is_upper_25'] = False
-        for i in range(3, len(df_ascending_reverse)):
+        for i in range(2, len(df_ascending_reverse)):
             if ma_25.iloc[i-1] < ma_25.iloc[i]:
                 trend_period_25 += 1
             else:
                 break
 
-    if ma_75.iloc[1] > ma_75.iloc[2]:
+    if ma_75.iloc[0] > ma_75.iloc[1]:
         res['is_upper_75'] = True
-        for i in range(3, len(df_ascending_reverse)):
+        for i in range(2, len(df_ascending_reverse)):
             if ma_75.iloc[i-1] > ma_75.iloc[i]:
                 trend_period_75 += 1
             else:
                 break
-    elif ma_75.iloc[1] < ma_75.iloc[2]:
+    elif ma_75.iloc[0] < ma_75.iloc[1]:
         res['is_upper_75'] = False
-        for i in range(3, len(df_ascending_reverse)):
+        for i in range(2, len(df_ascending_reverse)):
             if ma_75.iloc[i-1] < ma_75.iloc[i]:
                 trend_period_75 += 1
             else:
