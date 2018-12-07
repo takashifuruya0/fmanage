@@ -55,7 +55,7 @@ class UsageDetail(DetailView):
 
 class KakeiboUpdate(UpdateView):
     model = Kakeibos
-    form_class =KakeiboForm
+    form_class = KakeiboForm
 
     def get_success_url(self):
         return reverse('kakeibo:kakeibo_detail', kwargs={'pk': self.object.pk})
@@ -63,7 +63,7 @@ class KakeiboUpdate(UpdateView):
 
 class SharedUpdate(UpdateView):
     model = SharedKakeibos
-    form_class =SharedKakeiboForm
+    form_class = SharedKakeiboForm
 
     def get_success_url(self):
         return reverse('kakeibo:shared_detail', kwargs={'pk': self.object.pk})

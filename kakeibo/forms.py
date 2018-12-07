@@ -30,13 +30,12 @@ class SharedKakeiboForm(forms.ModelForm):
     """
     choices_way = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "引き落とし", "共通支出", "収入"])
     choices_paid_by = ((c, c) for c in ["敬士", "朋子",])
-    way = forms.TypedChoiceField(choices=choices_way)
     paid_by = forms.TypedChoiceField(choices=choices_paid_by)
     date = forms.DateField()
 
     class Meta:
         model = SharedKakeibos
-        fields = ['date', 'fee', 'usage', 'way', 'paid_by', 'memo']
+        fields = ['date', 'fee', 'usage', 'paid_by', 'memo']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
