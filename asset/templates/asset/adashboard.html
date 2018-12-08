@@ -13,20 +13,30 @@
           <i class="fab fa-servicestack"></i> 資産運用概要: {{today.year}}/{{today.month}}/{{today.day}}
         </h1>
       </div>
+      <div class="col-sm-5">
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#add_investment">
+          <i class="far fa-plus-square"></i> Investment
+        </button>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#register_stock">
+           <i class="far fa-plus-square"></i> New stock
+        </button>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#order">
+          <i class="far fa-plus-square"></i> New order
+        </button>
+      </div>
     </div>
     <hr>
 
     <!-- Button trigger modal -->
     <div class="row">
-      <div class="col-sm-6">
-        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#add_investment">
-          <i class="far fa-plus-square"></i> Additional investment
+      <div class="col-md-4">
+        <button class="btn btn-lg btn-block btn-outline-info">
+          総額 ¥{{total | floatformat:0 | intcomma}}
         </button>
-        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#register_stock">
-           <i class="far fa-plus-square"></i> New stock
-        </button>
-        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#order">
-          <i class="far fa-plus-square"></i> New order
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-lg btn-block btn-outline-{%if current_benefit.benefit_all > 0%}success{%else%}danger{%endif%}">
+          含み損益 ¥{{current_benefit.benefit_all | floatformat:0 | intcomma}}
         </button>
       </div>
     </div>
@@ -35,136 +45,152 @@
     <!-- Overview -->
     <h2>Overview</h2>
     <div class="row">
-      <div class="col-sm-4">
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <a href="#fig01" class="nav-link active" data-toggle="tab">Breakdown(Val)</a>
-          </li>
-          <li class="nav-item">
-            <a href="#fig02" class="nav-link" data-toggle="tab">Breakdown(%)</a>
-          </li>
-          <li class="nav-item">
-            <a href="#fig03" class="nav-link" data-toggle="tab">Breakdown_Kind(Val)</a>
-          </li>
-        </ul>
-        <div class="tab-content">
-          <div id="fig01" class="tab-pane active">
-            <canvas id="pie_holding_stocks"></canvas>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5>Breakdown</h5>
           </div>
-          <div id="fig02" class="tab-pane">
-            <canvas id="pie_holding_stocks_percent"></canvas>
-          </div>
-          <div id="fig03" class="tab-pane">
-            <canvas id="pie_holding_kind"></canvas>
+          <div class="card-body">
+            <ul class="nav nav-tabs">
+              <li class="nav-item">
+                <a href="#fig01" class="nav-link active" data-toggle="tab">Val</a>
+              </li>
+              <li class="nav-item">
+                <a href="#fig02" class="nav-link" data-toggle="tab">Percent</a>
+              </li>
+              <li class="nav-item">
+                <a href="#fig03" class="nav-link" data-toggle="tab">Val (kind)</a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div id="fig01" class="tab-pane active">
+                <canvas id="pie_holding_stocks"></canvas>
+              </div>
+              <div id="fig02" class="tab-pane">
+                <canvas id="pie_holding_stocks_percent"></canvas>
+              </div>
+              <div id="fig03" class="tab-pane">
+                <canvas id="pie_holding_kind"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="col-sm-4">
-        <ul class="nav nav-tabs">
-          <!--<li class="nav-item">-->
-            <!--<a href="#fig10" class="nav-link active" data-toggle="tab">Breakdown</a>-->
-          <!--</li>-->
-          <li class="nav-item">
-            <a href="#fig11" class="nav-link active" data-toggle="tab">Val</a>
-          </li>
-          <li class="nav-item">
-            <a href="#fig12" class="nav-link" data-toggle="tab">Percent</a>
-          </li>
-        </ul>
-        <div class="tab-content">
-          <!--<div id="fig10" class="tab-pane active">-->
-            <!--<canvas id="pie_holding_stocks"></canvas>-->
-          <!--</div>-->
-          <div id="fig11" class="tab-pane active">
-            <canvas id="bar_holding_stocks"></canvas>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5>Holdings</h5>
           </div>
-          <div id="fig12" class="tab-pane">
-            <canvas id="bar_holding_stocks_percent"></canvas>
+          <div class="card-body">
+            <ul class="nav nav-tabs">
+              <li class="nav-item">
+                <a href="#fig11" class="nav-link active" data-toggle="tab">Val</a>
+              </li>
+              <li class="nav-item">
+                <a href="#fig12" class="nav-link" data-toggle="tab">Percent</a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div id="fig11" class="tab-pane active">
+                <canvas id="bar_holding_stocks"></canvas>
+              </div>
+              <div id="fig12" class="tab-pane">
+                <canvas id="bar_holding_stocks_percent"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="col-sm-4">
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <a href="#table0" class="nav-link active" data-toggle="tab">Breakdown</a>
-          </li>
-          <li class="nav-item">
-            <a href="#table1" class="nav-link" data-toggle="tab">Orders</a>
-          </li>
-        </ul>
-        <div class="tab-content">
-          <!--table0: holding stocks-->
-          <div id="table0" class="tab-pane active">
-            <table class="table table-light table-hover table-sm">
-              <thead>
-                <tr>
-                  <th>Key</th>
-                  <th class="right">Val</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>保有株式</td>
-                  <td class="right">¥ {{current_benefit.total_stock | floatformat:0 | intcomma}}</td>
-                </tr>
-                <tr>
-                  <td>投資信託</td>
-                  <td class="right">¥{{astatus.last.other_value | floatformat:0 | intcomma}}</td>
-                </tr>
-                <tr>
-                  <td>買付余力</td>
-                  <td class="right">¥{{astatus.last.buying_power | floatformat:0 | intcomma}}</td>
-                </tr>
-                <tr>
-                  <td>総計</td>
-                  <td class="right">¥{{total | floatformat:0 | intcomma}}</td>
-                </tr>
-                <tr>
-                  <td>含み損益</td>
-                  <td class="right">
-                    <font color="{{total_color}}">¥{{current_benefit.benefit_all | floatformat:0 | intcomma}}</font>
-                  </td>
-                </tr>
-                <tr>
-                  <td>投資額</td>
-                  <td class="right">¥{{astatus.last.investment| intcomma}}</td>
-                </tr>
-              </tbody>
-            </table>
+
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5>Table</h5>
           </div>
-          <!--table1: orders-->
-          <div id="table1" class="tab-pane">
-            <table class="table table-light table-hover table-sm">
-              <thead>
-                <tr>
-                  <th>Buy/Sell</th>
-                  <th>Date</th>
-                  <th>Stock</th>
-                  <th class="right">Num</th>
-                  <th class="right">Price</th>
-                  <th>NISA</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for order in orders %}
-                <tr>
-                  <td>{{order.order_type}}</td>
-                  <td>{{order.datetime}}</td>
-                  <td>
-                    {% if order.stock.code|length == 4 %}
-                    <a href="{%url 'asset:analysis_detail' code=order.stock.code%}">{{order.stock}}</a>
-                    {% else %}
-                    {{order.stock}}
-                    {% endif %}
-                  </td>
-                  <td class="right">{{order.num}}</td>
-                  <td class="right">{{order.price | intcomma}}</td>
-                  <td><input type="checkbox" disabled {%if order.is_nisa%}checked{%endif%}></td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+          <div class="card-body">
+            <ul class="nav nav-tabs">
+              <li class="nav-item">
+                <a href="#table0" class="nav-link active" data-toggle="tab">Breakdown</a>
+              </li>
+              <li class="nav-item">
+                <a href="#table1" class="nav-link" data-toggle="tab">Orders</a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <!--table0: holding stocks-->
+              <div id="table0" class="tab-pane active">
+                <table class="table table-light table-hover table-sm">
+                  <thead>
+                    <tr>
+                      <th>Key</th>
+                      <th class="right">Val</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>保有株式</td>
+                      <td class="right">¥ {{current_benefit.total_stock | floatformat:0 | intcomma}}</td>
+                    </tr>
+                    <tr>
+                      <td>投資信託</td>
+                      <td class="right">¥{{astatus.last.other_value | floatformat:0 | intcomma}}</td>
+                    </tr>
+                    <tr>
+                      <td>買付余力</td>
+                      <td class="right">¥{{astatus.last.buying_power | floatformat:0 | intcomma}}</td>
+                    </tr>
+                    <tr>
+                      <td>総計</td>
+                      <td class="right">¥{{total | floatformat:0 | intcomma}}</td>
+                    </tr>
+                    <tr>
+                      <td>含み損益</td>
+                      <td class="right">
+                        <font color="{{total_color}}">
+                          ¥{{current_benefit.benefit_all | floatformat:0 | intcomma}}
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>投資額</td>
+                      <td class="right">¥{{astatus.last.investment| intcomma}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!--table1: orders-->
+              <div id="table1" class="tab-pane">
+                <table class="table table-light table-hover table-sm">
+                  <thead>
+                    <tr>
+                      <th>Buy/Sell</th>
+                      <th>Date</th>
+                      <th>Stock</th>
+                      <th class="right">Num</th>
+                      <th class="right">Price</th>
+                      <th>NISA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for order in orders %}
+                    <tr>
+                      <td>{{order.order_type}}</td>
+                      <td>{{order.datetime}}</td>
+                      <td>
+                        {% if order.stock.code|length == 4 %}
+                        <a href="{%url 'asset:analysis_detail' code=order.stock.code%}">{{order.stock}}</a>
+                        {% else %}{{order.stock}}{% endif %}
+                      </td>
+                      <td class="right">{{order.num}}</td>
+                      <td class="right">{{order.price | intcomma}}</td>
+                      <td><input type="checkbox" disabled {%if order.is_nisa%}checked{%endif%}></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -173,74 +199,88 @@
 
     <!--table2: holding stock-->
     <div class="row">
-      <div class="col-sm-12">
-        <h4>株</h4>
-        <table class="table table-light table-hover table-sm table-responsive-md">
-          <thead>
-            <tr>
-              <th>Buying Date</th>
-              <th>Code</th>
-              <th>Name</th>
-              <th class="right">Num</th>
-              <th class="right">Buying price</th>
-              <th class="right">Current price</th>
-              <th class="right">Total</th>
-              <th class="right">Benefit</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for hs in holdings.stock %}
-            <tr>
-              <td>{{hs.date}}</td>
-              <td>{{hs.code}}</td>
-              {% if hs.code|length == 4 %}
-              <td><a href="{%url 'asset:analysis_detail' code=hs.code%}">{{hs.name}}</a></td>
-              {% else %}
-              <td>{{hs.name}}</td>
-              {% endif %}
-              <td class="right">{{hs.num}}</td>
-              <td class="right">¥{{hs.price | floatformat | intcomma}}</td>
-              <td class="right">¥{{hs.current_price | floatformat | intcomma}}</td>
-              <td class="right">¥{{hs.current_total | floatformat:0 | intcomma}}</td>
-              <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}}</font></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="col-xl-6">
+        <div class="card">
+          <div class="card-header">
+            <h4>株</h4>
+          </div>
+          <div class="card-body">
+            <table class="table table-light table-hover table-sm table-responsive-md">
+              <thead>
+                <tr>
+                  <th>Buying Date</th>
+                  <th>Code</th>
+                  <th>Name</th>
+                  <th class="right">Num</th>
+                  <th class="right">Buying price</th>
+                  <th class="right">Current price</th>
+                  <th class="right">Total</th>
+                  <th class="right">Benefit</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for hs in holdings.stock %}
+                <tr>
+                  <td>{{hs.date}}</td>
+                  <td>{{hs.code}}</td>
+                  {% if hs.code|length == 4 %}
+                  <td><a href="{%url 'asset:analysis_detail' code=hs.code%}">{{hs.name}}</a></td>
+                  {% else %}
+                  <td>{{hs.name}}</td>
+                  {% endif %}
+                  <td class="right">{{hs.num}}</td>
+                  <td class="right">¥{{hs.price | floatformat | intcomma}}</td>
+                  <td class="right">¥{{hs.current_price | floatformat | intcomma}}</td>
+                  <td class="right">¥{{hs.current_total | floatformat:0 | intcomma}}</td>
+                  <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}}</font></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
-        <h4>投資信託</h4>
-        <table class="table table-light table-hover table-sm table-responsive-md">
-          <thead>
-            <tr>
-              <th>Buying Date</th>
-              <th>Code</th>
-              <th>Name</th>
-              <th class="right">Num</th>
-              <th class="right">Buying price</th>
-              <th class="right">Current price</th>
-              <th class="right">Total</th>
-              <th class="right">Benefit</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for hs in holdings.trust %}
-            <tr>
-              <td>{{hs.date}}</td>
-              <td>{{hs.code}}</td>
-              {% if hs.code|length == 4 %}
-              <td><a href="{%url 'asset:analysis_detail' code=hs.code%}">{{hs.name}}</a></td>
-              {% else %}
-              <td>{{hs.name}}</td>
-              {% endif %}
-              <td class="right">{{hs.num}}</td>
-              <td class="right">¥{{hs.price | floatformat | intcomma}}</td>
-              <td class="right">¥{{hs.current_price | floatformat | intcomma}}</td>
-              <td class="right">¥{{hs.current_total | floatformat:0 | intcomma}}</td>
-              <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}}</font></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="col-xl-6">
+        <div class="card">
+          <div class="card-header">
+            <h4>投資信託</h4>
+          </div>
+          <div class="card-body">
+            <table class="table table-light table-hover table-sm table-responsive-md">
+              <thead>
+                <tr>
+                  <th>Buying Date</th>
+                  <th>Code</th>
+                  <th>Name</th>
+                  <th class="right">Num</th>
+                  <th class="right">Buying price</th>
+                  <th class="right">Current price</th>
+                  <th class="right">Total</th>
+                  <th class="right">Benefit</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for hs in holdings.trust %}
+                <tr>
+                  <td>{{hs.date}}</td>
+                  <td>{{hs.code}}</td>
+                  {% if hs.code|length == 4 %}
+                  <td><a href="{%url 'asset:analysis_detail' code=hs.code%}">{{hs.name}}</a></td>
+                  {% else %}
+                  <td>{{hs.name}}</td>
+                  {% endif %}
+                  <td class="right">{{hs.num}}</td>
+                  <td class="right">¥{{hs.price | floatformat | intcomma}}</td>
+                  <td class="right">¥{{hs.current_price | floatformat | intcomma}}</td>
+                  <td class="right">¥{{hs.current_total | floatformat:0 | intcomma}}</td>
+                  <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}}</font></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
     <hr>
