@@ -1,11 +1,8 @@
 from django.shortcuts import render, HttpResponse, Http404
-import json
 import logging
 logger = logging.getLogger("django")
 from django.db.models.functions import Length
-
-from bs4 import BeautifulSoup
-from datetime import date, datetime
+from datetime import date
 from kakeibo.functions.mylib import time_measure
 from asset.models import Stocks, HoldingStocks, AssetStatus, Orders, StockDataByDate
 from asset.functions import get_info, mylib_asset, analysis_asset
@@ -25,6 +22,7 @@ def asset_dashboard(request):
     # msg
     today = date.today()
     smsg = emsg = ""
+
     # FormのPost処理
     if request.method == "POST":
         logger.info(request.POST)
@@ -34,10 +32,15 @@ def asset_dashboard(request):
                 form = AddInvestmentForm(request.POST)
                 form.is_valid()
                 post_data = form.cleaned_data
-                astatus = AssetStatus.objects.all().order_by('date').last()
-                astatus.investment = astatus.investment + post_data.get('value')
-                astatus.buying_power = astatus.buying_power + post_data.get('value')
-                astatus.total = astatus.total + post_data.get('value')
+                astatus_today = AssetStatus.objects.filter(date=today)
+                if astatus_today:
+                    astatus = astatus_today[0]
+                else:
+                    astatus = AssetStatus.objects.all().order_by('date').last()
+                    astatus.pk = None
+                astatus.investment += post_data.get('value')
+                astatus.buying_power += post_data.get('value')
+                astatus.total += + post_data.get('value')
                 astatus.save()
                 smsg = "Additional investment was registered"
                 logger.info(smsg)
@@ -85,6 +88,7 @@ def asset_dashboard(request):
             except Exception as e:
                 emsg = e
                 logger.error(emsg)
+
         # Order
         elif request.POST['post_type'] == "order_form":
             try:
@@ -96,23 +100,23 @@ def asset_dashboard(request):
                 order.order_type = post_data.get('order_type')
                 order.stock = post_data.get('stock')
                 order.num = post_data.get('num')
-                if len(order.stock.code) > 4:
-                    # 投資信託
-                    order.price = float(post_data.get('price')) / 10000
-                    order.commission = 0
-                else:
+                if len(order.stock.code) == 4:
                     # 株
                     order.price = post_data.get('price')
                     order.commission = mylib_asset.get_commission(order.num * order.price) if order.is_nisa else 0
+                else:
+                    # 投資信託
+                    order.price = float(post_data.get('price')) / 10000
+                    order.commission = 0
                 order.is_nisa = post_data.get('is_nisa')
                 order.save()
-                smsg = "New order was registered"
-                logger.info(smsg)
-                #
+                # order時の共通プロセス
                 smsg, emsg = mylib_asset.order_process(order)
                 if emsg:
                     raise ValueError(emsg)
                 else:
+                    logger.info(smsg)
+                    smsg = "New order was registered"
                     logger.info(smsg)
             except Exception as e:
                 emsg = e
@@ -124,76 +128,69 @@ def asset_dashboard(request):
     add_investment_form = AddInvestmentForm()
 
     # 保有株リスト：現在値で登録
-    hstocks = list()
-    hstocks_trust = list()
-    hstocks_stock = list()
+    holdings = {
+        "all": list(),
+        "trust": list(),
+        "stock":  list(),
+    }
     hss = HoldingStocks.objects.all().select_related('stock')
     for hs in hss:
-        name = hs.stock.name
-        code = hs.stock.code
-        num = hs.num
-        hsdate = hs.date
-        aprice = hs.price
         # scraping
-        data = get_info.stock_overview(code)
+        data = get_info.stock_overview(hs.stock.code)
         if data['status']:
-            cprice = data['price']
-            ctotal = cprice * num
-            benefit = (cprice - aprice) * num
+            current_price = data['price']
+            current_total = current_price * hs.num
+            benefit = (current_price - hs.price) * hs.num
         else:
-            cprice = "-"
-            ctotal = "-"
+            current_price = "-"
+            current_total = "-"
             benefit = "-"
         res = {
-            "date": hsdate,
-            "name": name,
-            "code": code,
-            "num": num,
-            "aprice": aprice,
-            "atotal": aprice * num,
-            "cprice": cprice,
-            "ctotal": ctotal,
+            "date": hs.date,
+            "name": hs.stock.name,
+            "code": hs.stock.code,
+            "num": hs.num,
+            "aprice": hs.price,
+            "atotal": hs.price * hs.num,
+            "cprice": current_price,
+            "ctotal": current_total,
             "benefit": benefit,
             "color": mylib_asset.val_color(benefit),
         }
-        hstocks.append(res)
-        if len(code) == 4:
-            hstocks_stock.append(res)
+        holdings['all'].append(res)
+        if len(hs.stock.code) == 4:
+            holdings['stock'].append(res)
         else:
-            res["aprice"] = aprice * 10000
-            res["cprice"] = cprice * 10000
-            hstocks_trust.append(res)
+            res["aprice"] = hs.price * 10000
+            res["cprice"] = current_price * 10000
+            holdings['trust'].append(res)
 
     # 総資産
-    total_stock = mylib_asset.benefit_all()['total_stock']
-    benefit = mylib_asset.benefit_all()['benefit_all']
+    current_benefit = mylib_asset.benefit_all()
+
     # ステータス
     astatus = AssetStatus.objects.all().order_by('date')
-    alatest = astatus.last()
     try:
         astatus_recent = astatus[len(astatus) - 15:len(astatus)]
     except Exception as e:
         logger.error(e)
         astatus_recent = None
+
     # 現在のトータル
-    total_b = total_stock + alatest.buying_power + alatest.other_value
+    total = astatus.last().buying_power + current_benefit['total_all']
     # 最近のorder
     orders = Orders.objects.all().order_by('-datetime')[:10]
 
     # return
     output = {
         "today": today,
-        "hstocks": hstocks,
-        "hstocks_trust": hstocks_trust,
-        "hstocks_stock": hstocks_stock,
-        "total_stock": total_stock,
-        "benefit": benefit,
-        "alatest": alatest,
+        "holdings": holdings,
+        "current_benefit": current_benefit,
         "order_form": order_form,
         "stock_form": stock_form,
         "add_investment_form": add_investment_form,
-        "total_color": mylib_asset.val_color(benefit),
-        "total_b": total_b,
+        "total_color": mylib_asset.val_color(current_benefit['benefit_all']),
+        "total": total,
         "astatus": astatus,
         "astatus_recent": astatus_recent,
         "orders": orders,

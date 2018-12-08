@@ -10,16 +10,10 @@ logger = logging.getLogger("django")
 def benefit(hs_id):
     hs = HoldingStocks.objects.get(id=hs_id)
     code = hs.stock.code
-    data = get_info.stock_overview(code)
-    if data['status']:
-        cval = data['price']
-        val = (data['price'] - hs.price) * hs.num
-        total = hs.num * data['price']
-    else:
-        cval = "-"
-        val = "-"
-        total = "-"
-    holding_time = date.today() - hs.date
+    current_price = hs.get_current_price()
+    benefit = (current_price - hs.price) * hs.num
+    total = current_price * hs.num
+    holding_time = hs.get_holding_time()
     res = {
         "data": {
             "id": hs_id,
@@ -29,10 +23,10 @@ def benefit(hs_id):
             "num": hs.num,
             "price": hs.price,
         },
-        "current_price": cval,
+        "current_price": current_price,
         "total": total,
-        "benefit": val,
-        "holding_time": holding_time.days,
+        "benefit": benefit,
+        "holding_time": holding_time,
     }
     return res
 
@@ -56,12 +50,12 @@ def benefit_all():
         else:
             total_trust += tmp['total']
             benefit_trust += tmp["benefit"]
-
-    res['total_all'] = total_stock + benefit_stock
-    res['benefit_all'] = benefit_stock + benefit_trust
+    # return
+    res['total_all'] = total_stock + total_trust
     res['total_stock'] = total_stock
-    res['benefit_stock'] = benefit_stock
     res['total_trust'] = total_trust
+    res['benefit_all'] = benefit_stock + benefit_trust
+    res['benefit_stock'] = benefit_stock
     res['benefit_stock'] = benefit_trust
     return res
 
@@ -80,7 +74,7 @@ def record_status():
         # 保有株式を計算
         data = benefit_all()
         astatus.date = date.today()
-        astatus.stocks_value = data['total_all']
+        astatus.stocks_value = data['total_stock']
         # 一つ前のデータからother_value, buying_power, investment,を引き継ぎ
         current = AssetStatus.objects.all().latest('id')
         astatus.other_value = current.other_value

@@ -1,6 +1,6 @@
 from django.db import models
 from .functions import get_info
-from datetime import datetime
+from datetime import datetime, date
 # Create your models here.
 
 
@@ -38,7 +38,14 @@ class HoldingStocks(models.Model):
         return self.stock.name
 
     def get_current_price(self):
-        return get_info.stock_overview(self.code)['price']
+        tmp = get_info.stock_overview(self.stock.code)
+        if tmp['status']:
+            return tmp['price']
+        else:
+            return None
+
+    def get_holding_time(self):
+        return (date.today() - self.date).days
 
 
 class AssetStatus(models.Model):
