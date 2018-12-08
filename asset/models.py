@@ -6,11 +6,11 @@ from datetime import datetime
 
 class Stocks(models.Model):
     objects = None
+    code = models.CharField(max_length=8, unique=True)
     name = models.CharField(max_length=100)
-    code = models.CharField(max_length=4, unique=True)
 
     def __str__(self):
-        return str(self.code) + ": " +self.name
+        return str(self.code) + ": " + self.name
 
 
 class Orders(models.Model):

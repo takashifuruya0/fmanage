@@ -8,14 +8,16 @@ logger = logging.getLogger("django")
 def stock_overview(code):
     base_url = "https://stocks.finance.yahoo.co.jp/stocks/detail/"
     query = {}
-    query["code"] = str(code) + ".T"
+    query["code"] = str(code)
     ret = requests.get(base_url, params=query)
     try:
         soup = BeautifulSoup(ret.content, "lxml")
         stocktable = soup.find('table', {'class': 'stocksTable'})
         symbol = stocktable.findAll('th', {'class': 'symbol'})[0].text
-        stockprice = stocktable.findAll('td', {'class': 'stoksPrice'})[1].text
-        stockprice = float(stockprice.replace(",", ""))
+        stockprice = float(stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", ""))
+        # 投資信託は10000口単位
+        if len(code) > 4:
+            stockprice = float(stockprice)/10000
         memo = "Success"
         status = True
     except Exception as e:

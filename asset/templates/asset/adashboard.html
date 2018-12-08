@@ -18,7 +18,7 @@
 
     <!-- Button trigger modal -->
     <div class="row">
-      <div class="col-sm-12">
+      <div class="col-sm-6">
         <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#add_investment">
           <i class="far fa-plus-square"></i> Additional investment
         </button>
@@ -35,23 +35,42 @@
     <!-- Overview -->
     <h2>Overview</h2>
     <div class="row">
-      <div class="col-sm-5">
+      <div class="col-sm-4">
         <ul class="nav nav-tabs">
           <li class="nav-item">
-            <a href="#fig10" class="nav-link active" data-toggle="tab">Breakdown</a>
+            <a href="#fig01" class="nav-link active" data-toggle="tab">Breakdown(Val)</a>
           </li>
           <li class="nav-item">
-            <a href="#fig11" class="nav-link" data-toggle="tab">Val</a>
+            <a href="#fig02" class="nav-link" data-toggle="tab">Breakdown(%)</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div id="fig01" class="tab-pane active">
+            <canvas id="pie_holding_stocks"></canvas>
+          </div>
+          <div id="fig02" class="tab-pane">
+            <canvas id="pie_holding_stocks_percent"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-4">
+        <ul class="nav nav-tabs">
+          <!--<li class="nav-item">-->
+            <!--<a href="#fig10" class="nav-link active" data-toggle="tab">Breakdown</a>-->
+          <!--</li>-->
+          <li class="nav-item">
+            <a href="#fig11" class="nav-link active" data-toggle="tab">Val</a>
           </li>
           <li class="nav-item">
             <a href="#fig12" class="nav-link" data-toggle="tab">Percent</a>
           </li>
         </ul>
         <div class="tab-content">
-          <div id="fig10" class="tab-pane active">
-            <canvas id="pie_holding_stocks"></canvas>
-          </div>
-          <div id="fig11" class="tab-pane">
+          <!--<div id="fig10" class="tab-pane active">-->
+            <!--<canvas id="pie_holding_stocks"></canvas>-->
+          <!--</div>-->
+          <div id="fig11" class="tab-pane active">
             <canvas id="bar_holding_stocks"></canvas>
           </div>
           <div id="fig12" class="tab-pane">
@@ -59,16 +78,13 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-7">
+      <div class="col-sm-4">
         <ul class="nav nav-tabs">
           <li class="nav-item">
             <a href="#table0" class="nav-link active" data-toggle="tab">Breakdown</a>
           </li>
           <li class="nav-item">
             <a href="#table1" class="nav-link" data-toggle="tab">Orders</a>
-          </li>
-          <li class="nav-item">
-            <a href="#table2" class="nav-link" data-toggle="tab">Holding stocks</a>
           </li>
         </ul>
         <div class="tab-content">
@@ -84,23 +100,23 @@
               <tbody>
                 <tr>
                   <td>保有株式</td>
-                  <td class="right">¥ {{total| intcomma}}</td>
+                  <td class="right">¥ {{ total_stock | floatformat:0 | intcomma}}</td>
                 </tr>
                 <tr>
-                  <td>その他投資</td>
-                  <td class="right">¥{{alatest.other_value| intcomma}}</td>
+                  <td>投資信託</td>
+                  <td class="right">¥{{alatest.other_value | floatformat:0 | intcomma}}</td>
                 </tr>
                 <tr>
                   <td>買付余力</td>
-                  <td class="right">¥{{alatest.buying_power | intcomma}}</td>
+                  <td class="right">¥{{alatest.buying_power | floatformat:0 | intcomma}}</td>
                 </tr>
                 <tr>
                   <td>総計</td>
-                  <td class="right">¥{{total_b| intcomma}}</td>
+                  <td class="right">¥{{total_b | floatformat:0 | intcomma}}</td>
                 </tr>
                 <tr>
-                  <td>収益</td>
-                  <td class="right"><font color="{{total_color}}">¥{{benefit| intcomma}}</font></td>
+                  <td>含み損益</td>
+                  <td class="right"><font color="{{total_color}}">¥{{benefit | floatformat:0  | intcomma}}</font></td>
                 </tr>
                 <tr>
                   <td>投資額</td>
@@ -127,47 +143,96 @@
                 <tr>
                   <td>{{order.order_type}}</td>
                   <td>{{order.datetime}}</td>
-                  <td><a href="{%url 'asset:analysis_detail' code=order.stock.code%}">{{order.stock}}</a></td>
+                  <td>
+                    {% if order.stock.code|length == 4 %}
+                    <a href="{%url 'asset:analysis_detail' code=order.stock.code%}">{{order.stock}}</a>
+                    {% else %}
+                    {{order.stock}}
+                    {% endif %}
+                  </td>
                   <td class="right">{{order.num}}</td>
                   <td class="right">{{order.price | intcomma}}</td>
-                  <td>{{order.is_nisa}}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          <!--table2: holding stock-->
-          <div id="table2" class="tab-pane">
-            <table class="table table-light table-hover table-sm table-responsive-md">
-              <thead>
-                <tr>
-                  <th>Buying Date</th>
-                  <th>Code</th>
-                  <th>Name</th>
-                  <th class="right">Num</th>
-                  <th class="right">Buying price</th>
-                  <th class="right">Current price</th>
-                  <th class="right">Total</th>
-                  <th class="right">Benefit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for hs in hstocks %}
-                <tr>
-                  <td>{{hs.date}}</td>
-                  <td>{{hs.code}}</td>
-                  <td><a href="{%url 'asset:analysis_detail' code=hs.code%}">{{hs.name}}</a></td>
-                  <td class="right">{{hs.num}}</td>
-                  <td class="right">¥{{hs.aprice | intcomma}}</td>
-                  <td class="right">¥{{hs.cprice | intcomma}}</td>
-                  <td class="right">¥{{hs.ctotal | intcomma}}</td>
-                  <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | intcomma}}</font></td>
+                  <td><input type="checkbox" disabled{%if order.is_nisa%}checked{%endif%}></td>
                 </tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
         </div>
+      </div>
+    </div>
+    <hr>
+
+    <!--table2: holding stock-->
+    <div class="row">
+      <div class="col-sm-12">
+        <h4>株</h4>
+        <table class="table table-light table-hover table-sm table-responsive-md">
+          <thead>
+            <tr>
+              <th>Buying Date</th>
+              <th>Code</th>
+              <th>Name</th>
+              <th class="right">Num</th>
+              <th class="right">Buying price</th>
+              <th class="right">Current price</th>
+              <th class="right">Total</th>
+              <th class="right">Benefit</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for hs in hstocks_stock %}
+            <tr>
+              <td>{{hs.date}}</td>
+              <td>{{hs.code}}</td>
+              {% if hs.code|length == 4 %}
+              <td><a href="{%url 'asset:analysis_detail' code=hs.code%}">{{hs.name}}</a></td>
+              {% else %}
+              <td>{{hs.name}}</td>
+              {% endif %}
+              <td class="right">{{hs.num}}</td>
+              <td class="right">¥{{hs.aprice | floatformat | intcomma}}</td>
+              <td class="right">¥{{hs.cprice | floatformat | intcomma}}</td>
+              <td class="right">¥{{hs.ctotal | floatformat:0 | intcomma}}</td>
+              <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}}</font></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <h4>投資信託</h4>
+        <table class="table table-light table-hover table-sm table-responsive-md">
+          <thead>
+            <tr>
+              <th>Buying Date</th>
+              <th>Code</th>
+              <th>Name</th>
+              <th class="right">Num</th>
+              <th class="right">Buying price</th>
+              <th class="right">Current price</th>
+              <th class="right">Total</th>
+              <th class="right">Benefit</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for hs in hstocks_trust %}
+            <tr>
+              <td>{{hs.date}}</td>
+              <td>{{hs.code}}</td>
+              {% if hs.code|length == 4 %}
+              <td><a href="{%url 'asset:analysis_detail' code=hs.code%}">{{hs.name}}</a></td>
+              {% else %}
+              <td>{{hs.name}}</td>
+              {% endif %}
+              <td class="right">{{hs.num}}</td>
+              <td class="right">¥{{hs.aprice | floatformat | intcomma}}</td>
+              <td class="right">¥{{hs.cprice | floatformat | intcomma}}</td>
+              <td class="right">¥{{hs.ctotal | floatformat:0 | intcomma}}</td>
+              <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}}</font></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
     <hr>
@@ -305,13 +370,37 @@
     });
   </script>
 
+  <!--pie_holding_stocks_percent-->
+  <script>
+    var ctx = document.getElementById('pie_holding_stocks_percent').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ["Buying power", {%for hs in hstocks%}"{{hs.code}}",{%endfor%}],
+        datasets: [{
+          label: "alice",
+          data: [{{alatest.buying_power}}/{{total_b}}, {%for hs in hstocks%}{{hs.ctotal}}/{{total_b}},{%endfor%}],
+          backgroundColor: [
+            "#2ecc71",
+            "#3498db",
+            "#95a5a6",
+            "#9b59b6",
+            "#f1c40f",
+            "#e74c3c",
+            "#34495e"
+           ]
+        }]
+      }
+    });
+  </script>
+
   <!-- bar_holding_stocks -->
   <script>
     var ctx = document.getElementById('bar_holding_stocks').getContext('2d');
-    if (window.innerWidth < 768) {
+    <!--if (window.innerWidth < 768) {-->
       ctx.canvas.width = 450
       ctx.canvas.height = 450
-    }
+    <!--}-->
     var myChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -344,10 +433,10 @@
   <!-- bar_holding_stocks_percent -->
   <script>
     var ctx = document.getElementById('bar_holding_stocks_percent').getContext('2d');
-    if (window.innerWidth < 768) {
+    <!--if (window.innerWidth < 768) {-->
       ctx.canvas.width = 450
       ctx.canvas.height = 450
-    }
+    <!--}-->
     var myChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -383,7 +472,7 @@
       labels : [{%for ass in astatus%} "{{ass.date}}", {%endfor%} "{{ today }}"],
       datasets : [
         {
-          label: "その他投資",
+          label: "投資信託",
           data: [{%for ass in astatus%} {{ass.other_value}}, {%endfor%} {{alatest.other_value}}],
           backgroundColor: "rgba(53,255,151,0.4)",
           //fill: false,
@@ -441,7 +530,7 @@
         },
         {
           label: "株式",
-          data: [{%for ass in astatus_recent%} {{ass.stocks_value}}, {%endfor%} {{total}}],
+          data: [{%for ass in astatus_recent%} {{ass.stocks_value}}, {%endfor%} {{total_stock}}],
           backgroundColor: "rgba(255,153,0,0.4)",
           //fill: false,
         },

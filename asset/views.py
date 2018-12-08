@@ -2,7 +2,7 @@ from django.shortcuts import render, HttpResponse, Http404
 import json
 import logging
 logger = logging.getLogger("django")
-import requests
+from django.db.models.functions import Length
 
 from bs4 import BeautifulSoup
 from datetime import date, datetime
@@ -27,8 +27,7 @@ def asset_dashboard(request):
     smsg = emsg = ""
     # FormのPost処理
     if request.method == "POST":
-        logger.debug(request.POST)
-        print(request.POST)
+        logger.info(request.POST)
         # Add investment
         if request.POST['post_type'] == "add_investment":
             try:
@@ -57,25 +56,30 @@ def asset_dashboard(request):
                 stock.name = get_info.stock_overview(stock.code)['name']
                 stock.save()
                 # kabuoji3よりデータ取得
-                data = get_info.kabuoji3(stock.code)
-                if data['status']:
-                    # 取得成功時
-                    for d in data['data']:
-                        # (date, stock)の組み合わせでデータがなければ追加
-                        if StockDataByDate.objects.filter(stock=stock, date=d[0]).__len__() == 0:
-                            sdbd = StockDataByDate()
-                            sdbd.stock = stock
-                            sdbd.date = d[0]
-                            sdbd.val_start = d[1]
-                            sdbd.val_high = d[2]
-                            sdbd.val_low = d[3]
-                            sdbd.val_end = d[4]
-                            sdbd.turnover = d[5]
-                            sdbd.save()
-                    logger.info('StockDataByDate of "%s" are updated' % stock.code)
+                if len(stock.code) > 4:
+                    # 投資信託
+                    pass
                 else:
-                    # 取得失敗時
-                    logger.error(data['msg'])
+                    # 株
+                    data = get_info.kabuoji3(stock.code)
+                    if data['status']:
+                        # 取得成功時
+                        for d in data['data']:
+                            # (date, stock)の組み合わせでデータがなければ追加
+                            if StockDataByDate.objects.filter(stock=stock, date=d[0]).__len__() == 0:
+                                sdbd = StockDataByDate()
+                                sdbd.stock = stock
+                                sdbd.date = d[0]
+                                sdbd.val_start = d[1]
+                                sdbd.val_high = d[2]
+                                sdbd.val_low = d[3]
+                                sdbd.val_end = d[4]
+                                sdbd.turnover = d[5]
+                                sdbd.save()
+                        logger.info('StockDataByDate of "%s" are updated' % stock.code)
+                    else:
+                        # 取得失敗時
+                        logger.error(data['msg'])
                 smsg = "New stock was registered"
                 logger.info(smsg)
             except Exception as e:
@@ -92,13 +96,19 @@ def asset_dashboard(request):
                 order.order_type = post_data.get('order_type')
                 order.stock = post_data.get('stock')
                 order.num = post_data.get('num')
-                order.price = post_data.get('price')
+                if len(order.stock.code) > 4:
+                    # 投資信託
+                    order.price = float(post_data.get('price')) / 10000
+                    order.commission = 0
+                else:
+                    # 株
+                    order.price = post_data.get('price')
+                    order.commission = mylib_asset.get_commission(order.num * order.price) if order.is_nisa else 0
                 order.is_nisa = post_data.get('is_nisa')
-                order.commission = mylib_asset.get_commission(order.num * order.price) if order.is_nisa else 0
                 order.save()
                 smsg = "New order was registered"
                 logger.info(smsg)
-                
+                #
                 smsg, emsg = mylib_asset.order_process(order)
                 if emsg:
                     raise ValueError(emsg)
@@ -115,7 +125,9 @@ def asset_dashboard(request):
 
     # 保有株リスト：現在値で登録
     hstocks = list()
-    hss = HoldingStocks.objects.all()
+    hstocks_trust = list()
+    hstocks_stock = list()
+    hss = HoldingStocks.objects.all().select_related('stock')
     for hs in hss:
         name = hs.stock.name
         code = hs.stock.code
@@ -132,7 +144,6 @@ def asset_dashboard(request):
             cprice = "-"
             ctotal = "-"
             benefit = "-"
-
         res = {
             "date": hsdate,
             "name": name,
@@ -146,9 +157,15 @@ def asset_dashboard(request):
             "color": mylib_asset.val_color(benefit),
         }
         hstocks.append(res)
+        if len(code) == 4:
+            hstocks_stock.append(res)
+        else:
+            res["aprice"] = aprice * 10000
+            res["cprice"] = cprice * 10000
+            hstocks_trust.append(res)
 
     # 総資産
-    total = mylib_asset.benefit_all()['total_all']
+    total_stock = mylib_asset.benefit_all()['total_stock']
     benefit = mylib_asset.benefit_all()['benefit_all']
     # ステータス
     astatus = AssetStatus.objects.all().order_by('date')
@@ -159,7 +176,7 @@ def asset_dashboard(request):
         logger.error(e)
         astatus_recent = None
     # 現在のトータル
-    total_b = total + alatest.buying_power + alatest.other_value
+    total_b = total_stock + alatest.buying_power + alatest.other_value
     # 最近のorder
     orders = Orders.objects.all().order_by('-datetime')[:10]
 
@@ -167,7 +184,9 @@ def asset_dashboard(request):
     output = {
         "today": today,
         "hstocks": hstocks,
-        "total": total,
+        "hstocks_trust": hstocks_trust,
+        "hstocks_stock": hstocks_stock,
+        "total_stock": total_stock,
         "benefit": benefit,
         "alatest": alatest,
         "order_form": order_form,
@@ -213,7 +232,7 @@ def ajax(request):
 @time_measure
 def analysis_list(request):
     stocks = dict()
-    for stock in Stocks.objects.all():
+    for stock in Stocks.objects.annotate(code_len=Length('code')).exclude(code_len__gt=4):
         sdbd_ascending = StockDataByDate.objects.filter(stock=stock).order_by('date')
         df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbd_ascending))
         # トレンドを取得
@@ -242,41 +261,37 @@ def analysis_list(request):
 @time_measure
 def analysis_detail(request, code):
     length = request.GET.get(key='length', default=None)
-    stock = Stocks.objects.get(code=code)
-    sdbds_ascending = StockDataByDate.objects.filter(stock__code=code).order_by('date')
-    df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbds_ascending))
-
-    # trend
-    trend = analysis_asset.get_trend(df_ascending)
-
-    # length指定ありの場合
-    if length:
-        df_ascending = df_ascending.tail(int(length))
-
-    # GOLDEN CROSS / DEAD CROSS
-    cross = analysis_asset.get_cross(df_ascending)
-
-    # order
-    order_points = analysis_asset.get_order_point(df_ascending)
-
-    # mark
-    mark = analysis_asset.check_mark(df_ascending)
-
-    # 逆向き
-    df_ascending_reverse = df_ascending.sort_values('date', ascending=False)
-
-    # 直近
-    df_recent = df_ascending_reverse.iloc[0]
-
-    output = {
-        "stock": stock,
-        "df_ascending": df_ascending,
-        "df_ascending_reverse": df_ascending_reverse,
-        "df_recent": df_recent,
-        "mark": mark,
-        "cross": cross,
-        "length": length,
-        "trend": trend,
-        "order_points": order_points,
-    }
-    return render(request, 'asset/analysis_detail.html', output)
+    if len(code) > 4:
+        pass
+    else:
+        stock = Stocks.objects.get(code=code)
+        sdbds_ascending = StockDataByDate.objects.filter(stock__code=code).order_by('date')
+        df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbds_ascending))
+        # trend
+        trend = analysis_asset.get_trend(df_ascending)
+        # length指定ありの場合
+        if length:
+            df_ascending = df_ascending.tail(int(length))
+        # GOLDEN CROSS / DEAD CROSS
+        cross = analysis_asset.get_cross(df_ascending)
+        # order
+        order_points = analysis_asset.get_order_point(df_ascending)
+        # mark
+        mark = analysis_asset.check_mark(df_ascending)
+        # 逆向き
+        df_ascending_reverse = df_ascending.sort_values('date', ascending=False)
+        # 直近
+        df_recent = df_ascending_reverse.iloc[0]
+        # return
+        output = {
+            "stock": stock,
+            "df_ascending": df_ascending,
+            "df_ascending_reverse": df_ascending_reverse,
+            "df_recent": df_recent,
+            "mark": mark,
+            "cross": cross,
+            "length": length,
+            "trend": trend,
+            "order_points": order_points,
+        }
+        return render(request, 'asset/analysis_detail.html', output)

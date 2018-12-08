@@ -39,8 +39,10 @@ def benefit(hs_id):
 
 # すべてのHoldingStocksについて、含み損益を計算する
 def benefit_all():
-    benefits = 0
-    totals = 0
+    benefit_stock = 0
+    benefit_trust = 0
+    total_stock = 0
+    total_trust = 0
     res = {
         "data_all": [],
     }
@@ -48,17 +50,19 @@ def benefit_all():
     for hs in hsa:
         tmp = benefit(hs.id)
         res["data_all"].append(tmp)
-        try:
-            benefits += tmp["benefit"]
-            totals += tmp['total']
-        except Exception as e:
-            logger.error("adding in benefit_all() was failed")
-            logger.error(e)
-            benefits = 0
-            totals = 0
+        if len(hs.stock.code) == 4:
+            total_stock += tmp['total']
+            benefit_stock += tmp["benefit"]
+        else:
+            total_trust += tmp['total']
+            benefit_trust += tmp["benefit"]
 
-    res['benefit_all'] = benefits
-    res['total_all'] = totals
+    res['total_all'] = total_stock + benefit_stock
+    res['benefit_all'] = benefit_stock + benefit_trust
+    res['total_stock'] = total_stock
+    res['benefit_stock'] = benefit_stock
+    res['total_trust'] = total_trust
+    res['benefit_stock'] = benefit_trust
     return res
 
 
@@ -66,7 +70,7 @@ def benefit_all():
 def record_status():
     try:
         tmp = AssetStatus.objects.filter(date=date.today())
-        if tmp.__len__() == 1:
+        if tmp:
             astatus = tmp[0]
             memo = "updated AssetStatus for today"
         else:
@@ -140,7 +144,13 @@ def order_process(order):
     smsg = emsg = ""
     try:
         # Status
-        astatus = AssetStatus.objects.all().last()
+        astatus_today = AssetStatus.objects.filter(date=date.today())
+        if astatus_today:
+            astatus = astatus_today[0]
+        else:
+            astatus = AssetStatus.objects.last()
+            astatus.pk = None
+            astatus.date = date.today()
         # 買い
         logger.info(order.order_type)
         if order.order_type == "現物買":
@@ -153,7 +163,10 @@ def order_process(order):
                 logger.error("order.price " + str(order.price))
                 logger.error("order.commision " + str(order.commission))
                 raise ValueError("buying_power < 0 !")
-            astatus.stocks_value = astatus.stocks_value + order.num * order.price
+            if len(order.stock.code) == 4:
+                astatus.stocks_value += order.num * order.price
+            else:
+                astatus.other_value += order.num * order.price
             astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
             astatus.save()
             logger.info("AssetStatus is updated")
@@ -162,7 +175,7 @@ def order_process(order):
             hos = HoldingStocks.objects.filter(stock=order.stock)
             if hos:
                 ho = hos[0]
-                ho.price = round((ho.price * ho.num + order.price * order.num) / (ho.num + order.num), 0)
+                ho.price = (ho.price * ho.num + order.price * order.num) / (ho.num + order.num)
                 ho.num = ho.num + order.num
                 ho.save()
                 logger.info("HoldingStock is updated")
@@ -194,8 +207,10 @@ def order_process(order):
                 # 利益なし＋NISA以外: TAX=0%
                 astatus.buying_power = astatus.buying_power + order.num * order.price - order.commission
                 logger.info("TAX 0%: Has not benefit and not NISA")
-
-            astatus.stocks_value = astatus.stocks_value - order.num * order.price
+            if len(order.stock.code) == 4:
+                astatus.stocks_value -= order.num * order.price
+            else:
+                astatus.other_value -= order.num * order.price
             astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
             astatus.save()
             logger.info("AssetStatus is updated")
