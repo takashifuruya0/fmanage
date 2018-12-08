@@ -7,7 +7,7 @@ logger = logging.getLogger("django")
 
 
 # hs_idのHoldingStocksについて、含み損益を計算する
-def benefit(hs_id):
+def get_benefit(hs_id):
     hs = HoldingStocks.objects.get(id=hs_id)
     code = hs.stock.code
     current_price = hs.get_current_price()
@@ -32,7 +32,7 @@ def benefit(hs_id):
 
 
 # すべてのHoldingStocksについて、含み損益を計算する
-def benefit_all():
+def get_benefit_all():
     benefit_stock = 0
     benefit_trust = 0
     total_stock = 0
@@ -42,7 +42,7 @@ def benefit_all():
     }
     hsa = HoldingStocks.objects.all()
     for hs in hsa:
-        tmp = benefit(hs.id)
+        tmp = get_benefit(hs.id)
         res["data_all"].append(tmp)
         if len(hs.stock.code) == 4:
             total_stock += tmp['total']
@@ -72,7 +72,7 @@ def record_status():
             memo = "create AssetStatus for today"
         logger.info(memo)
         # 保有株式を計算
-        data = benefit_all()
+        data = get_benefit_all()
         astatus.date = date.today()
         astatus.stocks_value = data['total_stock']
         # 一つ前のデータからother_value, buying_power, investment,を引き継ぎ
@@ -126,11 +126,12 @@ def register_stocks(code):
         stock.name = data['name']
         status = True
         msg = "Code " + str(code) + " was successfully registered"
+        logger.info(msg)
     except Exception as e:
         status = False
         msg = "Code " + str(code) + " was failed to register"
+        logger.error(msg)
     res = {"status": status, "message": msg,}
-    logger.info(msg)
     return res
 
 

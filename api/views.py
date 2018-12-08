@@ -247,7 +247,7 @@ def shared_month(request):
 
 
 def asset(request):
-    data = mylib_asset.benefit_all()
+    data = mylib_asset.get_benefit_all()
     # json
     logger.info(data)
     for d in data['data_all']:

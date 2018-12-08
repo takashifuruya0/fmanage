@@ -32,12 +32,14 @@ def asset_dashboard(request):
                 form = AddInvestmentForm(request.POST)
                 form.is_valid()
                 post_data = form.cleaned_data
+                # 今日のastatusを取得。無い場合は新規作成
                 astatus_today = AssetStatus.objects.filter(date=today)
                 if astatus_today:
                     astatus = astatus_today[0]
                 else:
                     astatus = AssetStatus.objects.all().order_by('date').last()
                     astatus.pk = None
+                    astatus.date = today
                 astatus.investment += post_data.get('value')
                 astatus.buying_power += post_data.get('value')
                 astatus.total += + post_data.get('value')
@@ -150,10 +152,10 @@ def asset_dashboard(request):
             "name": hs.stock.name,
             "code": hs.stock.code,
             "num": hs.num,
-            "aprice": hs.price,
-            "atotal": hs.price * hs.num,
-            "cprice": current_price,
-            "ctotal": current_total,
+            "price": hs.price,
+            "total": hs.price * hs.num,
+            "current_price": current_price,
+            "current_total": current_total,
             "benefit": benefit,
             "color": mylib_asset.val_color(benefit),
         }
@@ -161,12 +163,12 @@ def asset_dashboard(request):
         if len(hs.stock.code) == 4:
             holdings['stock'].append(res)
         else:
-            res["aprice"] = hs.price * 10000
-            res["cprice"] = current_price * 10000
+            res["price"] = hs.price * 10000
+            res["current_price"] = current_price * 10000
             holdings['trust'].append(res)
 
     # 総資産
-    current_benefit = mylib_asset.benefit_all()
+    current_benefit = mylib_asset.get_benefit_all()
 
     # ステータス
     astatus = AssetStatus.objects.all().order_by('date')

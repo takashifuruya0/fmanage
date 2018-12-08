@@ -193,9 +193,9 @@
               <td>{{hs.name}}</td>
               {% endif %}
               <td class="right">{{hs.num}}</td>
-              <td class="right">¥{{hs.aprice | floatformat | intcomma}}</td>
-              <td class="right">¥{{hs.cprice | floatformat | intcomma}}</td>
-              <td class="right">¥{{hs.ctotal | floatformat:0 | intcomma}}</td>
+              <td class="right">¥{{hs.price | floatformat | intcomma}}</td>
+              <td class="right">¥{{hs.current_price | floatformat | intcomma}}</td>
+              <td class="right">¥{{hs.current_total | floatformat:0 | intcomma}}</td>
               <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}}</font></td>
             </tr>
             {% endfor %}
@@ -227,9 +227,9 @@
               <td>{{hs.name}}</td>
               {% endif %}
               <td class="right">{{hs.num}}</td>
-              <td class="right">¥{{hs.aprice | floatformat | intcomma}}</td>
-              <td class="right">¥{{hs.cprice | floatformat | intcomma}}</td>
-              <td class="right">¥{{hs.ctotal | floatformat:0 | intcomma}}</td>
+              <td class="right">¥{{hs.price | floatformat | intcomma}}</td>
+              <td class="right">¥{{hs.current_price | floatformat | intcomma}}</td>
+              <td class="right">¥{{hs.current_total | floatformat:0 | intcomma}}</td>
               <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}}</font></td>
             </tr>
             {% endfor %}
@@ -357,7 +357,7 @@
         labels: ["Buying power", {%for hs in holdings.all%}"{{hs.code}}",{%endfor%}],
         datasets: [{
           label: "alice",
-          data: [{{astatus.last.buying_power}}, {%for hs in holdings.all%}{{hs.ctotal}},{%endfor%}],
+          data: [{{astatus.last.buying_power}}, {%for hs in holdings.all%}{{hs.current_total}},{%endfor%}],
           backgroundColor: [
             "#2ecc71",
             "#3498db",
@@ -381,7 +381,7 @@
         labels: ["Buying power", {%for hs in holdings.all%}"{{hs.code}}",{%endfor%}],
         datasets: [{
           label: "alice",
-          data: [{{astatus.last.buying_power}}/{{total}}, {%for hs in holdings.all%}{{hs.ctotal}}/{{total}},{%endfor%}],
+          data: [{{astatus.last.buying_power}}/{{total}}, {%for hs in holdings.all%}{{hs.current_total}}/{{total}},{%endfor%}],
           backgroundColor: [
             "#2ecc71",
             "#3498db",
@@ -399,10 +399,9 @@
   <!-- bar_holding_stocks -->
   <script>
     var ctx = document.getElementById('bar_holding_stocks').getContext('2d');
-    <!--if (window.innerWidth < 768) {-->
-      ctx.canvas.width = 450
-      ctx.canvas.height = 450
-    <!--}-->
+    ctx.canvas.width = 450
+    ctx.canvas.height = 450
+
     var myChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -411,14 +410,14 @@
             {
                 label: 'Buying price',
                 data: [
-                    {%for hs in holdings.all%}{{hs.atotal}},{%endfor%}
+                    {%for hs in holdings.all%}{{hs.total}},{%endfor%}
                 ],
                 backgroundColor: "rgba(153,255,51,0.4)"
             },
             {
                 label: 'Current price',
                 data: [
-                    {%for hs in holdings.all%}{{hs.ctotal}},{%endfor%}
+                    {%for hs in holdings.all%}{{hs.current_total}},{%endfor%}
                 ],
                 backgroundColor: "rgba(255,153,0,0.4)"
             }
@@ -435,10 +434,9 @@
   <!-- bar_holding_stocks_percent -->
   <script>
     var ctx = document.getElementById('bar_holding_stocks_percent').getContext('2d');
-    <!--if (window.innerWidth < 768) {-->
-      ctx.canvas.width = 450
-      ctx.canvas.height = 450
-    <!--}-->
+    ctx.canvas.width = 450
+    ctx.canvas.height = 450
+
     var myChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -447,14 +445,14 @@
             {
                 label: 'Buying price',
                 data: [
-                    {%for hs in holdings.all%}{{hs.atotal}}/{{hs.atotal}},{%endfor%}
+                    {%for hs in holdings.all%}{{hs.total}}/{{hs.total}},{%endfor%}
                 ],
                 backgroundColor: "rgba(153,255,51,0.4)"
             },
             {
                 label: 'Current price',
                 data: [
-                    {%for hs in holdings.all%}{{hs.ctotal}}/{{hs.atotal}},{%endfor%}
+                    {%for hs in holdings.all%}{{hs.current_total}}/{{hs.total}},{%endfor%}
                 ],
                 backgroundColor: "rgba(255,153,0,0.4)"
             }
@@ -568,8 +566,8 @@
         /* bezierCurve: false */
     });
   </script>
-
 {% endblock %}
+
 
 {% block script %}
   <!--銘柄名取得-->
