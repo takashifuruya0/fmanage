@@ -43,6 +43,9 @@
           <li class="nav-item">
             <a href="#fig02" class="nav-link" data-toggle="tab">Breakdown(%)</a>
           </li>
+          <li class="nav-item">
+            <a href="#fig03" class="nav-link" data-toggle="tab">Breakdown_Kind(Val)</a>
+          </li>
         </ul>
         <div class="tab-content">
           <div id="fig01" class="tab-pane active">
@@ -50,6 +53,9 @@
           </div>
           <div id="fig02" class="tab-pane">
             <canvas id="pie_holding_stocks_percent"></canvas>
+          </div>
+          <div id="fig03" class="tab-pane">
+            <canvas id="pie_holding_kind"></canvas>
           </div>
         </div>
       </div>
@@ -390,6 +396,26 @@
             "#f1c40f",
             "#e74c3c",
             "#34495e"
+           ]
+        }]
+      }
+    });
+  </script>
+
+  <!--pie_holding_stocks_percent-->
+  <script>
+    var ctx = document.getElementById('pie_holding_kind').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ["Buying power", "Stocks", "Trust"],
+        datasets: [{
+          label: "alice",
+          data: [{{astatus.last.buying_power}}, {{current_benefit.total_stock}}, {{current_benefit.total_trust}}],
+          backgroundColor: [
+            "#2ecc71",
+            "#3498db",
+            "#95a5a6",
            ]
         }]
       }
