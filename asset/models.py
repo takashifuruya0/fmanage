@@ -56,6 +56,9 @@ class AssetStatus(models.Model):
     stocks_value = models.IntegerField()
     other_value = models.IntegerField()
     investment = models.IntegerField()
+
+    def get_total(self):
+        return self.buying_power + self.stocks_value + self.other_value
     # 国内株式約定通知
     # ----------------
     # 約定日時

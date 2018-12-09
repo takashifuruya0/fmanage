@@ -41,11 +41,11 @@ class StocksAdmin(admin.ModelAdmin):
 
 
 class HoldingStocksAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'stock', 'num', 'price']
+    list_display = ['id', 'date', "get_holding_time", 'stock', 'num', 'price', 'get_current_price']
 
 
 class AssetStatusAdmin(admin.ModelAdmin):
-    list_display = ["date", "total", "buying_power", "stocks_value", "other_value", "investment"]
+    list_display = ["date", "total", "buying_power", "stocks_value", "other_value", "investment", "get_total"]
 
 
 class OrdersAdmin(admin.ModelAdmin):

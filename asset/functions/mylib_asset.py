@@ -68,28 +68,25 @@ def record_status():
             astatus = tmp[0]
             memo = "updated AssetStatus for today"
         else:
-            astatus = AssetStatus()
+            astatus = AssetStatus.objects.all().order_by('date').last()
+            astatus.pk = None
+            astatus.date = date.today()
+            astatus.save()
             memo = "create AssetStatus for today"
         logger.info(memo)
-        # 保有株式を計算
+        # 保有株式・投資信託・の現在価値と合計値を計算
         data = get_benefit_all()
-        astatus.date = date.today()
         astatus.stocks_value = data['total_stock']
-        # 一つ前のデータからother_value, buying_power, investment,を引き継ぎ
-        current = AssetStatus.objects.all().latest('id')
-        astatus.other_value = current.other_value
-        astatus.buying_power = current.buying_power
-        astatus.investment = current.investment
-        # total を update
-        astatus.total = astatus.stocks_value + astatus.other_value + astatus.buying_power
+        astatus.other_value = data['total_asset']
+        astatus.total = data['total_all'] + astatus.buying_power
+        # save
         astatus.save()
         logger.info("Total: "+str(astatus.total))
-        #
         status = True
     except Exception as e:
-        status = False
         memo = e
         logger.error(e)
+        status = False
     res = {"status": status, "memo": memo,}
     return res
 
@@ -103,7 +100,8 @@ def convert_yen(v):
         elif v < 0:
             new_val = '-¥{:,}'.format(-v)
     except Exception as e:
-            new_val = "-"
+        logger.error(e)
+        new_val = "-"
     return new_val
 
 
