@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse, Http404
+from django.shortcuts import render, HttpResponse, Http404, redirect
 import logging
 logger = logging.getLogger("django")
 from django.db.models.functions import Length
@@ -231,7 +231,7 @@ def ajax(request):
 @time_measure
 def analysis_list(request):
     stocks = dict()
-    for stock in Stocks.objects.annotate(code_len=Length('code')).exclude(code_len__gt=4):
+    for stock in Stocks.objects.annotate(code_len=Length('code')).filter(code_len=4):
         sdbd_ascending = StockDataByDate.objects.filter(stock=stock).order_by('date')
         df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbd_ascending))
         # トレンドを取得
@@ -261,7 +261,7 @@ def analysis_list(request):
 def analysis_detail(request, code):
     length = request.GET.get(key='length', default=None)
     if len(code) > 4:
-        pass
+        return redirect("asset:analysis_list")
     else:
         stock = Stocks.objects.get(code=code)
         sdbds_ascending = StockDataByDate.objects.filter(stock__code=code).order_by('date')
