@@ -296,6 +296,12 @@
           <li class="nav-item">
             <a href="#fig2" class="nav-link active" data-toggle="tab">最近のデータ</a>
           </li>
+          <li class="nav-item">
+            <a href="#fig3" class="nav-link" data-toggle="tab">Breakdown</a>
+          </li>
+          <li class="nav-item">
+            <a href="#fig4" class="nav-link" data-toggle="tab">Recent Breakdown</a>
+          </li>
         </ul>
         <div class="tab-content">
           <div id="fig1" class="tab-pane">
@@ -303,6 +309,12 @@
           </div>
           <div id="fig2" class="tab-pane active">
             <canvas id="date_shift" width="180" height="125"></canvas>
+          </div>
+          <div id="fig3" class="tab-pane">
+            <canvas id="date_shift_all_breakdown" width="180" height="125"></canvas>
+          </div>
+          <div id="fig4" class="tab-pane">
+            <canvas id="date_shift_breakdown" width="180" height="125"></canvas>
           </div>
         </div>
       </div>
@@ -624,6 +636,108 @@
       ctx.canvas.width = 450;
       ctx.canvas.height = 450;
     }
+    var myChart = new Chart(ctx, {
+        type: "line",
+        data: lineChartData,
+        options: options,
+        // 下記を追加すると線がまっすぐになります
+        /* bezierCurve: false */
+    });
+  </script>
+
+<!-- Date shift all breakdown-->
+  <script>
+    var recent_all = {{current_benefit.total_all}} + {{astatus.last.buying_power}}
+    var lineChartData = {
+      labels : [{%for ass in astatus%} "{{ass.date}}", {%endfor%} "{{ today }}"],
+      datasets : [
+        {
+          label: "投資信託",
+          data: [{%for ass in astatus%} {{ass.other_value}}/{{ass.total}}, {%endfor%} {{current_benefit.total_trust}}/recent_all],
+          backgroundColor: "rgba(53,255,151,0.4)",
+          //fill: false,
+        },
+        {
+          label: "株式",
+          data: [{%for ass in astatus%} {{ass.stocks_value}}/{{ass.total}}, {%endfor%} {{current_benefit.total_stock}}/recent_all],
+          backgroundColor: "rgba(255,153,0,0.4)",
+          //fill: false,
+        },
+        {
+          label: "買付余力",
+          data: [{%for ass in astatus%} {{ass.buying_power}}/{{ass.total}}, {%endfor%} {{astatus.last.buying_power}}/recent_all],
+          backgroundColor: "rgba(153,255,51,0.4)",
+          //fill: false,
+        },
+      ]
+    }
+    var options = {
+      scales: {
+        yAxes: [{
+          stacked: true
+        }]
+      },
+      responsive: true,
+    }
+    var ctx = document.getElementById("date_shift_all_breakdown").getContext("2d");
+    if (window.innerWidth > 768) {
+        ctx.canvas.width = 1000;
+        ctx.canvas.height = 350;
+      }else{
+        ctx.canvas.width = 450;
+        ctx.canvas.height = 450;
+      }
+    var myChart = new Chart(ctx, {
+        type: "line",
+        data: lineChartData,
+        options: options,
+        // 下記を追加すると線がまっすぐになります
+        /* bezierCurve: false */
+    });
+  </script>
+
+<!-- Date shift breakdown-->
+  <script>
+    var recent_all = {{current_benefit.total_all}} + {{astatus.last.buying_power}}
+    var lineChartData = {
+      labels : [{%for ass in astatus_recent%} "{{ass.date}}", {%endfor%} "{{ today }}"],
+      datasets : [
+        {
+          label: "投資信託",
+          data: [{%for ass in astatus_recent%} {{ass.other_value}}/{{ass.total}}, {%endfor%} {{current_benefit.total_trust}}/recent_all],
+          backgroundColor: "rgba(53,255,151,0.4)",
+          //fill: false,
+        },
+        {
+          label: "株式",
+          data: [{%for ass in astatus_recent%} {{ass.stocks_value}}/{{ass.total}}, {%endfor%} {{current_benefit.total_stock}}/recent_all],
+          backgroundColor: "rgba(255,153,0,0.4)",
+          //fill: false,
+        },
+        {
+          label: "買付余力",
+          data: [{%for ass in astatus_recent%} {{ass.buying_power}}/{{ass.total}}, {%endfor%} {{astatus.last.buying_power}}/recent_all],
+          backgroundColor: "rgba(153,255,51,0.4)",
+          //fill: false,
+        },
+      ]
+    }
+    var options = {
+      scales: {
+        yAxes: [{
+          stacked: true
+        }]
+      },
+      responsive: true,
+    }
+    var ctx = document.getElementById("date_shift_breakdown").getContext("2d");
+    if (window.innerWidth > 768) {
+        ctx.canvas.width = 1000;
+        ctx.canvas.height = 350;
+      }else{
+        ctx.canvas.width = 450;
+        ctx.canvas.height = 450;
+      }
     var myChart = new Chart(ctx, {
         type: "line",
         data: lineChartData,
