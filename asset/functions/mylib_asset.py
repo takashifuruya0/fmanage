@@ -56,7 +56,7 @@ def get_benefit_all():
     res['total_trust'] = total_trust
     res['benefit_all'] = benefit_stock + benefit_trust
     res['benefit_stock'] = benefit_stock
-    res['benefit_stock'] = benefit_trust
+    res['benefit_trust'] = benefit_trust
     return res
 
 
