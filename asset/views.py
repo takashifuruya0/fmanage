@@ -144,16 +144,9 @@ def asset_dashboard(request):
     }
     hss = HoldingStocks.objects.all().select_related('stock')
     for hs in hss:
-        # scraping
-        data = get_info.stock_overview(hs.stock.code)
-        if data['status']:
-            current_price = hs.get_current_price()
-            current_total = current_price * hs.num
-            benefit = (current_price - hs.price) * hs.num
-        else:
-            current_price = "-"
-            current_total = "-"
-            benefit = "-"
+        current_price = hs.get_current_price()
+        current_total = current_price * hs.num
+        benefit = (current_price - hs.price) * hs.num
         res = {
             "date": hs.date,
             "name": hs.stock.name,
