@@ -147,7 +147,7 @@ def asset_dashboard(request):
         # scraping
         data = get_info.stock_overview(hs.stock.code)
         if data['status']:
-            current_price = data['price']
+            current_price = hs.get_current_price()
             current_total = current_price * hs.num
             benefit = (current_price - hs.price) * hs.num
         else:
