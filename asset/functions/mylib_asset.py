@@ -77,7 +77,7 @@ def record_status():
         # 保有株式・投資信託・の現在価値と合計値を計算
         data = get_benefit_all()
         astatus.stocks_value = data['total_stock']
-        astatus.other_value = data['total_asset']
+        astatus.other_value = data['total_trust']
         astatus.total = data['total_all'] + astatus.buying_power
         # save
         astatus.save()
