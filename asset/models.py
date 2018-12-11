@@ -42,7 +42,7 @@ class HoldingStocks(models.Model):
         if tmp['status']:
             return tmp['price']
         else:
-            return None
+            return self.stock.stockdatabydate_set.latest('date').val_end
 
     def get_holding_time(self):
         return (date.today() - self.date).days
