@@ -214,3 +214,15 @@ PAGINATION_SETTINGS = {
 # Trello
 TRELLO_KEY = env("TRELLO_KEY")
 TRELLO_TOKEN = env("TRELLO_TOKEN")
+
+
+# messages framework
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.DEBUG: 'info',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',
+}
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'

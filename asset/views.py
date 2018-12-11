@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponse, Http404, redirect
+from django.contrib import messages
 import logging
 logger = logging.getLogger("django")
 from django.db.models.functions import Length
@@ -44,11 +45,13 @@ def asset_dashboard(request):
                 astatus.buying_power += post_data.get('value')
                 astatus.total += + post_data.get('value')
                 astatus.save()
-                smsg = "Additional investment was registered"
+                smsg = "Additional investment was registered: " + str(post_data.get('value'))
+                messages.success(request, smsg)
                 logger.info(smsg)
             except Exception as e:
                 emsg = e
                 logger.error(emsg)
+                messages.error(request, emsg)
 
         # Stock
         elif request.POST['post_type'] == "stock_form":
@@ -85,12 +88,13 @@ def asset_dashboard(request):
                     else:
                         # 取得失敗時
                         logger.error(data['msg'])
-                smsg = "New stock was registered"
+                smsg = "New stock was registered:" + str(post_data.get('code'))
+                messages.success(request, smsg)
                 logger.info(smsg)
             except Exception as e:
                 emsg = e
                 logger.error(emsg)
-
+                messages.error(request, emsg)
         # Order
         elif request.POST['post_type'] == "order_form":
             try:
@@ -120,9 +124,12 @@ def asset_dashboard(request):
                     logger.info(smsg)
                     smsg = "New order was registered"
                     logger.info(smsg)
+                    messages.success(request, smsg)
             except Exception as e:
                 emsg = e
+                print(emsg)
                 logger.error(emsg)
+                messages.error(request, emsg)
 
     # Form
     stock_form = StocksForm()
