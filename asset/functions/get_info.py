@@ -55,7 +55,7 @@ def kabuoji3(code):
         msg = "Done"
         status = True
     except Exception as e:
-        msg = e
+        msg = "code" + str(code) + ":" + e
         data = None
         status = False
     res = {
