@@ -192,10 +192,16 @@ LOGGING = {
             'formatter': 'verbose',
             'filename': "/var/log/gunicorn/logfile", 
         },
+        'elogfile': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
+            'filename': "/var/log/gunicorn/elogfile",
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['logfile'],
+            'handlers': ['logfile', 'elogfile'],
             'level': 'INFO',
         },
     }

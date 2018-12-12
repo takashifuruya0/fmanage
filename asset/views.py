@@ -127,7 +127,6 @@ def asset_dashboard(request):
                     messages.success(request, smsg)
             except Exception as e:
                 emsg = e
-                print(emsg)
                 logger.error(emsg)
                 messages.error(request, emsg)
 
