@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django.contrib.humanize',
     'pure_pagination',
+    'django_nose',
 ]
 
 MIDDLEWARE = [
@@ -232,3 +233,11 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+# test
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = [
+    '--with-coverage',  # get coverage
+    '--cover-html',  # output coverage to cover/ in html
+    '--cover-package=kakeibo,asset,api',  # targets are kakeibo, api, asset
+]

@@ -101,6 +101,17 @@ class ViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_usage_list(self):
+        url = reverse("kakeibo:usage_list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_usage_detail(self):
+        pk = Usages.objects.last().pk
+        url = reverse("kakeibo:usage_detail", kwargs={"pk": pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
     def test_update_kakeibo(self):
         pk = Kakeibos.objects.last().pk
         url = reverse("kakeibo:kakeibo_update", kwargs={"pk": pk})
