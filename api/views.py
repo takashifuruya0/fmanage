@@ -312,3 +312,20 @@ def asset_order(request):
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
+
+
+def test(request):
+    # json
+    try:
+        val = json.loads(request.body.decode())
+        logger.info(val)
+    except Exception as e:
+        print(e)
+        logger.error(e)
+    data = {
+        "speech": "hello hello",
+        "displayText": "hello hello",
+    }
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response
