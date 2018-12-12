@@ -125,3 +125,56 @@ class ViewTest(TestCase):
         # 修正していない要素
         self.assertEqual(kakeibo_updated.way, kdict['way'])
         self.assertEqual(kakeibo_updated.usage.pk, kdict['usage_id'])
+
+    def test_update_shared_save(self):
+        kdict = SharedKakeibos.objects.last().__dict__
+        url = reverse("kakeibo:shared_update", kwargs={"pk": kdict['id']})
+        response = self.client.post(url, {
+            "date": date(kdict['date'].year, kdict['date'].month, kdict['date'].day+1),
+            "fee": kdict['fee'] + 200,
+            "paid_by": "朋子",
+            "usage": kdict['usage_id'],
+        })
+        shared_updated = SharedKakeibos.objects.get(pk=kdict['id'])
+        # redirect
+        self.assertRedirects(response, reverse("kakeibo:shared_detail", kwargs={"pk": kdict['id']}))
+        # 修正した要素
+        self.assertNotEqual(shared_updated.fee, kdict['fee'])
+        self.assertNotEqual(shared_updated.date, kdict['date'])
+        self.assertNotEqual(shared_updated.way, kdict['paid_by'])
+        # 修正していない要素
+        self.assertEqual(shared_updated.usage.pk, kdict['usage_id'])
+
+    def test_update_credit_save(self):
+        kdict = Credits.objects.last().__dict__
+        url = reverse("kakeibo:credit_update", kwargs={"pk": kdict['id']})
+        response = self.client.post(url, {
+            "date": date(kdict['date'].year, kdict['date'].month, kdict['date'].day+1),
+            "debit_date": kdict['date'],
+            "fee": kdict['fee'] + 200,
+            "credit_item": kdict["credit_item_id"],
+        })
+        credit_updated = Credits.objects.get(pk=kdict['id'])
+        # redirect
+        self.assertRedirects(response, reverse("kakeibo:credit_detail", kwargs={"pk": kdict['id']}))
+        # 修正した要素
+        self.assertNotEqual(credit_updated.fee, kdict['fee'])
+        self.assertNotEqual(credit_updated.date, kdict['date'])
+        # 修正していない要素
+        self.assertEqual(credit_updated.credit_item.pk, kdict['credit_item_id'])
+        self.assertEqual(credit_updated.debit_date, kdict['debit_date'])
+
+    def test_update_credit_item_save(self):
+        kdict = CreditItems.objects.last().__dict__
+        url = reverse("kakeibo:credit_item_update", kwargs={"pk": kdict['id']})
+        response = self.client.post(url, {
+            "name": kdict["name"] + "_rev",
+            "usage": kdict['usage_id']
+        })
+        credit_item_updated = CreditItems.objects.get(pk=kdict['id'])
+        # redirect
+        self.assertRedirects(response, reverse("kakeibo:credit_item_detail", kwargs={"pk": kdict['id']}))
+        # 修正した要素
+        self.assertNotEqual(credit_item_updated.name, kdict['name'])
+        # 修正していない要素
+        self.assertEqual(credit_item_updated.usage.pk, kdict['usage_id'])
