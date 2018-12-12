@@ -25,7 +25,7 @@ class KakeiboCreate(CreateView):
     #     return reverse('kakeibo:kakeibo_detail', kwargs={'pk': self.object.pk})
 
 
-class SharedCerate(CreateView):
+class SharedCreate(CreateView):
     model = SharedKakeibos
     form_class = SharedKakeiboForm
 

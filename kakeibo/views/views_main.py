@@ -13,7 +13,7 @@ from datetime import date
 # function
 from kakeibo.functions import mylib
 from kakeibo.functions.mylib import time_measure
-from kakeibo.functions import middleware
+from kakeibo.functions import process_kakeibo
 
 
 # Create your views here.
@@ -30,7 +30,7 @@ def dashboard(request):
     expense = mylib.cal_sum_or_0(ekakeibos)
 
     # status, progress_bar
-    pb_kakeibo, status_kakeibo = middleware.kakeibo_status(income, expense)
+    pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
 
     # way
     ways_sum = kakeibos.values('way').annotate(Sum('fee'))
@@ -151,7 +151,7 @@ def mine(request):
     # 貯金扱いの口座
     saving_account = ["SBI敬士", "貯金口座"]
     # check year and month from GET parameter
-    year, month = middleware.yearmonth(request)
+    year, month = process_kakeibo.yearmonth(request)
 
     kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
     ekakeibos = kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）"))
@@ -159,7 +159,7 @@ def mine(request):
     expense = mylib.cal_sum_or_0(ekakeibos)
 
     # status, progress_bar
-    pb_kakeibo, status_kakeibo = middleware.kakeibo_status(income, expense)
+    pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
 
     # way
     ways_sum = kakeibos.values('way').annotate(Sum('fee'))
@@ -181,21 +181,22 @@ def mine(request):
     usages_chart = ekakeibos.values('usage__name').annotate(sum=Sum('fee')).order_by("sum").reverse()
 
     # resources_year
-    resources_year_chart, months_chart = middleware.resources_year_rev(12)
+    resources_year_chart, months_chart = process_kakeibo.resources_year_rev(12)
     logger.info(resources_year_chart)
 
     # kakeibo-usage
     usage_list = [u.name for u in Usages.objects.filter(is_expense=True)]
-    kakeibo_usage = middleware.usage_kakeibo_table(usage_list)
+    kakeibo_usage = process_kakeibo.usage_kakeibo_table(usage_list)
 
     # Consolidated_usages: dict --> [(name, val),(name, val),(name, val),...]
-    consolidated_usages_chart = sorted(middleware.consolidated_usages().items(), key=lambda x: -x[1])
+    consolidated_usages_chart = sorted(process_kakeibo.consolidated_usages().items(), key=lambda x: -x[1])
 
     # total
     total = sum([r.current_val() for r in Resources.objects.all()])
     total_saved = sum(rs.current_val() for rs in rs_saved)
 
     # 1年間での推移
+    saved_one_year_ago = 0
     for ryc in resources_year_chart:
         if ryc['name'] in saving_account:
             saved_one_year_ago = ryc["val"][0]
@@ -204,8 +205,6 @@ def mine(request):
         "total":  total - sum([i['val'][0] for i in resources_year_chart]),
         "total_saved": total_saved - saved_one_year_ago
     }
-
-
 
     # output
     output = {
@@ -242,7 +241,7 @@ def mine(request):
 @time_measure
 def shared(request):
     # check year and month from GET parameter
-    year, month = middleware.yearmonth(request)
+    year, month = process_kakeibo.yearmonth(request)
 
     # shared
     seisan = mylib.seisan(year, month)
@@ -284,7 +283,7 @@ def shared(request):
 
     # 年間
     usage_list = ["家賃", "食費", "日常消耗品", "ガス", "電気", "水道", "その他"]
-    data_year = middleware.usage_shared_table(usage_list)
+    data_year = process_kakeibo.usage_shared_table(usage_list)
 
     # who paid ?
     who_paid = shared.values('usage__name', 'paid_by').annotate(Sum('fee'))
@@ -316,7 +315,7 @@ def shared(request):
 @time_measure
 def credit(request):
     # check year and month from GET parameter
-    year, month = middleware.yearmonth(request)
+    year, month = process_kakeibo.yearmonth(request)
     # 今月のクレジット利用履歴と合計値
     credits_month = Credits.objects.filter(debit_date__year=year, debit_date__month=month).order_by('-fee')
     credits_sum = sum([ci.sum_credit() for ci in CreditItems.objects.all()])

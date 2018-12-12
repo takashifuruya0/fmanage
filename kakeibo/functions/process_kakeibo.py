@@ -5,12 +5,9 @@ from django.conf import settings
 from datetime import date
 from dateutil.relativedelta import relativedelta
 # function
-from kakeibo.functions import mylib
 from kakeibo.functions.mylib import time_measure
 # asset
 from asset.models import AssetStatus
-
-
 # logging
 import logging
 logger = logging.getLogger("django")
@@ -106,8 +103,9 @@ def consolidated_usages():
         except Exception as e:
             res["その他"] += c_sum
     # クレジットは削除
-    res.pop("クレジット（個人）")
-    res.pop("クレジット（家族）")
+    for i in ["クレジット（個人）", "クレジット（家族）"]:
+        if i in res.keys():
+            res.pop(i)
     # is_expense=False は削除
     for u in usages:
         if u.is_expense is False:
