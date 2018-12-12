@@ -314,6 +314,7 @@ def asset_order(request):
     return response
 
 
+@csrf_exempt
 def test(request):
     # json
     try:
