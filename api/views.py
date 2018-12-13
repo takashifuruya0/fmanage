@@ -335,15 +335,18 @@ def test(request):
 
 @csrf_exempt
 def test2(request):
-    # json
+    # json purse
     try:
         val = json.loads(request.body.decode())
         logger.info(val)
     except Exception as e:
         print(e)
         logger.error(e)
+    # data
+    kakeibo = Kakeibos.objects.latest('id')
+    text = "最新の投稿は" + str(kakeibo.date) + "の、" + kakeibo.usage.name + "で、" + str(kakeibo.fee) + "円です"
     data = {
-        "fulfillmentText": "hello hello"
+        "fulfillmentText": text
     }
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
