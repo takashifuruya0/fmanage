@@ -338,16 +338,30 @@ def test2(request):
     # json purse
     try:
         val = json.loads(request.body.decode())
-        logger.info(val)
+        usage_name = val['parameters']['usage_name']
+        logger.info(usage_name)
+        kakeibo = Kakeibos.objects.filter(usage__name=usage_name).latest('id')
+        text = "最新の" + usage_name + "は、" + str(kakeibo.date) + "、" + str(kakeibo.fee) + "円です"
     except Exception as e:
         print(e)
         logger.error(e)
+        today = date.today()
+        seisan = mylib.seisan(today.year, today.month)
+        expense_shared = {
+            "t": seisan['payment']['taka'],
+            "h": seisan['payment']['hoko'],
+            "all": seisan['payment']['hoko'] + seisan['payment']['taka']
+        }
+        text = "今月の支出合計は" + str(expense_shared['all']) + "円です。"
+        text = text + "たかしの支出は、" + str(expense_shared['t']) + "円、"
+        text = text + "ほうこの支出は、" + str(expense_shared['h']) + "円です。"
+
     # data
-    kakeibo = Kakeibos.objects.latest('id')
-    text = "最新の投稿は" + str(kakeibo.date) + "の、" + kakeibo.usage.name + "で、" + str(kakeibo.fee) + "円です"
     data = {
         "fulfillmentText": text
     }
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
+
+
