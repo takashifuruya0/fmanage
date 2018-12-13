@@ -338,7 +338,7 @@ def test2(request):
     # json purse
     try:
         val = json.loads(request.body.decode())
-        usage_name = val['parameters']['usage_name']
+        usage_name = val['queryResult']['parameters']['usage_name']
         logger.info(usage_name)
         kakeibo = Kakeibos.objects.filter(usage__name=usage_name).latest('id')
         text = "最新の" + usage_name + "は、" + str(kakeibo.date) + "、" + str(kakeibo.fee) + "円です"
