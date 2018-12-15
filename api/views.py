@@ -1,14 +1,13 @@
-from django.shortcuts import render
 from kakeibo.models import Kakeibos, Usages, Resources, SharedKakeibos
 import json
-from datetime import date, datetime
+from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib
 from asset.functions import mylib_asset, get_info
-from asset.models import Orders, Stocks, HoldingStocks, AssetStatus
+from asset.models import Orders, Stocks
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
@@ -335,26 +334,55 @@ def test(request):
 
 @csrf_exempt
 def test2(request):
+    today = date.today()
     # json purse
     try:
         val = json.loads(request.body.decode())
+        keys = val['queryResult']['parameters'].keys()
         usage_name = val['queryResult']['parameters']['usage_name']
-        logger.info(usage_name)
-        kakeibo = Kakeibos.objects.filter(usage__name=usage_name).latest('id')
-        text = "最新の" + usage_name + "は、" + str(kakeibo.date) + "、" + str(kakeibo.fee) + "円です"
+        query_type = val['queryResult']['parameters']['query_type']
+        if 'date-period' in keys:
+            startDate = date(
+                int(val['queryResult']['parameters']['date-period']["startDate"][0:4]),
+                int(val['queryResult']['parameters']['date-period']["startDate"][5:7]),
+                int(val['queryResult']['parameters']['date-period']["startDate"][8:10])
+            )
+            endDate = date(
+                int(val['queryResult']['parameters']['date-period']["endDate"][0:4]),
+                int(val['queryResult']['parameters']['date-period']["endDate"][5:7]),
+                int(val['queryResult']['parameters']['date-period']["endDate"][8:10])
+            )
+        else:
+            startDate = date(today.year, today.month, 1)
+            endDate = startDate + relativedelta(months=1, days=-1)
+        # log
+        logger.info("usage_name: " + usage_name)
+        logger.info("query_type: " + query_type)
+        logger.info("startDate: " + startDate)
+        logger.info("endDate: " + endDate)
+        # calculation
+        if query_type == "individual":
+            shared = SharedKakeibos.objects.filter(date__range=[startDate, endDate], usage__name=usage_name)
+        elif query_type == "overview":
+            seisan = mylib.seisan(startDate.year, startDate.month)
+            paid_by_t = seisan['payment']['taka']
+            paid_by_h = seisan['payment']['hoko']
+            shared_grouped_by_usage = SharedKakeibos.objects.filter(date__range=[startDate, endDate])\
+                .values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
+            # text
+            text = str(startDate.year)+"年"+str(startDate.month)+"月の支出合計は"
+            text = text + str(paid_by_t + paid_by_h) + "円です。"
+            text = text + "たかしの支出は、" + str(paid_by_t) + "円、"
+            text = text + "ほうこの支出は、" + str(paid_by_h) + "円です。"
+            text = text + "内訳は"
+            for sgbu in shared_grouped_by_usage:
+                text = "、" + text + sgbu['usage_name'] + sgbu['sum'] + "円"
+            text = text + "です。"
+
     except Exception as e:
-        print(e)
         logger.error(e)
-        today = date.today()
-        seisan = mylib.seisan(today.year, today.month)
-        expense_shared = {
-            "t": seisan['payment']['taka'],
-            "h": seisan['payment']['hoko'],
-            "all": seisan['payment']['hoko'] + seisan['payment']['taka']
-        }
-        text = "今月の支出合計は" + str(expense_shared['all']) + "円です。"
-        text = text + "たかしの支出は、" + str(expense_shared['t']) + "円、"
-        text = text + "ほうこの支出は、" + str(expense_shared['h']) + "円です。"
+        text = "エラーがありました。エラー文は次のとおりです。"
+        text = text + e
 
     # data
     data = {
