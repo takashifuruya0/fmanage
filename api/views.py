@@ -356,13 +356,16 @@ def test2(request):
             endDate = startDate + relativedelta(months=1, days=-1)
         # log
         logger.info("query_type: " + query_type)
-        logger.info("startDate: " + startDate)
-        logger.info("endDate: " + endDate)
+        logger.info("startDate: " + str(startDate))
+        logger.info("endDate: " + str(endDate))
         # calculation
         if query_type == "individual":
             usage_name = val['queryResult']['parameters']['usage_name']
             logger.info("usage_name: " + usage_name)
             shared = SharedKakeibos.objects.filter(date__range=[startDate, endDate], usage__name=usage_name)
+            # text
+            text = str(startDate) + "から" + str(endDate) + "までの" + usage_name + "の合計は、"
+            text = text + shared.aggregate(sum=Sum('fee'))['sum'] + "円です。"
         elif query_type == "overview":
             seisan = mylib.seisan(startDate.year, startDate.month)
             paid_by_t = seisan['payment']['taka']
@@ -378,11 +381,12 @@ def test2(request):
             for sgbu in shared_grouped_by_usage:
                 text = "、" + text + sgbu['usage_name'] + sgbu['sum'] + "円"
             text = text + "です。"
-
+        logger.info(text)
+    # Error処理
     except Exception as e:
         logger.error(e)
         text = "エラーがありました。エラー文は次のとおりです。"
-        text = text + e
+        text = text + str(e)
 
     # data
     data = {
