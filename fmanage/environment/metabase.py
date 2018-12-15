@@ -20,3 +20,6 @@ DATABASES['default'].update(db_from_env)
 
 # Debug
 DEBUG = False
+
+# ENVIRONMENT
+ENVIRONMENT = "METABSE"

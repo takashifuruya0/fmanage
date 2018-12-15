@@ -240,4 +240,6 @@ NOSE_ARGS = [
     '--with-coverage',  # get coverage
     '--cover-html',  # output coverage to cover/ in html
     '--cover-package=kakeibo,asset,api',  # targets are kakeibo, api, asset
-]
+
+]# environment
+ENVIRONMENT = "develop"
