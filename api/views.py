@@ -340,7 +340,7 @@ def test2(request):
         val = json.loads(request.body.decode())
         keys = val['queryResult']['parameters'].keys()
         query_type = val['queryResult']['parameters']['query_type']
-        if 'date-period' in keys:
+        if 'date-period' in keys and val['queryResult']['parameters']['date-period']:
             startDate = date(
                 int(val['queryResult']['parameters']['date-period']["startDate"][0:4]),
                 int(val['queryResult']['parameters']['date-period']["startDate"][5:7]),
