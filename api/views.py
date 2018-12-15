@@ -379,7 +379,7 @@ def test2(request):
             text = text + "ほうこの支出は、" + str(paid_by_h) + "円です。"
             text = text + "内訳は"
             for sgbu in shared_grouped_by_usage:
-                text = "、" + text + sgbu['usage_name'] + sgbu['sum'] + "円"
+                text = "、" + text + sgbu['usage__name'] + sgbu['sum'] + "円"
             text = text + "です。"
         logger.info(text)
     # Error処理
