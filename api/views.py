@@ -339,7 +339,6 @@ def test2(request):
     try:
         val = json.loads(request.body.decode())
         keys = val['queryResult']['parameters'].keys()
-        usage_name = val['queryResult']['parameters']['usage_name']
         query_type = val['queryResult']['parameters']['query_type']
         if 'date-period' in keys:
             startDate = date(
@@ -356,12 +355,13 @@ def test2(request):
             startDate = date(today.year, today.month, 1)
             endDate = startDate + relativedelta(months=1, days=-1)
         # log
-        logger.info("usage_name: " + usage_name)
         logger.info("query_type: " + query_type)
         logger.info("startDate: " + startDate)
         logger.info("endDate: " + endDate)
         # calculation
         if query_type == "individual":
+            usage_name = val['queryResult']['parameters']['usage_name']
+            logger.info("usage_name: " + usage_name)
             shared = SharedKakeibos.objects.filter(date__range=[startDate, endDate], usage__name=usage_name)
         elif query_type == "overview":
             seisan = mylib.seisan(startDate.year, startDate.month)
