@@ -365,7 +365,7 @@ def test2(request):
             shared = SharedKakeibos.objects.filter(date__range=[startDate, endDate], usage__name=usage_name)
             # text
             text = str(startDate) + "から" + str(endDate) + "までの" + usage_name + "の合計は、"
-            text = text + shared.aggregate(sum=Sum('fee'))['sum'] + "円です。"
+            text = text + str(shared.aggregate(sum=Sum('fee'))['sum']) + "円です。"
         elif query_type == "overview":
             seisan = mylib.seisan(startDate.year, startDate.month)
             paid_by_t = seisan['payment']['taka']
@@ -379,7 +379,7 @@ def test2(request):
             text = text + "ほうこの支出は、" + str(paid_by_h) + "円です。"
             text = text + "内訳は"
             for sgbu in shared_grouped_by_usage:
-                text = "、" + text + sgbu['usage__name'] + sgbu['sum'] + "円"
+                text = "、" + text + sgbu['usage__name'] + str(sgbu['sum']) + "円"
             text = text + "です。"
         logger.info(text)
     # Error処理
