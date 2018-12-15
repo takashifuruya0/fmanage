@@ -367,8 +367,8 @@ def test2(request):
             if shared:
                 data = shared.aggregate(sum=Sum('fee'), count=Count('fee'))
                 text = str(startDate) + "から" + str(endDate) + "までの" + usage_name + "の合計は、"
-                text = text + str(data['sum']) + "円です。"
-                text = text + "レコード数は、" + str(data['count']) + "件です。"
+                text += str(data['sum']) + "円です。"
+                text += "レコード数は、" + str(data['count']) + "件です。"
             else:
                 # usage_nameがヒットしない場合
                 text = str(startDate) + "から" + str(endDate) + "までの" + usage_name + "の記録はありません。"
@@ -380,12 +380,13 @@ def test2(request):
                 .values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
             # text
             text = str(startDate.year)+"年"+str(startDate.month)+"月の支出合計は"
-            text = text + str(paid_by_t + paid_by_h) + "円です。"
-            text = text + "たかしの支出は、" + str(paid_by_t) + "円、"
-            text = text + "ほうこの支出は、" + str(paid_by_h) + "円です。"
-            text = text + "内訳は"
+            text += str(paid_by_t + paid_by_h) + "円です。"
+            text += "たかしの支出は、" + str(paid_by_t) + "円、"
+            text += "ほうこの支出は、" + str(paid_by_h) + "円で、"
+            text += seisan['status'] + str(seisan['seisan']) + "円です。"
+            text += "内訳は"
             for sgbu in shared_grouped_by_usage:
-                text = text + "、" + sgbu['usage__name'] + str(sgbu['sum']) + "円"
+                text += "、" + sgbu['usage__name'] + str(sgbu['sum']) + "円"
             text = text + "です。"
         logger.info(text)
     # Error処理

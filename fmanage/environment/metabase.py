@@ -23,3 +23,11 @@ DEBUG = False
 
 # ENVIRONMENT
 ENVIRONMENT = "METABSE"
+
+# LOG
+LOGGING['loggers'] = {
+    'django': {
+        'handlers': ['logfile', 'elogfile'],
+        'level': 'INFO',
+    },
+}
