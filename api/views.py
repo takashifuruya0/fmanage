@@ -332,7 +332,7 @@ def test(request):
 
 
 @csrf_exempt
-def test2(request):
+def googlehome_shared(request):
     today = date.today()
     # json purse
     try:
@@ -355,24 +355,25 @@ def test2(request):
             endDate = startDate + relativedelta(months=1, days=-1)
 
         # log
-        logger.debug("query_type: " + query_type)
-        logger.debug("startDate: " + str(startDate))
-        logger.debug("endDate: " + str(endDate))
+        logger.debug("query_type: {0}".format(query_type))
+        logger.debug("startDate: {0}".format(startDate))
+        logger.debug("endDate: {0}".format(endDate))
 
-        # calculation
+        # カテゴリ別の合計
         if query_type == "individual":
             usage_name = val['queryResult']['parameters']['usage_name']
-            logger.debug("usage_name: " + usage_name)
+            logger.debug("usage_name: {0}".format(usage_name))
             shared = SharedKakeibos.objects.filter(date__range=[startDate, endDate], usage__name=usage_name)
             # text
             if shared:
                 data = shared.aggregate(sum=Sum('fee'), count=Count('fee'))
-                text = str(startDate) + "から" + str(endDate) + "までの" + usage_name + "の合計は、"
-                text += str(data['sum']) + "円です。"
-                text += "レコード数は、" + str(data['count']) + "件です。"
+                text = "{0}から{1}までの{2}の合計は、".format(startDate, endDate, usage_name)
+                text += "{0}円です。".format(data['sum'])
+                text += "レコード数は、{0}件です。".format(data['count'])
             else:
                 # usage_nameがヒットしない場合
-                text = str(startDate) + "から" + str(endDate) + "までの" + usage_name + "の記録はありません。"
+                text = "{0}から{1}までの{2}の記録はありません。".format(startDate, endDate, usage_name)
+        # 詳細
         elif query_type == "breakdown":
             seisan = mylib.seisan(startDate.year, startDate.month)
             paid_by_t = seisan['payment']['taka']
@@ -380,22 +381,40 @@ def test2(request):
             shared_grouped_by_usage = SharedKakeibos.objects.filter(date__range=[startDate, endDate]) \
                 .values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
             # text
-            text = str(startDate.year) + "年" + str(startDate.month) + "月の支出合計は"
-            text += str(paid_by_t + paid_by_h) + "円です。"
-            text += "たかしの支出は、" + str(paid_by_t) + "円、"
-            text += "ほうこの支出は、" + str(paid_by_h) + "円です。"
+            text = "{0.year}年{0.month}月の支出合計は".format(startDate)
+            text += "{0}円です。".format(paid_by_t + paid_by_h)
+            text += "たかしの支出は、{0}円、".format(paid_by_t)
+            text += "ほうこの支出は、{0}円です。".format(paid_by_h)
             text += "内訳は"
             for sgbu in shared_grouped_by_usage:
-                text += "、" + sgbu['usage__name'] + str(sgbu['sum']) + "円"
+                text += "、{0}{1}円".format(sgbu['usage__name'], sgbu['sum'])
             text = text + "です。"
+        # 概要
         elif query_type == "overview":
             seisan = mylib.seisan(startDate.year, startDate.month)
             total = seisan['payment']['sum']
             # text
-            text = str(startDate.year)+"年"+str(startDate.month)+"月の支出合計は"
-            text += str(total) + "円です。"
-            text += seisan['status'] + "額は、" + str(seisan['inout']) + "円、"
-            text += "現金精算額は、" + str(seisan['seisan']) + "円です。"
+            text = "{0.year}年{0.month}月の支出合計は".format(startDate)
+            text += "{0}円です。".format(total)
+            text += "{0}額は、{1}円、".format(seisan['status'], seisan['inout'])
+            text += "現金精算額は、{0}円です。".format(seisan['seisan'])
+        # 登録
+        elif query_type == "create":
+            pay_date = date(
+                int(val['queryResult']['parameters']['date'][0:4]),
+                int(val['queryResult']['parameters']['date'][5:7]),
+                int(val['queryResult']['parameters']['date'][8:10])
+            )
+            shared = SharedKakeibos.objects.create(
+                usage=Usages.objects.get(name=val['queryResult']['parameters']['usage_name']),
+                date=pay_date,
+                fee=val['queryResult']['parameters']['fee'],
+                paid_by=val['queryResult']['parameters']['paid_by'],
+                is_settled=False
+            )
+            # text
+            text = "新しい共通家計簿レコードを追加しました。"
+            text += "{0.date}の{0.usage.name}、{0.fee}円、支払い者は{0.paid_by}です。".format(shared)
         logger.info(text)
     # Error処理
     except Exception as e:

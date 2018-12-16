@@ -15,5 +15,5 @@ urlpatterns = [
     url(r'^asset/order$', views.asset_order, name="asset_order"),
     url(r'^asset$', views.asset, name="asset"),
     url(r'^test$', views.test, name="test"),
-    url(r'^test2$', views.test2, name="test2"),
+    url(r'^googlehome/shared$', views.googlehome_shared, name="googlehome_shared"),
 ]
