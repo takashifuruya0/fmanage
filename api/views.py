@@ -320,7 +320,6 @@ def test(request):
         val = json.loads(request.body.decode())
         logger.info(val)
     except Exception as e:
-        print(e)
         logger.error(e)
     data = {
         "speech": "hello hello",
@@ -354,14 +353,16 @@ def test2(request):
         else:
             startDate = date(today.year, today.month, 1)
             endDate = startDate + relativedelta(months=1, days=-1)
+
         # log
-        logger.info("query_type: " + query_type)
-        logger.info("startDate: " + str(startDate))
-        logger.info("endDate: " + str(endDate))
+        logger.debug("query_type: " + query_type)
+        logger.debug("startDate: " + str(startDate))
+        logger.debug("endDate: " + str(endDate))
+
         # calculation
         if query_type == "individual":
             usage_name = val['queryResult']['parameters']['usage_name']
-            logger.info("usage_name: " + usage_name)
+            logger.debug("usage_name: " + usage_name)
             shared = SharedKakeibos.objects.filter(date__range=[startDate, endDate], usage__name=usage_name)
             # text
             if shared:
@@ -372,22 +373,29 @@ def test2(request):
             else:
                 # usage_nameがヒットしない場合
                 text = str(startDate) + "から" + str(endDate) + "までの" + usage_name + "の記録はありません。"
-        elif query_type == "overview":
+        elif query_type == "breakdown":
             seisan = mylib.seisan(startDate.year, startDate.month)
             paid_by_t = seisan['payment']['taka']
             paid_by_h = seisan['payment']['hoko']
-            shared_grouped_by_usage = SharedKakeibos.objects.filter(date__range=[startDate, endDate])\
+            shared_grouped_by_usage = SharedKakeibos.objects.filter(date__range=[startDate, endDate]) \
                 .values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
             # text
-            text = str(startDate.year)+"年"+str(startDate.month)+"月の支出合計は"
+            text = str(startDate.year) + "年" + str(startDate.month) + "月の支出合計は"
             text += str(paid_by_t + paid_by_h) + "円です。"
             text += "たかしの支出は、" + str(paid_by_t) + "円、"
-            text += "ほうこの支出は、" + str(paid_by_h) + "円で、"
-            text += seisan['status'] + str(seisan['seisan']) + "円です。"
+            text += "ほうこの支出は、" + str(paid_by_h) + "円です。"
             text += "内訳は"
             for sgbu in shared_grouped_by_usage:
                 text += "、" + sgbu['usage__name'] + str(sgbu['sum']) + "円"
             text = text + "です。"
+        elif query_type == "overview":
+            seisan = mylib.seisan(startDate.year, startDate.month)
+            total = seisan['payment']['sum']
+            # text
+            text = str(startDate.year)+"年"+str(startDate.month)+"月の支出合計は"
+            text += str(total) + "円です。"
+            text += seisan['status'] + "額は、" + str(seisan['inout']) + "円、"
+            text += "現金精算額は、" + str(seisan['seisan']) + "円です。"
         logger.info(text)
     # Error処理
     except Exception as e:

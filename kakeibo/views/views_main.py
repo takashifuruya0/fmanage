@@ -45,9 +45,6 @@ def dashboard(request):
     current_resource = dict()
     resources_chart = list()
     for rs in Resources.objects.all():
-        # move_to = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_to=rs))
-        # move_from = mylib.cal_sum_or_0(Kakeibos.objects.filter(move_from=rs))
-        # val = rs.initial_val + move_to - move_from
         val = rs.current_val()
         move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
         move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
@@ -100,12 +97,8 @@ def dashboard(request):
     labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
     bar_eom = {"data": data, "labels": labels}
 
-    # msg
-    smsg = ""
-
     output = {
         "today": today,
-        "smsg": smsg,
         # kakeibo
         "inout": income-expense,
         "income": income,
@@ -389,15 +382,12 @@ def test(request):
         val = list()
         val.append(rs.current_val())
         ll = today
-        print("=====")
-        print(ll.month, ll.year)
         for i in range(1, num):
             move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
             move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
             val.append(val[i-1] - move_to + move_from)
             ll = ll + relativedelta(months=-1)
             logger.info(ll)
-            print(ll.month, ll.year, move_from, move_to, kakeibos.__len__())
             kakeibos = Kakeibos.objects.filter(date__month=ll.month, date__year=ll.year)
         val.reverse()
         tmp = {"name": rs.name, "val": val,}

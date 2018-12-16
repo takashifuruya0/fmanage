@@ -1,6 +1,5 @@
 from django.test import TestCase
 import requests
-from django.conf import settings
 from django.urls import reverse
 import logging
 logger = logging.getLogger('django')
@@ -68,7 +67,15 @@ class GoogleHomeTest(TestCase):
         data_in = self.data.copy()
         data_in['queryResult']['parameters']['query_type'] = "overview"
         r = requests.post(self.url, json=data_in)
-        expected = "2018年11月の支出合計は149913円です。たかしの支出は、115801円、ほうこの支出は、34112円で、黒字25801円です。"
+        expected = "2018年11月の支出合計は149913円です。黒字額は、87円、現金精算額は、25801円です。"
+        self.assertEqual(200, r.status_code)
+        self.assertEqual(expected, r.json()['fulfillmentText'])
+
+    def test_breakdown(self):
+        data_in = self.data.copy()
+        data_in['queryResult']['parameters']['query_type'] = "breakdown"
+        r = requests.post(self.url, json=data_in)
+        expected = "2018年11月の支出合計は149913円です。たかしの支出は、115801円、ほうこの支出は、34112円です。"
         expected += "内訳は、家賃104000円、食費25958円、日常消耗品10979円、ガス4216円、電気3980円、その他780円です。"
         self.assertEqual(200, r.status_code)
         self.assertEqual(expected, r.json()['fulfillmentText'])

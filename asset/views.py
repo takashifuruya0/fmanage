@@ -20,9 +20,7 @@ from django_pandas.io import read_frame
 @login_required
 @time_measure
 def asset_dashboard(request):
-    # msg
     today = date.today()
-    smsg = emsg = ""
 
     # FormのPost処理
     if request.method == "POST":
@@ -52,7 +50,8 @@ def asset_dashboard(request):
                 emsg = e
                 logger.error(emsg)
                 messages.error(request, emsg)
-
+            finally:
+                return redirect('asset:dashboard')
         # Stock
         elif request.POST['post_type'] == "stock_form":
             try:
@@ -95,6 +94,8 @@ def asset_dashboard(request):
                 emsg = e
                 logger.error(emsg)
                 messages.error(request, emsg)
+            finally:
+                return redirect('asset:dashboard')
         # Order
         elif request.POST['post_type'] == "order_form":
             try:
@@ -129,6 +130,8 @@ def asset_dashboard(request):
                 emsg = e
                 logger.error(emsg)
                 messages.error(request, emsg)
+            finally:
+                return redirect('asset:dashboard')
 
     # Form
     stock_form = StocksForm()
@@ -195,8 +198,6 @@ def asset_dashboard(request):
         "astatus": astatus,
         "astatus_recent": astatus_recent,
         "orders": orders,
-        "smsg": smsg,
-        "emsg": emsg,
     }
     return render(request, 'asset/adashboard.html', output)
 
