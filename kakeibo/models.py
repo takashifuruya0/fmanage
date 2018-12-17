@@ -132,7 +132,7 @@ class Resources(BaseModel):
 
     def current_val(self):
         if self.name == "投資口座":
-            return AssetStatus.objects.last().total
+            return AssetStatus.objects.latest('date').total
         else:
             move_tos = Kakeibos.objects.filter(move_to=self)
             move_froms = Kakeibos.objects.filter(move_from=self)

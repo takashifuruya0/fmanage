@@ -2,6 +2,7 @@ from django.test import TestCase
 import requests
 from django.urls import reverse
 from datetime import date
+from django.conf import settings
 from kakeibo.models import Usages, SharedKakeibos
 import logging
 logger = logging.getLogger('django')
