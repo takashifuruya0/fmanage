@@ -415,6 +415,28 @@ def googlehome_shared(request):
             # text
             text = "新しい共通家計簿レコードを追加しました。"
             text += "{0.date}の{0.usage.name}、{0.fee}円、支払い者は{0.paid_by}です。".format(shared)
+        # 登録（mine）
+        elif query_type == "create_mine":
+            pay_date = date(
+                int(val['queryResult']['parameters']['date'][0:4]),
+                int(val['queryResult']['parameters']['date'][5:7]),
+                int(val['queryResult']['parameters']['date'][8:10])
+            )
+            data = {
+                "usage": Usages.objects.get(name=val['queryResult']['parameters']['usage_name']),
+                "date": pay_date,
+                "fee": val['queryResult']['parameters']['fee'],
+                "way": val['queryResult']['parameters']['way'],
+            }
+            # move_to, move_fromがあったら追加
+            if not val['queryResult']['parameters']['move_from'] == "None":
+                data["move_from"] = Resources.objects.get(name=val['queryResult']['parameters']['move_from'])
+            if not val['queryResult']['parameters']['move_to'] == "None":
+                data["move_from"] = Resources.objects.get(name=val['queryResult']['parameters']['move_to'])
+            kakeibo = Kakeibos.objects.create(**data)
+            # text
+            text = "新しいマイ家計簿レコードを追加しました。"
+            text += "{0.date}の{0.way}、{0.usage.name}、{0.fee}円です。".format(kakeibo)
         logger.info(text)
     # Error処理
     except Exception as e:
