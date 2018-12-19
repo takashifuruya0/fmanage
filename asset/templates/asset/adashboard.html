@@ -755,12 +755,13 @@
 
 <!-- Date shift rate-->
   <script>
+    var recent_rate = ({{current_benefit.total_all}}+{{ astatus.last.buying_power }})/{{ astatus.last.investment }};
     var lineChartData = {
       labels : [{%for ass in astatus%} "{{ass.date}}", {%endfor%} "{{today}}"],
       datasets : [
         {
           label: "資産額/投資額",
-          data: [{%for ass in astatus%} {{ass.total}}/{{ass.investment}}, {%endfor%} {{current_benefit.total_all}}/{{ astatus.last.investment }}],
+          data: [{%for ass in astatus%} {{ass.total}}/{{ass.investment}}, {%endfor%} recent_rate],
           backgroundColor: "rgba(53,255,151,0.4)",
           // fill: false,
         },

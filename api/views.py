@@ -353,6 +353,7 @@ def googlehome_shared(request):
                 int(val['queryResult']['parameters']['date-period']["endDate"][8:10])
             )
         else:
+            # 指定がない場合は、今月1ヶ月間を指定
             startDate = date(today.year, today.month, 1)
             endDate = startDate + relativedelta(months=1, days=-1)
 
