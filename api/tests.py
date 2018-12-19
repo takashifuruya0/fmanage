@@ -84,7 +84,7 @@ class GoogleHomeTest(TestCase):
         self.assertEqual(200, r.status_code)
         self.assertEqual(expected, r.json()['fulfillmentText'])
 
-    def test_post(self):
+    def test_post_shared(self):
         data_in = self.data.copy()
         data_in['queryResult']['parameters']['query_type'] = "create"
         data_in['queryResult']['parameters']['date'] = "2017-11-30T12:00:00+09:00"
@@ -94,5 +94,21 @@ class GoogleHomeTest(TestCase):
         r = requests.post(self.url, json=data_in)
         expected = "新しい共通家計簿レコードを追加しました。"
         expected += "2017-11-30の食費、0円、支払い者は敬士です。"
+        self.assertEqual(200, r.status_code)
+        self.assertEqual(expected, r.json()['fulfillmentText'])
+
+
+    def test_post_mine(self):
+        data_in = self.data.copy()
+        data_in['queryResult']['parameters']['query_type'] = "create_mine"
+        data_in['queryResult']['parameters']['date'] = "2017-11-30T12:00:00+09:00"
+        data_in['queryResult']['parameters']['fee'] = 0
+        data_in['queryResult']['parameters']['usage_name'] = "食費"
+        data_in['queryResult']['parameters']['way'] = "支出（現金）"
+        data_in['queryResult']['parameters']['move_to'] = "None"
+        data_in['queryResult']['parameters']['move_from'] = "財布"
+        r = requests.post(self.url, json=data_in)
+        expected = "新しいマイ家計簿レコードを追加しました。"
+        expected += "2017-11-30の支出（現金）、食費、0円です。"
         self.assertEqual(200, r.status_code)
         self.assertEqual(expected, r.json()['fulfillmentText'])
