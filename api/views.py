@@ -269,6 +269,7 @@ def asset_order(request):
     elif request.method == "POST":
         try:
             val = json.loads(request.body.decode())
+            logger.debug(val)
             stockinfo = get_info.stock_overview(val["code"])
             bo = Orders()
             bo.datetime = val["datetime"]
@@ -300,6 +301,7 @@ def asset_order(request):
                 msg = emsg
                 status = False
                 logger.error(emsg)
+                logger.error(val)
             # message
             data = {
                 "message": msg,

@@ -226,6 +226,8 @@ def order_process(order):
             smsg = "Sell-order process was completed"
     except Exception as e:
         emsg = e
+        logger.error(emsg)
+        logger.error(order.__dict__)
     return smsg, emsg
 
 
