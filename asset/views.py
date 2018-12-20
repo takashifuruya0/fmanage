@@ -233,22 +233,24 @@ def analysis_list(request):
     stocks = dict()
     for stock in Stocks.objects.annotate(code_len=Length('code')).filter(code_len=4):
         sdbd_ascending = StockDataByDate.objects.filter(stock=stock).order_by('date')
-        df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbd_ascending))
-        # トレンドを取得
-        trend = analysis_asset.get_trend(df_ascending)
-        # トレンド転換マークをチェック
-        mark = analysis_asset.check_mark(df_ascending)
-        # 最新データである最後尾を取得
-        df_latest = df_ascending.tail(1)
-        stocks[stock.code] = {
-            "name": stock.name,
-            "val_end": df_latest.val_end,
-            "val_end_diff_percent": float(df_latest.val_end_diff_percent),
-            "turnover": df_latest.turnover,
-            "turnover_diff_percent": float(df_latest.turnover_diff_percent),
-            "mark": mark,
-            "trend": trend,
-        }
+        # sdbdがないstockはスキップ
+        if sdbd_ascending.__len__() > 0:
+            df_ascending = analysis_asset.analyse_stock_data(read_frame(sdbd_ascending))
+            # トレンドを取得
+            trend = analysis_asset.get_trend(df_ascending)
+            # トレンド転換マークをチェック
+            mark = analysis_asset.check_mark(df_ascending)
+            # 最新データである最後尾を取得
+            df_latest = df_ascending.tail(1)
+            stocks[stock.code] = {
+                "name": stock.name,
+                "val_end": df_latest.val_end,
+                "val_end_diff_percent": float(df_latest.val_end_diff_percent),
+                "turnover": df_latest.turnover,
+                "turnover_diff_percent": float(df_latest.turnover_diff_percent),
+                "mark": mark,
+                "trend": trend,
+            }
     # for stock in stocks:
     output = {
         "stocks": stocks,
