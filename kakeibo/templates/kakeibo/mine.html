@@ -36,20 +36,24 @@
   <hr>
   <div class="row">
     <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-outline-info">貯金 ¥{{saved | intcomma}}</button>
+      <button class="btn btn-block btn-lg btn-info">
+        貯金 <span class="badge badge-light">¥{{saved | intcomma}}</span>
+      </button>
     </div>
     <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-outline-{{status}}">収支 ¥{{inout | intcomma}}</button>
+      <button class="btn btn-block btn-lg btn-{{status}}">
+        収支 <span class="badge badge-light">¥{{inout | intcomma}}</span>
+      </button>
     </div>
     <div class="col-sm-4">
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_kakeibo.in}}%; height:25px">
-          収入 ¥{{income | intcomma}}
+          収入 <span class="badge badge-light">¥{{income | intcomma}}</span>
         </div>
       </div>
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_kakeibo.out}}%; height:25px">
-          支出 ¥{{expense | intcomma}}
+          支出 <span class="badge badge-light">¥{{expense | intcomma}}</span>
         </div>
       </div>
     </div>

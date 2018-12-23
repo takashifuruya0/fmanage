@@ -34,17 +34,20 @@
   </div>
   <div class="row">
     <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-outline-{{status.kakeibo}}">収支 ¥{{inout | intcomma}}</button>
+      <button class="btn btn-block btn-lg btn-{{status.kakeibo}}">
+        収支 <span class="badge badge-light">¥{{inout | intcomma}}</span>
+      </button>
+
     </div>
     <div class="col-sm-8">
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb.kakeibo.in}}%; height:25px">
-          収入 ¥{{income | intcomma}}
+          収入 <span class="badge badge-light">¥{{income | intcomma}}</span>
         </div>
       </div>
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb.kakeibo.out}}%; height:25px">
-          支出 ¥{{expense | intcomma}}
+          支出 <span class="badge badge-light">¥{{expense | intcomma}}</span>
         </div>
       </div>
     </div>
@@ -106,17 +109,19 @@
   </div>
   <div class="row">
     <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-outline-{{status.shared}}">収支 ¥{{inout_shared | intcomma}}</button>
+      <button class="btn btn-block btn-lg btn-{{status.shared}}">
+        収支 <span class="badge badge-light">¥{{inout_shared | intcomma}}</span>
+      </button>
     </div>
     <div class="col-sm-8">
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb.shared.in}}%; height:25px">
-          予算 ¥{{budget_shared.all | intcomma}}
+          予算 <span class="badge badge-light">¥{{budget_shared.all | intcomma}}</span>
         </div>
       </div>
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb.shared.out}}%; height:25px">
-          支出 ¥{{expense_shared.all | intcomma}}
+          支出 <span class="badge badge-light">¥{{expense_shared.all | intcomma}}</span>
         </div>
       </div>
     </div>
@@ -124,7 +129,9 @@
   <hr>
   <div class="row">
     <div class="col-sm-4">
-      <h4>精算：¥{{move | intcomma}}</h4>
+      <button class="btn btn-block btn-lg btn-info">
+        精算 <span class="badge badge-light">¥{{move | intcomma}}</span>
+      </button>
       <hr>
 
       <h4>支払者別</h4>
