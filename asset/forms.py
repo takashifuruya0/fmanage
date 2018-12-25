@@ -38,3 +38,8 @@ class AddInvestmentForm(forms.Form):
                'placeholder': "追加投資額",
                }
     ))
+    is_investment = forms.BooleanField(required=False, widget=forms.CheckboxInput(
+        attrs={
+            'class': 'form-control',
+        }
+    ))

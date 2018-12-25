@@ -39,10 +39,13 @@ def asset_dashboard(request):
                     astatus = AssetStatus.objects.all().order_by('date').last()
                     astatus.pk = None
                     astatus.date = today
-                astatus.investment += post_data.get('value')
+                # 買付余力と合計に追加。追加投資の場合は投資額にも追加。
+                if post_data.get('is_investment'):
+                    astatus.investment += post_data.get('value')
                 astatus.buying_power += post_data.get('value')
                 astatus.total += + post_data.get('value')
                 astatus.save()
+                # msg
                 smsg = "Additional investment was registered: " + str(post_data.get('value'))
                 messages.success(request, smsg)
                 logger.info(smsg)
