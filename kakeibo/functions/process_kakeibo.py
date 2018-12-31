@@ -15,9 +15,12 @@ logger = logging.getLogger("django")
 
 @time_measure
 def usage_shared_table(usage_list):
+    today = date.today()
+    this_month = date(today.year, today.month, 1) + relativedelta(months=1, days=-1)
+    target_range = [this_month + relativedelta(months=-12), this_month]
     # 年間
     budget_shared = {"all": settings.BUDGET_TAKA+settings.BUDGET_HOKO}
-    suy = SharedKakeibos.objects.filter(date__year=date.today().year) \
+    suy = SharedKakeibos.objects.filter(date__range=target_range) \
         .annotate(month=TruncMonth('date')) \
         .values('month', 'usage').order_by('month') \
         .annotate(sum=Sum('fee'))
@@ -45,7 +48,10 @@ def usage_shared_table(usage_list):
 @time_measure
 def usage_kakeibo_table(usage_list):
     # 年間
-    kakeibos = Kakeibos.objects.exclude(usage=None).filter(date__year=date.today().year) \
+    today = date.today()
+    this_month = date(today.year, today.month, 1) + relativedelta(months=1, days=-1)
+    target_range = [this_month + relativedelta(months=-12), this_month]
+    kakeibos = Kakeibos.objects.exclude(usage=None).filter(date__range=target_range) \
         .annotate(month=TruncMonth('date')) \
         .values('month', 'usage').order_by('month') \
         .annotate(sum=Sum('fee'))
@@ -85,10 +91,10 @@ def yearmonth(request):
 @time_measure
 def consolidated_usages():
     # responseの型を設定
-    usages = Usages.objects.all()
+    usages = Usages.objects.filter(is_expense=True)
     res = {u.name: 0 for u in usages}
     # Kakeibos
-    kus = Kakeibos.objects.exclude(usage=None).values('usage').annotate(sum=Sum('fee'))
+    kus = Kakeibos.objects.exclude(usage=None).exclude(usage__is_expense=False).values('usage').annotate(sum=Sum('fee'))
     uname = {u.pk: u.name for u in Usages.objects.all()}
     for ku in kus:
         name = uname[ku['usage']]
@@ -106,12 +112,13 @@ def consolidated_usages():
     for i in ["クレジット（個人）", "クレジット（家族）"]:
         if i in res.keys():
             res.pop(i)
-    # is_expense=False は削除
-    for u in usages:
-        if u.is_expense is False:
-            res.pop(u.name)
-    # 並び替え
-    # res = dict(sorted(res.items(), key=lambda x: -x[1]))
+    # 0件のものは削除
+    del_keys = list()
+    for k, u in res.items():
+        if u == 0:
+            del_keys.append(k)
+    for k in del_keys:
+        res.pop(k)
     return res
 
 
@@ -206,3 +213,79 @@ def kakeibo_status(income, expense):
         pb_kakeibo = {"in": 100, "out": 100}
     return pb_kakeibo, status_kakeibo
 
+
+def inouts_grouped_by_months():
+    res = {
+        "month": list(),
+        "expense": list(),
+        "income": list(),
+    }
+    # inouts_grouped_by_months
+    igbn = Kakeibos.objects.exclude(usage=None).annotate(month=TruncMonth('date'))\
+        .values('month', 'usage__is_expense').annotate(sum=Sum('fee'))
+    today = date.today()
+    this_month = date(today.year, today.month, 1)
+    for i in range(12):
+        month = this_month + relativedelta(months=i-11)
+        res['month'].append(month)
+        try:
+            res['expense'].append(igbn.get(usage__is_expense=True, month=month)['sum'])
+        except Exception as e:
+            logger.error(e)
+            res['expense'].append(0)
+        try:
+            res['income'].append(igbn.get(usage__is_expense=False, month=month)['sum'])
+        except Exception as e:
+            logger.error(e)
+            res['income'].append(0)
+    return res
+
+
+def usages_grouped_by_months():
+    res = {
+        "month": list(),
+        "usages": dict()
+    }
+    usages = Usages.objects.filter(is_expense=True)
+    for u in usages:
+        res['usages'][u.name] = list()
+    # usages_grouped_by_months
+    ugbn = Kakeibos.objects.exclude(usage=None).annotate(month=TruncMonth('date'))\
+        .values('month', 'usage').annotate(sum=Sum('fee'))
+    today = date.today()
+    this_month = date(today.year, today.month, 1)
+    for i in range(12):
+        month = this_month + relativedelta(months=i-11)
+        res['month'].append(month)
+        for u in usages:
+            try:
+                res['usages'][u.name].append(ugbn.get(usage=u.pk, month=month)['sum'])
+            except Exception as e:
+                logger.error(e)
+                res['usages'][u.name].append(0)
+    # 0件のものは削除
+    del_keys = list()
+    for k, u in res['usages'].items():
+        if sum(u) == 0:
+            del_keys.append(k)
+    for k in del_keys:
+        res['usages'].pop(k)
+    return res
+
+
+@time_measure
+def cash_usages():
+    # responseの型を設定
+    usages = Usages.objects.filter(is_expense=True)
+    res = {u.name: 0 for u in usages}
+    # Kakeibos
+    kus = Kakeibos.objects.exclude(usage=None).exclude(usage__is_expense=False).values('usage').annotate(sum=Sum('fee'))
+    uname = {u.pk: u.name for u in Usages.objects.all()}
+    for ku in kus:
+        name = uname[ku['usage']]
+        res[name] += ku['sum']
+    # クレジットは削除
+    for i in ["クレジット（個人）", "クレジット（家族）"]:
+        if i in res.keys():
+            res.pop(i)
+    return res

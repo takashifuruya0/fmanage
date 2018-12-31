@@ -61,11 +61,25 @@
 
   <hr>
   <div class="row">
-
     <div class="col-sm-8">
-      <h4>推移</h4>
-      <canvas id="bar_resources_year" width="300" height="200"></canvas>
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a href="#suii00" class="nav-link active" data-toggle="tab">推移</a>
+        </li>
+        <li class="nav-item">
+          <a href="#suii01" class="nav-link" data-toggle="tab">収入・支出</a>
+        </li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active" id="suii00">
+          <canvas id="bar_resources_year" width="300" height="200"></canvas>
+        </div>
+        <div class="tab-pane" id="suii01">
+          <canvas id="bar_inout_year"></canvas>
+        </div>
+      </div>
     </div>
+
     <div class="col-sm-4">
       <h4>支出用途</h4>
       <canvas id="pie_usage" height="360" width="320"></canvas>
@@ -75,8 +89,23 @@
   <hr>
   <div class="row">
     <div class="col-sm-4">
-      <h5>クレジット含む用途別支出統計</h5>
-      <canvas id="pie_consolidated_usage" height="360" width="320"></canvas>
+      <h5>用途別支出統計</h5>
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a href="#tab00" class="nav-link active" data-toggle="tab">クレジット含む</a>
+        </li>
+        <li class="nav-item">
+          <a href="#tab01" class="nav-link" data-toggle="tab">クレジット除く</a>
+        </li>
+      </ul>
+      <div class="tab-content">
+        <div id="tab00" class="tab-pane active">
+          <canvas id="pie_consolidated_usage" height="360" width="320"></canvas>
+        </div>
+        <div id="tab01" class="tab-pane">
+          <canvas id="pie_cash_usage"></canvas>
+        </div>
+      </div>
     </div>
 
     <div class="col-sm-4">
@@ -156,7 +185,7 @@
   <div class="row">
     <div class="col-sm-12">
       <h4>{{today.year}}年実績</h4>
-      <table class="table table-light table-hover table-sm table-responsive-md">
+      <table class="table table-light table-hover table-sm table-responsive">
         <thead>
           <tr>
             <th></th>
@@ -178,6 +207,15 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-8">
+
+    </div>
+    <div class="col-sm-4">
     </div>
   </div>
 
@@ -345,4 +383,98 @@
   });
 </script>
 
+<!-- bar_inouts_year -->
+<script>
+  var ctx = document.getElementById('bar_inout_year').getContext('2d');
+  var options = {
+    scales: {
+      yAxes: [{
+        stacked: false
+      }]
+    }
+  }
+  if (window.innerWidth < 768) {
+    ctx.canvas.width = 450
+    ctx.canvas.height = 450
+  }
+  var colors = [
+    "rgba(250,153,0,0.4)",
+    "rgba(0,153,253,0.4)",
+    "rgba(153,250,0,0.4)",
+    "rgba(153,0,253, 0.4)",
+    "rgba(253,0,150,0.4)",
+    "rgba(0,253,150,0.4)",
+  ]
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [{% for i in inouts_grouped_by_months.month %}"{{i}}", {%endfor%}],
+      datasets: [
+        {
+          label: "Expense",
+          data: {{inouts_grouped_by_months.expense}},
+          backgroundColor: colors[0]
+        },
+        {
+          label: "Income",
+          data: {{inouts_grouped_by_months.income}},
+          backgroundColor: colors[1]
+        },
+      ],
+    },
+    options: options
+  });
+</script>
+
+<!-- pie_usage -->
+<script>
+  var ctx = document.getElementById('pie_cash_usage').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for u in cash_usages_chart %}"{{u.0}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for u in cash_usages_chart %}{{u.1}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+         ]
+      }]
+    }
+  });
+</script>
 {% endblock %}

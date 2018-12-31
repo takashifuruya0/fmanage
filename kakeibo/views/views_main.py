@@ -183,6 +183,7 @@ def mine(request):
 
     # Consolidated_usages: dict --> [(name, val),(name, val),(name, val),...]
     consolidated_usages_chart = sorted(process_kakeibo.consolidated_usages().items(), key=lambda x: -x[1])
+    cash_usages_chart = sorted(process_kakeibo.cash_usages().items(), key=lambda x: -x[1])
 
     # total
     total = sum([r.current_val() for r in Resources.objects.all()])
@@ -198,6 +199,10 @@ def mine(request):
         "total":  total - sum([i['val'][0] for i in resources_year_chart]),
         "total_saved": total_saved - saved_one_year_ago
     }
+
+    # 年間の収入・支出
+    inouts_grouped_by_months = process_kakeibo.inouts_grouped_by_months()
+    usages_grouped_by_months = process_kakeibo.usages_grouped_by_months()
 
     # output
     output = {
@@ -226,6 +231,10 @@ def mine(request):
         "total": total,
         "total_saved": total_saved,
         "change": change,
+        # igbn
+        "inouts_grouped_by_months": inouts_grouped_by_months,
+        # cash_usages_chart
+        "cash_usages_chart": cash_usages_chart,
     }
     return render(request, 'kakeibo/mine.html', output)
 
