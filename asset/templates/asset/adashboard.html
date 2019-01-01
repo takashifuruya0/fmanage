@@ -30,13 +30,19 @@
     <!-- Button trigger modal -->
     <div class="row">
       <div class="col-md-4">
-        <button class="btn btn-lg btn-block btn-outline-info">
-          総額 ¥{{total | floatformat:0 | intcomma}}
+        <button class="btn btn-lg btn-block btn-info">
+          総額
+          <span class="badge badge-light">
+            ¥{{total | floatformat:0 | intcomma}}
+          </span>
         </button>
       </div>
       <div class="col-md-4">
-        <button class="btn btn-lg btn-block btn-outline-{%if current_benefit.benefit_all > 0%}success{%else%}danger{%endif%}">
-          含み損益 ¥{{current_benefit.benefit_all | floatformat:0 | intcomma}}
+        <button class="btn btn-lg btn-block btn-{%if current_benefit.benefit_all > 0%}success{%else%}danger{%endif%}">
+          含み損益
+          <span class="badge badge-light">
+            ¥{{current_benefit.benefit_all | floatformat:0 | intcomma}}
+          </span>
         </button>
       </div>
     </div>
