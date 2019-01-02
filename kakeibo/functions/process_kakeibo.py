@@ -16,61 +16,76 @@ logger = logging.getLogger("django")
 @time_measure
 def usage_shared_table(usage_list):
     today = date.today()
+    # e.g. 2019/11/30
     this_month = date(today.year, today.month, 1) + relativedelta(months=1, days=-1)
-    target_range = [this_month + relativedelta(months=-12), this_month]
-    # 年間
-    budget_shared = {"all": settings.BUDGET_TAKA+settings.BUDGET_HOKO}
+    # e.g. 2018/12/31 ~ 2019/11/30
+    target_range = [this_month + relativedelta(months=-12, days=1), this_month]
+    budget_shared = {"all": settings.BUDGET_TAKA + settings.BUDGET_HOKO}
     suy = SharedKakeibos.objects.filter(date__range=target_range) \
         .annotate(month=TruncMonth('date')) \
         .values('month', 'usage').order_by('month') \
         .annotate(sum=Sum('fee'))
-    start_month = suy.first()['month'].month
-    last_month = suy.last()['month'].month
+    # data用意
     data_year = [
-        {"month": i, "sum": "", "color": "", "percent": "", "data": list()} for i in range(start_month, last_month + 1)
+        {
+            "month": (this_month-relativedelta(months=i)).month,
+            "sum": "",
+            "color": "",
+            "percent": "",
+            "data": list()
+        } for i in range(12)
     ]
-    for i in range(last_month + 1 - start_month):
+    month_order = {
+        (this_month - relativedelta(months=i)).month: i for i in range(12)
+    }
+    # usage_listの数だけ、0を用意
+    for i in range(12):
         data_year[i]['data'] = [0 for j in range(len(usage_list))]
+    # pk:name のdictを用意
     usage_names = {u.pk: u.name for u in Usages.objects.all()}
     for s in suy:
         name = usage_names[s['usage']]
         for u in range(len(usage_list)):
             if name == usage_list[u]:
-                data_year[s['month'].month - start_month]['data'][u] = s['sum']
-    for i in range(last_month + 1 - start_month):
+                data_year[month_order[s['month'].month]]['data'][u] = s['sum']
+    for i in range(12):
         data_year[i]['sum'] = sum(data_year[i]['data'])
         data_year[i]["percent"] = data_year[i]['sum'] / (budget_shared['all'] + 30000) * 100
         data_year[i]["color"] = "success" if data_year[i]['sum'] < budget_shared['all'] else "danger"
-    data_year.reverse()
     return data_year
 
 
 @time_measure
 def usage_kakeibo_table(usage_list):
-    # 年間
     today = date.today()
+    # e.g. 2019/11/30
     this_month = date(today.year, today.month, 1) + relativedelta(months=1, days=-1)
-    target_range = [this_month + relativedelta(months=-12), this_month]
+    # e.g. 2018/12/31 ~ 2019/11/30
+    target_range = [this_month + relativedelta(months=-12, days=1), this_month]
+    # kakeibos
     kakeibos = Kakeibos.objects.exclude(usage=None).filter(date__range=target_range) \
         .annotate(month=TruncMonth('date')) \
         .values('month', 'usage').order_by('month') \
         .annotate(sum=Sum('fee'))
-    smonth = kakeibos.first()['month'].month
-    lmonth = kakeibos.last()['month'].month
+    # data用意
     data_year = [
-        {"month": i, "sum": "", "data": list()} for i in range(smonth, lmonth + 1)
+        {"month": (this_month-relativedelta(months=i)).month, "sum": "", "data": list()} for i in range(12)
     ]
-    for i in range(lmonth + 1 - smonth):
+    month_order = {
+        (this_month - relativedelta(months=i)).month: i for i in range(12)
+    }
+    # usage_listの数だけ、0を用意
+    for i in range(12):
         data_year[i]['data'] = [0 for j in range(len(usage_list))]
+    # pk:name のdictを用意
     usage_names = {u.pk: u.name for u in Usages.objects.all()}
     for s in kakeibos:
         name = usage_names[s['usage']]
         for u in range(len(usage_list)):
             if name == usage_list[u]:
-                data_year[s['month'].month - smonth]['data'][u] = s['sum']
-    for i in range(lmonth + 1 - smonth):
+                data_year[month_order[s['month'].month]]['data'][u] = s['sum']
+    for i in range(12):
         data_year[i]['sum'] = sum(data_year[i]['data'])
-    data_year.reverse()
     return data_year
 
 
