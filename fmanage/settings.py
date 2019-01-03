@@ -222,6 +222,10 @@ PAGINATION_SETTINGS = {
 TRELLO_KEY = env("TRELLO_KEY")
 TRELLO_TOKEN = env("TRELLO_TOKEN")
 
+# Goldpoint
+GOLDPOINT_ID = env("GOLDPOINT_ID")
+GOLDPOINT_PASSWORD = env("GOLDPOINT_PASSWORD")
+
 
 # messages framework
 from django.contrib.messages import constants as messages

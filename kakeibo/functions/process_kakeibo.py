@@ -276,7 +276,8 @@ def usages_grouped_by_months():
             try:
                 res['usages'][u.name].append(ugbn.get(usage=u.pk, month=month)['sum'])
             except Exception as e:
-                logger.error(e)
+                # 該当月に対象usageのレコードがない場合
+                logger.debug(e)
                 res['usages'][u.name].append(0)
     # 0件のものは削除
     del_keys = list()
