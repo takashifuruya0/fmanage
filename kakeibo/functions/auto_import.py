@@ -59,7 +59,7 @@ def goldpoint(year, month):
             tds = tr.findChildren('td')
             tmp = {
                 "no": n,
-                "data": "",
+                "date": "",
                 "debit_date": "",
                 "fee": 0,
                 "credit_item": "",
