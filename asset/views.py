@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponse, Http404, redirect
+from django.template.response import TemplateResponse
 from django.contrib import messages
 import logging
 logger = logging.getLogger("django")
@@ -202,7 +203,7 @@ def asset_dashboard(request):
         "astatus_recent": astatus_recent,
         "orders": orders,
     }
-    return render(request, 'asset/adashboard.html', output)
+    return TemplateResponse(request, 'asset/adashboard.html', output)
 
 
 class StocksCreateView(CreateView):
@@ -258,7 +259,7 @@ def analysis_list(request):
     output = {
         "stocks": stocks,
     }
-    return render(request, 'asset/analysis_list.html', output)
+    return TemplateResponse(request, 'asset/analysis_list.html', output)
 
 
 @login_required
@@ -298,4 +299,4 @@ def analysis_detail(request, code):
             "trend": trend,
             "order_points": order_points,
         }
-        return render(request, 'asset/analysis_detail.html', output)
+        return TemplateResponse(request, 'asset/analysis_detail.html', output)

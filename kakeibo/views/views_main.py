@@ -1,6 +1,7 @@
 # coding:utf-8
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.template.response import TemplateResponse
 from django.conf import settings
 from django.db.models import Q
 from dateutil.relativedelta import relativedelta
@@ -119,7 +120,7 @@ def dashboard(request):
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
     }
     logger.info("output: " + str(output))
-    return render(request, 'kakeibo/dashboard.html', output)
+    return TemplateResponse(request, 'kakeibo/dashboard.html', output)
 
 
 @login_required
@@ -127,7 +128,7 @@ def form_kakeibo(request):
     url = settings.URL_FORM
     # return redirect(url)
     output = {"url": url}
-    return render(request, 'kakeibo/form.html', output)
+    return TemplateResponse(request, 'kakeibo/form.html', output)
 
 
 @login_required
@@ -135,7 +136,7 @@ def form_shared(request):
     url = settings.URL_SHAREDFORM
     # return redirect(url)
     output = {"url": url}
-    return render(request, 'kakeibo/form.html', output)
+    return TemplateResponse(request, 'kakeibo/form.html', output)
 
 
 @login_required
@@ -236,7 +237,7 @@ def mine(request):
         # cash_usages_chart
         "cash_usages_chart": cash_usages_chart,
     }
-    return render(request, 'kakeibo/mine.html', output)
+    return TemplateResponse(request, 'kakeibo/mine.html', output)
 
 
 @login_required
@@ -310,7 +311,7 @@ def shared(request):
         # who_paid
         "who_paid": who_paid,
     }
-    return render(request, 'kakeibo/shared.html', output)
+    return TemplateResponse(request, 'kakeibo/shared.html', output)
 
 
 @login_required
@@ -372,7 +373,7 @@ def credit(request):
         "credits_month_count": credits_month_count,
     }
 
-    return render(request, 'kakeibo/cdashboard.html', output)
+    return TemplateResponse(request, 'kakeibo/cdashboard.html', output)
 
 
 @time_measure
@@ -403,6 +404,6 @@ def test(request):
         resources_chart.append(tmp)
 
     output = {"resources_chart": resources_chart, "months_chart": months_chart}
-    return render(request, 'kakeibo/test.html', output)
+    return TemplateResponse(request, 'kakeibo/test.html', output)
 
 

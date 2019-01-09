@@ -4,6 +4,9 @@ from django.urls import reverse
 from kakeibo.models import Kakeibos, Usages, Resources, SharedKakeibos, Credits, CreditItems
 from asset.models import AssetStatus
 from datetime import date
+import logging
+logger = logging.getLogger('django')
+from django.conf import settings
 
 # Create your tests here.
 
@@ -55,6 +58,12 @@ class ViewTest(TestCase):
     def test_credit(self):
         url = reverse("kakeibo:credit")
         response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_form_kakeibo(self):
+        url = reverse("kakeibo:form")
+        response = self.client.get(url)
+        self.assertEqual(response.context_data, {'url': settings.URL_FORM})
         self.assertEqual(response.status_code, 200)
 
     def test_kakeibo_list(self):
