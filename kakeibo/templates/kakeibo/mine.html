@@ -293,6 +293,13 @@
 
 <!-- bar_resources_year -->
 <script>
+  val = [0,0,0,0,0,0,0,0,0,0,0,0]
+  {%for r in resources_year_chart%}
+  {%for v in r.val%}
+  val[{{forloop.counter0}}] += {{v}}
+  {%endfor%}
+  {%endfor%}
+
   var ctx = document.getElementById('bar_resources_year').getContext('2d');
   var options = {
     scales: {
@@ -320,11 +327,20 @@
       datasets: [
         {%for r in resources_year_chart%}
         {
+          type: "bar",
           label: "{{r.name}}",
           data: {{r.val}},
           backgroundColor: colors[{{ forloop.counter0 }}]
         },
         {% endfor %}
+        {
+          type: "line",
+          label: "Sum",
+          data: val,
+          borderColor: 'rgba(60, 160, 220, 0.8)',
+          backgroundColor: 'rgba(60, 160, 220, 0)',
+          lineTension: 0,
+        }
       ],
     },
     options: options
