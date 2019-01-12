@@ -31,6 +31,7 @@ class Command(BaseCommand):
                     citem = citems[0]
                 elif len(citems) == 0:
                     citem = CreditItems.objects.create(date=today, name=name)
+                    logger.info("New citem was created: {0}".form(citem))
                 # Creditがあるかチェック
                 credit_records = Credits.objects.filter(
                     date=d['date'], debit_date=d['debit_date'], fee=d['fee'], credit_item=citem
@@ -43,14 +44,7 @@ class Command(BaseCommand):
                     logger.info("Created a new record for No.{0}".format(d['no']))
                 else:
                     logger.info("The record for No.{0} exists".format(d['no']))
-            # {
-            #     'date': datetime.date(2018, 9, 28),
-            #     'fee': 1658,
-            #     'credit_item': '',
-            #     'data': '',
-            #     'no': 9,
-            #     'debit_date': datetime.date(2018, 10, 1)
-            # }
-            msg = "Done"
+        # msg
+        msg = "Done"
         self.stdout.write(self.style.SUCCESS(msg))
         logger.info(msg)
