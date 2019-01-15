@@ -122,7 +122,8 @@ def consolidated_usages():
             res[ci.usage.name] += c_sum
         # CreditItemsとUsagesの紐づけがされていない場合→その他へ
         except Exception as e:
-            res["その他"] += c_sum
+            if c_sum:
+                res["その他"] += c_sum
     # クレジットは削除
     for i in ["クレジット（個人）", "クレジット（家族）"]:
         if i in res.keys():

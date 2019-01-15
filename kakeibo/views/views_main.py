@@ -143,7 +143,7 @@ def form_shared(request):
 @time_measure
 def mine(request):
     # 貯金扱いの口座
-    saving_account = ["SBI敬士", "貯金口座"]
+    saving_account = [r.name for r in Resources.objects.filter(is_saving=True)]
     # check year and month from GET parameter
     year, month = process_kakeibo.yearmonth(request)
 

@@ -129,6 +129,7 @@ class Resources(BaseModel):
     initial_val = models.IntegerField(null=False, blank=False)
     color = models.OneToOneField(Colors, blank=True, null=True)
     # current_val = models.IntegerField(null=True, blank=True)
+    is_saving = models.BooleanField(default=False)
 
     def current_val(self):
         if self.name == "投資口座":
