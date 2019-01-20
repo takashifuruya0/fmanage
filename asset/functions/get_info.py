@@ -50,12 +50,12 @@ def kabuoji3(code):
         for r in records:
             tmp = list()
             for i in range(7):
-                tmp.append(r.select('td:nth-of-type(' + str(i+1) + ')')[0].text)
+                tmp.append(r.select('td:nth-of-type({0})'.format(i+1))[0].text)
             data.append(tmp)
         msg = "Done"
         status = True
     except Exception as e:
-        msg = "code" + str(code) + ":" + e
+        msg = "code {0} : {1}".format(code, e)
         data = None
         status = False
     res = {

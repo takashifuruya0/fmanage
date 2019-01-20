@@ -1,16 +1,11 @@
 # coding:utf-8
-
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.db.models import Avg, Sum, Count, Q
 from django.db import transaction
 from django.conf import settings
 # model
 from kakeibo.models import Kakeibos, Usages, Resources, Credits, CreditItems, Cards, SharedKakeibos
 # module
-import json, requests
-from datetime import datetime, date
-from bs4 import BeautifulSoup
+import requests
+from datetime import date
 from pytz import timezone
 from dateutil import parser
 import logging
@@ -104,12 +99,24 @@ def save_credit_to_sql():
 def init_resources_usages():
     try:
         if len(Resources.objects.all()) == 0:
-            Resources(**{'date': date(2017, 1, 1), 'initial_val': 475928, 'name': 'ゆうちょ', 'color': None}).save()
-            Resources(**{'date': date(2018, 1, 1), 'initial_val': 841390, 'name': 'SBI敬士', 'color': None}).save()
-            Resources(**{'date': date(2018, 1, 1), 'initial_val': 44286, 'name': '財布', 'color': None}).save()
-            Resources(**{'date': date(2018, 1, 1), 'initial_val': 60000, 'name': '共通口座', 'color': None}).save()
-            Resources(**{'date': date(2018, 1, 1), 'initial_val': 85200, 'name': '貯金口座', 'color': None}).save()
-            Resources(**{'date': date(2018, 4, 23), 'initial_val': 0, 'name': '朋子口座', 'color': None}).save()
+            Resources(
+                **{'date': date(2017, 1, 1), 'initial_val': 475928, 'name': 'ゆうちょ', 'color': None, 'is_saving': False}
+            ).save()
+            Resources(
+                **{'date': date(2018, 1, 1), 'initial_val': 841390, 'name': 'SBI敬士', 'color': None, 'is_saving': True}
+            ).save()
+            Resources(
+                **{'date': date(2018, 1, 1), 'initial_val': 44286, 'name': '財布', 'color': None, 'is_saving': False}
+            ).save()
+            Resources(
+                **{'date': date(2018, 1, 1), 'initial_val': 60000, 'name': '共通口座', 'color': None, 'is_saving': False}
+            ).save()
+            Resources(
+                **{'date': date(2018, 1, 1), 'initial_val': 85200, 'name': '貯金口座', 'color': None, 'is_saving': True}
+            ).save()
+            Resources(
+                **{'date': date(2018, 4, 23), 'initial_val': 0, 'name': '朋子口座', 'color': None, 'is_saving': False}
+            ).save()
 
         if len(Usages.objects.all()) == 0:
             Usages(**{'date': date(2018, 1, 1), 'name': '給与', 'is_expense': False, 'color': None}).save()
@@ -320,16 +327,20 @@ def update_credit_to_sql():
 
 def update_kakeibo_to_sql():
     try:
+        # dateチェック
+        if Kakeibos.objects.all():
+            check_date = Kakeibos.objects.all().order_by('-date')[0].date
+        else:
+            check_date = date(2011, 1, 1)
         # transaction starts
-        check_date = Kakeibos.objects.all().order_by('-date')[0].date
         with transaction.atomic():
             # SSから取得
             url = settings.URL_KAKEIBO
             r = requests.get(url+"?method=kakeibo")
             data = r.json()
             for k, val in data.items():
-                date = parser.parse(val['タイムスタンプ']).astimezone(timezone('Asia/Tokyo')).date()
-                if date < check_date:
+                date_stump = parser.parse(val['タイムスタンプ']).astimezone(timezone('Asia/Tokyo')).date()
+                if date_stump < check_date:
                     continue
                 elif val['金額'] is not 0:
                     fee = (val['金額'])
@@ -360,12 +371,12 @@ def update_kakeibo_to_sql():
                         move_from = Resources.objects.get(name="財布")
                 # 既存データがなければセーブ
                 check = Kakeibos.objects.filter(
-                    date=date, fee=fee, way=way,
+                    date=date_stump, fee=fee, way=way,
                     move_to=move_to, move_from=move_from, usage=usage
                 ).__len__()
                 if check == 0:
                     data = {
-                        "date": date, "fee": fee, "way": way,
+                        "date": date_stump, "fee": fee, "way": way,
                         "move_to": move_to, "move_from": move_from,
                         "usage": usage, "memo": memo, "tag": tag
                     }
