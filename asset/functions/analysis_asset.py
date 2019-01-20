@@ -88,26 +88,17 @@ def get_order_point(df_ascending):
                 buys = orders.filter(datetime__date=df.iloc[i].date, order_type='現物買')
                 if buys:
                     price = sum(b.price*b.num for b in buys)/sum(b.num for b in buys)
-                    order_point['buy'].append(price)
+                    order_point['buy'].append(round(price, 0))
                     order_point["num_buy"] += 1
                 else:
                     order_point['sell'].append(None)
                 sells = orders.filter(datetime__date=df.iloc[i].date, order_type='現物売')
                 if sells:
                     price = sum(s.price * s.num for s in sells) / sum(s.num for s in sells)
-                    order_point['sell'].append(price)
+                    order_point['sell'].append(round(price, 0))
                     order_point["num_sell"] += 1
                 else:
                     order_point['sell'].append(None)
-                # for order in orders.filter(datetime__date=df.iloc[i].date):
-                    # if order.order_type == "現物買":
-                    #     order_point['buy'].append(order.price)
-                    #     order_point['sell'].append(None)
-                    #     order_point["num_buy"] += 1
-                    # elif order.order_type == "現物売":
-                    #     order_point['buy'].append(None)
-                    #     order_point['sell'].append(order.price)
-                    #     order_point["num_sell"] += 1
             else:
                 order_point['buy'].append(None)
                 order_point['sell'].append(None)
