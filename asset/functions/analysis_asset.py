@@ -83,7 +83,7 @@ def get_order_point(df_ascending):
             "orders_date": orders_date
         }
 
-        for i in range(1, len(df)):
+        for i in range(len(df)):
             if df.iloc[i].date in orders_date:
                 buys = orders.filter(datetime__date=df.iloc[i].date, order_type='現物買')
                 if buys:
