@@ -311,6 +311,9 @@
           <li class="nav-item">
             <a href="#fig5" class="nav-link" data-toggle="tab">Rate</a>
           </li>
+          <li class="nav-item">
+            <a href="#fig6" class="nav-link" data-toggle="tab">Recent Rate</a>
+          </li>
         </ul>
         <div class="tab-content">
           <div id="fig1" class="tab-pane">
@@ -327,6 +330,9 @@
           </div>
           <div id="fig5" class="tab-pane">
             <canvas id="date_shift_rate" width="180" height="125"></canvas>
+          </div>
+          <div id="fig6" class="tab-pane">
+            <canvas id="date_shift_rate_recent" width="180" height="125"></canvas>
           </div>
         </div>
       </div>
@@ -759,7 +765,7 @@
     });
   </script>
 
-<!-- Date shift rate-->
+<!-- Date shift all rate-->
   <script>
     var recent_rate = ({{current_benefit.total_all}}+{{ astatus.last.buying_power }})/{{ astatus.last.investment }};
     var lineChartData = {
@@ -777,6 +783,40 @@
       responsive: true,
     }
     var ctx = document.getElementById("date_shift_rate").getContext("2d");
+    if (window.innerWidth > 768) {
+        ctx.canvas.width = 1000;
+        ctx.canvas.height = 350;
+      }else{
+        ctx.canvas.width = 450;
+        ctx.canvas.height = 450;
+      }
+    var myChart = new Chart(ctx, {
+        type: "line",
+        data: lineChartData,
+        options: options,
+        // 下記を追加すると線がまっすぐになります
+        /* bezierCurve: false */
+    });
+  </script>
+
+<!-- Date shift rate-->
+  <script>
+    var recent_rate = ({{current_benefit.total_all}}+{{ astatus.last.buying_power }})/{{ astatus.last.investment }};
+    var lineChartData = {
+      labels : [{%for ass in astatus_recent%} "{{ass.date}}", {%endfor%} "{{today}}"],
+      datasets : [
+        {
+          label: "資産額/投資額",
+          data: [{%for ass in astatus_recent%} {{ass.total}}/{{ass.investment}}, {%endfor%} recent_rate],
+          backgroundColor: "rgba(53,255,151,0.4)",
+          // fill: false,
+        },
+      ]
+    }
+    var options = {
+      responsive: true,
+    }
+    var ctx = document.getElementById("date_shift_rate_recent").getContext("2d");
     if (window.innerWidth > 768) {
         ctx.canvas.width = 1000;
         ctx.canvas.height = 350;
