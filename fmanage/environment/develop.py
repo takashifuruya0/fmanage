@@ -5,8 +5,13 @@ from fmanage.settings import *
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': "fkmanage",
+        "USER": env('FKMANAGE_DB_USER'),
+        "PASSWORD": env('FKMANAGE_DB_PASSWORD'),
+        'HOST': "test_postgres",
+        "POST": "",
+        "ATOMIC_REQUESTS": True,
     }
 }
 # update db settings
