@@ -238,7 +238,7 @@
                   <td class="right">¥{{hs.price | floatformat | intcomma}}</td>
                   <td class="right">¥{{hs.current_price | floatformat | intcomma}}</td>
                   <td class="right">¥{{hs.current_total | floatformat:0 | intcomma}}</td>
-                  <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}}</font></td>
+                  <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}} ({{hs.benefit_percent}}%)</font></td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -280,7 +280,7 @@
                   <td class="right">¥{{hs.price | floatformat | intcomma}}</td>
                   <td class="right">¥{{hs.current_price | floatformat | intcomma}}</td>
                   <td class="right">¥{{hs.current_total | floatformat:0 | intcomma}}</td>
-                  <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}}</font></td>
+                  <td class="right"><font color="{{hs.color}}">¥{{hs.benefit | floatformat:0 | intcomma}} ({{hs.benefit_percent}}%)</font></td>
                 </tr>
                 {% endfor %}
               </tbody>

@@ -178,6 +178,25 @@
           {% endfor %}
         </tbody>
       </table>
+      <hr>
+      <h5>支出内訳</h5>
+      <table class="table table-light table-hover table-sm">
+        <thead>
+          <tr>
+            <th>支払い方法</th>
+            <th class="right">金額</th>
+          </tr>
+        </thead>
+        <tbody class="">
+          {% for w in ways %}
+          <tr>
+            <td>{{w.name}}</td>
+            <td class="right">¥{{w.val | intcomma}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
     </div>
   </div>
 
