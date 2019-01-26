@@ -163,7 +163,7 @@ def asset_dashboard(request):
             "current_price": current_price,
             "current_total": current_total,
             "benefit": benefit,
-            "benefit_percent": round(benefit/(hs.num*hs.price), 1),
+            "benefit_percent": round(benefit/(hs.num*hs.price)*100, 1),
             "color": mylib_asset.val_color(benefit),
             "holding_time": hs.get_holding_time(),
         }
