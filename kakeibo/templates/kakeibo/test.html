@@ -6,45 +6,130 @@
 
 {% block body %}
 <div class="container">
+  <h3>円</h3>
   <div class="row">
-    <div class="col-sm-12">
-      <canvas id="bar_resources"></canvas>
+    {% for mdbw in monthly_details_by_way %}
+    <div class="col-sm-3">
+      <h5>{{mdbw.name}}</h5>
+      <canvas id="pie_{{forloop.counter0}}"></canvas>
+    </div>
+    {% endfor %}
+  </div>
+
+  <hr>
+  <h3>円</h3>
+  <div class="row">
+    <div class="col-sm-3">
+      <h5>支払い方法別</h5>
+      <canvas id="pie_sum"></canvas>
+    </div>
+    <div class="col-sm-3">
+      <h5>用途別支出</h5>
+      <canvas id="pie_expense"></canvas>
+    </div>
+    <div class="col-sm-3">
+      <h5>用途別収入</h5>
+      <canvas id="pie_income"></canvas>
     </div>
   </div>
 </div>
-<!-- bar_resources -->
+
+<!-- pie -->
+{% for mdbw in monthly_details_by_way %}
 <script>
-  var ctx = document.getElementById('bar_resources').getContext('2d');
-  var options = {
-    scales: {
-      yAxes: [{
-        stacked: true
-      }]
-    }
-  }
-  var colors = [
-    "rgba(250,153,0,0.4)",
-    "rgba(0,153,253,0.4)",
-    "rgba(153,250,0,0.4)",
-    "rgba(153,0,253, 0.4)",
-    "rgba(253,0,150,0.4)",
-  ]
+  var ctx = document.getElementById('pie_{{forloop.counter0}}').getContext('2d');
   var myChart = new Chart(ctx, {
-    type: 'bar',
+    type: 'pie',
     data: {
-      labels: [{% for i in months_chart %}"{{i}}", {%endfor%}],
-      datasets: [
-        {%for r in resources_chart%}
-        {
-          label: "{{r.name}}",
-          data: {{r.val}},
-          backgroundColor: colors[{{ forloop.counter0 }}]
-        },
-        {% endfor %}
-      ],
+      labels: [{%for w in mdbw.data%}"{{w.usage__name}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for w in mdbw.data%}{{w.sum}},{%endfor%}],
+        backgroundColor: [
+          {%for w in mdbw.data%}"{{w.usage__color__name}}",{%endfor%}
+         ]
+      }]
     },
-    options: options
+    options: {
+      legend: {
+        display: false
+      }
+    }
   });
 </script>
+{% endfor %}
+
+<script>
+  var ctx = document.getElementById('pie_sum').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for msbw in monthly_sum_by_way%}"{{msbw.way}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for msbw in monthly_sum_by_way%}{{msbw.sum}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e"
+         ]
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      }
+    }
+  });
+</script>
+
+<script>
+  var ctx = document.getElementById('pie_income').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for msbw in monthly_income_sum_by_usage%}"{{msbw.usage__name}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for msbw in monthly_income_sum_by_usage%}{{msbw.sum}},{%endfor%}],
+        backgroundColor: [
+          {%for msbw in monthly_income_sum_by_usage%}"{{msbw.usage__color__name}}",{%endfor%}
+         ]
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      }
+    }
+  });
+</script>
+
+<script>
+  var ctx = document.getElementById('pie_expense').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for msbw in monthly_expense_sum_by_usage%}"{{msbw.usage__name}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for msbw in monthly_expense_sum_by_usage%}{{msbw.sum}},{%endfor%}],
+        backgroundColor: [
+          {%for msbw in monthly_expense_sum_by_usage%}"{{msbw.usage__color__name}}",{%endfor%}
+         ]
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      }
+    }
+  });
+</script>
+
 
 {% endblock %}

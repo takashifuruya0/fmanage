@@ -378,32 +378,36 @@ def credit(request):
 
 @time_measure
 def test(request):
-    num=18
-    # resource
-    today = date.today()
-    resources_chart = list()
-    months = [(today + relativedelta(months=-i)) for i in range(num)]
-    months_chart = [(str(m.year)+"/"+str(m.month)) for m in months]
-    months_chart.reverse()
+    today = date(2019,1,31)
+    monthly_kakeibos = Kakeibos.objects.filter(
+        date__year=today.year, date__month=today.month
+    ).values('way', 'usage__name', "usage__color__name").annotate(sum=Sum('fee')).order_by("-sum")
 
-    for rs in Resources.objects.all():
-        # kakeibo
-        kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
-        val = list()
-        val.append(rs.current_val())
-        ll = today
-        for i in range(1, num):
-            move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
-            move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
-            val.append(val[i-1] - move_to + move_from)
-            ll = ll + relativedelta(months=-1)
-            logger.info(ll)
-            kakeibos = Kakeibos.objects.filter(date__month=ll.month, date__year=ll.year)
-        val.reverse()
-        tmp = {"name": rs.name, "val": val,}
-        resources_chart.append(tmp)
+    ways = ("支出（現金）", "支出（クレジット）", "引き落とし",)
+    # 支払い方法別の合計
+    monthly_sum_by_way = Kakeibos.objects.filter(
+        date__year=today.year, date__month=today.month, way__in=ways
+    ).values('way').annotate(sum=Sum('fee')).order_by("-sum")
+    # 支払い方法別の内訳
+    monthly_details_by_way = [dict() for w in ways]
+    for i, w in enumerate(ways):
+        monthly_details_by_way[i]["name"] = w
+        monthly_details_by_way[i]["data"] = monthly_kakeibos.filter(way=w)
+    # 用途別
+    monthly_expense_sum_by_usage = Kakeibos.objects.filter(
+        date__year=today.year, date__month=today.month, usage__is_expense=True
+    ).values('usage__name', "usage__color__name").annotate(sum=Sum('fee')).order_by("-sum")
+    monthly_income_sum_by_usage = Kakeibos.objects.filter(
+        date__year=today.year, date__month=today.month, usage__is_expense=False
+    ).values('usage__name', "usage__color__name").annotate(sum=Sum('fee')).order_by("-sum")
 
-    output = {"resources_chart": resources_chart, "months_chart": months_chart}
+    # return
+    output = {
+        "monthly_details_by_way": monthly_details_by_way,
+        "monthly_sum_by_way": monthly_sum_by_way,
+        "monthly_expense_sum_by_usage": monthly_expense_sum_by_usage,
+        "monthly_income_sum_by_usage": monthly_income_sum_by_usage,
+    }
     return TemplateResponse(request, 'kakeibo/test.html', output)
 
 
