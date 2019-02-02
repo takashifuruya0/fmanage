@@ -51,8 +51,7 @@ def dashboard(request):
             try:
                 form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
                 csv_file = csv.reader(form_data)
-                header = next(csv_file)
-                logger.info(header)
+                logger.info(next(csv_file))
                 for line in csv_file:
                     # CreditItemの指定or作成
                     cis = CreditItems.objects.filter(name=line[1])
@@ -100,7 +99,7 @@ def dashboard(request):
     # resource
     current_resource = Resources.objects.all()
     # usage
-    current_usage = kakeibos_out.values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
+    current_usage = kakeibos_expense.values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
 
     # resource: 先月との比較
     resources_chart = list()
@@ -204,7 +203,7 @@ def mine(request):
             try:
                 form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
                 csv_file = csv.reader(form_data)
-                header = next(csv_file)
+                logger.info(next(csv_file))
                 for line in csv_file:
                     # CreditItemの指定or作成
                     cis = CreditItems.objects.filter(name=line[1])
@@ -231,6 +230,7 @@ def mine(request):
                 messages.error(request, emsg)
             finally:
                 return redirect('kakeibo:mine')
+
     # Form
     kakeibo_form = KakeiboForm(initial={'date': today})
     # 貯金扱いの口座
@@ -239,35 +239,32 @@ def mine(request):
     year, month = process_kakeibo.yearmonth(request)
 
     kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
-    ekakeibos = kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）"))
+    kakeibos_out = kakeibos.filter(way__in=("支出（現金）", "引き落とし"))
+    kakeibos_expense = kakeibos.filter(way__in=("支出（現金）", "引き落とし", "支出（クレジット"))
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    expense = mylib.cal_sum_or_0(ekakeibos)
+    expense = mylib.cal_sum_or_0(kakeibos_out)
 
     # status, progress_bar
     pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
 
     # way
-    ways_sum = kakeibos.values('way').annotate(Sum('fee'))
-    ways = list()
-    for w in ways_sum:
-        if w['way'] != "振替":
-            tmp = {"val": w['fee__sum'], "name": w['way']}
-            ways.append(tmp)
+    current_way = kakeibos_expense.values('way').annotate(sum=Sum('fee')).order_by("-sum")
+    # resource
+    current_resource = Resources.objects.all()
+    # usage
+    current_usage = kakeibos_expense.values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
+
     # saved
-    rs_saved = Resources.objects.filter(name__in=saving_account)
+    rs_saved = current_resource.filter(name__in=saving_account)
     move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to__in=rs_saved))
     move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from__in=rs_saved))
     saved = move_to - move_from
 
-    # resource
-    resources = Resources.objects.all()
-
     # usage
-    usages_chart = ekakeibos.values('usage__name').annotate(sum=Sum('fee')).order_by("sum").reverse()
+    usages_chart = kakeibos_out.values('usage__name').annotate(sum=Sum('fee')).order_by("sum").reverse()
 
     # resources_year
     resources_year_chart, months_chart = process_kakeibo.resources_year_rev(12)
-    logger.info(resources_year_chart)
 
     # kakeibo-usage
     usage_list = [u.name for u in Usages.objects.filter(is_expense=True)]
@@ -278,7 +275,7 @@ def mine(request):
     cash_usages_chart = sorted(process_kakeibo.cash_usages().items(), key=lambda x: -x[1])
 
     # total
-    total = sum([r.current_val() for r in Resources.objects.all()])
+    total = sum([r.current_val() for r in current_resource])
     total_saved = sum(rs.current_val() for rs in rs_saved)
 
     # 1年間での推移
@@ -308,9 +305,9 @@ def mine(request):
         "income": income,
         "expense": expense,
         # current list
-        "ways": ways,
-        # table
-        "resources_table": resources,
+        "current_way": current_way,
+        "current_resource": current_resource,
+        "current_usage": current_usage,
         # chart js
         "usages_chart": usages_chart,
         "resources_year_chart": resources_year_chart,

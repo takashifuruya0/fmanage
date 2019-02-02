@@ -62,55 +62,9 @@
 
   <hr>
   <div class="row">
-    <div class="col-sm-8">
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <a href="#suii00" class="nav-link active" data-toggle="tab">推移</a>
-        </li>
-        <li class="nav-item">
-          <a href="#suii01" class="nav-link" data-toggle="tab">収入・支出</a>
-        </li>
-      </ul>
-      <div class="tab-content">
-        <div class="tab-pane active" id="suii00">
-          <canvas id="bar_resources_year" width="300" height="200"></canvas>
-        </div>
-        <div class="tab-pane" id="suii01">
-          <canvas id="bar_inout_year"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-sm-4">
-      <h4>支出用途</h4>
-      <canvas id="pie_usage" height="360" width="320"></canvas>
-    </div>
-  </div>
-
-  <hr>
-  <div class="row">
-    <div class="col-sm-4">
-      <h5>用途別支出統計</h5>
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <a href="#tab00" class="nav-link active" data-toggle="tab">クレジット含む</a>
-        </li>
-        <li class="nav-item">
-          <a href="#tab01" class="nav-link" data-toggle="tab">クレジット除く</a>
-        </li>
-      </ul>
-      <div class="tab-content">
-        <div id="tab00" class="tab-pane active">
-          <canvas id="pie_consolidated_usage" height="360" width="320"></canvas>
-        </div>
-        <div id="tab01" class="tab-pane">
-          <canvas id="pie_cash_usage"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-sm-4">
-      <h5>推移について</h5>
+    <div class="col-12 col-md-6">
+      <h5>資産内訳推移</h5>
+      <canvas id="bar_resources_year" width="300" height="150"></canvas>
       <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
@@ -141,20 +95,30 @@
           </tr>
         </tbody>
       </table>
-      <hr>
-      <h5>資産内訳</h5>
+    </div>
+    <div class="col-12 col-md-6">
+      <h5>収支推移</h5>
+      <canvas id="bar_inout_year" width="300" height="150"></canvas>
+    </div>
+  </div>
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-4">
+      <h5>種別支出</h5>
+      <canvas id="pie_way" height="360" width="320"></canvas>
       <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
-            <th>口座</th>
+            <th>支払い方法</th>
             <th class="right">金額</th>
           </tr>
         </thead>
         <tbody class="">
-          {% for r in resources_table %}
+          {% for cw in current_way %}
           <tr>
-            <td>{{r.name}}</td>
-            <td class="right">¥{{r.current_val | intcomma}}</td>
+            <td>{{cw.way}}</td>
+            <td class="right">¥{{cw.sum | intcomma}}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -162,7 +126,8 @@
     </div>
 
     <div class="col-sm-4">
-      <h5>用途別支出内訳</h5>
+      <h5>用途別支出</h5>
+      <canvas id="pie_usage" height="360" width="320"></canvas>
       <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
@@ -179,25 +144,53 @@
           {% endfor %}
         </tbody>
       </table>
-      <hr>
-      <h5>支出内訳</h5>
+    </div>
+
+    <div class="col-sm-4">
+      <h5>資産内訳</h5>
+      <canvas id="pie_resource"></canvas>
       <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
-            <th>支払い方法</th>
+            <th>口座</th>
             <th class="right">金額</th>
           </tr>
         </thead>
         <tbody class="">
-          {% for w in ways %}
+          {% for cr in current_resource %}
           <tr>
-            <td>{{w.name}}</td>
-            <td class="right">¥{{w.val | intcomma}}</td>
+            <td>{{cr.name}}</td>
+            <td class="right">¥{{cr.current_val | intcomma}}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
+    </div>
+  </div>
 
+  <hr>
+  <div class="row">
+    <div class="col-12 col-md-6">
+      <h5>用途別支出統計</h5>
+      <canvas id="pie_consolidated_usage" height="360" width="320"></canvas>
+    </div>
+    <div class="col-12 col-md-6">
+      <table class="table table-light table-hover table-sm">
+        <thead>
+          <tr>
+            <th>用途</th>
+            <th class="right">金額</th>
+          </tr>
+        </thead>
+        <tbody class="">
+          {%for u in consolidated_usages_chart %}
+          <tr>
+            <td>{{u.0}}</td>
+            <td class="right">¥{{u.1 | intcomma}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -326,6 +319,36 @@
   </div>
 </div>
 
+<!-- pie_way -->
+<script>
+  var ctx = document.getElementById('pie_way').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for cw in current_way%}"{{cw.way}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for cw in current_way%}{{cw.sum}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+         ]
+      }]
+    },
+    options: {
+      responsive: true,
+      legend: {
+        position: "right"
+      }
+    }
+  });
+</script>
+
 <!-- pie_usage -->
 <script>
   var ctx = document.getElementById('pie_usage').getContext('2d');
@@ -366,6 +389,45 @@
   });
 </script>
 
+<!-- pie_resource -->
+<script>
+  var ctx = document.getElementById('pie_resource').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for cr in current_resource%}"{{cr.name}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for cr in current_resource%}{{cr.current_val}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+         ]
+      }]
+    },
+    options: {
+      responsive: true,
+      legend: {
+        position: "right"
+      }
+    }
+  });
+</script>
 
 <!-- bar_resources -->
 <script>
@@ -375,6 +437,9 @@
       yAxes: [{
         stacked: true
       }]
+    },
+    legend: {
+      position: "right"
     }
   }
   var colors = [
@@ -412,11 +477,18 @@
   {%endfor%}
 
   var ctx = document.getElementById('bar_resources_year').getContext('2d');
+  if (window.innerWidth < 768) {
+    ctx.canvas.width = 450
+    ctx.canvas.height = 450
+  }
   var options = {
     scales: {
       yAxes: [{
         stacked: true
       }]
+    },
+    legend: {
+      position: "right"
     }
   }
   if (window.innerWidth < 768) {
@@ -458,7 +530,7 @@
   });
 </script>
 
-<!-- pie_usage -->
+<!-- pie_consolidated_usage -->
 <script>
   var ctx = document.getElementById('pie_consolidated_usage').getContext('2d');
   var myChart = new Chart(ctx, {
@@ -524,6 +596,9 @@
       yAxes: [{
         stacked: false
       }]
+    },
+    legend: {
+      position: "right"
     }
   }
   if (window.innerWidth < 768) {
@@ -541,7 +616,7 @@
   var myChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: [{% for i in inouts_grouped_by_months.month %}"{{i}}", {%endfor%}],
+      labels: [{% for i in inouts_grouped_by_months.month %}"{{i.year}}/{{i.month}}", {%endfor%}],
       datasets: [
         {
           label: "Expense",
@@ -559,7 +634,7 @@
   });
 </script>
 
-<!-- pie_usage -->
+<!-- pie_cash_usage -->
 <script>
   var ctx = document.getElementById('pie_cash_usage').getContext('2d');
   var myChart = new Chart(ctx, {
