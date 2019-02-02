@@ -1,15 +1,19 @@
 # coding:utf-8
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.conf import settings
 from django.db.models import Q
-from dateutil.relativedelta import relativedelta
+from django.contrib import messages
+# csv
+import csv
+from io import TextIOWrapper
 # logging
 import logging
 logger = logging.getLogger("django")
 # model
 from kakeibo.models import *
+from kakeibo.forms import *
 from datetime import date
 # function
 from kakeibo.functions import mylib
@@ -142,6 +146,57 @@ def form_shared(request):
 @login_required
 @time_measure
 def mine(request):
+    today = date.today()
+    # POSTの場合
+    if request.method == "POST":
+        if request.POST['post_type'] == "new_record":
+            try:
+                form = KakeiboForm(request.POST)
+                form.is_valid()
+                form.save()
+                # msg
+                smsg = "New record was registered"
+                messages.success(request, smsg)
+                logger.info(smsg)
+            except Exception as e:
+                emsg = e
+                logger.error(emsg)
+                messages.error(request, emsg)
+            finally:
+                return redirect('kakeibo:mine')
+        elif request.POST['post_type'] == "read_csv":
+            try:
+                form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
+                csv_file = csv.reader(form_data)
+                header = next(csv_file)
+                for line in csv_file:
+                    # CreditItemの指定or作成
+                    cis = CreditItems.objects.filter(name=line[1])
+                    if cis.exists():
+                        ci = cis[0]
+                    else:
+                        ci = CreditItems.objects.create(name=line[1], date=today)
+                    # 最下行以外を登録
+                    d = line[0].split("/")
+                    if len(d) == 3:
+                        Credits.objects.create(
+                            credit_item=ci,
+                            date=date(int(d[0]), int(d[1]), int(d[2])),
+                            fee=line[5],
+                            debit_date=date(today.year, today.month, 1),
+                            memo=line[6]
+                        )
+                text = "Credit records were created"
+                messages.success(request, text)
+                logger.info(text)
+            except Exception as e:
+                emsg = e
+                logger.error(emsg)
+                messages.error(request, emsg)
+            finally:
+                return redirect('kakeibo:mine')
+    # Form
+    kakeibo_form = KakeiboForm(initial={'date': today})
     # 貯金扱いの口座
     saving_account = [r.name for r in Resources.objects.filter(is_saving=True)]
     # check year and month from GET parameter
@@ -236,6 +291,8 @@ def mine(request):
         "inouts_grouped_by_months": inouts_grouped_by_months,
         # cash_usages_chart
         "cash_usages_chart": cash_usages_chart,
+        # form
+        "kakeibo_form": kakeibo_form,
     }
     return TemplateResponse(request, 'kakeibo/mine.html', output)
 

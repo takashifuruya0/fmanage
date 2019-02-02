@@ -8,19 +8,23 @@
   <div class="container-fluid">
     <hr>
     <div class="row">
-      <div class="col-sm-7">
+      <div class="col-md-6 col-sm-12 col-12">
         <h1>
           <i class="fab fa-servicestack"></i> 資産運用概要: {{today.year}}/{{today.month}}/{{today.day}}
         </h1>
       </div>
-      <div class="col-sm-5">
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#add_investment">
+      <div class="col-md-2 col-sm-4 col-6">
+        <button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#add_investment">
           <i class="far fa-plus-square"></i> Investment
         </button>
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#register_stock">
+      </div>
+      <div class="col-md-2 col-sm-4 col-6">
+        <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#register_stock">
            <i class="far fa-plus-square"></i> New stock
         </button>
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#order">
+      </div>
+      <div class="col-md-2 col-sm-4 col-6">
+        <button type="button" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#order">
           <i class="far fa-plus-square"></i> New order
         </button>
       </div>
