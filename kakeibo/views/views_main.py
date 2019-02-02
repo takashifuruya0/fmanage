@@ -28,76 +28,113 @@ from kakeibo.functions import process_kakeibo
 @time_measure
 def dashboard(request):
     today = date.today()
+    # POSTの場合
+    if request.method == "POST":
+        # new_record
+        if request.POST['post_type'] == "new_record":
+            try:
+                form = KakeiboForm(request.POST)
+                form.is_valid()
+                form.save()
+                # msg
+                smsg = "New record was registered"
+                messages.success(request, smsg)
+                logger.info(smsg)
+            except Exception as e:
+                emsg = e
+                logger.error(emsg)
+                messages.error(request, emsg)
+            finally:
+                return redirect('kakeibo:dashboard')
+        # read_csv
+        elif request.POST['post_type'] == "read_csv":
+            try:
+                form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
+                csv_file = csv.reader(form_data)
+                header = next(csv_file)
+                logger.info(header)
+                for line in csv_file:
+                    # CreditItemの指定or作成
+                    cis = CreditItems.objects.filter(name=line[1])
+                    if cis.exists():
+                        ci = cis[0]
+                    else:
+                        ci = CreditItems.objects.create(name=line[1], date=today)
+                    # 最下行以外を登録
+                    d = line[0].split("/")
+                    if len(d) == 3:
+                        Credits.objects.create(
+                            credit_item=ci,
+                            date=date(int(d[0]), int(d[1]), int(d[2])),
+                            fee=line[5],
+                            debit_date=date(today.year, today.month, 1),
+                            memo=line[6]
+                        )
+                smsg = "Credit records were created"
+                messages.success(request, smsg)
+                logger.info(smsg)
+            except Exception as e:
+                emsg = e
+                logger.error(emsg)
+                messages.error(request, emsg)
+            finally:
+                return redirect('kakeibo:dashboard')
+
+    # Form
+    kakeibo_form = KakeiboForm(initial={'date': today})
+
     # kakeibo
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
-    ekakeibos = kakeibos.exclude(Q(way='振替') | Q(way='収入') | Q(way="支出（クレジット）"))
+    kakeibos_out = kakeibos.filter(way__in=("支出（現金）", "引き落とし"))
+    kakeibos_expense = kakeibos.filter(way__in=("支出（クレジット）", "支出（現金）", "引き落とし"))
+
+    # 収入・支出
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    expense = mylib.cal_sum_or_0(ekakeibos)
+    expense = mylib.cal_sum_or_0(kakeibos_out)
 
     # status, progress_bar
     pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
 
     # way
-    ways_sum = kakeibos.values('way').annotate(Sum('fee'))
-    current_way = dict()
-    for w in ways_sum:
-        current_way[w['way']] = w['fee__sum']
-    if "振替" in current_way.keys():
-        current_way.pop("振替")
-        logger.info("振替 is poped out")
-
+    current_way = kakeibos_expense.values('way').annotate(sum=Sum('fee')).order_by("-sum")
     # resource
-    current_resource = dict()
+    current_resource = Resources.objects.all()
+    # usage
+    current_usage = kakeibos_out.values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
+
+    # resource: 先月との比較
     resources_chart = list()
-    for rs in Resources.objects.all():
+    for rs in current_resource:
         val = rs.current_val()
         move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
         move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
         val2 = val - move_to + move_from
         if val is not 0:
-            current_resource[rs.name] = val
             tmp = {"name": rs.name, "this_month": val, "last_month": val2}
             resources_chart.append(tmp)
 
-    # usage
-    current_usage = ekakeibos.values('usage__name').annotate(sum=Sum('fee')).order_by("sum").reverse()
-    logger.info(current_usage)
-
     # shared
     seisan = mylib.seisan(today.year, today.month)
-    budget_shared = {
-        "t": seisan['budget']['taka'],
-        "h": seisan['budget']['hoko'],
-        "all": seisan['budget']['hoko'] + seisan['budget']['taka']
-    }
-    expense_shared = {
-        "t": seisan['payment']['taka'],
-        "h": seisan['payment']['hoko'],
-        "all": seisan['payment']['hoko'] + seisan['payment']['taka']
-    }
-    shared = SharedKakeibos.objects.filter(date__month=today.month, date__year=today.year)
-    inout_shared = seisan["inout"]
-    rb_name = seisan['status']
-    move = seisan['seisan']
 
     # 赤字→精算あり
-    if rb_name == "赤字":
+    if seisan['status'] == "赤字":
         status_shared = "danger"
-        pb_shared = {"in": int(budget_shared['all'] / expense_shared['all'] * 100), "out": 100}
+        pb_shared = {"in": int(seisan['budget']['sum'] / seisan['payment']['sum'] * 100), "out": 100}
     else:
         status_shared = "primary"
-        pb_shared = {"in": 100, "out": int(expense_shared['all'] / budget_shared['all'] * 100)}
+        pb_shared = {"in": 100, "out": int(seisan['payment']['sum'] / seisan['budget']['sum'] * 100)}
 
     # shared_grouped_by_usage
-    shared_grouped_by_usage = shared.values('usage__name').annotate(sum=Sum('fee')).order_by("sum").reverse()
-    logger.info(shared_grouped_by_usage)
+    shared_grouped_by_usage = SharedKakeibos.objects\
+        .filter(date__month=today.month, date__year=today.year)\
+        .values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
 
     # chart.js
     data = {
         "現金精算": [0, seisan['seisan'], 0, 0],
         "予算": [seisan['budget']['hoko'], 0, seisan['budget']['taka'], 0],
         "支払": [0, seisan['payment']['hoko'], 0, seisan['payment']['taka']],
-        rb_name: seisan['rb'],
+        seisan['status']: seisan['rb'],
     }
     labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
     bar_eom = {"data": data, "labels": labels}
@@ -109,19 +146,18 @@ def dashboard(request):
         "income": income,
         "expense": expense,
         "current_way": current_way,
-        "current_resource": current_resource,
-        "resources": resources_chart,
         "current_usage": current_usage,
+        "current_resource": current_resource,
+        "resources_chart": resources_chart,
         # shared
-        "inout_shared": inout_shared,
-        "budget_shared": budget_shared,
-        "expense_shared": expense_shared,
-        "move": move,
+        "seisan": seisan,
         "shared_grouped_by_usage": shared_grouped_by_usage,
         "bar_eom": bar_eom,
         # progress bar and status
         "pb": {"kakeibo": pb_kakeibo, "shared": pb_shared},
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
+        # kakeibo_form
+        "kakeibo_form": kakeibo_form,
     }
     logger.info("output: " + str(output))
     return TemplateResponse(request, 'kakeibo/dashboard.html', output)

@@ -9,7 +9,7 @@ class KakeiboForm(forms.ModelForm):
     ModelForm を継承して作れば、HTMLで表示したいフィールドを
     指定するだけで HTML フォームを作ってくれる。
     """
-    choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "引き落とし", "共通支出", "収入"])
+    choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "引き落とし", "共通支出", "収入", "振替"])
     way = forms.TypedChoiceField(choices=choices)
 
     class Meta:

@@ -234,10 +234,16 @@ class CreditItems(BaseModel):
         return Credits.objects.filter(credit_item=self).__len__()
 
     def sum_credit(self):
-        return Credits.objects.filter(credit_item=self).aggregate(sum=models.Sum('fee'))['sum']
+        if Credits.objects.filter(credit_item=self).exists():
+            return Credits.objects.filter(credit_item=self).aggregate(sum=models.Sum('fee'))['sum']
+        else:
+            return 0
 
     def avg_credit(self):
-        return int(Credits.objects.filter(credit_item=self).aggregate(avg=models.Avg('fee'))['avg'])
+        if Credits.objects.filter(credit_item=self).exists():
+            return int(Credits.objects.filter(credit_item=self).aggregate(avg=models.Avg('fee'))['avg'])
+        else:
+            return 0
 
     def get_credits(self):
         return Credits.objects.filter(credit_item=self).order_by('-date')

@@ -38,6 +38,8 @@
 {% for mdbw in monthly_details_by_way %}
 <script>
   var ctx = document.getElementById('pie_{{forloop.counter0}}').getContext('2d');
+  ctx.canvas.width = 300
+  ctx.canvas.height = 150
   var myChart = new Chart(ctx, {
     type: 'pie',
     data: {

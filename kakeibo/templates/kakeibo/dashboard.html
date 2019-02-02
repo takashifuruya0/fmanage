@@ -9,19 +9,20 @@
 <div class="container-fluid">
   <hr>
   <div class="row">
-    <div class="col-sm-6">
+    <div class="col-md-6 col-sm-12 col-12">
       <h1>
         <i class="fas fa-chart-area"></i> {{today.year}}年{{today.month}}月の概要
       </h1>
     </div>
-    <div class="col-sm-2">
-      <a href="#link-kakeibo" class="btn btn-info btn-block"><i class="fas fa-user-circle"></i> 家計簿</a>
+    <div class="col-md-2 col-sm-4 col-6">
+      <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#new_record">
+        <i class="far fa-plus-square"></i> New record
+      </button>
     </div>
-    <div class="col-sm-2">
-      <a href="#link-shared" class="btn btn-info btn-block"><i class="fas fa-people-carry"></i> 共通家計簿</a>
-    </div>
-    <div class="col-sm-2">
-      <a href="#link-asset" class="btn btn-info btn-block"><i class="far fa-money-bill-alt"></i> 資産運用</a>
+    <div class="col-md-2 col-sm-4 col-6">
+      <button type="button" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#read_csv">
+        <i class="far fa-file-excel"></i> Credit CSV
+      </button>
     </div>
   </div>
   <hr>
@@ -54,49 +55,115 @@
   </div>
   <hr>
   <div class="row">
-    <div class="col-sm-4">
-      <h4>収支</h4>
-      <table class="table table-light table-hover table-sm">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th class="right">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for key, val in current_way.items %}
-          <tr>
-            <td>{{key}}</td>
-            <td class="right">¥{{val | intcomma}}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-      <h4>資産状態</h4>
-      <table class="table table-light table-hover table-sm">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th class="right">Value</th>
-          </tr>
-        </thead>
-        <tbody class="">
-          {% for key, val in current_resource.items %}
-          <tr>
-            <td>{{key}}</td>
-            <td class="right">¥{{val | intcomma}}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="col-12 col-sm-6 col-md-3">
+      <div class="card">
+        <div class="card-header">
+          <h4>収支</h4>
+        </div>
+        <div class="card-body">
+          <canvas id="pie_way"></canvas>
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th class="right">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cw in current_way %}
+              <tr>
+                <td>{{cw.way}}</td>
+                <td class="right">¥{{cw.sum | intcomma}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <div class="col-sm-4">
-      <canvas id="pie_usage"></canvas>
+    <div class="col-12 col-sm-6 col-md-3">
+      <div class="card">
+        <div class="card-header">
+          <h4>用途別</h4>
+        </div>
+        <div class="card-body">
+          <canvas id="pie_usage"></canvas>
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th class="right">Value</th>
+              </tr>
+            </thead>
+            <tbody class="">
+              {%for cu in current_usage%}
+              <tr>
+                <td>{{cu.usage__name}}</td>
+                <td class="right">¥{{cu.sum | intcomma}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <div class="col-sm-4">
-      <canvas id="bar_resources" width="320" height="360"></canvas>
+
+    <div class="col-12 col-sm-6 col-md-3">
+      <div class="card">
+        <div class="card-header">
+          <h4>資産状態</h4>
+        </div>
+        <div class="card-body">
+          <canvas id="pie_resource"></canvas>
+          <!--<canvas id="bar_resources" width="320" height="360"></canvas>-->
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th class="right">Value</th>
+              </tr>
+            </thead>
+            <tbody class="">
+              {% for cr in current_resource %}
+              <tr>
+                <td>{{cr.name}}</td>
+                <td class="right">¥{{cr.current_val | intcomma}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+      <div class="card">
+        <div class="card-header">
+          <h4>先月比</h4>
+        </div>
+        <div class="card-body">
+          <canvas id="bar_resources" width="320" height="360"></canvas>
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th class="right">今月</th>
+                <th class="right">先月</th>
+              </tr>
+            </thead>
+            <tbody class="">
+              {%for r in resources_chart%}
+              <tr>
+                <td>{{r.name}}</td>
+                <td class="right">¥{{r.this_month | intcomma}}</td>
+                <td class="right">¥{{r.last_month | intcomma}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
   <hr>
@@ -108,81 +175,96 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-sm-4">
+    <div class="col-6 col-sm-3 col-md-2">
       <button class="btn btn-block btn-lg btn-{{status.shared}}">
-        収支 <span class="badge badge-light">¥{{inout_shared | intcomma}}</span>
+        収支 <span class="badge badge-light">¥{{seisan.inout | intcomma}}</span>
       </button>
     </div>
-    <div class="col-sm-8">
+    <div class="col-6 col-sm-3 col-md-2">
+      <button class="btn btn-block btn-lg btn-info">
+        精算 <span class="badge badge-light">¥{{seisan.seisan | intcomma}}</span>
+      </button>
+    </div>
+    <div class="col-12 col-sm-6 col-md-8">
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb.shared.in}}%; height:25px">
-          予算 <span class="badge badge-light">¥{{budget_shared.all | intcomma}}</span>
+          予算 <span class="badge badge-light">¥{{seisan.budget.sum | intcomma}}</span>
         </div>
       </div>
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb.shared.out}}%; height:25px">
-          支出 <span class="badge badge-light">¥{{expense_shared.all | intcomma}}</span>
+          支出 <span class="badge badge-light">¥{{seisan.payment.sum | intcomma}}</span>
         </div>
       </div>
     </div>
   </div>
   <hr>
   <div class="row">
-    <div class="col-sm-4">
-      <button class="btn btn-block btn-lg btn-info">
-        精算 <span class="badge badge-light">¥{{move | intcomma}}</span>
-      </button>
-      <hr>
+    <div class="col-sm-6 col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h4>支払者別</h4>
+        </div>
+        <div class="card-body">
+          <canvas id="pie_shared_paid_by"></canvas>
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th class="right">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>敬士</td>
+                <td class="right">¥{{seisan.payment.taka | intcomma}}</td>
+              </tr>
+              <tr>
+                <td>朋子</td>
+                <td class="right">¥{{seisan.payment.hoko | intcomma}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-      <h4>支払者別</h4>
-      <table class="table table-light table-hover table-sm">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th class="right">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>合計</td>
-            <td class="right">¥{{expense_shared.all | intcomma}}</td>
-          </tr>
-          <tr>
-            <td>敬士</td>
-            <td class="right">¥{{expense_shared.t | intcomma}}</td>
-          </tr>
-          <tr>
-            <td>朋子</td>
-            <td class="right">¥{{expense_shared.h | intcomma}}</td>
-          </tr>
-        </tbody>
-      </table>
-      
-      <h4>用途別</h4>
-      <table class="table table-light table-hover table-sm">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th class="right">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for su in shared_grouped_by_usage %}
-          <tr>
-            <td>{{su.usage__name}}</td>
-            <td class="right">¥{{su.sum|intcomma}}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+    <div class="col-sm-6 col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h4>用途別</h4>
+        </div>
+        <div class="card-body">
+          <canvas id="pie_shared_usage"></canvas>
+          <table class="table table-light table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th class="right">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for su in shared_grouped_by_usage %}
+              <tr>
+                <td>{{su.usage__name}}</td>
+                <td class="right">¥{{su.sum|intcomma}}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <div class="col-sm-4">
-      <!--<p class="resizeimage"><img src="{% url 'kakeibo:pie_shared' %}?year={{today.year}}&month={{today.month}}"></p>-->
-      <canvas id="pie_shared_usage"></canvas>
-    </div>
-    <div class="col-sm-4">
-      <canvas id="bar_eom" width="320" height="360"></canvas>
-      <!--<p class="resizeimage"><img src="{% url 'kakeibo:bars_shared_eom' %}?year={{today.year}}&month={{today.month}}"></p>-->
+
+    <div class="col-sm-6 col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h4>支払い内訳</h4>
+        </div>
+        <div class="card-body">
+          <canvas id="bar_eom" width="320" height="360"></canvas>
+        </div>
+      </div>
     </div>
   </div>
   <hr>
@@ -207,6 +289,72 @@
 
 </div>
 
+<!--============================================================ -->
+                          <!--MODAL-->
+<!--============================================================ -->
+<!-- Modal new-record -->
+<div class="modal fade" id="new_record" tabindex="-1" role="dialog" aria-labelledby="new_record" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="new_record_Label">
+          <i class="far fa-plus-square"></i> New Kakeibo Record
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="post" action="">
+        <div class="modal-body">
+          {% csrf_token %}
+          <table>
+            {{ kakeibo_form }}
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" name="post_type" value="new_record">Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal read_csv -->
+<div class="modal fade" id="read_csv" tabindex="-1" role="dialog" aria-labelledby="read_csv" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="read_csv_Label">
+          <i class="far fa-file-excel"></i> Read credit CSV
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <script>
+        $(function(){
+          $('.dropify').dropify();
+        })
+      </script>
+      <form class="form-horizontal" method="post" action="" enctype="multipart/form-data">
+        <div class="modal-body">
+          <input type="file" class="dropify" name="csv">
+          {% csrf_token %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" name="post_type" value="read_csv">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!--============================================================ -->
+                          <!--SCRIPT-->
+<!--============================================================ -->
 <!-- pie_usage -->
 <script>
   var ctx = document.getElementById('pie_usage').getContext('2d');
@@ -237,6 +385,88 @@
           "#bee95e",
          ]
       }]
+    },
+    options: {
+      <!--responsive: true,-->
+      legend: {
+        position: "right",
+        display: false
+      }
+    }
+  });
+</script>
+
+<!-- pie_way -->
+<script>
+  var ctx = document.getElementById('pie_way').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{% for cw in current_way %}"{{cw.way}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{% for cw in current_way %}{{cw.sum}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+         ]
+      }]
+    },
+    options: {
+      <!--responsive: true,-->
+      legend: {
+        position: "right",
+        display: false
+      }
+    }
+  });
+</script>
+
+<!-- pie_resource -->
+<script>
+  var ctx = document.getElementById('pie_resource').getContext('2d');
+  ctx.canvas.width = 100
+  ctx.canvas.height = 100
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{% for cr in current_resource %}"{{cr.name}}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{% for cr in current_resource %}{{cr.current_val}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+         ]
+      }]
+    },
+    options: {
+      <!--responsive: true,-->
+      legend: {
+        position: "right",
+        display: false
+      }
     }
   });
 </script>
@@ -261,6 +491,37 @@
           "#34495e"
          ]
       }]
+    },
+    options: {
+      responsive: true,
+      legend: {
+        position: "right"
+      }
+    }
+  });
+</script>
+
+<!-- pie_shared_paid_by -->
+<script>
+  var ctx = document.getElementById('pie_shared_paid_by').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ["敬士", "朋子"],
+      datasets: [{
+        label: "alice",
+        data: [{{seisan.payment.taka}}, {{seisan.payment.hoko}}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db"
+         ]
+      }]
+    },
+    options: {
+      responsive: true,
+      legend: {
+        position: "right"
+      }
     }
   });
 </script>
@@ -268,11 +529,16 @@
 <!-- bar_resources -->
 <script>
   var ctx = document.getElementById('bar_resources').getContext('2d');
+  ctx.canvas.width = 100
+  ctx.canvas.height = 100
   var options = {
     scales: {
       yAxes: [{
         stacked: true
       }]
+    },
+    legend: {
+      display: false
     }
   }
   var colors = [
@@ -288,7 +554,7 @@
     data: {
       labels: ["今月", "先月"],
       datasets: [
-        {%for r in resources%}
+        {%for r in resources_chart%}
         {
           label: "{{r.name}}",
           data: [{{r.this_month}}, {{r.last_month}}],
