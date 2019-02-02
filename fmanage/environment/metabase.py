@@ -25,9 +25,26 @@ DEBUG = False
 ENVIRONMENT = "METABSE"
 
 # LOG
+
+LOGGING['handlers'] = {
+    'logfile': {
+        'level': 'INFO',
+        'class': 'logging.FileHandler',
+        'formatter': 'verbose',
+        'filename': "/var/log/gunicorn/logfile",
+    },
+    'elogfile': {
+        'level': 'ERROR',
+        'class': 'logging.FileHandler',
+        'formatter': 'verbose',
+        'filename': "/var/log/gunicorn/elogfile",
+    },
+}
+
 LOGGING['loggers'] = {
     'django': {
         'handlers': ['logfile', 'elogfile'],
         'level': 'INFO',
     },
 }
+
