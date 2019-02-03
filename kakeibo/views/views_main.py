@@ -87,19 +87,19 @@ def dashboard(request):
     kakeibos_out = kakeibos.filter(way__in=("支出（現金）", "引き落とし"))
     kakeibos_expense = kakeibos.filter(way__in=("支出（クレジット）", "支出（現金）", "引き落とし"))
 
-    # 収入・支出
-    income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    expense = mylib.cal_sum_or_0(kakeibos_out)
-
-    # status, progress_bar
-    pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
-
     # way
     current_way = kakeibos_expense.values('way').annotate(sum=Sum('fee')).order_by("-sum")
     # resource
     current_resource = Resources.objects.all()
     # usage
     current_usage = kakeibos_expense.values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
+
+    # 収入・支出・総資産
+    income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
+    expense = mylib.cal_sum_or_0(kakeibos_out)
+    total = sum([r.current_val() for r in current_resource])
+    # status, progress_bar
+    pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
 
     # resource: 先月との比較
     resources_chart = list()
@@ -144,6 +144,7 @@ def dashboard(request):
         "inout": income-expense,
         "income": income,
         "expense": expense,
+        "total": total,
         "current_way": current_way,
         "current_usage": current_usage,
         "current_resource": current_resource,

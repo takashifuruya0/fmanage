@@ -28,6 +28,7 @@ def usage_shared_table(usage_list):
     # data用意
     data_year = [
         {
+            "year": (this_month-relativedelta(months=i)).year,
             "month": (this_month-relativedelta(months=i)).month,
             "sum": "",
             "color": "",
@@ -69,7 +70,12 @@ def usage_kakeibo_table(usage_list):
         .annotate(sum=Sum('fee'))
     # data用意
     data_year = [
-        {"month": (this_month-relativedelta(months=i)).month, "sum": "", "data": list()} for i in range(12)
+        {
+            "year": (this_month - relativedelta(months=i)).year,
+            "month": (this_month-relativedelta(months=i)).month,
+            "sum": "",
+            "data": list()
+        } for i in range(12)
     ]
     month_order = {
         (this_month - relativedelta(months=i)).month: i for i in range(12)

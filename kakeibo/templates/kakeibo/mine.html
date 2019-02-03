@@ -36,17 +36,17 @@
 
   <hr>
   <div class="row">
-    <div class="col-sm-4 col-6">
-      <button class="btn btn-block btn-lg btn-info">
-        貯金 <span class="badge badge-light">¥{{saved | intcomma}}</span>
-      </button>
-    </div>
-    <div class="col-sm-4 col-6">
+    <div class="col-sm-6 col-md-3 col-lg-2">
       <button class="btn btn-block btn-lg btn-{{status}}">
         収支 <span class="badge badge-light">¥{{inout | intcomma}}</span>
       </button>
     </div>
-    <div class="col-sm-4 col-12">
+    <div class="col-sm-6 col-md-3 col-lg-2">
+      <button class="btn btn-block btn-lg btn-info">
+        総資産 <span class="badge badge-light">¥{{total | intcomma}}</span>
+      </button>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-8">
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_kakeibo.in}}%; height:25px">
           収入 <span class="badge badge-light">¥{{income | intcomma}}</span>
@@ -62,7 +62,7 @@
 
   <hr>
   <div class="row">
-    <div class="col-12 col-md-6">
+    <div class="col-sm-12 col-md-6">
       <h5>資産内訳推移</h5>
       <canvas id="bar_resources_year" width="300" height="150"></canvas>
       <table class="table table-light table-hover table-sm">
@@ -84,6 +84,10 @@
             </td>
           </tr>
           <tr>
+            <td>今月の貯金額</td>
+            <td class="right">¥{{saved | intcomma}}</td>
+          </tr>
+          <tr>
             <td>合計貯金額</td>
             <td class="right">¥{{total_saved | intcomma}}</td>
           </tr>
@@ -96,7 +100,7 @@
         </tbody>
       </table>
     </div>
-    <div class="col-12 col-md-6">
+    <div class="col-sm-12 col-md-6">
       <h5>収支推移</h5>
       <canvas id="bar_inout_year" width="300" height="150"></canvas>
     </div>
@@ -106,7 +110,7 @@
   <div class="row">
     <div class="col-sm-4">
       <h5>種別支出</h5>
-      <canvas id="pie_way" height="360" width="320"></canvas>
+      <canvas id="pie_way" height="200" width="300"></canvas>
       <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
@@ -127,7 +131,7 @@
 
     <div class="col-sm-4">
       <h5>用途別支出</h5>
-      <canvas id="pie_usage" height="360" width="320"></canvas>
+      <canvas id="pie_usage" height="200" width="300"></canvas>
       <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
@@ -148,7 +152,7 @@
 
     <div class="col-sm-4">
       <h5>資産内訳</h5>
-      <canvas id="pie_resource"></canvas>
+      <canvas id="pie_resource" height="200" width="300"></canvas>
       <table class="table table-light table-hover table-sm">
         <thead>
           <tr>
@@ -172,7 +176,7 @@
   <div class="row">
     <div class="col-12 col-md-6">
       <h5>用途別支出統計</h5>
-      <canvas id="pie_consolidated_usage" height="360" width="320"></canvas>
+      <canvas id="pie_consolidated_usage" height="200" width="300"></canvas>
     </div>
     <div class="col-12 col-md-6">
       <table class="table table-light table-hover table-sm">
@@ -211,7 +215,7 @@
         <tbody>
           {% for i in kakeibo_usage_table %}
           <tr>
-            <td>{{i.month}}月</td>
+            <td>{{i.year}}年{{i.month}}月</td>
             <td class="right">¥{{i.sum | intcomma}}</td>
             {% for j in i.data %}
             <td class="right">¥{{j | intcomma}}</td>
@@ -234,6 +238,10 @@
 
 </div>
 
+
+<!--============================================================ -->
+                          <!--MODAL-->
+<!--============================================================ -->
 <!-- Modal new-record -->
 <div class="modal fade" id="new_record" tabindex="-1" role="dialog" aria-labelledby="new_record" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -319,6 +327,10 @@
   </div>
 </div>
 
+
+<!--============================================================ -->
+                          <!--SCRIPT-->
+<!--============================================================ -->
 <!-- pie_way -->
 <script>
   var ctx = document.getElementById('pie_way').getContext('2d');

@@ -34,13 +34,17 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-sm-4">
+    <div class="col-sm-6 col-md-3 col-lg-2">
       <button class="btn btn-block btn-lg btn-{{status.kakeibo}}">
         収支 <span class="badge badge-light">¥{{inout | intcomma}}</span>
       </button>
-
     </div>
-    <div class="col-sm-8">
+    <div class="col-sm-6 col-md-3 col-lg-2">
+      <button class="btn btn-block btn-lg btn-info">
+        総資産 <span class="badge badge-light">¥{{total | intcomma}}</span>
+      </button>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-8">
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb.kakeibo.in}}%; height:25px">
           収入 <span class="badge badge-light">¥{{income | intcomma}}</span>
@@ -55,7 +59,7 @@
   </div>
   <hr>
   <div class="row">
-    <div class="col-12 col-sm-6 col-md-3">
+    <div class="col-sm-12 col-md-6 col-lg-3">
       <div class="card">
         <div class="card-header">
           <h4>収支</h4>
@@ -82,7 +86,7 @@
       </div>
     </div>
 
-    <div class="col-12 col-sm-6 col-md-3">
+    <div class="col-sm-12 col-md-6 col-lg-3">
       <div class="card">
         <div class="card-header">
           <h4>用途別</h4>
@@ -109,7 +113,7 @@
       </div>
     </div>
 
-    <div class="col-12 col-sm-6 col-md-3">
+    <div class="col-sm-12 col-md-6 col-lg-3">
       <div class="card">
         <div class="card-header">
           <h4>資産状態</h4>
@@ -137,7 +141,7 @@
       </div>
     </div>
 
-    <div class="col-12 col-sm-6 col-md-3">
+    <div class="col-sm-12 col-md-6 col-lg-3">
       <div class="card">
         <div class="card-header">
           <h4>先月比</h4>
@@ -175,17 +179,17 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-6 col-sm-3 col-md-2">
+    <div class="col-sm-6 col-md-3 col-lg-2">
       <button class="btn btn-block btn-lg btn-{{status.shared}}">
         収支 <span class="badge badge-light">¥{{seisan.inout | intcomma}}</span>
       </button>
     </div>
-    <div class="col-6 col-sm-3 col-md-2">
+    <div class="col-sm-6 col-md-3 col-lg-2">
       <button class="btn btn-block btn-lg btn-info">
         精算 <span class="badge badge-light">¥{{seisan.seisan | intcomma}}</span>
       </button>
     </div>
-    <div class="col-12 col-sm-6 col-md-8">
+    <div class="col-sm-12 col-md-6 col-lg-8">
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb.shared.in}}%; height:25px">
           予算 <span class="badge badge-light">¥{{seisan.budget.sum | intcomma}}</span>
