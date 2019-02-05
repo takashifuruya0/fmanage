@@ -208,7 +208,7 @@ class SharedKakeibos(models.Model):
     # 支払者
     paid_by = models.CharField(max_length=20)
     # 清算済み？
-    is_settled = models.BooleanField()
+    is_settled = models.BooleanField(default=True)
 
     def __str__(self):
         return self.way
