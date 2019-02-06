@@ -11,6 +11,7 @@ class KakeiboForm(forms.ModelForm):
     """
     choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "引き落とし", "共通支出", "収入", "振替"])
     way = forms.TypedChoiceField(choices=choices)
+    way.widget.attrs['onchange'] = 'fill_resource()'
 
     class Meta:
         model = Kakeibos
