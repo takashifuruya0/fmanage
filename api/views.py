@@ -15,12 +15,13 @@ logger = logging.getLogger("django")
 
 @csrf_exempt
 def kakeibo(request):
+    data_list = list()
     # add data to DB
     if request.method == "POST":
         try:
             val = json.loads(request.body.decode())
             logger.info(val)
-
+            # record
             kakeibo = Kakeibos()
             kakeibo.date = date.today()
             kakeibo.fee = (val['金額'])
@@ -50,20 +51,59 @@ def kakeibo(request):
             kakeibo.save()
             status = True
             memo = "Successfully completed"
+            d = {
+                "fee": kakeibo.fee,
+                "date": {
+                    "year": kakeibo.date.year,
+                    "month": kakeibo.date.month,
+                    "day": kakeibo.date.day,
+                },
+                "way": kakeibo.way,
+                "memo": kakeibo.memo,
+                "usage": kakeibo.usage.name if kakeibo.usage else None,
+                "move_from": kakeibo.move_from.name if kakeibo.move_from else None,
+                "move_to": kakeibo.move_to.name if kakeibo.move_to else None,
+            }
+            data_list.append(d)
             logger.info(memo)
-
         except Exception as e:
             status = False
             memo = e
             logger.error(str(e))
+        finally:
+            data = {
+                "message": memo,
+                "status": status,
+                "data_list": data_list,
+                "length": data_list.__len__()
+            }
 
-    else:
-        status = False
-        memo = "you should use POST"
-        logger.error("POST is not acceptable")
-
+    elif request.method == "GET":
+        status = True
+        kakeibos = Kakeibos.objects.all().select_related()
+        for k in kakeibos:
+            d = {
+                "fee": k.fee,
+                "date": {
+                    "year": k.date.year,
+                    "month": k.date.month,
+                    "day": k.date.day,
+                },
+                "way": k.way,
+                "memo": k.memo,
+                "usage": k.usage.name if k.usage else None,
+                "move_from": k.move_from.name if k.move_from else None,
+                "move_to": k.move_to.name if k.move_to else None,
+            }
+            data_list.append(d)
+        # data
+        data = {
+            "message": "",
+            "status": status,
+            "data_list": data_list,
+            "length": data_list.__len__()
+        }
     # json
-    data = {"message": memo, "status": status,}
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
@@ -71,6 +111,7 @@ def kakeibo(request):
 
 @csrf_exempt
 def shared(request):
+    data_list = list()
     # add data to DB
     if request.method == "POST":
         val = json.loads(request.body.decode())
@@ -95,19 +136,56 @@ def shared(request):
             kakeibo.save()
             memo = "Successfully completed"
             status = True
-
+            d = {
+                "fee": kakeibo.fee,
+                "date": {
+                    "year": kakeibo.date.year,
+                    "month": kakeibo.date.month,
+                    "day": kakeibo.date.day,
+                },
+                "memo": kakeibo.memo,
+                "usage": kakeibo.usage.name if kakeibo.usage else None,
+                "move_from": kakeibo.move_from.name if kakeibo.move_from else None,
+                "paid_by": kakeibo.paid_by
+            }
+            data_list.append(d)
         except Exception as e:
             memo = e
             status = False
             logger.error(str(e))
+        finally:
+            data = {
+                "message": memo,
+                "status": status,
+                "data_list": data_list,
+                "length": data_list.__len__()
+            }
 
-    else:
-        memo = "you should use POST"
-        status = False
-        logger.error("POST is not acceptable")
-
+    elif request.method == "GET":
+        status = True
+        skakeibos = SharedKakeibos.objects.all().select_related()
+        for sk in skakeibos:
+            d = {
+                "fee": sk.fee,
+                "date": {
+                    "year": sk.date.year,
+                    "month": sk.date.month,
+                    "day": sk.date.day,
+                },
+                "memo": sk.memo,
+                "usage": sk.usage.name if sk.usage else None,
+                "move_from": sk.move_from.name if sk.move_from else None,
+                "paid_by": sk.paid_by
+            }
+            data_list.append(d)
+        memo = ""
+        data = {
+            "message": memo,
+            "status": status,
+            "data_list": data_list,
+            "length": data_list.__len__()
+        }
     # json
-    data = {"message": memo, "status": status,}
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
@@ -260,11 +338,35 @@ def asset(request):
 
 @csrf_exempt
 def asset_order(request):
-    if request.method != "POST":
-        # GET以外はFalse
+    if request.method == "GET":
+        data_list = list()
+        asset_orders = Orders.objects.all().select_related()
+        for ao in asset_orders:
+            d = {
+                "is_nisa": ao.is_nisa,
+                "commission": ao.commission,
+                "price": ao.price,
+                "num": ao.num,
+                "datetime": {
+                    "year": ao.datetime.year,
+                    "month": ao.datetime.month,
+                    "day": ao.datetime.day,
+                    "hour": ao.datetime.hour,
+                    "minute": ao.datetime.minute,
+                },
+                "order_type": ao.order_type,
+                "stock": {
+                    "code": ao.stock.code,
+                    "name": ao.stock.name,
+                }
+            }
+            data_list.append(d)
+        # data
         data = {
-            "message": "POST request is only acceptable",
-            "status": False,
+            "message": "Data list of orders",
+            "status": True,
+            "data_list": data_list,
+            "length": data_list.__len__()
         }
     elif request.method == "POST":
         try:
@@ -303,9 +405,29 @@ def asset_order(request):
                 logger.error(emsg)
                 logger.error(val)
             # message
+            d = {
+                "is_nisa": bo.is_nisa,
+                "commission": bo.commission,
+                "price": bo.price,
+                "num": bo.num,
+                "datetime": {
+                    "year": bo.datetime.year,
+                    "month": bo.datetime.month,
+                    "day": bo.datetime.day,
+                    "hour": bo.datetime.hour,
+                    "minute": bo.datetime.minute,
+                },
+                "order_type": bo.order_type,
+                "stock": {
+                    "code": bo.stock.code,
+                    "name": bo.stock.name,
+                }
+            }
             data = {
                 "message": msg,
                 "status": status,
+                "data_list": [d,],
+                "length": 1,
             }
         except Exception as e:
             logger.error(e)

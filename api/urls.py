@@ -7,7 +7,7 @@ from . import views
 
 app_name = 'api'
 urlpatterns = [
-    url(r'^kakeibo/fy2018$', views.kakeibo, name='kakeibo'),
+    url(r'^kakeibo$', views.kakeibo, name='kakeibo'),
     url(r'^shared$', views.shared, name='shared'),
     url(r'^seisan$', views.seisan, name='seisan'),
     url(r'^kakeibo_month$', views.kakeibo_month, name="kakeibo_month"),
