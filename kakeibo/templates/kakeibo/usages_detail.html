@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block body %}
+{% with res=object.get_kakeibos_2 %}
 <div class="container-fluid">
     <hr>
     <div class="row">
@@ -24,12 +25,12 @@
             <h2>一覧</h2>
             <!-- タブボタン部分 -->
             <ul class="nav nav-pills" role="tablist">
-                {% if object.get_kakeibos.all.data.exists %}
+                {% if res.all.data.exists %}
                 <li class="nav-item">
                   <a href="#list12" class="nav-link active" data-toggle="pill">月別現金支出</a>
                 </li>
-                {% for km in object.get_kakeibos.month %}
-                {% if km.count > 0 %}
+                {% for km in res.month %}
+                {% if km.count > 0 or km.count_shared > 0%}
                 <li class="nav-item">
                     <a href="#list_{{forloop.counter0}}" class="nav-link" data-toggle="pill">
                         {{km.date.year}}年{{km.date.month}}月
@@ -39,27 +40,28 @@
                 {% endfor %}
                 {% endif %}
             </ul>
-            <hr>
+
             <!--タブのコンテンツ部分-->
             <div class="tab-content">
                 <div id="list12" class="tab-pane active">
+                    <hr>
                     <div class="row">
                         <div class="col-12 col-sm-3">
                             <h2>月別</h2>
                         </div>
                         <div class="col-12 col-sm-3">
                             <button class="btn btn-success btn-block">
-                                合計 <span class="badge badge-light">¥ {{object.get_kakeibos.all.sum |intcomma}} </span>
+                                合計 <span class="badge badge-light">¥ {{res.all.sum |intcomma}} </span>
                             </button>
                         </div>
                         <div class="col-12 col-sm-3">
                             <button class="btn btn-warning btn-block">
-                                平均 <span class="badge badge-light">¥ {{object.get_kakeibos.all.avg |floatformat:"0"|intcomma}} </span>
+                                平均 <span class="badge badge-light">¥ {{res.all.avg |floatformat:"0"|intcomma}} </span>
                             </button>
                         </div>
                         <div class="col-12 col-sm-3">
                             <button class="btn btn-info btn-block">
-                                個数 <span class="badge badge-light">{{object.get_kakeibos.all.count |intcomma}} </span>
+                                個数 <span class="badge badge-light">{{res.all.count |intcomma}} </span>
                             </button>
                         </div>
                     </div>
@@ -89,11 +91,14 @@
                     </div>
                 </div>
 
-                {% for km in object.get_kakeibos.month %}
+                {% for km in res.month %}
+                <!--kakeibo-->
                 <div id="list_{{forloop.counter0}}" class="tab-pane">
+                    {% if km.count > 0 %}
+                    <hr>
                     <div class="row">
                         <div class="col-12 col-sm-3">
-                            <h2>{{km.date.year}}年{{km.date.month}}月</h2>
+                            <h3>{{km.date.year}}年{{km.date.month}}月 家計簿</h3>
                         </div>
                         <div class="col-12 col-sm-3">
                             <button class="btn btn-success btn-block">
@@ -122,6 +127,7 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Date</th>
+                                    <th>Way</th>
                                     <th class="right">Fee</th>
                                     <th>Memo</th>
                                 </tr>
@@ -129,6 +135,7 @@
                                 <tr>
                                     <td><a href="{%url 'kakeibo:kakeibo_detail' pk=k.pk%}">{{k.pk}}</a></td>
                                     <td>{{k.date}}</td>
+                                    <td>{{k.way}}</td>
                                     <td class="right">{{k.fee_yen}}</td>
                                     <td>{{k.memo}}</td>
                                 </tr>
@@ -136,19 +143,74 @@
                             </table>
                         </div>
                     </div>
+                    {% endif %}
+
+                    <!--shared-->
+                    {% if km.count_shared > 0 %}
+                    <hr>
+                    <div class="row">
+                        <div class="col-12 col-sm-3">
+                            <h3>{{km.date.year}}年{{km.date.month}}月 共通家計簿</h3>
+                        </div>
+                        <div class="col-12 col-sm-3">
+                            <button class="btn btn-success btn-block">
+                                合計 <span class="badge badge-light">¥ {{km.sum_shared |intcomma}} </span>
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-3">
+                            <button class="btn btn-warning btn-block">
+                                平均 <span class="badge badge-light">¥ {{km.avg_shared |floatformat:"0"|intcomma}} </span>
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-3">
+                            <button class="btn btn-info btn-block">
+                                個数 <span class="badge badge-light">{{km.count_shared |intcomma}} </span>
+                            </button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <canvas id="spie_usage_{{forloop.counter0}}"></canvas>
+                        </div>
+                        <hr>
+                        <div class="col-sm-6">
+                            <table class="table table-light table-hover table-sm table-bordered">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Paid By</th>
+                                    <th class="right">Fee</th>
+                                    <th>Memo</th>
+                                </tr>
+                                {%for k in km.data_shared %}
+                                <tr>
+                                    <td><a href="{%url 'kakeibo:shared_detail' pk=k.pk%}">{{k.pk}}</a></td>
+                                    <td>{{k.date}}</td>
+                                    <td>{{k.paid_by}}</td>
+                                    <td class="right">{{k.fee_yen}}</td>
+                                    <td>{{k.memo}}</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
-
+{% endwith %}
 {% endblock %}
 
 {% block script %}
+{% with res=object.get_kakeibos_2 %}
 <!-- pie_usage -->
-{% if object.get_kakeibos.all.data.exists %}
-{% for km in object.get_kakeibos.month%}
+
+{% for km in res.month%}
+<!--pie_usage_{{forloop.counter0}}-->
 <script>
   var ctx = document.getElementById('pie_usage_{{forloop.counter0}}').getContext('2d');
   if (window.innerWidth < 400) {
@@ -163,6 +225,51 @@
       datasets: [{
         label: "alice",
         data: [{%for k in km.data %}{{k.fee}},{%endfor%}],
+        backgroundColor: [
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+
+          "#2ecc71",
+          "#3498db",
+          "#95a5a6",
+          "#9b59b6",
+          "#f1c40f",
+          "#e74c3c",
+          "#34495e",
+          "#bee95e",
+         ]
+      }]
+    },
+    options: {
+      legend: {
+        position: "right",
+        display: is_display
+      }
+    }
+  });
+</script>
+
+<!--spie_usage_{{forloop.counter0}-->
+<script>
+  var ctx = document.getElementById('spie_usage_{{forloop.counter0}}').getContext('2d');
+  if (window.innerWidth < 400) {
+    var is_display = false;
+  } else {
+    var is_display = true;
+  }
+  var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: [{%for k in km.data_shared %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
+      datasets: [{
+        label: "alice",
+        data: [{%for k in km.data_shared %}{{k.fee}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
@@ -219,6 +326,6 @@
     }
   });
 </script>
-{% endif %}
+{% endwith %}
 
 {% endblock %}

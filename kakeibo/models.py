@@ -67,6 +67,48 @@ class Usages(BaseModel):
                 )
         return res
 
+    def get_kakeibos_2(self):
+        today = date.today()
+        res = dict()
+        data_all = self.kakeibos_set.all().order_by('-date')
+        ag_all = data_all.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        data_all_shared = self.sharedkakeibos_set.all().order_by('-date')
+        ag_all_shared = data_all_shared.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        res['all'] = {
+            "data": data_all,
+            "sum": ag_all['sum'],
+            "count": ag_all['count'],
+            "avg": ag_all['avg'],
+            "data_shared": data_all_shared,
+            "sum_shared": ag_all_shared['sum'],
+            "count_shared": ag_all_shared['count'],
+            "avg_shared": ag_all_shared['avg']
+        }
+        res['month'] = list()
+        if data_all.exists() or data_all_shared.exists():
+            diff = relativedelta(today, min(data_all.last().date, data_all_shared.last().date))
+            num_month = diff.years * 12 + diff.months + 2
+            date_list = [date((today - relativedelta(months=i)).year, (today - relativedelta(months=i)).month, 1) for i in range(num_month)]
+            for d in date_list:
+                data = self.kakeibos_set.filter(date__year=d.year, date__month=d.month).order_by('-date')
+                ag = data.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+                data_shared = self.sharedkakeibos_set.filter(date__year=d.year, date__month=d.month).order_by('-date')
+                ag_shared = data_shared.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+                res['month'].append(
+                    {
+                        "date": d,
+                        "data": data,
+                        "sum": ag['sum'],
+                        "count": ag['count'],
+                        "avg": ag['avg'],
+                        "data_shared": data_shared,
+                        "sum_shared": ag_shared['sum'],
+                        "count_shared": ag_shared['count'],
+                        "avg_shared": ag_shared['avg'],
+                    }
+                )
+        return res
+
     def get_shared(self):
         today = date.today()
         res = dict()
