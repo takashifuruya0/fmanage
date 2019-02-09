@@ -19,7 +19,7 @@ from datetime import date
 from kakeibo.functions import mylib
 from kakeibo.functions.mylib import time_measure
 from kakeibo.functions import process_kakeibo
-
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -158,6 +158,7 @@ def dashboard(request):
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
         # kakeibo_form
         "kakeibo_form": kakeibo_form,
+        "username": request.user.username,
     }
     logger.info("output: " + str(output))
     return TemplateResponse(request, 'kakeibo/dashboard.html', output)

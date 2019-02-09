@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import date
+from dateutil.relativedelta import relativedelta
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Avg, Count
 # asset
@@ -36,42 +37,33 @@ class Usages(BaseModel):
     is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
     color = models.OneToOneField(Colors, blank=True, null=True)
 
-    def check_kakeibo(self):
-        today = date.today()
-        if Kakeibos.objects.filter(usage=self).__len__() == 0:
-            res = {"month": False, "all": False, }
-        elif Kakeibos.objects.filter(usage=self, date__month=today.month, date__year=today.year).__len__() == 0:
-            res = {"month": False, "all": True, }
-        else:
-            res = {"month": True, "all": True, }
-        return res
-
-    def check_shared(self):
-        today = date.today()
-        if SharedKakeibos.objects.filter(usage=self).__len__() == 0:
-            res = {"month": False, "all": False, }
-        elif SharedKakeibos.objects.filter(usage=self, date__month=today.month, date__year=today.year).__len__() == 0:
-            res = {"month": False, "all": True, }
-        else:
-            res = {"month": True, "all": True, }
-        return res
-
-    def check_credit(self):
-        today = date.today()
-        cis = CreditItems.objects.filter(usage=self)
-        if Credits.objects.filter(credit_item__in=cis).__len__() == 0:
-            res = {"month": False, "all": False, }
-        elif Credits.objects.filter(credit_item__in=cis, date__month=today.month, date__year=today.year).__len__() == 0:
-            res = {"month": False, "all": True, }
-        else:
-            res = {"month": True, "all": True, }
-        return res
-
     def get_kakeibos(self):
         today = date.today()
         res = dict()
-        res['all'] = self.kakeibos_set.all().order_by('-date')
-        res['month'] = self.kakeibos_set.filter(date__year=today.year, date__month=today.month).order_by('-date')
+        data_all = self.kakeibos_set.all().order_by('-date')
+        ag_all = data_all.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        res['all'] = {
+            "data": data_all,
+            "sum": ag_all['sum'],
+            "count": ag_all['count'],
+            "avg": ag_all['avg']
+        }
+        res['month'] = list()
+        diff = relativedelta(today, data_all.last().date)
+        num_month = diff.years * 12 + diff.months + 2
+        date_list = [date((today - relativedelta(months=i)).year, (today - relativedelta(months=i)).month, 1) for i in range(num_month)]
+        for d in date_list:
+            data = self.kakeibos_set.filter(date__year=d.year, date__month=d.month).order_by('-date')
+            ag = data.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+            res['month'].append(
+                {
+                    "date": d,
+                    "data": data,
+                    "sum": ag['sum'],
+                    "count": ag['count'],
+                    "avg": ag['avg']
+                }
+            )
         return res
 
     def get_shared(self):
@@ -120,7 +112,7 @@ class Usages(BaseModel):
     def shift_kakeibos(self):
         ks = self.kakeibos_set.all()
         shift = ks.annotate(month=TruncMonth('date')).order_by('month').values('month')\
-            .annotate(sum=Sum('fee'), avg=Avg('fee'), cnt=Count('fee'))
+            .annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
         return shift
 
 
