@@ -45,7 +45,7 @@
                 <div id="list12" class="tab-pane active">
                     <div class="row">
                         <div class="col-12 col-sm-3">
-                            <h4>月別</h4>
+                            <h2>月別</h2>
                         </div>
                         <div class="col-12 col-sm-3">
                             <button class="btn btn-success btn-block">
@@ -93,7 +93,7 @@
                 <div id="list_{{forloop.counter0}}" class="tab-pane">
                     <div class="row">
                         <div class="col-12 col-sm-3">
-                            <h4>{{km.date.year}}年{{km.date.month}}月</h4>
+                            <h2>{{km.date.year}}年{{km.date.month}}月</h2>
                         </div>
                         <div class="col-12 col-sm-3">
                             <button class="btn btn-success btn-block">
@@ -147,6 +147,7 @@
 
 {% block script %}
 <!-- pie_usage -->
+{% if object.get_kakeibos.all.data.exists %}
 {% for km in object.get_kakeibos.month%}
 <script>
   var ctx = document.getElementById('pie_usage_{{forloop.counter0}}').getContext('2d');
@@ -193,168 +194,6 @@
 </script>
 {% endfor %}
 
-<!-- pie_usage_shared -->
-<script>
-  var ctx = document.getElementById('pie_usage_shared').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: [{%for k in object.get_shared.month %}"{{k.date}}/{{k.paid_by}}",{%endfor%}],
-      datasets: [{
-        label: "alice",
-        data: [{%for k in object.get_shared.month %}{{k.fee}},{%endfor%}],
-        backgroundColor: [
-          "#2ecc71",
-          "#3498db",
-          "#95a5a6",
-          "#9b59b6",
-          "#f1c40f",
-          "#e74c3c",
-          "#34495e",
-          "#bee95e",
-
-          "#2ecc71",
-          "#3498db",
-          "#95a5a6",
-          "#9b59b6",
-          "#f1c40f",
-          "#e74c3c",
-          "#34495e",
-          "#bee95e",
-         ]
-      }]
-    }
-  });
-</script>
-
-<!-- pie_usage_credit -->
-<script>
-  var ctx = document.getElementById('pie_usage_credit').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: [{%for k in object.get_credit.month %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
-      datasets: [{
-        label: "alice",
-        data: [{%for k in object.get_credit.month %}{{k.fee}},{%endfor%}],
-        backgroundColor: [
-          {% for i in object.get_credit.month %}
-          "#2ecc71",
-          "#3498db",
-          "#95a5a6",
-          "#9b59b6",
-          "#f1c40f",
-          "#e74c3c",
-          "#34495e",
-          "#bee95e",
-          {% endfor %}
-         ]
-      }]
-    },
-    options: {
-      legend: {
-        display: false
-      }
-    }
-  });
-</script>
-
-<!-- pie_usage_all -->
-<script>
-  var ctx = document.getElementById('pie_usage_all').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: [{%for k in object.get_kakeibos.all %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
-      datasets: [{
-        label: "alice",
-        data: [{%for k in object.get_kakeibos.all %}{{k.fee}},{%endfor%}],
-        backgroundColor: [
-          {% for i in object.get_kakeibos.all %}
-          "#2ecc71",
-          "#3498db",
-          "#95a5a6",
-          "#9b59b6",
-          "#f1c40f",
-          "#e74c3c",
-          "#34495e",
-          "#bee95e",
-          {% endfor %}
-         ]
-      }]
-    },
-    options: {
-      legend: {
-        display: false
-      }
-    }
-  });
-</script>
-
-<!-- pie_usage_shared_all -->
-<script>
-  var ctx = document.getElementById('pie_usage_shared_all').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: [{%for k in object.get_shared.all %}"{{k.date}}/{{k.paid_by}}",{%endfor%}],
-      datasets: [{
-        label: "alice",
-        data: [{%for k in object.get_shared.all %}{{k.fee}},{%endfor%}],
-        backgroundColor: [
-          {% for i in object.get_shared.all %}
-          "#2ecc71",
-          "#3498db",
-          "#95a5a6",
-          "#9b59b6",
-          "#f1c40f",
-          "#e74c3c",
-          "#34495e",
-          "#bee95e",
-          {% endfor %}
-         ]
-      }]
-    },
-    options: {
-      legend: {
-        display: false
-      }
-    }
-  });
-</script>
-
-<!-- pie_usage_credit_all -->
-<script>
-  var ctx = document.getElementById('pie_usage_credit_all').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: [{%for k in object.get_credit.all %}"{{k.date}}{%if k.memo%}/{{k.memo}}{%endif%}",{%endfor%}],
-      datasets: [{
-        label: "alice",
-        data: [{%for k in object.get_credit.all %}{{k.fee}},{%endfor%}],
-        backgroundColor: [
-          {% for i in object.get_credit.all %}
-          "#2ecc71",
-          "#3498db",
-          "#95a5a6",
-          "#9b59b6",
-          "#f1c40f",
-          "#e74c3c",
-          "#34495e",
-          "#bee95e",
-          {% endfor %}
-         ]
-      }]
-    },
-    options: {
-      legend: {
-        display: false
-      }
-    }
-  });
-</script>
-
 <!-- bar_resources -->
 <script>
   var ctx = document.getElementById('line_usage_shift').getContext('2d');
@@ -380,4 +219,6 @@
     }
   });
 </script>
+{% endif %}
+
 {% endblock %}

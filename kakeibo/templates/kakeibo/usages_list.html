@@ -10,24 +10,58 @@
     <h1><i class="fas fa-american-sign-language-interpreting"></i> 用途一覧</h1>
     <hr>
 
-    <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
-        <thead>
-            <tr>
-                <th class="right">ID</th>
-                <th class="lett">Name</th>
-                <th class="left">Is expense</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for usage in object_list %}
-            <tr>
-                <td class="right"><a href="{% url 'kakeibo:usage_detail' pk=usage.pk %}">{{usage.pk}}</a></td>
-                <td class="left">{{usage.name}}</td>
-                <td class="left">{{usage.is_expense}}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!--<table class="table table-light table-hover table-sm table-bordered table-responsive-md">-->
+        <!--<thead>-->
+            <!--<tr>-->
+                <!--<th class="right">ID</th>-->
+                <!--<th class="lett">Name</th>-->
+                <!--<th class="left">Is expense</th>-->
+            <!--</tr>-->
+        <!--</thead>-->
+        <!--<tbody>-->
+            <!--{% for usage in object_list %}-->
+            <!--<tr>-->
+                <!--<td class="right"><a href="{% url 'kakeibo:usage_detail' pk=usage.pk %}">{{usage.pk}}</a></td>-->
+                <!--<td class="left">{{usage.name}}</td>-->
+                <!--<td class="left">{{usage.is_expense}}</td>-->
+            <!--</tr>-->
+            <!--{% endfor %}-->
+        <!--</tbody>-->
+    <!--</table>-->
+    <div class="row">
+        {% for usage in object_list %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card">
+                <div class="card-header">
+                    <span class="badge badge-{%if usage.is_expense%}warning{%else%}success{%endif%}">
+                        {% if usage.is_expense %}Expense{% else %}Income{% endif %}
+                    </span>
+                    <strong>{{usage.name}}</strong>
+                </div>
+                <div class="card-body">
+                    <table class="table table-light table-sm table-hover">
+                        <tr>
+                            <th>合計</th>
+                            <td class="right">¥ {{usage.get_kakeibos.all.sum |intcomma}}</td>
+                        </tr>
+                        <tr>
+                            <th>今月合計</th>
+                            <td class="right">
+                                {%if usage.get_kakeibos.month.0.sum%}¥ {{usage.get_kakeibos.month.0.sum |intcomma}}
+                                {%else%}¥ 0
+                                {%endif%}
+                            </td>
+                        </tr>
+                    </table>
+                    <button class="btn btn-primary" onClick=location.href="{% url 'kakeibo:usage_detail' pk=usage.pk %}">
+                        <i class="fas fa-info-circle"></i> Detail
+                    </button>
+                </div>
+            </div>
+            <br>
+        </div>
+        {% endfor %}
+    </div>
 
 {% if is_paginated %}
   <ul class="pagination">

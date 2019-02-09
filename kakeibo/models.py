@@ -49,28 +49,53 @@ class Usages(BaseModel):
             "avg": ag_all['avg']
         }
         res['month'] = list()
-        diff = relativedelta(today, data_all.last().date)
-        num_month = diff.years * 12 + diff.months + 2
-        date_list = [date((today - relativedelta(months=i)).year, (today - relativedelta(months=i)).month, 1) for i in range(num_month)]
-        for d in date_list:
-            data = self.kakeibos_set.filter(date__year=d.year, date__month=d.month).order_by('-date')
-            ag = data.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
-            res['month'].append(
-                {
-                    "date": d,
-                    "data": data,
-                    "sum": ag['sum'],
-                    "count": ag['count'],
-                    "avg": ag['avg']
-                }
-            )
+        if data_all.exists():
+            diff = relativedelta(today, data_all.last().date)
+            num_month = diff.years * 12 + diff.months + 2
+            date_list = [date((today - relativedelta(months=i)).year, (today - relativedelta(months=i)).month, 1) for i in range(num_month)]
+            for d in date_list:
+                data = self.kakeibos_set.filter(date__year=d.year, date__month=d.month).order_by('-date')
+                ag = data.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+                res['month'].append(
+                    {
+                        "date": d,
+                        "data": data,
+                        "sum": ag['sum'],
+                        "count": ag['count'],
+                        "avg": ag['avg']
+                    }
+                )
         return res
 
     def get_shared(self):
         today = date.today()
         res = dict()
-        res['all'] = self.sharedkakeibos_set.all().order_by('-date')
-        res['month'] = self.sharedkakeibos_set.filter(date__year=today.year, date__month=today.month).order_by('-date')
+        data_all = self.sharedkakeibos_set.all().order_by('-date')
+        ag_all = data_all.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        res['all'] = {
+            "data": data_all,
+            "sum": ag_all['sum'],
+            "count": ag_all['count'],
+            "avg": ag_all['avg']
+        }
+        res['month'] = list()
+        if data_all.exists():
+            diff = relativedelta(today, data_all.last().date)
+            num_month = diff.years * 12 + diff.months + 2
+            date_list = [date((today - relativedelta(months=i)).year, (today - relativedelta(months=i)).month, 1) for i
+                         in range(num_month)]
+            for d in date_list:
+                data = self.sharedkakeibos_set.filter(date__year=d.year, date__month=d.month).order_by('-date')
+                ag = data.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+                res['month'].append(
+                    {
+                        "date": d,
+                        "data": data,
+                        "sum": ag['sum'],
+                        "count": ag['count'],
+                        "avg": ag['avg']
+                    }
+                )
         return res
 
     def get_credit(self):
