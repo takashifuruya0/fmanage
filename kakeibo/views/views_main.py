@@ -241,7 +241,8 @@ def mine(request):
 
     kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
     kakeibos_out = kakeibos.filter(way__in=("支出（現金）", "引き落とし"))
-    kakeibos_expense = kakeibos.filter(way__in=("支出（現金）", "引き落とし", "支出（クレジット"))
+    kakeibos_expense = kakeibos.filter(way__in=("支出（クレジット）", "支出（現金）", "引き落とし"))
+
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
     expense = mylib.cal_sum_or_0(kakeibos_out)
 
