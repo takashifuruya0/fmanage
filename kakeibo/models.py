@@ -89,8 +89,30 @@ class Usages(BaseModel):
         today = date.today()
         res = dict()
         cis = self.credititems_set.all()
-        res['all'] = Credits.objects.filter(credit_item__in=cis).order_by('-date')
-        res['month'] = Credits.objects.filter(credit_item__in=cis, date__month=today.month, date__year=today.year).order_by('-date')
+        data = Credits.objects.filter(credit_item__in=cis).order_by('-date')
+        ag = data.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        res['all'] = {
+            "data": data,
+            "sum": ag['sum'],
+            "avg": ag['avg'],
+            "count": ag['count'],
+        }
+        res['month'] = list()
+        diff = relativedelta(today, data.last().date)
+        num_month = diff.years * 12 + diff.months + 2
+        date_list = [date((today - relativedelta(months=i)).year, (today - relativedelta(months=i)).month, 1) for i in range(num_month)]
+        for d in date_list:
+            data_month = Credits.objects.filter(credit_item__in=cis, date__month=d.month,date__year=d.year).order_by('-date')
+            ag_month = data_month.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+            res['month'].append(
+                {
+                    "date": d,
+                    "data": data_month,
+                    "sum": ag_month['sum'],
+                    "avg": ag_month['avg'],
+                    "count": ag_month['count'],
+                }
+            )
         return res
 
     def sum_credit(self):
