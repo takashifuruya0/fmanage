@@ -17,9 +17,12 @@ var fill_resource = function(){
     if(wayval=="支出（現金）") {
         move_from.value = saifu
         move_to.value = null
-    }else if(wayval=="引き落とし" || wayval=="収入"){
+    }else if(wayval=="引き落とし"){
         move_from.value = yucho
         move_to.value = null
+    }else if(wayval=="収入"){
+        move_from.value = null
+        move_to.value = yucho
     }else{
         move_from.value = null
         move_to.value = null
