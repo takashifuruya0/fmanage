@@ -55,10 +55,11 @@
             <!--タブのコンテンツ部分-->
             <div class="tab-content">
                 <div id="list12" class="tab-pane active">
+                    {%if res.all.count > 0%}
                     <hr>
-                    <div class="row">
+                    <div class="row" id="monthly_mine">
                         <div class="col-12 col-sm-3">
-                            <h2>月別</h2>
+                            <h3>家計簿</h3>
                         </div>
                         <div class="col-12 col-sm-3">
                             <button class="btn btn-success btn-block">
@@ -89,7 +90,7 @@
                                     <th class="right">Avg</th>
                                     <th class="right">Count</th>
                                 </tr>
-                                {%for k in object.shift_kakeibos.reverse %}
+                                {%for k in object.shift_kakeibo.reverse %}
                                 <tr>
                                     <td>{{k.month.year}}年{{k.month.month}}月</td>
                                     <td class="right">¥{{k.sum | intcomma}}</td>
@@ -100,6 +101,54 @@
                             </table>
                         </div>
                     </div>
+                    {%endif%}
+                    {%if res.all.count_shared > 0 %}
+                    <hr>
+                    <div class="row" id="monthly_shared">
+                        <div class="col-12 col-sm-3">
+                            <h3>共通家計簿</h3>
+                        </div>
+                        <div class="col-12 col-sm-3">
+                            <button class="btn btn-success btn-block">
+                                合計 <span class="badge badge-light">¥ {{res.all.sum_shared |intcomma}} </span>
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-3">
+                            <button class="btn btn-warning btn-block">
+                                平均 <span class="badge badge-light">¥ {{res.all.avg_shared |floatformat:"0"|intcomma}} </span>
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-3">
+                            <button class="btn btn-info btn-block">
+                                個数 <span class="badge badge-light">{{res.all.count_shared |intcomma}} </span>
+                            </button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <canvas id="line_usage_shift_shared"></canvas>
+                        </div>
+                        <div class="col-sm-6">
+                            <table class="table table-light table-hover table-sm table-bordered">
+                                <tr>
+                                    <th>Date</th>
+                                    <th class="right">Sum</th>
+                                    <th class="right">Avg</th>
+                                    <th class="right">Count</th>
+                                </tr>
+                                {%for k in object.shift_shared.reverse %}
+                                <tr>
+                                    <td>{{k.month.year}}年{{k.month.month}}月</td>
+                                    <td class="right">¥{{k.sum | intcomma}}</td>
+                                    <td class="right">¥{{k.avg | floatformat | intcomma}}</td>
+                                    <td class="right">{{k.count}}</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                    {%endif%}
                 </div>
 
                 {% for km in res.month %}
@@ -320,19 +369,50 @@
   var myChart = new Chart(ctx, {
     type: 'horizontalBar',
     data: {
-      labels: [{%for k in object.shift_kakeibos.reverse %}"{{k.month.year}}年{{k.month.month}}月",{%endfor%}],
+      labels: [{%for k in object.shift_kakeibo.reverse %}"{{k.month.year}}年{{k.month.month}}月",{%endfor%}],
       datasets: [
         {
           label: "Sum",
-          data: [{%for k in object.shift_kakeibos.reverse %}{{k.sum}},{%endfor%}],
+          data: [{%for k in object.shift_kakeibo.reverse %}{{k.sum}},{%endfor%}],
           borderColor: 'rgba(60, 160, 220, 0.8)',
           backgroundColor: 'rgba(60, 160, 220, 0.3)',
-        }
+        },
       ],
     },
     options: {
         legend: {
             display: false
+        },
+        scales: {
+          xAxes: [{ticks: {beginAtZero: true, min: 0,}}]
+        }
+    }
+  });
+</script>
+
+<script>
+  var ctx = document.getElementById('line_usage_shift_shared').getContext('2d');
+  ctx.canvas.width = 100
+  ctx.canvas.height = 150
+  var myChart = new Chart(ctx, {
+    type: 'horizontalBar',
+    data: {
+      labels: [{%for k in object.shift_shared.reverse %}"{{k.month.year}}年{{k.month.month}}月",{%endfor%}],
+      datasets: [
+        {
+          label: "Sum",
+          data: [{%for k in object.shift_shared.reverse %}{{k.sum}},{%endfor%}],
+          borderColor: 'rgba(60, 160, 220, 0.8)',
+          backgroundColor: 'rgba(60, 160, 220, 0.3)',
+        },
+      ],
+    },
+    options: {
+        legend: {
+            display: false
+        },
+        scales: {
+          xAxes: [{ticks: {beginAtZero: true, min: 0,}}]
         }
     }
   });

@@ -103,8 +103,14 @@ class Usages(BaseModel):
             sum=models.Sum('fee'))['sum']
         return res
 
-    def shift_kakeibos(self):
+    def shift_kakeibo(self):
         ks = self.kakeibos_set.all()
+        shift = ks.annotate(month=TruncMonth('date')).order_by('month').values('month')\
+            .annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        return shift
+
+    def shift_shared(self):
+        ks = self.sharedkakeibos_set.all()
         shift = ks.annotate(month=TruncMonth('date')).order_by('month').values('month')\
             .annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
         return shift
