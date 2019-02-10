@@ -40,11 +40,14 @@ class Usages(BaseModel):
 
     def get_kakeibos_2(self):
         today = date.today()
+        cis = self.credititems_set.all()
         res = dict()
         data_all = self.kakeibos_set.all().order_by('-date')
         ag_all = data_all.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
         data_all_shared = self.sharedkakeibos_set.all().order_by('-date')
         ag_all_shared = data_all_shared.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        data_all_credit = Credits.objects.filter(credit_item__in=cis).order_by('-date')
+        ag_all_credit = data_all_credit.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
         res['all'] = {
             "data": data_all,
             "sum": ag_all['sum'],
@@ -53,7 +56,11 @@ class Usages(BaseModel):
             "data_shared": data_all_shared,
             "sum_shared": ag_all_shared['sum'],
             "count_shared": ag_all_shared['count'],
-            "avg_shared": ag_all_shared['avg']
+            "avg_shared": ag_all_shared['avg'],
+            "data_credit": data_all_credit,
+            "sum_credit": ag_all_credit['sum'],
+            "count_credit": ag_all_credit['count'],
+            "avg_credit": ag_all_credit['avg']
         }
         res['month'] = list()
         if data_all.exists() or data_all_shared.exists():
@@ -70,6 +77,8 @@ class Usages(BaseModel):
                 ag = data.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
                 data_shared = self.sharedkakeibos_set.filter(date__year=d.year, date__month=d.month).order_by('-date')
                 ag_shared = data_shared.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+                data_credit = Credits.objects.filter(date__year=d.year, date__month=d.month, credit_item__in=cis).order_by('-date')
+                ag_credit = data_credit.aggregate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
                 res['month'].append(
                     {
                         "date": d,
@@ -81,6 +90,10 @@ class Usages(BaseModel):
                         "sum_shared": ag_shared['sum'],
                         "count_shared": ag_shared['count'],
                         "avg_shared": ag_shared['avg'],
+                        "data_credit": data_credit,
+                        "sum_credit": ag_credit['sum'],
+                        "count_credit": ag_credit['count'],
+                        "avg_credit": ag_credit['avg']
                     }
                 )
         return res
@@ -134,6 +147,13 @@ class Usages(BaseModel):
     def shift_shared(self):
         ks = self.sharedkakeibos_set.all()
         shift = ks.annotate(month=TruncMonth('date')).order_by('month').values('month')\
+            .annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
+        return shift
+
+    def shift_credit(self):
+        cis = self.credititems_set.all()
+        cs = Credits.objects.filter(credit_item__in=cis)
+        shift = cs.annotate(month=TruncMonth('date')).order_by('month').values('month')\
             .annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
         return shift
 

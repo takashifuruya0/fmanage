@@ -205,6 +205,58 @@
                     </div>
                     {% endif %}
 
+                    <!--credit-->
+                    {% if km.count_credit > 0 %}
+                    <hr>
+                    <div class="row">
+                        <div class="col-12 col-sm-3">
+                            <h3>{{km.date.year}}年{{km.date.month}}月 Credit</h3>
+                        </div>
+                        <div class="col-12 col-sm-3">
+                            <button class="btn btn-success btn-block">
+                                合計 <span class="badge badge-light">¥ {{km.sum_credit |intcomma}} </span>
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-3">
+                            <button class="btn btn-warning btn-block">
+                                平均 <span class="badge badge-light">¥ {{km.avg_credit |floatformat:"0"|intcomma}} </span>
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-3">
+                            <button class="btn btn-info btn-block">
+                                個数 <span class="badge badge-light">{{km.count_credit |intcomma}} </span>
+                            </button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <!--<canvas id="spie_usage_{{forloop.counter0}}"></canvas>-->
+                        </div>
+                        <hr>
+                        <div class="col-sm-6">
+                            <table class="table table-light table-hover table-sm table-bordered">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>CreditItem</th>
+                                    <th class="right">Fee</th>
+                                    <th>Memo</th>
+                                </tr>
+                                {%for k in km.data_credit %}
+                                <tr>
+                                    <td><a href="{%url 'kakeibo:credit_detail' pk=k.pk%}">{{k.pk}}</a></td>
+                                    <td>{{k.date}}</td>
+                                    <td><a href="{%url 'kakeibo:credit_item_detail' pk=k.credit_item.pk%}">{{k.credit_item.name}}</a></td>
+                                    <td class="right">{{k.fee_yen}}</td>
+                                    <td>{{k.memo}}</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <!--shared-->
                     {% if km.count_shared > 0 %}
                     <hr>
