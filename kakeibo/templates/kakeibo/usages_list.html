@@ -63,6 +63,9 @@
                     <button class="btn btn-primary" onClick=location.href="{% url 'kakeibo:usage_detail' pk=usage.pk %}">
                         <i class="fas fa-info-circle"></i> Detail
                     </button>
+                    <button class="btn btn-info" onClick=location.href="{% url 'kakeibo:usage_update' pk=usage.pk %}">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
                 </div>
             </div>
             <br>
@@ -106,12 +109,12 @@
 <!--============================================================ -->
                           <!--MODAL-->
 <!--============================================================ -->
-<!-- Modal new-record -->
+<!-- Modal new-usage -->
 <div class="modal fade" id="new_usage" tabindex="-1" role="dialog" aria-labelledby="new_usage" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="new_record_Label">
+        <h5 class="modal-title" id="new_usage_Label">
           <i class="far fa-plus-square"></i> New Usage
         </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -133,5 +136,6 @@
     </div>
   </div>
 </div>
+
 
 {% endblock %}

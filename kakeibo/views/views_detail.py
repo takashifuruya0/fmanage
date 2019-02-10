@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger("django")
 # model
 from kakeibo.models import Kakeibos, SharedKakeibos, Usages, Resources, Credits, CreditItems
-from kakeibo.forms import KakeiboForm, SharedKakeiboForm, CreditForm, CreditItemForm
+from kakeibo.forms import KakeiboForm, SharedKakeiboForm, CreditForm, CreditItemForm, UsageForm
 
 
 # Create your views here.
@@ -83,3 +83,11 @@ class CreditItemUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse('kakeibo:credit_item_detail', kwargs={'pk': self.object.pk})
+
+
+class UsageUpdate(UpdateView):
+    model = Usages
+    form_class = UsageForm
+
+    def get_success_url(self):
+        return reverse('kakeibo:usage_detail', kwargs={'pk': self.object.pk})

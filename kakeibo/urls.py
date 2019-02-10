@@ -41,6 +41,7 @@ urlpatterns = [
     # update
     url(r'^mine/update/(?P<pk>\d+)/$', views_detail.KakeiboUpdate.as_view(), name="kakeibo_update"),
     url(r'^shared/update/(?P<pk>\d+)/$', views_detail.SharedUpdate.as_view(), name="shared_update"),
+    url(r'^usage/update/(?P<pk>\d+)/$', views_detail.UsageUpdate.as_view(), name="usage_update"),
     url(r'^credit/update/(?P<pk>\d+)/$', views_detail.CreditUpdate.as_view(), name="credit_update"),
     url(r'^credit/items/update/(?P<pk>\d+)/$', views_detail.CreditItemUpdate.as_view(), name="credit_item_update"),
 

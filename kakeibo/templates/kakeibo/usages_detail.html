@@ -9,10 +9,21 @@
 <div class="container-fluid">
     <hr>
     <div class="row">
-        <div class="col-sm-10">
-          <h1><i class="fas fa-american-sign-language-interpreting"></i> 用途詳細【{{object.name}}】</h1>
+        <div class="col-12 col-sm-8">
+          <h1>
+              <i class="fas fa-american-sign-language-interpreting"></i> {{object.name}}
+          </h1>
+            <span class="badge badge-{%if object.is_expense%}warning{%else%}success{%endif%}">
+                {% if object.is_expense %}Expense{% else %}Income{% endif %}
+            </span>
+            {%if object.memo%}【{{object.memo}}】{%endif%}
         </div>
-        <div class="col-sm-2">
+        <div class="col-6 col-sm-2">
+            <button class="btn btn-info btn-block" onClick=location.href="{% url 'kakeibo:usage_update' pk=object.pk %}">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+        </div>
+        <div class="col-6 col-sm-2">
             <button type="button" class="btn btn-secondary btn-block" onClick=location.href="{%url 'kakeibo:usage_list'%}">
                 <i class="far fa-caret-square-left"></i> Back to list
             </button>
