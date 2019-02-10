@@ -7,7 +7,16 @@
 {% block body %}
 <div class="container">
     <hr>
-    <h1><i class="fas fa-american-sign-language-interpreting"></i> 用途一覧</h1>
+    <div class="row">
+        <div class="col-sm-10">
+            <h1><i class="fas fa-american-sign-language-interpreting"></i> 用途一覧</h1>
+        </div>
+        <div class="col-sm-2">
+          <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#new_usage">
+            <i class="far fa-plus-square"></i> New Usage
+          </button>
+        </div>
+    </div>
     <hr>
 
     <!--<table class="table table-light table-hover table-sm table-bordered table-responsive-md">-->
@@ -30,27 +39,25 @@
     <!--</table>-->
     <div class="row">
         {% for usage in object_list %}
+        {% with res=usage.get_kakeibos_2 %}
         <div class="col-sm-6 col-md-4 col-lg-3">
             <div class="card">
                 <div class="card-header">
-                    <span class="badge badge-{%if usage.is_expense%}warning{%else%}success{%endif%}">
-                        {% if usage.is_expense %}Expense{% else %}Income{% endif %}
-                    </span>
                     <strong>{{usage.name}}</strong>
                 </div>
                 <div class="card-body">
                     <table class="table table-light table-sm table-hover">
                         <tr>
-                            <th>合計</th>
-                            <td class="right">¥ {{usage.get_kakeibos.all.sum |intcomma}}</td>
+                            <th>種類</th>
+                            <td class="right">
+                                <span class="badge badge-{%if usage.is_expense%}warning{%else%}success{%endif%}">
+                                    {% if usage.is_expense %}Expense{% else %}Income{% endif %}
+                                </span>
+                            </td>
                         </tr>
                         <tr>
-                            <th>今月合計</th>
-                            <td class="right">
-                                {%if usage.get_kakeibos.month.0.sum%}¥ {{usage.get_kakeibos.month.0.sum |intcomma}}
-                                {%else%}¥ 0
-                                {%endif%}
-                            </td>
+                            <th>概要</th>
+                            <td class="right">{{usage.memo}}</td>
                         </tr>
                     </table>
                     <button class="btn btn-primary" onClick=location.href="{% url 'kakeibo:usage_detail' pk=usage.pk %}">
@@ -60,6 +67,7 @@
             </div>
             <br>
         </div>
+        {% endwith %}
         {% endfor %}
     </div>
 
@@ -93,6 +101,37 @@
       </li>
   </ul>
 {% endif %}
+</div>
+
+<!--============================================================ -->
+                          <!--MODAL-->
+<!--============================================================ -->
+<!-- Modal new-record -->
+<div class="modal fade" id="new_usage" tabindex="-1" role="dialog" aria-labelledby="new_usage" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="new_record_Label">
+          <i class="far fa-plus-square"></i> New Usage
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="post" action="">
+        <div class="modal-body">
+          {% csrf_token %}
+          <table>
+            {{ form }}
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" name="post_type" value="new_record">Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 {% endblock %}

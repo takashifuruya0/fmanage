@@ -37,15 +37,3 @@ class ModelTest(TestCase):
     def test_kakeibo(self):
         c = Kakeibos.objects.all().count()
         self.assertEqual(c, self.num_kakeibo)
-
-    def test_usage_sum_kakeibo(self):
-        today = date.today()
-        usages = Usages.objects.all()
-        for usage in usages:
-            filtered = Kakeibos.objects.filter(usage=usage)
-            # total
-            total = filtered.aggregate(sum=Sum('fee'))['sum']
-            total_month = filtered.filter(date__month=today.month, date__year=today.year).aggregate(sum=Sum('fee'))['sum']
-            res = usage.sum_kakeibos()
-            self.assertEqual(total, res['all'])
-            self.assertEqual(total_month, res['month'])

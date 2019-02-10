@@ -3,11 +3,16 @@ from django.conf import settings
 from django.views.generic import ListView
 from django.db.models import Count
 from pure_pagination.mixins import PaginationMixin
+from django.shortcuts import redirect
+from django.contrib import messages
+from datetime import date
 # logging
 import logging
 logger = logging.getLogger("django")
 # model
 from kakeibo.models import Kakeibos, SharedKakeibos, Usages, Resources, Credits, CreditItems
+# form
+from kakeibo.forms import UsageForm
 # module
 from kakeibo.functions.mylib import time_measure
 
@@ -132,8 +137,20 @@ class UsageList(PaginationMixin, ListView):
     @time_measure
     def get_context_data(self, **kwargs):
         res = super().get_context_data(**kwargs)
+        res['form'] = UsageForm(initial={'date': date.today()})
         return res
 
     def get_queryset(self):
         queryset = Usages.objects.all()  # Default: Model.objects.all()
         return queryset
+
+    def post(self, request, *args, **kwargs):
+        try:
+            form = UsageForm(request.POST)
+            form.is_valid()
+            form.save()
+            messages.success(request, "OK")
+        except Exception as e:
+            messages.error(request, e)
+            logger.error(e)
+        return redirect('kakeibo:usage_list')

@@ -1,6 +1,6 @@
 from django import forms
 
-from kakeibo.models import Kakeibos, SharedKakeibos, Credits, CreditItems
+from kakeibo.models import Kakeibos, SharedKakeibos, Credits, CreditItems, Usages
 
 
 class KakeiboForm(forms.ModelForm):
@@ -70,6 +70,22 @@ class CreditItemForm(forms.ModelForm):
     class Meta:
         model = CreditItems
         fields = ['name', 'usage']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+
+class UsageForm(forms.ModelForm):
+    """
+    Memo モデルの作成、更新に使われる Django フォーム。
+    ModelForm を継承して作れば、HTMLで表示したいフィールドを
+    指定するだけで HTML フォームを作ってくれる。
+    """
+
+    class Meta:
+        model = Usages
+        fields = ['name', 'is_expense', 'memo']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
