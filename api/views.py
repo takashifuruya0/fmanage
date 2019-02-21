@@ -410,13 +410,14 @@ def asset_order(request):
                 "commission": bo.commission,
                 "price": bo.price,
                 "num": bo.num,
-                "datetime": {
-                    "year": bo.datetime.year,
-                    "month": bo.datetime.month,
-                    "day": bo.datetime.day,
-                    "hour": bo.datetime.hour,
-                    "minute": bo.datetime.minute,
-                },
+                # "datetime": {
+                #     "year": bo.datetime.year,
+                #     "month": bo.datetime.month,
+                #     "day": bo.datetime.day,
+                #     "hour": bo.datetime.hour,
+                #     "minute": bo.datetime.minute,
+                # },
+                "datetime": str(bo.datetime),
                 "order_type": bo.order_type,
                 "stock": {
                     "code": bo.stock.code,
