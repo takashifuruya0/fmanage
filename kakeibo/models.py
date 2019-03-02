@@ -3,6 +3,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Avg, Count
+from django.utils.timezone import now
 # asset
 from asset.models import AssetStatus
 
@@ -14,7 +15,7 @@ from asset.models import AssetStatus
 
 class BaseModel(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    date = models.DateField(default=date.today())
+    date = models.DateField(default=now())
 
     def __str__(self):
         return self.name
@@ -290,3 +291,16 @@ class Credits(models.Model):
             new_val = '-¥{:,}'.format(-self.fee)
         return new_val
 
+
+class CronKakeibo(models.Model):
+    objects = None
+    # 金額
+    fee = models.IntegerField()
+    # 種類
+    way = models.CharField(max_length=20)
+    # 使い道/収入源
+    usage = models.ForeignKey(Usages, null=True, blank=True)
+    # 現金移動元
+    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from_cron")
+    # 現金移動先
+    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to_cron")
