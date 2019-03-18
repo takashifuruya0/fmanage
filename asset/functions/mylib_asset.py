@@ -156,7 +156,7 @@ def order_process(order):
                 logger.error("order.price " + str(order.price))
                 logger.error("order.commision " + str(order.commission))
                 raise ValueError("buying_power < 0 !")
-            if len(order.stock.code) == 4:
+            if len(str(order.stock.code)) == 4:
                 astatus.stocks_value += order.num * order.price
             else:
                 astatus.other_value += order.num * order.price
@@ -200,7 +200,7 @@ def order_process(order):
                 # 利益なし＋NISA以外: TAX=0%
                 astatus.buying_power = astatus.buying_power + order.num * order.price - order.commission
                 logger.info("TAX 0%: Has not benefit and not NISA")
-            if len(order.stock.code) == 4:
+            if len(str(order.stock.code)) == 4:
                 astatus.stocks_value -= order.num * order.price
             else:
                 astatus.other_value -= order.num * order.price

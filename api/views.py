@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib
 from asset.functions import mylib_asset, get_info
-from asset.models import Orders, Stocks
+from asset.models import Orders, Stocks, StockDataByDate
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
@@ -381,8 +381,36 @@ def asset_order(request):
                 stock.code = val["code"]
                 stock.name = stockinfo['name']
                 stock.save()
+                # kabuoji3よりデータ取得
+                if len(stock.code) > 4:
+                    # 投資信託
+                    pass
+                else:
+                    # 株
+                    data = get_info.kabuoji3(stock.code)
+                    if data['status']:
+                        # 取得成功時
+                        for d in data['data']:
+                            # (date, stock)の組み合わせでデータがなければ追加
+                            if StockDataByDate.objects.filter(stock=stock, date=d[0]).__len__() == 0:
+                                sdbd = StockDataByDate()
+                                sdbd.stock = stock
+                                sdbd.date = d[0]
+                                sdbd.val_start = d[1]
+                                sdbd.val_high = d[2]
+                                sdbd.val_low = d[3]
+                                sdbd.val_end = d[4]
+                                sdbd.turnover = d[5]
+                                sdbd.save()
+                        logger.info('StockDataByDate of "%s" are updated' % stock.code)
+                    else:
+                        # 取得失敗時
+                        logger.error(data['msg'])
+                smsg = "New stock was registered:{}".format(stock.code)
             else:
                 stock = Stocks.objects.get(code=val["code"])
+                smsg = "This stock has been already registered:{}".format(stock.code)
+            logger.info(smsg)
             bo.stock = stock
             bo.num = val["num"]
             bo.price = val["price"]
