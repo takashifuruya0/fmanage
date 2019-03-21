@@ -454,10 +454,10 @@ var myChart = new Chart(ctx, {
 </script>
 
 <!--candlestick-->
-<script src="https://www.chartjs.org/chartjs-chart-financial/moment.js"></script>
-<script src="https://www.chartjs.org/chartjs-chart-financial/Chart.js"></script>
-<script src="https://www.chartjs.org/chartjs-chart-financial/Chart.Financial.js"></script>
-<script src="https://www.chartjs.org/chartjs-chart-financial/utils.js"></script>
+<script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@0.1.1"></script>
+<script src="https://www.chartjs.org/chartjs-chart-financial/chartjs-chart-financial.js"></script>
 <script>
 
 var candleCount = 60;
@@ -469,7 +469,7 @@ data = [
     l: {{s.val_low}},
     o: {{s.val_start}},
     c: {{s.val_end}},
-    t: new Date("{{s.date.year}}/{{s.date.month}}/{{s.date.day}}")
+    t: new Date("{{s.date.year}}/{{s.date.month}}/{{s.date.day}}").valueOf()
   },
 {% endfor %}
 ]
