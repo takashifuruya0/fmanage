@@ -2,12 +2,12 @@ from kakeibo.models import Kakeibos, Usages, Resources, SharedKakeibos
 import json
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib
 from asset.functions import mylib_asset, get_info
-from asset.models import Orders, Stocks, StockDataByDate
+from asset.models import Orders, Stocks, StockDataByDate, AssetStatus
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
@@ -607,3 +607,28 @@ def googlehome_shared(request):
     return response
 
 
+@csrf_exempt
+def asset_status(request):
+    if request.method == "GET":
+        astatus = AssetStatus.objects.all().order_by('date')
+
+        data = {
+            "length": len(astatus),
+            "data_list": [
+                {
+                    "pk": a.pk,
+                    "date": a.date.__str__(),
+                    "total": a.total,
+                    "stocks_value": a.stocks_value,
+                    "other_valule": a.other_value,
+                    "buying_power": a.buying_power,
+                    "investment": a.investment,
+                } for a in astatus
+            ]
+        }
+    elif request.method == "POST":
+        raise Http404
+    # json
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response

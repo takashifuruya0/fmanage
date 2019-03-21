@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^kakeibo_month$', views.kakeibo_month, name="kakeibo_month"),
     url(r'^shared_month$', views.shared_month, name="shared_month"),
     url(r'^asset/order$', views.asset_order, name="asset_order"),
+    url(r'^asset/status$', views.asset_status, name="asset_status"),
     url(r'^asset$', views.asset, name="asset"),
     url(r'^test$', views.test, name="test"),
     url(r'^googlehome/shared$', views.googlehome_shared, name="googlehome_shared"),
