@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib
 from asset.functions import mylib_asset, get_info
-from asset.models import Orders, Stocks, StockDataByDate, AssetStatus
+from asset.models import Orders, Stocks, StockDataByDate, AssetStatus, HoldingStocks
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
@@ -628,6 +628,36 @@ def asset_status(request):
                     "buying_power": a.buying_power,
                     "investment": a.investment,
                 } for a in astatus
+            ]
+        }
+    elif request.method == "POST":
+        raise Http404
+    # json
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response
+
+
+@csrf_exempt
+def asset_holding(request):
+    if request.method == "GET":
+        holdings = HoldingStocks.objects.all()
+        data = {
+            "length": len(holdings),
+            "data_list": [
+                {
+                    "stock": {
+                        "code": h.stock.code,
+                        "name": h.stock.name,
+                    },
+                    "num": h.num,
+                    "price": h.price,
+                    "date": {
+                        "year": h.date.year,
+                        "month": h.date.month,
+                        "day": h.date.day,
+                    }
+                } for h in holdings
             ]
         }
     elif request.method == "POST":

@@ -1,7 +1,8 @@
 # coding:utf-8
-from asset.models import Stocks, HoldingStocks, AssetStatus
+from asset.models import Stocks, HoldingStocks, AssetStatus, Orders, StockDataByDate
 from asset.functions import get_info
-from datetime import date
+from datetime import date, datetime
+import requests
 import logging
 logger = logging.getLogger("django")
 
@@ -351,3 +352,65 @@ def inherit_asset_status():
         ass.buying_power = 0
         ass.other_value = 0
         ass.save()
+
+
+def update_asset():
+    url_status = "https://www.fk-management.com/api/asset/status"
+    url_order = "https://www.fk-management.com/api/asset/order"
+
+    try:
+        r = requests.get(url_status)
+        AssetStatus.objects.all().delete()
+        for d in r.json()['data_list']:
+            print(d)
+            data = {k:v for k,v in d.items()}
+            data['date'] = date(d['date']['year'], d['date']['month'], d['date']['day'])
+            AssetStatus.objects.create(**data)
+
+        r = requests.get(url_order)
+        Orders.objects.all().delete()
+        for d in r.json()['data_list']:
+            print(d)
+            data_a = {k: v for k, v in d.items()}
+            data_a['datetime'] = datetime(
+                d['datetime']['year'], d['datetime']['month'], d['datetime']['day'],
+                d['datetime']['hour'], d['datetime']['minute']
+            )
+            if Stocks.objects.filter(code=d['stock']['code']):
+                stock = Stocks.objects.get(code=d['stock']['code'])
+            else:
+                stock = Stocks()
+                stock.code = d['stock']["code"]
+                stock.name = d['stock']['name']
+                stock.save()
+                # kabuoji3よりデータ取得
+                if len(stock.code) > 4:
+                    # 投資信託
+                    pass
+                else:
+                    # 株
+                    data = get_info.kabuoji3(stock.code)
+                    if data['status']:
+                        # 取得成功時
+                        for d in data['data']:
+                            # (date, stock)の組み合わせでデータがなければ追加
+                            if StockDataByDate.objects.filter(stock=stock, date=d[0]).__len__() == 0:
+                                sdbd = StockDataByDate()
+                                sdbd.stock = stock
+                                sdbd.date = d[0]
+                                sdbd.val_start = d[1]
+                                sdbd.val_high = d[2]
+                                sdbd.val_low = d[3]
+                                sdbd.val_end = d[4]
+                                sdbd.turnover = d[5]
+                                sdbd.save()
+                        logger.info('StockDataByDate of "%s" are updated' % stock.code)
+                    else:
+                        # 取得失敗時
+                        logger.error("error")
+            data_a['stock'] = stock
+            Orders.objects.create(**data_a)
+        return True
+    except Exception as e:
+        print(e)
+        return False
