@@ -617,10 +617,14 @@ def asset_status(request):
             "data_list": [
                 {
                     "pk": a.pk,
-                    "date": a.date.__str__(),
+                    "date": {
+                        "year": a.date.year,
+                        "month": a.date.month,
+                        "day": a.date.day,
+                    },
                     "total": a.total,
                     "stocks_value": a.stocks_value,
-                    "other_valule": a.other_value,
+                    "other_value": a.other_value,
                     "buying_power": a.buying_power,
                     "investment": a.investment,
                 } for a in astatus
