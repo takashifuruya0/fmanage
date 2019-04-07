@@ -15,6 +15,11 @@
       </h1>
     </div>
     <div class="col-md-2 col-sm-4 col-6">
+      <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#new_record">
+        <i class="far fa-plus-square"></i> New record
+      </button>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6">
       <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#year_month">
         <i class="far fa-calendar-alt"></i> Year&Month
       </button>
@@ -176,6 +181,33 @@
 <!--============================================================ -->
                           <!--MODAL-->
 <!--============================================================ -->
+<!-- Modal new-record -->
+<div class="modal fade" id="new_record" tabindex="-1" role="dialog" aria-labelledby="new_record" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="new_record_Label">
+          <i class="far fa-plus-square"></i> New Record
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="post" action="">
+        <div class="modal-body">
+          {% csrf_token %}
+          <table>
+            {{ shared_form }}
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" name="post_type" value="new_record">Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <!-- Modal year_month -->
 <div class="modal fade" id="year_month" tabindex="-1" role="dialog" aria-labelledby="year_month" aria-hidden="true">
   <div class="modal-dialog" role="document">

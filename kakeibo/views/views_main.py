@@ -333,9 +333,27 @@ def mine(request):
     return TemplateResponse(request, 'kakeibo/mine.html', output)
 
 
-@login_required
 @time_measure
 def shared(request):
+    # POSTの場合
+    if request.method == "POST":
+        # new_record
+        if request.POST['post_type'] == "new_record":
+            try:
+                form = SharedKakeiboForm(request.POST)
+                form.is_valid()
+                form.save()
+                # msg
+                smsg = "New record was registered"
+                messages.success(request, smsg)
+                logger.info(smsg)
+            except Exception as e:
+                emsg = e
+                logger.error(emsg)
+                messages.error(request, emsg)
+            finally:
+                return redirect('kakeibo:shared')
+
     # check year and month from GET parameter
     year, month = process_kakeibo.yearmonth(request)
 
@@ -384,6 +402,9 @@ def shared(request):
     # who paid ?
     who_paid = shared.values('usage__name', 'paid_by').annotate(Sum('fee'))
 
+    # shared_form
+    shared_form = SharedKakeiboForm(initial={'date': date.today()})
+
     # output
     output = {
         "today": {"year": year, "month": month},
@@ -403,6 +424,8 @@ def shared(request):
         "usage_list": usage_list,
         # who_paid
         "who_paid": who_paid,
+        # form
+        "shared_form": shared_form,
     }
     return TemplateResponse(request, 'kakeibo/shared.html', output)
 
