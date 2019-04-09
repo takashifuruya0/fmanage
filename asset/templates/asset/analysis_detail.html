@@ -188,7 +188,7 @@
     </div>
   </div>
 
-  <!-- Modal add_investment-->
+  <!-- Modal length-->
   <div class="modal fade" id="stocks" tabindex="-1" role="dialog" aria-labelledby="stocks" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -200,7 +200,7 @@
         </div>
         <div class="modal-body">
           <div class="row">
-            <div class="col-sm-4">
+            <div class="col-5">
               <h3>
                 <span class="badge badge-info" id="value_data_length">
                   <i class="far fa-calendar-check"></i>
@@ -208,13 +208,18 @@
                 </span>
               </h3>
             </div>
-            <div class="col-sm-4">
-              <button id="all_data_length" type="button" class="btn btn-secondary">
-                <i class="fas fa-reply-all"></i> Set all
-              </button>
-            </div>
-            <div class="col-sm-4">
+            <div class="col-7">
               <input type="range" class="form-control-range" id="range_data_length" value="{{length}}" min="10" max="200" step="10">
+            </div>
+            <div class="col-sm-12">
+              <button id="all_data_length" type="button" class="btn btn-secondary">
+                <i class="fas fa-reply-all"></i> All
+              </button>
+              <a href="?length=14" class="btn btn-primary">2週間</a>
+              <a href="?length=30" class="btn btn-primary">1ヶ月</a>
+              <a href="?length=90" class="btn btn-primary">3ヶ月</a>
+              <a href="?length=180" class="btn btn-primary">6ヶ月</a>
+              <a href="?length=360" class="btn btn-primary">1年</a>
             </div>
 
           </div>
