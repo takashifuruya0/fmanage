@@ -86,20 +86,35 @@ def get_order_point(df_ascending):
         for i in range(len(df)):
             if df.iloc[i].date in orders_date:
                 buys = orders.filter(datetime__date=df.iloc[i].date, order_type='現物買')
-                if buys:
-                    price = sum(b.price*b.num for b in buys)/sum(b.num for b in buys)
+                sells = orders.filter(datetime__date=df.iloc[i].date, order_type='現物売')
+                if buys and sells:
+                    # 売り＋買いがある日
+                    # buy
+                    price = sum(b.price * b.num for b in buys) / sum(b.num for b in buys)
                     order_point['buy'].append(int(price))
                     order_point["num_buy"] += 1
-                else:
-                    order_point['sell'].append(None)
-                sells = orders.filter(datetime__date=df.iloc[i].date, order_type='現物売')
-                if sells:
+                    # sell
                     price = sum(s.price * s.num for s in sells) / sum(s.num for s in sells)
                     order_point['sell'].append(int(price))
                     order_point["num_sell"] += 1
+                elif buys or sells:
+                    # 売りか買い、どちらかだけの日
+                    if buys:
+                        price = sum(b.price*b.num for b in buys)/sum(b.num for b in buys)
+                        order_point['buy'].append(int(price))
+                        order_point["num_buy"] += 1
+                        order_point['sell'].append(None)
+                    elif sells:
+                        price = sum(s.price * s.num for s in sells) / sum(s.num for s in sells)
+                        order_point['sell'].append(int(price))
+                        order_point["num_sell"] += 1
+                        order_point['buy'].append(None)
                 else:
+                    # 売り買いがない日：基本来ない？
+                    order_point['buy'].append(None)
                     order_point['sell'].append(None)
             else:
+                # 売り買いがない日
                 order_point['buy'].append(None)
                 order_point['sell'].append(None)
     except Exception as e:
