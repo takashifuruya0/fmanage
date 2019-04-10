@@ -16,7 +16,7 @@ def stock_overview(code):
         symbol = stocktable.findAll('th', {'class': 'symbol'})[0].text
         stockprice = float(stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", ""))
         # 投資信託は10000口単位
-        if len(code) > 4:
+        if len(str(code)) > 4:
             stockprice = float(stockprice)/10000
         memo = "Success"
         status = True
