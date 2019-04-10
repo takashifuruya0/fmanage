@@ -382,7 +382,7 @@ def asset_order(request):
                 stock.name = stockinfo['name']
                 stock.save()
                 # kabuoji3よりデータ取得
-                if len(stock.code) > 4:
+                if len(str(stock.code)) > 4:
                     # 投資信託
                     pass
                 else:
