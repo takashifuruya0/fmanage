@@ -15,6 +15,8 @@ from django.views.generic.edit import CreateView
 from django.contrib.auth.decorators import login_required
 # pandas
 from django_pandas.io import read_frame
+# rollback
+from django.db.transaction import set_rollback, atomic
 
 
 # 概要
@@ -26,116 +28,104 @@ def asset_dashboard(request):
     # FormのPost処理
     if request.method == "POST":
         logger.info(request.POST)
-        # Add investment
-        if request.POST['post_type'] == "add_investment":
-            try:
-                form = AddInvestmentForm(request.POST)
-                form.is_valid()
-                post_data = form.cleaned_data
-                # 今日のastatusを取得。無い場合は新規作成
-                astatus_today = AssetStatus.objects.filter(date=today)
-                if astatus_today:
-                    astatus = astatus_today[0]
-                else:
-                    astatus = AssetStatus.objects.all().order_by('date').last()
-                    astatus.pk = None
-                    astatus.date = today
-                # 買付余力と合計に追加。追加投資の場合は投資額にも追加。
-                if post_data.get('is_investment'):
-                    astatus.investment += post_data.get('value')
-                astatus.buying_power += post_data.get('value')
-                astatus.total += + post_data.get('value')
-                astatus.save()
-                # msg
-                smsg = "Additional investment was registered: " + str(post_data.get('value'))
-                messages.success(request, smsg)
-                logger.info(smsg)
-            except Exception as e:
-                emsg = e
-                logger.error(emsg)
-                messages.error(request, emsg)
-            finally:
-                return redirect('asset:dashboard')
-        # Stock
-        elif request.POST['post_type'] == "stock_form":
-            try:
-                form = StocksForm(request.POST)
-                form.is_valid()
-                post_data = form.cleaned_data
-                stock = Stocks()
-                stock.code = post_data.get('code')
-                stock.name = get_info.stock_overview(stock.code)['name']
-                stock.save()
-                # kabuoji3よりデータ取得
-                if len(stock.code) > 4:
-                    # 投資信託
-                    pass
-                else:
-                    # 株
-                    data = get_info.kabuoji3(stock.code)
-                    if data['status']:
-                        # 取得成功時
-                        for d in data['data']:
-                            # (date, stock)の組み合わせでデータがなければ追加
-                            if StockDataByDate.objects.filter(stock=stock, date=d[0]).__len__() == 0:
-                                sdbd = StockDataByDate()
-                                sdbd.stock = stock
-                                sdbd.date = d[0]
-                                sdbd.val_start = d[1]
-                                sdbd.val_high = d[2]
-                                sdbd.val_low = d[3]
-                                sdbd.val_end = d[4]
-                                sdbd.turnover = d[5]
-                                sdbd.save()
-                        logger.info('StockDataByDate of "%s" are updated' % stock.code)
+        try:
+            with atomic():
+                # Add investment
+                if request.POST['post_type'] == "add_investment":
+                    form = AddInvestmentForm(request.POST)
+                    form.is_valid()
+                    post_data = form.cleaned_data
+                    # 今日のastatusを取得。無い場合は新規作成
+                    astatus_today = AssetStatus.objects.filter(date=today)
+                    if astatus_today:
+                        astatus = astatus_today[0]
                     else:
-                        # 取得失敗時
-                        logger.error(data['msg'])
-                smsg = "New stock was registered:" + str(post_data.get('code'))
-                messages.success(request, smsg)
-                logger.info(smsg)
-            except Exception as e:
-                emsg = e
-                logger.error(emsg)
-                messages.error(request, emsg)
-            finally:
-                return redirect('asset:dashboard')
-        # Order
-        elif request.POST['post_type'] == "order_form":
-            try:
-                form = OrdersForm(request.POST)
-                form.is_valid()
-                post_data = form.cleaned_data
-                order = Orders()
-                order.datetime = post_data.get('datetime')
-                order.order_type = post_data.get('order_type')
-                order.stock = post_data.get('stock')
-                order.num = post_data.get('num')
-                if len(order.stock.code) == 4:
-                    # 株
-                    order.price = post_data.get('price')
-                    order.commission = mylib_asset.get_commission(order.num * order.price) if order.is_nisa else 0
-                else:
-                    # 投資信託
-                    order.price = float(post_data.get('price')) / 10000
-                    order.commission = 0
-                order.is_nisa = post_data.get('is_nisa')
-                order.save()
-                # order時の共通プロセス
-                smsg, emsg = mylib_asset.order_process(order)
-                if emsg:
-                    raise ValueError(emsg)
-                else:
-                    logger.info(smsg)
-                    smsg = "New order was registered"
-                    logger.info(smsg)
+                        astatus = AssetStatus.objects.all().order_by('date').last()
+                        astatus.pk = None
+                        astatus.date = today
+                    # 買付余力と合計に追加。追加投資の場合は投資額にも追加。
+                    if post_data.get('is_investment'):
+                        astatus.investment += post_data.get('value')
+                    astatus.buying_power += post_data.get('value')
+                    astatus.total += + post_data.get('value')
+                    astatus.save()
+                    # msg
+                    smsg = "Additional investment was registered: " + str(post_data.get('value'))
                     messages.success(request, smsg)
-            except Exception as e:
-                emsg = e
-                logger.error(emsg)
-                messages.error(request, emsg)
-            finally:
-                return redirect('asset:dashboard')
+                    logger.info(smsg)
+                # Stock
+                elif request.POST['post_type'] == "stock_form":
+                    form = StocksForm(request.POST)
+                    form.is_valid()
+                    post_data = form.cleaned_data
+                    stock = Stocks()
+                    stock.code = post_data.get('code')
+                    stock.name = get_info.stock_overview(stock.code)['name']
+                    stock.save()
+                    # kabuoji3よりデータ取得
+                    if len(stock.code) > 4:
+                        # 投資信託
+                        pass
+                    else:
+                        # 株
+                        data = get_info.kabuoji3(stock.code)
+                        if data['status']:
+                            # 取得成功時
+                            for d in data['data']:
+                                # (date, stock)の組み合わせでデータがなければ追加
+                                if StockDataByDate.objects.filter(stock=stock, date=d[0]).__len__() == 0:
+                                    sdbd = StockDataByDate()
+                                    sdbd.stock = stock
+                                    sdbd.date = d[0]
+                                    sdbd.val_start = d[1]
+                                    sdbd.val_high = d[2]
+                                    sdbd.val_low = d[3]
+                                    sdbd.val_end = d[4]
+                                    sdbd.turnover = d[5]
+                                    sdbd.save()
+                            logger.info('StockDataByDate of "%s" are updated' % stock.code)
+                        else:
+                            # 取得失敗時
+                            logger.error(data['msg'])
+                    smsg = "New stock was registered:" + str(post_data.get('code'))
+                    messages.success(request, smsg)
+                    logger.info(smsg)
+                # Order
+                elif request.POST['post_type'] == "order_form":
+                    form = OrdersForm(request.POST)
+                    form.is_valid()
+                    post_data = form.cleaned_data
+                    order = Orders()
+                    order.datetime = post_data.get('datetime')
+                    order.order_type = post_data.get('order_type')
+                    order.stock = post_data.get('stock')
+                    order.num = post_data.get('num')
+                    if len(order.stock.code) == 4:
+                        # 株
+                        order.price = post_data.get('price')
+                        order.commission = mylib_asset.get_commission(order.num * order.price) if order.is_nisa else 0
+                    else:
+                        # 投資信託
+                        order.price = float(post_data.get('price')) / 10000
+                        order.commission = 0
+                    order.is_nisa = post_data.get('is_nisa')
+                    order.save()
+                    # order時の共通プロセス
+                    smsg, emsg = mylib_asset.order_process(order)
+                    if emsg:
+                        raise ValueError(emsg)
+                    else:
+                        logger.info(smsg)
+                        smsg = "New order was registered"
+                        logger.info(smsg)
+                        messages.success(request, smsg)
+        except Exception as e:
+            emsg = e
+            logger.error(emsg)
+            messages.error(request, emsg)
+            set_rollback(True)
+        finally:
+            return redirect('asset:dashboard')
 
     # Form
     stock_form = StocksForm()
