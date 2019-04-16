@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^asset/order$', views.asset_order, name="asset_order"),
     url(r'^asset/status$', views.asset_status, name="asset_status"),
     url(r'^asset/holding$', views.asset_holding, name="asset_holding"),
+    url(r'^asset/stock/$', views.asset_stock, name="asset_stock"),
     url(r'^asset$', views.asset, name="asset"),
     url(r'^test$', views.test, name="test"),
     url(r'^googlehome/shared$', views.googlehome_shared, name="googlehome_shared"),

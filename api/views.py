@@ -666,3 +666,27 @@ def asset_holding(request):
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
+
+
+@csrf_exempt
+def asset_stock(request):
+    if request.method == "GET":
+        stocks = Stocks.objects.all()
+        data = {
+            "length": len(stocks),
+            "data_list": [
+                {
+                    "name": s.name,
+                    "code": s.code,
+                    "time_buy": s.orders_set.filter(order_type="現物買").count(),
+                    "time_sell": s.orders_set.filter(order_type="現物売").count(),
+                    "is_holding": True if s.holdingstocks_set.count() > 0 else False
+                } for s in stocks
+            ]
+        }
+    elif request.method == "POST":
+        raise Http404
+    # json
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response
