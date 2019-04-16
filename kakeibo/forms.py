@@ -12,10 +12,11 @@ class KakeiboForm(forms.ModelForm):
     choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "引き落とし", "共通支出", "収入", "振替"])
     way = forms.TypedChoiceField(choices=choices)
     way.widget.attrs['onchange'] = 'fill_resource()'
+    tag_copy_to_shared = forms.BooleanField()
 
     class Meta:
         model = Kakeibos
-        fields = ['date', 'fee', 'usage', 'way', 'move_from', 'move_to', 'memo']
+        fields = ['date', 'fee', 'usage', 'way', 'move_from', 'move_to', 'memo', "tag_copy_to_shared"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

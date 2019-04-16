@@ -20,6 +20,7 @@ from kakeibo.functions import mylib
 from kakeibo.functions.mylib import time_measure
 from kakeibo.functions import process_kakeibo
 from django.contrib.auth.models import User
+from django.db.transaction import set_rollback, atomic
 
 # Create your views here.
 
@@ -33,17 +34,30 @@ def dashboard(request):
         # new_record
         if request.POST['post_type'] == "new_record":
             try:
-                form = KakeiboForm(request.POST)
-                form.is_valid()
-                form.save()
-                # msg
-                smsg = "New record was registered"
-                messages.success(request, smsg)
-                logger.info(smsg)
+                with atomic():
+                    form = KakeiboForm(request.POST)
+                    form.is_valid()
+                    form.save()
+                    # msg
+                    smsg = "New record was registered"
+                    # shared
+                    if form.cleaned_data['tag_copy_to_shared']:
+                        data = {
+                            'date': form.cleaned_data['date'],
+                            'fee': form.cleaned_data['fee'],
+                            'usage': form.cleaned_data['usage'],
+                            'paid_by': "敬士",
+                            'memo': form.cleaned_data['memo'],
+                        }
+                        SharedKakeibos.objects.create(**data)
+                        smsg += " and copied to Shared Kakeibo"
+                    messages.success(request, smsg)
+                    logger.info(smsg)
             except Exception as e:
                 emsg = e
                 logger.error(emsg)
                 messages.error(request, emsg)
+                set_rollback(True)
             finally:
                 return redirect('kakeibo:dashboard')
         # read_csv
