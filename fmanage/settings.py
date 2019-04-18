@@ -235,3 +235,12 @@ NOSE_ARGS = [
 
 ]# environment
 ENVIRONMENT = "develop"
+
+
+# Twitter
+from google.cloud import datastore
+client = datastore.Client()
+query = client.query(kind='SECRET')
+SECRET = {
+    d['key']: d['value'] for d in (query.fetch())
+}
