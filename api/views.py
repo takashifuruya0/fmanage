@@ -11,8 +11,6 @@ from asset.models import Orders, Stocks, StockDataByDate, AssetStatus, HoldingSt
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
-import requests
-import os
 from pytz import timezone
 
 
@@ -745,6 +743,10 @@ def asset_slack_interactive(request):
 
         if request_json['actions'][0]['name'] == "order":
             """ 成行注文 """
+            # response_url
+            logger.info("response_url: {}".format(request_json['response_url']))
+            print("response_url: {}".format(request_json['response_url']))
+            # reply
             title = request_json['original_message']['attachments'][0]['title']
             text = "✅成行注文完了"
             content = {
@@ -756,7 +758,6 @@ def asset_slack_interactive(request):
             }
             replyMessage['attachments'] = []
             replyMessage['attachments'].append(content)
-            logging.info("response_url: {}".format(request_json['response_url']))
 
         elif request_json['actions'][0]['name'] == "current_price":
             """ 現在値確認 """

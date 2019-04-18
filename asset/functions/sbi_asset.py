@@ -2,10 +2,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
 import time
-import logging
-logger = logging.getLogger('django')
-from google.cloud import datastore
 from django.conf import settings
+import logging
+logger = logging.getLogger("django")
+
 
 
 # login
@@ -72,7 +72,7 @@ def sell(driver, stock_code, num, PASSWORD):
     e.click()
     # check
     for i in range(10):
-        if not driver.current_url == url_buy:
+        if not driver.current_url == url_sell:
             logger.info("Completed sell order")
             logger.info("Code {}".format(stock_code))
             logger.info("Num {}".format(num))
@@ -141,6 +141,30 @@ def set_alert(code):
         # set_alert
         alert(driver, code, 1, 2)
         alert(driver, code, 1, 3)
+        logger.info("Done")
+    except Exception as e:
+        logger.error(e)
+    finally:
+        driver.quit()
+        logger.info("closed driver")
+        return True
+
+
+def set_buy(code, num):
+    try:
+        if settings.ENVIRONMENT == 'metabase':
+            # linux
+            options = Options()
+            options.binary_location = '/usr/bin/google-chrome'
+            options.add_argument('--headless')
+            options.add_argument('--window-size=1280,1024')
+            driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=options)
+        elif settings.ENVIRONMENT == 'develop':
+            # mac
+            driver = webdriver.Chrome('/usr/local/bin/chromedriver')
+        login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
+        # set_buy
+        buy(driver, code, num, settings.SECRET['SBI_PASSWORD_ORDER'])
         logger.info("Done")
     except Exception as e:
         logger.error(e)
