@@ -680,7 +680,10 @@ def asset_stock(request):
                     "code": s.code,
                     "time_buy": s.orders_set.filter(order_type="現物買").count(),
                     "time_sell": s.orders_set.filter(order_type="現物売").count(),
-                    "is_holding": True if s.holdingstocks_set.count() > 0 else False
+                    "is_holding": True if s.holdingstocks_set.count() > 0 else False,
+                    "current_price": s.holdingstocks_set.first().get_current_price() if s.holdingstocks_set.count() > 0 else None,
+                    "buy_price": s.holdingstocks_set.first().price if s.holdingstocks_set.count() > 0 else None,
+                    "num_holding": s.holdingstocks_set.first().num if s.holdingstocks_set.count() > 0 else 0,
                 } for s in stocks
             ]
         }
