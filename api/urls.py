@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^asset/holding$', views.asset_holding, name="asset_holding"),
     url(r'^asset/stock/$', views.asset_stock_all, name="asset_stock_all"),
     url(r'^asset/stock/(?P<code>\w+)$', views.asset_stock, name="asset_stock"),
+    url(r'^asset/interactive$', views.asset_slack_interactive, name="asset_slack_interactive"),
     url(r'^asset$', views.asset, name="asset"),
     url(r'^test$', views.test, name="test"),
     url(r'^googlehome/shared$', views.googlehome_shared, name="googlehome_shared"),

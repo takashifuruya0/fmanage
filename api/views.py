@@ -1,16 +1,19 @@
 from kakeibo.models import Kakeibos, Usages, Resources, SharedKakeibos
 import json
-from datetime import date
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib
-from asset.functions import mylib_asset, get_info
+from asset.functions import mylib_asset, get_info, slack_asset
 from asset.models import Orders, Stocks, StockDataByDate, AssetStatus, HoldingStocks
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
+import requests
+import os
+from pytz import timezone
 
 
 @csrf_exempt
@@ -721,5 +724,63 @@ def asset_stock(request, code):
         raise Http404
     # json
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response
+
+
+@csrf_exempt
+def asset_slack_interactive(request):
+    if request.method == "POST":
+        # payload受け取り
+        request_json = json.loads(request.POST["payload"])
+        # original message の転用
+        replyMessage = request_json['original_message']
+        replyMessage.pop('type')
+        replyMessage.pop('subtype')
+        replyMessage.pop('ts')
+        replyMessage.pop('bot_id')
+        replyMessage["replace_original"] = True
+        replyMessage["response_type"] = "in_channel"
+        replyMessage["text"] = "Last updated at {}".format(datetime.now(timezone('Asia/Tokyo')).ctime())
+
+        if request_json['actions'][0]['name'] == "order":
+            """ 成行注文 """
+            title = request_json['original_message']['attachments'][0]['title']
+            text = "✅成行注文完了"
+            content = {
+                "fallback": "fallback string",
+                "callback_id": "callback_id value",
+                "title": title,
+                "text": text,
+                "color": "#428bfa",
+            }
+            replyMessage['attachments'] = []
+            replyMessage['attachments'].append(content)
+            logging.info("response_url: {}".format(request_json['response_url']))
+
+        elif request_json['actions'][0]['name'] == "current_price":
+            """ 現在値確認 """
+            # 取得
+            holding = HoldingStocks.objects.get(stock__code=request_json['actions'][0]['value'])
+            # 買付価格と現在価格、利益等の情報も送信
+            current_price = holding.get_current_price()
+            benefit = (current_price - holding.price) * holding.num
+            text = "保有数: {}\n現在値: {:,}".format(holding.num, current_price)
+            if benefit > 0:
+                text += "\n利益: +{:,}".format(benefit)
+            else:
+                text += "\n損失: {:,}".format(benefit)
+            # update
+            replyMessage['attachments'][0]["text"] = text
+            replyMessage['attachments'][0]['color'] = "#FF9960" if benefit < 0 else "good"
+
+    elif request.method == "GET":
+        slack_asset.post_holdings_to_slack()
+        replyMessage = {
+            "message": "Posted message to slack"
+        }
+
+    # return
+    json_str = json.dumps(replyMessage, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
