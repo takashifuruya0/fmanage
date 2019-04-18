@@ -669,7 +669,7 @@ def asset_holding(request):
 
 
 @csrf_exempt
-def asset_stock(request):
+def asset_stock_all(request):
     if request.method == "GET":
         stocks = Stocks.objects.all()
         data = {
@@ -687,6 +687,36 @@ def asset_stock(request):
                 } for s in stocks
             ]
         }
+    elif request.method == "POST":
+        raise Http404
+    # json
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
+    return response
+
+
+@csrf_exempt
+def asset_stock(request, code):
+    if request.method == "GET":
+        try:
+            s = Stocks.objects.get(code=code)
+            data = {
+                "name": s.name,
+                "code": s.code,
+                "time_buy": s.orders_set.filter(order_type="現物買").count(),
+                "time_sell": s.orders_set.filter(order_type="現物売").count(),
+                "is_holding": True if s.holdingstocks_set.count() > 0 else False,
+                "current_price": s.holdingstocks_set.first().get_current_price() if s.holdingstocks_set.count() > 0 else None,
+                "buy_price": s.holdingstocks_set.first().price if s.holdingstocks_set.count() > 0 else None,
+                "num_holding": s.holdingstocks_set.first().num if s.holdingstocks_set.count() > 0 else 0,
+            }
+        except Exception as e:
+            logger.error(e)
+            data = {
+                "name": None,
+                "code": None,
+                "message": "No data of {}".format(code)
+            }
     elif request.method == "POST":
         raise Http404
     # json
