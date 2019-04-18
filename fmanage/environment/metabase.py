@@ -22,7 +22,7 @@ DATABASES['default'].update(db_from_env)
 DEBUG = False
 
 # ENVIRONMENT
-ENVIRONMENT = "METABSE"
+ENVIRONMENT = "metabase"
 
 # LOG
 
