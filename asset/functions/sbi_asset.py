@@ -16,7 +16,7 @@ def login(driver, USER_ID, LOGIN_PASSWORD):
     driver.find_element_by_name('user_id').send_keys(USER_ID)
     bu = driver.find_element_by_name('ACT_login')
     bu.click()
-    logger.info("login")
+    logger.info("login SBI")
     return True
 
 
@@ -41,9 +41,7 @@ def buy(driver, stock_code, num, PASSWORD):
     # check
     for i in range(10):
         if not driver.current_url == url_buy:
-            logger.info("Completed buy order")
-            logger.info("Code {}".format(stock_code))
-            logger.info("Num {}".format(num))
+            logger.info("Completed buy-order. Code: {}, Num: {}".format(stock_code, num))
             return True
         else:
             logger.info("In process")
@@ -73,26 +71,24 @@ def sell(driver, stock_code, num, PASSWORD):
     # check
     for i in range(10):
         if not driver.current_url == url_sell:
-            logger.info("Completed sell order")
-            logger.info("Code {}".format(stock_code))
-            logger.info("Num {}".format(num))
+            logger.info("Completed sell-order. Code: {}, Num: {}".format(stock_code, num))
             return True
         else:
             logger.info("In process")
             time.sleep(2)
-    logger.error("Failed sell order")
+    logger.error("Failed sell-order")
     return False
 
 
 def alert(driver, stock_code, val, alert_type):
-    logger.info("Code: {}".format(stock_code))
-    logger.info("Value: {}".format(val))
     alert_msg = [
         "0.現在値（円以上）",
         "1.現在値（円以下）",
         "2.前日比（％以上）",
         "3.前日比（％以下）",
     ]
+    logger.info("Code: {}".format(stock_code))
+    logger.info("Value: {}".format(val))
     logger.info("Alert Type: {}".format(alert_msg[alert_type]))
     url_alert = "https://site2.sbisec.co.jp/ETGate/?_ControlID=WPLETsmR001Control&_DataStoreID=DSWPLETsmR001Control&cat1=home&cat2=none&sw_page=AlertSet&sw_param1={}&sw_param2=TKY&getFlg=on".format(stock_code)
     driver.get(url_alert)
@@ -138,10 +134,9 @@ def set_alert(code):
             # mac
             driver = webdriver.Chrome('/usr/local/bin/chromedriver')
         login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
-        # set_alert
+        # set_alert: 前日比±１％以上の変動で通知
         alert(driver, code, 1, 2)
         alert(driver, code, 1, 3)
-        logger.info("Done")
     except Exception as e:
         logger.error(e)
     finally:
@@ -163,9 +158,31 @@ def set_buy(code, num):
             # mac
             driver = webdriver.Chrome('/usr/local/bin/chromedriver')
         login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
-        # set_buy
+        # set_buy：成行
         buy(driver, code, num, settings.SECRET['SBI_PASSWORD_ORDER'])
-        logger.info("Done")
+    except Exception as e:
+        logger.error(e)
+    finally:
+        driver.quit()
+        logger.info("closed driver")
+        return True
+
+
+def set_sell(code, num):
+    try:
+        if settings.ENVIRONMENT == 'metabase':
+            # linux
+            options = Options()
+            options.binary_location = '/usr/bin/google-chrome'
+            options.add_argument('--headless')
+            options.add_argument('--window-size=1280,1024')
+            driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=options)
+        elif settings.ENVIRONMENT == 'develop':
+            # mac
+            driver = webdriver.Chrome('/usr/local/bin/chromedriver')
+        login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
+        # set_sell：成行
+        sell(driver, code, num, settings.SECRET['SBI_PASSWORD_ORDER'])
     except Exception as e:
         logger.error(e)
     finally:

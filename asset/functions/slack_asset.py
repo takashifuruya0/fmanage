@@ -14,7 +14,7 @@ def post_holdings_to_slack():
     for d in data:
         if len(d.stock.code) > 4:
             # 投資信託はスキップ
-            logger.info("{} is skipped".format(d.stock.code))
+            logger.debug("{} is skipped".format(d.stock.code))
             continue
         # params設定
         params = {
@@ -29,7 +29,7 @@ def post_holdings_to_slack():
         benefit = d.num * (current_price - d.price)
         code = d.stock.code
         # 買付価格と現在価格、利益等の情報も送信
-        logger.info("{} is added".format(code))
+        logger.debug("{} is added".format(code))
         title = "【{}】{}".format(code, d.stock.name)
         text = "保有数: {}\n 現在値: {:,}".format(d.num, current_price)
         if benefit > 0:

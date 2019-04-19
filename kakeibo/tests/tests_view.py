@@ -44,11 +44,13 @@ class ViewTest(TestCase):
         url = reverse("kakeibo:dashboard")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('kakeibo/dashboard.html')
 
     def test_mine(self):
         url = reverse("kakeibo:mine")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('kakeibo/mine.html')
 
     def test_shared(self):
         url = reverse("kakeibo:shared")

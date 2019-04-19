@@ -6,7 +6,7 @@ from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib
-from asset.functions import mylib_asset, get_info, slack_asset
+from asset.functions import mylib_asset, get_info, slack_asset, sbi_asset
 from asset.models import Orders, Stocks, StockDataByDate, AssetStatus, HoldingStocks
 # Create your views here.
 import logging
@@ -372,22 +372,26 @@ def asset_order(request):
     elif request.method == "POST":
         try:
             val = json.loads(request.body.decode())
-            logger.info(val)
+            logger.info("request_json: {}".format(val))
             stockinfo = get_info.stock_overview(val["code"])
             bo = Orders()
             bo.datetime = val["datetime"]
             bo.order_type = val["kind"]
+            if bo.order_type == "現物買":
+                # SBIの通知を設定
+                sbi_asset.set_alert(val['code'])
             if Stocks.objects.filter(code=val["code"]).__len__() == 0:
+                # Stocksにデータがない→登録
                 stock = Stocks()
                 stock.code = val["code"]
                 stock.name = stockinfo['name']
                 stock.save()
                 # kabuoji3よりデータ取得
                 if len(str(stock.code)) > 4:
-                    # 投資信託
+                    # 投資信託→スキップ
                     pass
                 else:
-                    # 株
+                    # 株→登録
                     data = get_info.kabuoji3(stock.code)
                     if data['status']:
                         # 取得成功時
@@ -418,7 +422,7 @@ def asset_order(request):
             bo.is_nisa = False
             bo.commission = mylib_asset.get_commission(bo.num*bo.price)
             bo.save()
-            logger.info("New Order is created")
+            logger.info("New Order is created: {}".format(bo))
 
             # order時のholding stocks, asset status の変更
             smsg, emsg = mylib_asset.order_process(bo)
@@ -439,13 +443,6 @@ def asset_order(request):
                 "commission": bo.commission,
                 "price": bo.price,
                 "num": bo.num,
-                # "datetime": {
-                #     "year": bo.datetime.year,
-                #     "month": bo.datetime.month,
-                #     "day": bo.datetime.day,
-                #     "hour": bo.datetime.hour,
-                #     "minute": bo.datetime.minute,
-                # },
                 "datetime": str(bo.datetime),
                 "order_type": bo.order_type,
                 "stock": {
@@ -612,7 +609,6 @@ def googlehome_shared(request):
 def asset_status(request):
     if request.method == "GET":
         astatus = AssetStatus.objects.all().order_by('date')
-
         data = {
             "length": len(astatus),
             "data_list": [
@@ -632,6 +628,7 @@ def asset_status(request):
             ]
         }
     elif request.method == "POST":
+        logger.error("POST is not allowed. {}".format(request.POST))
         raise Http404
     # json
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
@@ -731,6 +728,7 @@ def asset_slack_interactive(request):
     if request.method == "POST":
         # payload受け取り
         request_json = json.loads(request.POST["payload"])
+        logger.info(request_json)
         # original message の転用
         replyMessage = request_json['original_message']
         replyMessage.pop('type')
@@ -744,8 +742,9 @@ def asset_slack_interactive(request):
         if request_json['actions'][0]['name'] == "order":
             """ 成行注文 """
             # response_url
+            logger.info("成行注文 {}".format(request_json['actions'][0]['value']))
             logger.info("response_url: {}".format(request_json['response_url']))
-            print("response_url: {}".format(request_json['response_url']))
+
             # reply
             title = request_json['original_message']['attachments'][0]['title']
             text = "✅成行注文完了"
@@ -761,6 +760,7 @@ def asset_slack_interactive(request):
 
         elif request_json['actions'][0]['name'] == "current_price":
             """ 現在値確認 """
+            logger.info("現在値確認 {}".format(request_json['actions'][0]['value']))
             # 取得
             holding = HoldingStocks.objects.get(stock__code=request_json['actions'][0]['value'])
             # 買付価格と現在価格、利益等の情報も送信
@@ -776,12 +776,14 @@ def asset_slack_interactive(request):
             replyMessage['attachments'][0]['color'] = "#FF9960" if benefit < 0 else "good"
 
     elif request.method == "GET":
+        logger.info("Got request for posting message to slack")
         slack_asset.post_holdings_to_slack()
         replyMessage = {
             "message": "Posted message to slack"
         }
 
     # return
+    logger.info("replyMessage {}".format(replyMessage))
     json_str = json.dumps(replyMessage, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
