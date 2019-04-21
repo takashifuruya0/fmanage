@@ -37,7 +37,7 @@ class Usages(BaseModel):
     objects = None
     is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
     memo = models.CharField(max_length=50, blank=True, null=True)
-    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
+    color = models.OneToOneField(Colors, blank=True, null=True)
 
     def get_kakeibos_2(self):
         today = date.today()
@@ -162,8 +162,7 @@ class Usages(BaseModel):
 class Resources(BaseModel):
     objects = None
     initial_val = models.IntegerField(null=False, blank=False)
-    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
-    # current_val = models.IntegerField(null=True, blank=True)
+    color = models.OneToOneField(Colors, blank=True, null=True)
     is_saving = models.BooleanField(default=False)
 
     def current_val(self):
@@ -180,8 +179,8 @@ class Resources(BaseModel):
 # UsagesとResourcesの紐付け
 class UsageResourceRelations(models.Model):
     objects = None
-    resource = models.ForeignKey(Resources, on_delete=models.CASCADE)
-    usage = models.ForeignKey(Usages, on_delete=models.CASCADE)
+    resource = models.ForeignKey(Resources)
+    usage = models.ForeignKey(Usages)
 
     def __str__(self):
         return self.usage+"<=>"+self.resource
@@ -200,11 +199,11 @@ class Kakeibos(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道/収入源
-    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
+    usage = models.ForeignKey(Usages, null=True, blank=True)
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from", on_delete=models.CASCADE)
+    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from")
     # 現金移動先
-    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to", on_delete=models.CASCADE)
+    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to")
 
     def __str__(self):
         return self.way
@@ -228,9 +227,9 @@ class SharedKakeibos(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道
-    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
+    usage = models.ForeignKey(Usages, null=True, blank=True)
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True, on_delete=models.CASCADE)
+    move_from = models.ForeignKey(Resources, null=True, blank=True)
     # 支払者
     paid_by = models.CharField(max_length=20)
     # 清算済み？
@@ -248,13 +247,13 @@ class SharedKakeibos(models.Model):
 
 
 class Cards(BaseModel):
-    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
+    color = models.OneToOneField(Colors, blank=True, null=True)
 
 
 class CreditItems(BaseModel):
     objects = None
-    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
-    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
+    usage = models.ForeignKey(Usages, null=True, blank=True)
+    color = models.OneToOneField(Colors, blank=True, null=True)
 
     def count_credit(self):
         return Credits.objects.filter(credit_item=self).__len__()
@@ -280,8 +279,8 @@ class Credits(models.Model):
     date = models.DateField()
     debit_date = models.DateField()
     fee = models.IntegerField()
-    credit_item = models.ForeignKey(CreditItems, on_delete=models.CASCADE)
-    card = models.ForeignKey(Cards, related_name="credits", null=True, on_delete=models.CASCADE)
+    credit_item = models.ForeignKey(CreditItems)
+    card = models.ForeignKey(Cards, related_name="credits", null=True)
     memo = models.CharField(null=True, blank=True, max_length=255)
 
     def fee_yen(self):
@@ -299,11 +298,11 @@ class CronKakeibo(models.Model):
     # 種類
     way = models.CharField(max_length=20)
     # 使い道/収入源
-    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
+    usage = models.ForeignKey(Usages, null=True, blank=True)
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from_cron", on_delete=models.CASCADE)
+    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from_cron")
     # 現金移動先
-    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to_cron", on_delete=models.CASCADE)
+    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to_cron")
 
 
 class CronShared(models.Model):
@@ -315,8 +314,8 @@ class CronShared(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道
-    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
+    usage = models.ForeignKey(Usages, null=True, blank=True)
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True, on_delete=models.CASCADE)
+    move_from = models.ForeignKey(Resources, null=True, blank=True)
     # 支払者
     paid_by = models.CharField(max_length=20)
