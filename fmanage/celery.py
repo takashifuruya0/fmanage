@@ -1,11 +1,12 @@
 import os
 from celery import Celery
-from django.conf import settings as django_settings
+import environ
+env = environ.Env(DEBUG=(bool, False),)  # set default values and casting
+environ.Env.read_env('.env')  # reading .env file
 
 # set the default Django settings module for the 'celery' program.
-environment = "fmanage.environment.metabase" if django_settings.ENVIRONMENT == "metabase" else "fmanage.settings"
 settings = os.getenv(
-   "DJANGO_SETTINGS_MODULE", environment)
+   "DJANGO_SETTINGS_MODULE", env("CELERY_ENVIRONMENT"))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings)
 
 app = Celery('fmanage')
