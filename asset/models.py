@@ -17,7 +17,7 @@ class Orders(models.Model):
     objects = None
     datetime = models.DateTimeField(default=datetime.now, blank=True)
     order_type = models.CharField(null=False, blank=False, max_length=20)
-    stock = models.ForeignKey(Stocks)
+    stock = models.ForeignKey(Stocks, on_delete=models.CASCADE)
     num = models.IntegerField(null=False, blank=False)
     price = models.FloatField(null=False, blank=False)
     commission = models.IntegerField(default=0)
@@ -30,7 +30,7 @@ class Orders(models.Model):
 class HoldingStocks(models.Model):
     objects = None
     date = models.DateField()
-    stock = models.ForeignKey(Stocks)
+    stock = models.ForeignKey(Stocks, on_delete=models.CASCADE)
     num = models.IntegerField()
     price = models.FloatField()
 
@@ -77,7 +77,7 @@ class AssetStatus(models.Model):
 
 class StockDataByDate(models.Model):
     objects = None
-    stock = models.ForeignKey(Stocks)
+    stock = models.ForeignKey(Stocks, on_delete=models.CASCADE)
     date = models.DateField()
     val_start = models.FloatField()
     val_high = models.FloatField()
