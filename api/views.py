@@ -751,13 +751,13 @@ def asset_slack_interactive(request):
             tasks.set_sell.delay(response_url, replyMessage, code)
             # reply
             title = request_json['original_message']['attachments'][0]['title']
-            text = "📲成行注文中"
+            text = "📲成行注文中..."
             content = {
                 "fallback": "fallback string",
                 "callback_id": "callback_id value",
                 "title": title,
                 "text": text,
-                "color": "#428bfa",
+                "color": "#88abfe",
             }
             replyMessage['attachments'] = []
             replyMessage['attachments'].append(content)
