@@ -18,6 +18,7 @@ def post_holdings_to_slack():
             continue
         # params設定
         params = {
+            "channel": "#log_gas",
             "username": "fk-management.com",
             "text": "last updated at {}".format(datetime.now(timezone('Asia/Tokyo')).ctime()),
             "attachments": [
@@ -69,13 +70,12 @@ def post_holdings_to_slack():
         }
         params['attachments'].append(button)
         # post msg to slack
-        url = settings.SECRET["URL_SLACK_ASSET"]
-        post_slack(url, params)
+        post_slack(params)
     return True
 
 
-def post_slack(url, params):
-    # url = settings.SECRET["URL_SLACK_ASSET"]
+def post_slack(params):
+    url = settings.SECRET["URL_SLACK_ASSET"]
     json_data = json.dumps(params)
     headers = {
         'Content-Type': 'application/json'

@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'pure_pagination',
     'django_nose',
-    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -245,8 +244,3 @@ query = client.query(kind='SECRET')
 SECRET = {
     d['key']: d['value'] for d in (query.fetch())
 }
-
-# celery
-# CELERY
-CELERY_BROKER_URL = "redis://127.0.0.1:6379/1"
-CELERY_RESULT_BACKEND = "django-db"

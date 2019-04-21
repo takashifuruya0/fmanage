@@ -5,7 +5,7 @@ import time
 from django.conf import settings
 import logging
 logger = logging.getLogger("django")
-from fmanage.celery import app
+
 
 
 # login
@@ -20,7 +20,6 @@ def login(driver, USER_ID, LOGIN_PASSWORD):
     return True
 
 
-@app.task()
 def buy(driver, stock_code, num, PASSWORD):
     url_buy = "https://site2.sbisec.co.jp/ETGate/?_ControlID=WPLETstT002Control&_DataStoreID=DSWPLETstT002Control&stock_sec_code={}".format(stock_code)
     driver.get(url_buy)
@@ -138,14 +137,12 @@ def set_alert(code):
         # set_alert: 前日比±１％以上の変動で通知
         alert(driver, code, 1, 2)
         alert(driver, code, 1, 3)
-        res = True
     except Exception as e:
         logger.error(e)
-        res = False
     finally:
         driver.quit()
-        logger.debug("closed driver")
-        return res
+        logger.info("closed driver")
+        return True
 
 
 def set_buy(code, num):
@@ -163,14 +160,12 @@ def set_buy(code, num):
         login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
         # set_buy：成行
         buy(driver, code, num, settings.SECRET['SBI_PASSWORD_ORDER'])
-        res = True
     except Exception as e:
         logger.error(e)
-        res = False
     finally:
         driver.quit()
-        logger.debug("closed driver")
-        return res
+        logger.info("closed driver")
+        return True
 
 
 def set_sell(code, num):
@@ -188,11 +183,9 @@ def set_sell(code, num):
         login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
         # set_sell：成行
         sell(driver, code, num, settings.SECRET['SBI_PASSWORD_ORDER'])
-        res = True
     except Exception as e:
         logger.error(e)
-        res = False
     finally:
         driver.quit()
-        logger.debug("closed driver")
-        return res
+        logger.info("closed driver")
+        return True
