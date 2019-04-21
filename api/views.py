@@ -8,6 +8,7 @@ from django.db.models import Sum, Avg, Count
 from kakeibo.functions import mylib
 from asset.functions import mylib_asset, get_info, slack_asset, sbi_asset
 from asset.models import Orders, Stocks, StockDataByDate, AssetStatus, HoldingStocks
+from fmanage import tasks
 # Create your views here.
 import logging
 logger = logging.getLogger("django")
@@ -742,12 +743,15 @@ def asset_slack_interactive(request):
         if request_json['actions'][0]['name'] == "order":
             """ 成行注文 """
             # response_url
-            logger.info("成行注文 {}".format(request_json['actions'][0]['value']))
-            logger.info("response_url: {}".format(request_json['response_url']))
-
+            code = request_json['actions'][0]['value']
+            response_url = request_json['response_url']
+            logger.info("成行注文 {}".format(code))
+            logger.info("response_url: {}".format(response_url))
+            # task
+            tasks.set_sell.delay(response_url, replyMessage, code)
             # reply
             title = request_json['original_message']['attachments'][0]['title']
-            text = "✅成行注文完了"
+            text = "📲成行注文中"
             content = {
                 "fallback": "fallback string",
                 "callback_id": "callback_id value",
