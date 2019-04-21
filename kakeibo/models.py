@@ -37,7 +37,7 @@ class Usages(BaseModel):
     objects = None
     is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
     memo = models.CharField(max_length=50, blank=True, null=True)
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
 
     def get_kakeibos_2(self):
         today = date.today()
@@ -162,7 +162,7 @@ class Usages(BaseModel):
 class Resources(BaseModel):
     objects = None
     initial_val = models.IntegerField(null=False, blank=False)
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
     # current_val = models.IntegerField(null=True, blank=True)
     is_saving = models.BooleanField(default=False)
 
@@ -248,13 +248,13 @@ class SharedKakeibos(models.Model):
 
 
 class Cards(BaseModel):
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
 
 
 class CreditItems(BaseModel):
     objects = None
     usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
 
     def count_credit(self):
         return Credits.objects.filter(credit_item=self).__len__()
