@@ -16,7 +16,12 @@
     </div>
     <div class="col-md-2 col-sm-4 col-6">
       <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#new_record">
-        <i class="far fa-plus-square"></i> New record
+        <i class="fas fa-user-circle"></i> New Kakeibo
+      </button>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6">
+      <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#new_record_shared">
+        <i class="fas fa-people-carry"></i> New Shared
       </button>
     </div>
     <div class="col-md-2 col-sm-4 col-6">
@@ -297,63 +302,11 @@
                           <!--MODAL-->
 <!--============================================================ -->
 <!-- Modal new-record -->
-<div class="modal fade" id="new_record" tabindex="-1" role="dialog" aria-labelledby="new_record" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="new_record_Label">
-          <i class="far fa-plus-square"></i> New Kakeibo Record
-        </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form method="post" action="">
-        <div class="modal-body">
-          {% csrf_token %}
-          <table>
-            {{ kakeibo_form }}
-          </table>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" name="post_type" value="new_record">Register</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
+{% include 'kakeibo/modal/modal_new_record.html' %}
+<!-- Modal new-record-shared -->
+{% include 'kakeibo/modal/modal_new_record_shared.html' %}
 <!-- Modal read_csv -->
-<div class="modal fade" id="read_csv" tabindex="-1" role="dialog" aria-labelledby="read_csv" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="read_csv_Label">
-          <i class="far fa-file-excel"></i> Read credit CSV
-        </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <script>
-        $(function(){
-          $('.dropify').dropify();
-        })
-      </script>
-      <form class="form-horizontal" method="post" action="" enctype="multipart/form-data">
-        <div class="modal-body">
-          <input type="file" class="dropify" name="csv">
-          {% csrf_token %}
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" name="post_type" value="read_csv">Submit</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+{% include 'kakeibo/modal/modal_read_csv.html' %}
 
 
 <!--============================================================ -->

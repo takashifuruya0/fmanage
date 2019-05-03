@@ -1,0 +1,29 @@
+<div class="modal fade" id="read_csv" tabindex="-1" role="dialog" aria-labelledby="read_csv" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="read_csv_Label">
+          <i class="far fa-file-excel"></i> Read credit CSV
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <script>
+        $(function(){
+          $('.dropify').dropify();
+        })
+      </script>
+      <form class="form-horizontal" method="post" action="" enctype="multipart/form-data">
+        <div class="modal-body">
+          <input type="file" class="dropify" name="csv">
+          {% csrf_token %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" name="post_type" value="read_csv">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
