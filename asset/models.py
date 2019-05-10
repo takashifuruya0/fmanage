@@ -87,3 +87,34 @@ class StockDataByDate(models.Model):
 
     def __str__(self):
         return str(self.date) + " " + self.stock.name
+
+
+class ReasonLose(models.Model):
+    objects = None
+    name = models.CharField(max_length=30)
+
+
+class EntryExit(models.Model):
+    objects = None
+    # Stock
+    stock = models.ForeignKey(Stocks)
+    # Entry
+    date_entry = models.DateField()
+    chart_entry = models.ImageField(upload_to='images/')
+    price_entry = models.FloatField()
+    num_entry = models.IntegerField()
+    # 利益確定・損切り価格
+    price_set_profit = models.FloatField()
+    price_loss_cut = models.FloatField()
+    # Exit
+    date_exit = models.DateField(null=True, blank=True)
+    chart_exit = models.ImageField(blank=True, upload_to='images/')
+    price_exit = models.FloatField(null=True, blank=True)
+    num_exit = models.IntegerField(null=True, blank=True)
+    # 手数料
+    commission = models.IntegerField(default=0)
+    # 敗因
+    reason_lose = models.ForeignKey(ReasonLose, null=True, blank=True)
+    # Memo
+    memo = models.TextField(null=True, blank=True)
+

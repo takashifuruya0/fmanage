@@ -15,7 +15,7 @@ from asset.models import AssetStatus
 
 class BaseModel(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    date = models.DateField(default=now())
+    date = models.DateField()
 
     def __str__(self):
         return self.name
