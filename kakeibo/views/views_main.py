@@ -60,6 +60,23 @@ def dashboard(request):
                 set_rollback(True)
             finally:
                 return redirect('kakeibo:dashboard')
+        # new_record
+        elif request.POST['post_type'] == "new_record_shared":
+            try:
+                form = SharedKakeiboForm(request.POST)
+                form.is_valid()
+                form.save()
+                # msg
+                smsg = "New record was registered"
+                messages.success(request, smsg)
+                logger.info(smsg)
+            except Exception as e:
+                emsg = e
+                logger.error(emsg)
+                messages.error(request, emsg)
+                set_rollback(True)
+            finally:
+                return redirect('kakeibo:dashboard')
         # read_csv
         elif request.POST['post_type'] == "read_csv":
             try:
@@ -95,6 +112,8 @@ def dashboard(request):
 
     # Form
     kakeibo_form = KakeiboForm(initial={'date': today})
+    # shared_form
+    shared_form = SharedKakeiboForm(initial={'date': date.today()})
 
     # kakeibo
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
@@ -172,6 +191,7 @@ def dashboard(request):
         "status": {"kakeibo": status_kakeibo, "shared": status_shared},
         # kakeibo_form
         "kakeibo_form": kakeibo_form,
+        "shared_form": shared_form,
         "username": request.user.username,
     }
     logger.info("output: " + str(output))
@@ -352,7 +372,7 @@ def shared(request):
     # POSTの場合
     if request.method == "POST":
         # new_record
-        if request.POST['post_type'] == "new_record":
+        if request.POST['post_type'] == "new_record_shared":
             try:
                 form = SharedKakeiboForm(request.POST)
                 form.is_valid()
