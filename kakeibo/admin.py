@@ -59,8 +59,31 @@ class StockDataByDateAdmin(admin.ModelAdmin):
 class CronKakeiboAdmin(admin.ModelAdmin):
     list_display = ['id', 'fee', 'way', 'usage', 'move_from', 'move_to']
 
+
 class CronSharedAdmin(admin.ModelAdmin):
     list_display = ['id', 'fee', 'way', 'usage', 'move_from', 'paid_by']
+
+
+class EntryExitAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'stock',
+        'date_entry',
+        'chart_entry',
+        'num_entry',
+        'price_entry',
+        'price_set_profit',
+        'price_loss_cut',
+        
+        'date_exit',
+        'num_exit',
+        'chart_exit',
+        'price_exit',
+    
+        'reason_lose',
+        'memo',
+        'commission',
+    ]
 
 admin.site.register(Kakeibos, KakeibosAdmin)
 admin.site.register(Resources, ResourcesAdmin)
@@ -77,3 +100,4 @@ admin.site.register(Orders, OrdersAdmin)
 admin.site.register(StockDataByDate, StockDataByDateAdmin)
 admin.site.register(CronKakeibo, CronKakeiboAdmin)
 admin.site.register(CronShared, CronSharedAdmin)
+admin.site.register(EntryExit, EntryExitAdmin)
