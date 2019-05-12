@@ -5,7 +5,8 @@ import time
 from django.conf import settings
 import logging
 logger = logging.getLogger("django")
-
+from fmanage.celery import app
+from asset.functions import get_info
 
 
 # login
@@ -20,6 +21,7 @@ def login(driver, USER_ID, LOGIN_PASSWORD):
     return True
 
 
+@app.task()
 def buy(driver, stock_code, num, PASSWORD):
     url_buy = "https://site2.sbisec.co.jp/ETGate/?_ControlID=WPLETstT002Control&_DataStoreID=DSWPLETstT002Control&stock_sec_code={}".format(stock_code)
     driver.get(url_buy)
@@ -134,15 +136,21 @@ def set_alert(code):
             # mac
             driver = webdriver.Chrome('/usr/local/bin/chromedriver')
         login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
+        # 現在価格の±１％以上の変動で通知
+        val = get_info.stock_overview(code)['price']
+        alert(driver, code, int(val*1.01), 0)
+        alert(driver, code, int(val*0.99), 1)
         # set_alert: 前日比±１％以上の変動で通知
         alert(driver, code, 1, 2)
         alert(driver, code, 1, 3)
+        res = True
     except Exception as e:
         logger.error(e)
+        res = False
     finally:
         driver.quit()
-        logger.info("closed driver")
-        return True
+        logger.debug("closed driver")
+        return res
 
 
 def set_buy(code, num):
@@ -160,12 +168,14 @@ def set_buy(code, num):
         login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
         # set_buy：成行
         buy(driver, code, num, settings.SECRET['SBI_PASSWORD_ORDER'])
+        res = True
     except Exception as e:
         logger.error(e)
+        res = False
     finally:
         driver.quit()
-        logger.info("closed driver")
-        return True
+        logger.debug("closed driver")
+        return res
 
 
 def set_sell(code, num):
@@ -183,9 +193,11 @@ def set_sell(code, num):
         login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
         # set_sell：成行
         sell(driver, code, num, settings.SECRET['SBI_PASSWORD_ORDER'])
+        res = True
     except Exception as e:
         logger.error(e)
+        res = False
     finally:
         driver.quit()
-        logger.info("closed driver")
-        return True
+        logger.debug("closed driver")
+        return res
