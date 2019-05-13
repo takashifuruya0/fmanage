@@ -292,3 +292,10 @@ def analysis_detail(request, code):
             "order_points": order_points,
         }
         return TemplateResponse(request, 'asset/analysis_detail.html', output)
+
+
+def test(request):
+    output = {
+        "msg": "TEST",
+    }
+    return TemplateResponse(request, 'asset/test.html', output)
