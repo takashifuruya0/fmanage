@@ -64,3 +64,48 @@ def kabuoji3(code):
         "data": data,
     }
     return res
+
+
+def stock_finance_info(code):
+    base_url = "https://stocks.finance.yahoo.co.jp/stocks/detail/"
+    query = {}
+    query["code"] = str(code)
+    ret = requests.get(base_url, params=query)
+    try:
+        soup = BeautifulSoup(ret.content, "lxml")
+        chartfinance = soup.findAll('div', {'class': 'chartFinance'})[1]
+        # 値の取得
+        vals = [dd.text.replace(",", "").replace("\n", "") for dd in chartfinance.findAll('strong')]
+        # タイトルの取得
+        dts = chartfinance.findAll('dt')
+        keys = list()
+        for dt in dts:
+            # 補足が付いているので、前処理でタイトルのみ抽出
+            splited = dt.text.split("\n")
+            if splited[0] == "":
+                keys.append(splited[1])
+            else:
+                keys.append(splited[0])
+        data = {k: v for k, v in zip(keys, vals)}
+    except Exception as e:
+        logger.error(e)
+        data = dict()
+    finally:
+        return data
+
+
+def stock_settlement_info(code):
+    url = "https://profile.yahoo.co.jp/consolidate/{}".format(code)
+    ret = requests.get(url)
+    data = dict()
+    try:
+        soup = BeautifulSoup(ret.content, "lxml")
+        table = soup.find('table', {'class': 'yjMt'})
+        trs = table.findAll('tr')
+        for tr in trs:
+            tds = tr.findAll('td')
+            data[tds[0].text] = tds[1].text
+    except Exception as e:
+        logger.error(e)
+    finally:
+        return data

@@ -18,45 +18,41 @@
 
     <!-- Overview -->
     <div class="row">
-      <div class="col-sm-4">
+      <div class="col-12">
         <h5>計画</h5>
-        <table class="table">
+        <table class="table table-responsive">
           <tr>
             <th>記入日</th>
-            <td>2019-05-10</td>
-          </tr>
-          <tr>
             <th>購入予定日</th>
-            <td>2019-05-14</td>
-          </tr>
-          <tr>
             <th>購入金額</th>
-            <td>400</td>
-          </tr>
-          <tr>
             <th>口数</th>
-            <td>700</td>
-          </tr>
-          <tr>
             <th>総額</th>
-            <td>280,000</td>
-          </tr>
-          <tr>
             <th>利益確定</th>
-            <td>440 (+10.0%)</td>
-          </tr>
-          <tr>
             <th>損切り</th>
-            <td>360 (-10.0%)</td>
+            <th>Memo</th>
           </tr>
           <tr>
-            <th>Memo</th>
-            <td>2019/04/18 成行買付。始値から下がり続ける。。。<br>エントリータイミングミスったなぁ。</td>
+            <td>2019-05-10</td>
+            <td>2019-05-14</td>
+            <td>400</td>
+            <td>700</td>
+            <td>280,000</td>
+            <td>440 (+10.0%)</td>
+            <td>360 (-10.0%)</td>
+            <td>2019/04/18 成行買付。始値から下がり続ける。。。エントリータイミングミスったなぁ。</td>
           </tr>
         </table>
       </div>
+    </div>
+    <div class="row">
       <div class="col-sm-4">
-        <h5>チャート</h5>
+        <h5>買いチャート</h5>
+        <p class="resizeimage">
+          <img src="https://chart.yahoo.co.jp/?code=9119.T&tm=6m&type=c&log=off&size=m&over=m25,m75&add=m,r,vm&comp=">
+        </p>
+      </div>
+      <div class="col-sm-4">
+        <h5>売りチャート</h5>
         <p class="resizeimage">
           <img src="https://chart.yahoo.co.jp/?code=9119.T&tm=6m&type=c&log=off&size=m&over=m25,m75&add=m,r,vm&comp=">
         </p>
@@ -89,6 +85,43 @@
             <th>ROE</th>
             <td>6.10% <label class="badge bg-success">test</label></td>
           </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-6">
+        <h5>参考指標</h5>
+        <table class="table">
+          <tr>
+            <th>銘柄</th>
+            <td>({{overview.code}}) {{overview.name}}</td>
+          </tr>
+          <tr>
+            <th>株価</th>
+            <td>{{overview.price}}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+          </tr>
+          {% for k, v in finance.items %}
+          <tr>
+            <th>{{k}}</th>
+            <td>{{v}}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <div class="col-sm-6">
+        <h5>最新決算</h5>
+        <table class="table">
+          {% for k, v in settle.items %}
+          <tr>
+            <th>{{k}}</th>
+            <td>{{v}}</td>
+          </tr>
+          {% endfor %}
         </table>
       </div>
     </div>

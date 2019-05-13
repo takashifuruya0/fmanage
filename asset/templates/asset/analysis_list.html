@@ -87,6 +87,12 @@
                   </span>
                 </td>
               </tr>
+              {% for k, v in stock.data.items %}
+              <tr>
+                <th>{{k}}</th>
+                <td class="right">{{v}}</td>
+              </tr>
+              {% endfor %}
             </table>
             <a href="{% url 'asset:analysis_detail' code=code %}" class="btn btn-primary">
                 <i class="fas fa-info-circle"></i> Go to detail
