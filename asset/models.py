@@ -118,3 +118,33 @@ class EntryExit(models.Model):
     # Memo
     memo = models.TextField(null=True, blank=True)
 
+
+# class EntryType(models.Model):
+#     objects = None
+#     name = models.CharField(max_length=20)
+#
+#
+# class OrderPlan(models.Model):
+#     objects = None
+#     # Stock
+#     stock = models.ForeignKey(Stocks)
+#     # Plan
+#     date = models.DateField()
+#     num = models.IntegerField()
+#     price = models.FloatField()
+#     entry_type = models.ForeignKey(EntryType)
+#     # 利益確定・損切り価格
+#     price_set_profit = models.FloatField()
+#     price_loss_cut = models.FloatField()
+#     # Entry
+#     date_entry = models.DateField()
+#     chart_entry = models.ImageField(upload_to='images/')
+#     price_entry = models.FloatField()
+#     # Exit
+#     date_exit = models.DateField(null=True, blank=True)
+#     chart_exit = models.ImageField(blank=True, upload_to='images/')
+#     price_exit = models.FloatField(null=True, blank=True)
+#     # 敗因
+#     reason_lose = models.ForeignKey(ReasonLose, null=True, blank=True)
+#     # Memo
+#     memo = models.TextField(null=True, blank=True)
