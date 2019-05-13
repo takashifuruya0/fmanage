@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^ajax/$', views.ajax, name='ajax'),
     url(r'^analysis/$', views.analysis_list, name='analysis_list'),
     url(r'^analysis/(?P<code>\d+)/$', views.analysis_detail, name='analysis_detail'),
+    url(r'^test/$', views.test, name="test"),
 ]
 

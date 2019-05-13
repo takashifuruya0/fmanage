@@ -8,135 +8,91 @@
   <div class="container-fluid">
     <hr>
     <div class="row">
-      <div class="col-10">
+      <div class="col-12">
         <h1>
-          <i class="fas fa-chart-line"></i> {{stock.code}} {{stock.name}}
+          <i class="fas fa-chart-line"></i> {{msg}} （9119）飯野海運
         </h1>
-      </div>
-      <div class="col-2">
-        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#stocks">
-          <i class="far fa-plus-square"></i> Stocks
-        </button>
       </div>
     </div>
     <hr>
 
-
     <!-- Overview -->
-    <h2>Overview</h2>
     <div class="row">
-      <div class="col-sm-7">
-        <canvas id="line" width="300" height="200"></canvas>
+      <div class="col-sm-4">
+        <h5>計画</h5>
+        <table class="table">
+          <tr>
+            <th>記入日</th>
+            <td>2019-05-10</td>
+          </tr>
+          <tr>
+            <th>購入予定日</th>
+            <td>2019-05-14</td>
+          </tr>
+          <tr>
+            <th>購入金額</th>
+            <td>400</td>
+          </tr>
+          <tr>
+            <th>口数</th>
+            <td>700</td>
+          </tr>
+          <tr>
+            <th>総額</th>
+            <td>280,000</td>
+          </tr>
+          <tr>
+            <th>利益確定</th>
+            <td>440 (+10.0%)</td>
+          </tr>
+          <tr>
+            <th>損切り</th>
+            <td>360 (-10.0%)</td>
+          </tr>
+          <tr>
+            <th>Memo</th>
+            <td>2019/04/18 成行買付。始値から下がり続ける。。。<br>エントリータイミングミスったなぁ。</td>
+          </tr>
+        </table>
       </div>
-      <div class="col-sm-5">
-        <table class="table table-light table-hover table-sm">
-          <thead>
-            <tr>
-              <th>日付</th>
-              <th class="right">始値</th>
-              <th class="right">高値</th>
-              <th class="right">低値</th>
-              <th class="right">終値</th>
-              <th class="right">出来高</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for sdbd in sdbds.reverse %}
-            <tr>
-              <td>{{sdbd.date}}</td>
-              <td class="right">¥ {{sdbd.val_start| intcomma}}</td>
-              <td class="right">¥ {{sdbd.val_high| intcomma}}</td>
-              <td class="right">¥ {{sdbd.val_low| intcomma}}</td>
-              <td class="right">¥ {{sdbd.val_end| intcomma}}</td>
-              <td class="right">{{sdbd.turnover| intcomma}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
+      <div class="col-sm-4">
+        <h5>チャート</h5>
+        <p class="resizeimage">
+          <img src="https://chart.yahoo.co.jp/?code=9119.T&tm=6m&type=c&log=off&size=m&over=m25,m75&add=m,r,vm&comp=">
+        </p>
+      </div>
+      <div class="col-sm-4">
+        <h5>指標</h5>
+        <table class="table">
+          <tr>
+            <th>EPS</th>
+            <td>35.91倍 <label class="badge bg-warning">test</label> </td>
+          </tr>
+          <tr>
+            <th>PER</th>
+            <td>10.11倍</td>
+          </tr>
+          <tr>
+            <th>PBR</th>
+            <td>0.53倍 <label class="badge bg-danger">test</label></td>
+          </tr>
+          <tr>
+            <th>時価総額</th>
+            <td>40,320百万円</td>
+          </tr>
+          <tr>
+            <!--https://profile.yahoo.co.jp/consolidate/9119-->
+            <th>ROA</th>
+            <td>2.17%</td>
+          </tr>
+          <tr>
+            <th>ROE</th>
+            <td>6.10% <label class="badge bg-success">test</label></td>
+          </tr>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- Modal add_investment-->
-  <div class="modal fade" id="stocks" tabindex="-1" role="dialog" aria-labelledby="stocks" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="stocks_Label">Stocks</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <table class="table table-light table-hover table-sm">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for s in stocks %}
-              <tr>
-                  <td><a href="{%url 'asset:test'%}?code={{s.code}}">{{s.code}}</a></td>
-                  <td>{{s.name}}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- bar_holding_stocks -->
-  <script>
-    var ctx = document.getElementById('line').getContext('2d');
-    var options = {
-      responsive: true,
-      scales: {
-        yAxes: [{
-          id: "y-axis-1",   // Y軸のID
-          type: "linear",   // linear固定
-          position: "left", // どちら側に表示される軸か？
-        },
-        {
-          id: "y-axis-2",
-          type: "linear",
-          position: "right",
-        }],
-      }
-    }
-    var myChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: [{%for s in sdbds%}"{{s.date}}",{%endfor%}],
-        datasets: [
-            {
-                type: "bar",
-                label: '出来高',
-                data: [
-                    {%for s in sdbds%}{{s.turnover}},{%endfor%}
-                ],
-                backgroundColor: "rgba(255,153,0, 0.4)",
-                yAxisID: "y-axis-2",
-            },
-            {
-                type: "line",
-                label: '終値',
-                data: [
-                    {%for s in sdbds%}{{s.val_end}},{%endfor%}
-                ],
-                backgroundColor: "rgba(255,3,150, 0.4)",
-                borderColor: "rgba(255,3,150, 0.4)",
-                fill: false,
-                yAxisID: "y-axis-1",
-            },
-        ],
-      },
-      options: options,
-    });
-  </script>
 
 {% endblock %}
