@@ -111,16 +111,18 @@ def dashboard(request):
                 return redirect('kakeibo:dashboard')
         elif request.POST['post_type'] == "usual_record":
             try:
-                # ur = UsualRecord.objects.get(id=request.POST['usual_id'])
-                # data = {
-                #     "fee": ur.fee,
-                #     "way": ur.way,
-                #     "usage": ur.usage,
-                #     "move_to": ur.move_to,
-                #     "move_from": ur.move_from,
-                #     "memo": ur.memo,
-                # }
-                messages.success(request, request.POST['usual_id'])
+                ur = UsualRecord.objects.get(id=request.POST['usual_id'])
+                data = {
+                    "fee": ur.fee,
+                    "way": ur.way,
+                    "usage": ur.usage,
+                    "move_to": ur.move_to,
+                    "move_from": ur.move_from,
+                    "memo": ur.memo,
+                    "date": today,
+                }
+                Kakeibos.objects.create(**data)
+                messages.success(request, "{} {} was created".format(ur.memo, ur.fee_yen()))
             except Exception as e:
                 logger.error(e)
                 messages.error(request, "{}".format(e))
@@ -132,7 +134,7 @@ def dashboard(request):
     # shared_form
     shared_form = SharedKakeiboForm(initial={'date': date.today()})
     # Usual Record
-    # usual_records = UsualRecord.objects.all()
+    usual_records = UsualRecord.objects.all()
 
     # kakeibo
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
@@ -212,6 +214,7 @@ def dashboard(request):
         "kakeibo_form": kakeibo_form,
         "shared_form": shared_form,
         "username": request.user.username,
+        "usual_records": usual_records,
     }
     logger.info("output: " + str(output))
     return TemplateResponse(request, 'kakeibo/dashboard.html', output)

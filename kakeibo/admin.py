@@ -74,16 +74,19 @@ class EntryExitAdmin(admin.ModelAdmin):
         'price_entry',
         'price_set_profit',
         'price_loss_cut',
-        
         'date_exit',
         'num_exit',
         'chart_exit',
         'price_exit',
-    
         'reason_lose',
         'memo',
         'commission',
     ]
+
+
+class UsualRecordAdmin(admin.ModelAdmin):
+    list_display = ['id', 'fee', 'way', 'memo', 'usage', 'move_from', 'move_to']
+
 
 admin.site.register(Kakeibos, KakeibosAdmin)
 admin.site.register(Resources, ResourcesAdmin)
@@ -101,3 +104,4 @@ admin.site.register(StockDataByDate, StockDataByDateAdmin)
 admin.site.register(CronKakeibo, CronKakeiboAdmin)
 admin.site.register(CronShared, CronSharedAdmin)
 admin.site.register(EntryExit, EntryExitAdmin)
+admin.site.register(UsualRecord, UsualRecordAdmin)

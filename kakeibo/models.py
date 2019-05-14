@@ -321,19 +321,27 @@ class CronShared(models.Model):
     paid_by = models.CharField(max_length=20)
 
 
-# class UsualRecord(models.Model):
-#     objects = None
-#     # 金額
-#     fee = models.IntegerField()
-#     # 種類
-#     way = models.CharField(max_length=20)
-#     # メモ
-#     memo = models.CharField(max_length=100, null=True, blank=True)
-#     # 使い道/収入源
-#     usage = models.ForeignKey(Usages, null=True, blank=True)
-#     # 現金移動元
-#     move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from")
-#     # 現金移動先
-#     move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to")
-#     # fontawesome_icon
-#     icon = models.CharField(max_length=50, null=True, blank=True)
+class UsualRecord(models.Model):
+    objects = None
+    # 金額
+    fee = models.IntegerField()
+    # 種類
+    way = models.CharField(max_length=20)
+    # メモ
+    memo = models.CharField(max_length=100, null=True, blank=True)
+    # 使い道/収入源
+    usage = models.ForeignKey(Usages, null=True, blank=True)
+    # 現金移動元
+    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="ur_move_from")
+    # 現金移動先
+    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="ur_move_to")
+    # fontawesome_icon
+    icon = models.CharField(max_length=50, null=True, blank=True)
+
+    def fee_yen(self):
+        if self.fee >= 0:
+            new_val = '¥{:,}'.format(self.fee)
+        else:
+            new_val = '-¥{:,}'.format(-self.fee)
+        return new_val
+
