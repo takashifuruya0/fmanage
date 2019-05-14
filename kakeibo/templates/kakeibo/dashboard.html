@@ -9,9 +9,9 @@
 <div class="container-fluid">
   <hr>
   <div class="row">
-    <div class="col-md-6 col-sm-12 col-12">
+    <div class="col-md-4 col-sm-12 col-12">
       <h1>
-        <i class="fas fa-chart-area"></i> {{today.year}}年{{today.month}}月 {{username}}
+        <i class="fas fa-chart-area"></i> {{today.year}}年{{today.month}}月
       </h1>
     </div>
     <div class="col-md-2 col-sm-4 col-6">
@@ -27,6 +27,11 @@
     <div class="col-md-2 col-sm-4 col-6">
       <button type="button" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#read_csv">
         <i class="far fa-file-excel"></i> Credit CSV
+      </button>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6">
+      <button type="button" class="btn btn-outline-success btn-block" data-toggle="modal" data-target="#usual_record">
+        <i class="fas fa-clone"></i> Usual_record
       </button>
     </div>
   </div>
@@ -307,7 +312,8 @@
 {% include 'kakeibo/modal/modal_new_record_shared.html' %}
 <!-- Modal read_csv -->
 {% include 'kakeibo/modal/modal_read_csv.html' %}
-
+<!-- Modal usual-record -->
+{% include 'kakeibo/modal/modal_usual_record.html' %}
 
 <!--============================================================ -->
                           <!--SCRIPT-->

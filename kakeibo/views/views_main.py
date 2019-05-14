@@ -109,6 +109,9 @@ def dashboard(request):
                 messages.error(request, emsg)
             finally:
                 return redirect('kakeibo:dashboard')
+        elif request.POST['post_type'] == "usual_record":
+            messages.success(request, request.POST['usual_id'])
+            return redirect('kakeibo:dashboard')
 
     # Form
     kakeibo_form = KakeiboForm(initial={'date': today})
