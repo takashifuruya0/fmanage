@@ -110,13 +110,29 @@ def dashboard(request):
             finally:
                 return redirect('kakeibo:dashboard')
         elif request.POST['post_type'] == "usual_record":
-            messages.success(request, request.POST['usual_id'])
-            return redirect('kakeibo:dashboard')
+            try:
+                # ur = UsualRecord.objects.get(id=request.POST['usual_id'])
+                # data = {
+                #     "fee": ur.fee,
+                #     "way": ur.way,
+                #     "usage": ur.usage,
+                #     "move_to": ur.move_to,
+                #     "move_from": ur.move_from,
+                #     "memo": ur.memo,
+                # }
+                messages.success(request, request.POST['usual_id'])
+            except Exception as e:
+                logger.error(e)
+                messages.error(request, "{}".format(e))
+            finally:
+                return redirect('kakeibo:dashboard')
 
     # Form
     kakeibo_form = KakeiboForm(initial={'date': today})
     # shared_form
     shared_form = SharedKakeiboForm(initial={'date': date.today()})
+    # Usual Record
+    # usual_records = UsualRecord.objects.all()
 
     # kakeibo
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
