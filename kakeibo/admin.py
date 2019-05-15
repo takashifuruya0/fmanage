@@ -49,7 +49,7 @@ class AssetStatusAdmin(admin.ModelAdmin):
 
 
 class OrdersAdmin(admin.ModelAdmin):
-    list_display = ["datetime", "order_type", "stock", "num", "price", "commission", "is_nisa"]
+    list_display = ["datetime", "order_type", "stock", "num", "price", "commission", "is_nisa", "chart"]
 
 
 class StockDataByDateAdmin(admin.ModelAdmin):

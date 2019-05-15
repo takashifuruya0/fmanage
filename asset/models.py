@@ -22,6 +22,7 @@ class Orders(models.Model):
     price = models.FloatField(null=False, blank=False)
     commission = models.IntegerField(default=0)
     is_nisa = models.BooleanField()
+    chart = models.ImageField(upload_to='images/', null=True, blank=True)
 
     def __str__(self):
         return "S/"+str(self.datetime)+":"+self.stock.name

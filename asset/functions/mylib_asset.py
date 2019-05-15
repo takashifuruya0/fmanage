@@ -3,6 +3,8 @@ from asset.models import Stocks, HoldingStocks, AssetStatus, Orders, StockDataBy
 from asset.functions import get_info
 from datetime import date, datetime
 import requests
+from io import BytesIO
+from django.core import files
 import logging
 logger = logging.getLogger("django")
 
@@ -137,6 +139,18 @@ def register_stocks(code):
 def order_process(order):
     smsg = emsg = ""
     try:
+        # chart
+        url_chart = "https://chart.yahoo.co.jp/?code={}.T&tm=6m&type=c&log=off&size=m&over=m25,m75&add=m,r,vm&comp=".format(
+            order.stock.code)
+        r = requests.get(url_chart)
+        if r.status_code == 200:
+            # file
+            filename = "{}_{}.png".format(date.today(), order.stock.code)
+            fp = BytesIO()
+            fp.write(r.content)
+            order.chart.save(filename, files.File(fp))
+            logger.info("A current chart is added to {}".format(order))
+
         # Status
         astatus_today = AssetStatus.objects.filter(date=date.today())
         if astatus_today:
