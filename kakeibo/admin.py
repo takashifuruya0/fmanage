@@ -20,40 +20,12 @@ class SharedKakeibosAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'fee', 'memo', 'usage', 'paid_by', 'is_settled']
 
 
-class CardsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'date', 'color']
-
-
 class CreditsAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'debit_date', 'fee', 'credit_item', 'card']
 
 
 class CreditItemsAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'date', 'usage', 'color']
-
-
-class ColorsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
-
-
-class StocksAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'code']
-
-
-class HoldingStocksAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', "get_holding_time", 'stock', 'num', 'price', 'get_current_price']
-
-
-class AssetStatusAdmin(admin.ModelAdmin):
-    list_display = ["date", "total", "buying_power", "stocks_value", "other_value", "investment", "get_total"]
-
-
-class OrdersAdmin(admin.ModelAdmin):
-    list_display = ["datetime", "order_type", "stock", "num", "price", "commission", "is_nisa", "chart"]
-
-
-class StockDataByDateAdmin(admin.ModelAdmin):
-    list_display = ["stock", "date", "val_start", "val_high", "val_low", "val_end", "turnover"]
 
 
 class CronKakeiboAdmin(admin.ModelAdmin):
@@ -64,26 +36,6 @@ class CronSharedAdmin(admin.ModelAdmin):
     list_display = ['id', 'fee', 'way', 'usage', 'move_from', 'paid_by']
 
 
-class EntryExitAdmin(admin.ModelAdmin):
-    list_display = [
-        'id',
-        'stock',
-        'date_entry',
-        'chart_entry',
-        'num_entry',
-        'price_entry',
-        'price_set_profit',
-        'price_loss_cut',
-        'date_exit',
-        'num_exit',
-        'chart_exit',
-        'price_exit',
-        'reason_lose',
-        'memo',
-        'commission',
-    ]
-
-
 class UsualRecordAdmin(admin.ModelAdmin):
     list_display = ['id', 'fee', 'way', 'memo', 'usage', 'move_from', 'move_to']
 
@@ -92,16 +44,15 @@ admin.site.register(Kakeibos, KakeibosAdmin)
 admin.site.register(Resources, ResourcesAdmin)
 admin.site.register(Usages, UsagesAdmin)
 admin.site.register(SharedKakeibos, SharedKakeibosAdmin)
-admin.site.register(Cards, CardsAdmin)
+# admin.site.register(Cards, CardsAdmin)
 admin.site.register(CreditItems, CreditItemsAdmin)
 admin.site.register(Credits, CreditsAdmin)
-admin.site.register(Colors, ColorsAdmin)
-admin.site.register(Stocks, StocksAdmin)
-admin.site.register(HoldingStocks, HoldingStocksAdmin)
-admin.site.register(AssetStatus, AssetStatusAdmin)
-admin.site.register(Orders, OrdersAdmin)
-admin.site.register(StockDataByDate, StockDataByDateAdmin)
+# admin.site.register(Colors, ColorsAdmin)
+# admin.site.register(Stocks, StocksAdmin)
+# admin.site.register(HoldingStocks, HoldingStocksAdmin)
+# admin.site.register(AssetStatus, AssetStatusAdmin)
+# admin.site.register(Orders, OrdersAdmin)
+# admin.site.register(StockDataByDate, StockDataByDateAdmin)
 admin.site.register(CronKakeibo, CronKakeiboAdmin)
 admin.site.register(CronShared, CronSharedAdmin)
-admin.site.register(EntryExit, EntryExitAdmin)
 admin.site.register(UsualRecord, UsualRecordAdmin)
