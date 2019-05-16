@@ -41,6 +41,4 @@ urlpatterns = [
     url(r'^document/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 
     url(r'^drm/', include(router.urls, namespace='drm')),
-    url(r'^drm/', include(kakeibo_router.urls, namespace='drm')),
-    url(r'^drm/', include(asset_router.urls, namespace='drm')),
 ]
