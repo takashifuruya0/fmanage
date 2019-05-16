@@ -27,7 +27,7 @@ class HoldingStocksSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HoldingStocks
-        fields = ('date', 'stock', 'num', 'price', 'get_current_price')
+        fields = ('date', 'stock', 'num', 'price', )
 
 
 class AssetStatusSerializer(serializers.ModelSerializer):

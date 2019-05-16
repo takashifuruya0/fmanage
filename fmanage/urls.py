@@ -20,7 +20,15 @@ from django.conf import settings
 from django.views.static import serve
 from django.views.generic import RedirectView
 # django-rest-framework
+from rest_framework import routers
 from asset.urls import router as asset_router
+from kakeibo.urls import router as kakeibo_router
+
+
+router = routers.DefaultRouter()
+router.registry.extend(asset_router.registry)
+router.registry.extend(kakeibo_router.registry)
+
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='kakeibo/')),
@@ -31,5 +39,8 @@ urlpatterns = [
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^trello/', include('trello.urls', namespace='trello')),
     url(r'^document/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+
+    url(r'^drm/', include(router.urls, namespace='drm')),
+    url(r'^drm/', include(kakeibo_router.urls, namespace='drm')),
     url(r'^drm/', include(asset_router.urls, namespace='drm')),
 ]

@@ -1,10 +1,12 @@
 # coding:utf-8
-from django.conf.urls import url                                                
-from django.contrib.auth import views as auth_views                             
+from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from kakeibo.views import views_figure, views_list, views_detail, views_create
 from kakeibo.views import views_main as views
 from kakeibo.views import views_redirect as views_redirect
+# django-rest-framework
+from rest_framework import routers
+from kakeibo.views.views_drm import UsagesViewSet, ResourcesViewSet, KakeibosViewSet, SharedKakeibosViewSet
 
 app_name = 'kakeibo'
 urlpatterns = [
@@ -70,6 +72,10 @@ urlpatterns = [
     url(r'^fig/lines_usage_cash$', views_figure.lines_usage_cash, name='lines_usage_cash'),
     # test
     url(r'^fig/test$', views_figure.test_figure, name='testfig'),
-
 ]
 
+router = routers.DefaultRouter()
+router.register(r'usages', UsagesViewSet)
+router.register(r'resources', ResourcesViewSet)
+router.register(r'kakeibos', KakeibosViewSet)
+router.register(r'shared', SharedKakeibosViewSet)
