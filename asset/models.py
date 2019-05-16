@@ -27,6 +27,24 @@ class Orders(models.Model):
     def __str__(self):
         return "S/"+str(self.datetime)+":"+self.stock.name
 
+    def get_chart(self):
+        import requests
+        from io import BytesIO
+        from django.core import files
+        try:
+            url_chart = "https://chart.yahoo.co.jp/?code={}.T&tm=6m&type=c&log=off&size=m&over=m25,m75&add=m,r,vm&comp=".format(
+                self.stock.code)
+            r = requests.get(url_chart)
+            if r.status_code == 200:
+                # file
+                filename = "{}_{}.png".format(date.today(), self.stock.code)
+                fp = BytesIO()
+                fp.write(r.content)
+                self.chart.save(filename, files.File(fp))
+            return True
+        except Exception as e:
+            return False
+
 
 class HoldingStocks(models.Model):
     objects = None
