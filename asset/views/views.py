@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse, Http404, redirect
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.contrib import messages
 import logging
@@ -9,18 +9,12 @@ from kakeibo.functions.mylib import time_measure
 from asset.models import Stocks, HoldingStocks, AssetStatus, Orders, StockDataByDate
 from asset.functions import get_info, mylib_asset, analysis_asset
 from asset.forms import AddInvestmentForm, OrdersForm, StocksForm
-# Template-view
-from django.views.generic.edit import CreateView
 # login
 from django.contrib.auth.decorators import login_required
 # pandas
 from django_pandas.io import read_frame
 # rollback
 from django.db.transaction import set_rollback, atomic
-# django-rest-framework
-from django_filters import rest_framework as dfilters
-from rest_framework import viewsets
-from .serializer import OrdersSerializer, StocksSerializer
 
 
 # 概要
@@ -202,31 +196,6 @@ def asset_dashboard(request):
     return TemplateResponse(request, 'asset/adashboard.html', output)
 
 
-class StocksCreateView(CreateView):
-    model = Stocks
-    fields = ("code", "name")  # リストもしくはタプル
-
-
-class HoldingStocksCreateView(CreateView):
-    model = HoldingStocks
-    fields = ("stock", "date", "price", "num")  # リストもしくはタプル
-
-
-class OrdersCreateView(CreateView):
-    model = Orders
-    fields = ("datetime", "order_type", "stock", "num", "price", "commission", "is_nisa")
-
-
-def ajax(request):
-    if request.method == 'POST':
-        # response = json.dumps({'your_surprise_txt': "surprise_txt" })  # JSON形式に直して・・
-        # return HttpResponse(response, content_type="text/javascript")  # 返す。JSONはjavascript扱いなのか・・
-        name = get_info.stock_overview(request.POST['code'])['name']
-        return HttpResponse(name)
-    else:
-        raise Http404  # GETリクエストを404扱いにしているが、実際は別にしなくてもいいかも
-
-
 @login_required
 @time_measure
 def analysis_list(request):
@@ -314,28 +283,6 @@ def analysis_detail(request, code):
             "order_points": order_points,
         }
         return TemplateResponse(request, 'asset/analysis_detail.html', output)
-
-
-# django-rest-framework
-class OrdersFilter(dfilters.FilterSet):
-    choices = (("現物売", "現物売",), ("現物買", "現物買"))
-    order_type = dfilters.ChoiceFilter(choices=choices)
-    stock = dfilters.ModelChoiceFilter(queryset=Stocks.objects.all())
-
-    class Meta:
-        fields = ("stock", "order_type")
-        model = Orders
-
-
-class OrdersViewSet(viewsets.ModelViewSet):
-    queryset = Orders.objects.all()
-    serializer_class = OrdersSerializer
-    filter_class = OrdersFilter
-
-
-class StocksViewSet(viewsets.ModelViewSet):
-    queryset = Stocks.objects.all()
-    serializer_class = StocksSerializer
 
 
 def test(request):
