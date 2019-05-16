@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'pure_pagination',
     'django_nose',
+    'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -243,4 +245,11 @@ client = datastore.Client()
 query = client.query(kind='SECRET')
 SECRET = {
     d['key']: d['value'] for d in (query.fetch())
+}
+
+# django-rest-framework
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
 }

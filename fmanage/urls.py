@@ -18,8 +18,9 @@ from django.contrib import admin
 # media
 from django.conf import settings
 from django.views.static import serve
-
 from django.views.generic import RedirectView
+# django-rest-framework
+from asset.urls import router as asset_router
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='kakeibo/')),
@@ -30,4 +31,5 @@ urlpatterns = [
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^trello/', include('trello.urls', namespace='trello')),
     url(r'^document/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    url(r'^drm/', include(asset_router.urls)),
 ]

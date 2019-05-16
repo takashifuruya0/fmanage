@@ -1,8 +1,10 @@
 # coding:utf-8                                                                  
                                                                                 
-from django.conf.urls import url                                                
-from django.contrib.auth import views as auth_views                             
+from django.conf.urls import url
 from . import views
+# django-rest-framework
+from rest_framework import routers
+from .views import OrdersViewSet, StocksViewSet
 
 
 app_name = 'asset'
@@ -18,3 +20,6 @@ urlpatterns = [
     url(r'^test/$', views.test, name="test"),
 ]
 
+router = routers.DefaultRouter()
+router.register(r'orders', OrdersViewSet)
+router.register(r'stocks', StocksViewSet)
