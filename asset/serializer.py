@@ -2,13 +2,13 @@
 
 from rest_framework import serializers
 
-from .models import Stocks, Orders, AssetStatus, HoldingStocks
+from .models import Stocks, Orders, AssetStatus, HoldingStocks, StockDataByDate
 
 
 class StocksSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stocks
-        fields = ("code", "name",)
+        fields = ('pk', "code", "name",)
 
 
 class OrdersSerializer(serializers.ModelSerializer):
@@ -17,7 +17,7 @@ class OrdersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orders
         fields = (
-            'datetime', 'order_type', 'stock', 'num', 'price',
+            'pk', 'datetime', 'order_type', 'stock', 'num', 'price',
             'commission', 'is_nisa', 'chart',
         )
 
@@ -27,13 +27,21 @@ class HoldingStocksSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HoldingStocks
-        fields = ('date', 'stock', 'num', 'price', )
+        fields = ('pk', 'date', 'stock', 'num', 'price', )
 
 
 class AssetStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssetStatus
         fields = (
-            'date', 'total', 'buying_power', 'investment',
+            'pk', 'date', 'total', 'buying_power', 'investment',
             'stocks_value', 'other_value',
         )
+
+
+class StockDataByDateSerializer(serializers.ModelSerializer):
+    stock = StocksSerializer()
+
+    class Meta:
+        model = StockDataByDate
+        fields = ('pk', 'stock', 'date', 'val_start', 'val_end', 'val_high', 'val_low', 'turnover')

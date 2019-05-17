@@ -4,7 +4,8 @@ from django.conf.urls import url
 from asset.views import views, views_ajax
 # django-rest-framework
 from rest_framework import routers
-from asset.views.views_drm import OrdersViewSet, StocksViewSet, HoldingStocksViewSet, AssetStatusViewSet
+from asset.views.views_drm import OrdersViewSet, StocksViewSet, HoldingStocksViewSet
+from asset.views.views_drm import AssetStatusViewSet, StockDataByDateViewSet
 
 
 app_name = 'asset'
@@ -18,8 +19,9 @@ urlpatterns = [
 ]
 
 router = routers.DefaultRouter()
-router.register(r'orders', OrdersViewSet)
-router.register(r'stocks', StocksViewSet)
-router.register(r'assetstatus', AssetStatusViewSet)
-router.register(r'holdingstocks', HoldingStocksViewSet)
+router.register(r'asset/order', OrdersViewSet)
+router.register(r'asset/stock', StocksViewSet)
+router.register(r'asset/status', AssetStatusViewSet)
+router.register(r'asset/holding', HoldingStocksViewSet)
+router.register(r'asset/sdbd', StockDataByDateViewSet)
 
