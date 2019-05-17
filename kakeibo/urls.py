@@ -6,7 +6,10 @@ from kakeibo.views import views_main as views
 from kakeibo.views import views_redirect as views_redirect
 # django-rest-framework
 from rest_framework import routers
-from kakeibo.views.views_drm import UsagesViewSet, ResourcesViewSet, KakeibosViewSet, SharedKakeibosViewSet
+from kakeibo.views.views_drm import UsagesViewSet, ResourcesViewSet, KakeibosViewSet
+from kakeibo.views.views_drm import SharedKakeibosViewSet, CreditItemsViewSet, CreditsViewSet
+from kakeibo.views.views_drm import CronKakeiboViewSet, CronSharedViewSet, UsualRecordViewSet
+
 
 app_name = 'kakeibo'
 urlpatterns = [
@@ -75,7 +78,13 @@ urlpatterns = [
 ]
 
 router = routers.DefaultRouter()
-router.register(r'usages', UsagesViewSet)
-router.register(r'resources', ResourcesViewSet)
-router.register(r'kakeibos', KakeibosViewSet)
-router.register(r'shared', SharedKakeibosViewSet)
+router.register(r'kakeibo/usage', UsagesViewSet)
+router.register(r'kakeibo/resource', ResourcesViewSet)
+router.register(r'kakeibo/kakeibo', KakeibosViewSet)
+router.register(r'kakeibo/shared', SharedKakeibosViewSet)
+router.register(r'kakeibo/credit', CreditsViewSet)
+router.register(r'kakeibo/credititem', CreditItemsViewSet)
+router.register(r'kakeibo/cron/kakeibo', CronKakeiboViewSet)
+router.register(r'kakeibo/cron/shared', CronSharedViewSet)
+router.register(r'kakeibo/usualrecord', UsualRecordViewSet)
+
