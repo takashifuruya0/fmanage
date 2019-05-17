@@ -303,6 +303,8 @@ class CronKakeibo(models.Model):
     move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from_cron")
     # 現金移動先
     move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to_cron")
+    # メモ
+    memo = models.CharField(max_length=100, null=True, blank=True)
 
 
 class CronShared(models.Model):
