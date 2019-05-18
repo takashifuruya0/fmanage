@@ -8,6 +8,8 @@ class Stocks(models.Model):
     objects = None
     code = models.CharField(max_length=8, unique=True)
     name = models.CharField(max_length=100)
+    market = models.CharField(max_length=30, default=None, null=True)
+    industry = models.CharField(max_length=30, default=None, null=True)
 
     def __str__(self):
         return str(self.code) + ": " + self.name
@@ -28,6 +30,8 @@ class Orders(models.Model):
         return "S/"+str(self.datetime)+":"+self.stock.name
 
     def get_chart(self):
+        if self.chart:
+            return True
         import requests
         from io import BytesIO
         from django.core import files

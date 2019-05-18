@@ -7,31 +7,33 @@ logger = logging.getLogger("django")
 
 def stock_overview(code):
     base_url = "https://stocks.finance.yahoo.co.jp/stocks/detail/"
+    res = {
+        key: None
+        for key in ("code", "name", "price", "status", "market", "industry", "memo",)
+    }
+    res['code'] = code
     query = {}
     query["code"] = str(code)
     ret = requests.get(base_url, params=query)
     try:
         soup = BeautifulSoup(ret.content, "lxml")
         stocktable = soup.find('table', {'class': 'stocksTable'})
-        symbol = stocktable.findAll('th', {'class': 'symbol'})[0].text
-        stockprice = float(stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", ""))
+        res['name'] = stocktable.findAll('th', {'class': 'symbol'})[0].text
         # 投資信託は10000口単位
-        if len(str(code)) > 4:
-            stockprice = float(stockprice)/10000
-        memo = "Success"
-        status = True
+        price = float(stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", ""))
+        res['price'] = float(price)/10000 if len(str(code)) > 4 else price
+        # 業界 or 投資信託
+        res['industry'] = soup.find('dd', {'class': 'category'}).text
+        # 市場：株のみ
+        if len(code) == 4:
+            res['market'] = soup.findAll('span', {'class': 'stockMainTabName'})[0].text
+        # memo
+        res['memo'] = "Success"
+        res['status'] = True
     except Exception as e:
-        symbol = "-"
-        stockprice = e
-        status = False
-        memo = ret.text
-    res = {
-        "code": code,
-        "name": symbol,
-        "price": stockprice,
-        "status": status,
-        "memo": memo,
-    }
+        logger.error(e)
+        res['memo'] = e
+        res['status'] = False
     return res
 
 

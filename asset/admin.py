@@ -4,7 +4,7 @@ from .models import *
 
 # Register your models here.
 class StocksAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'code']
+    list_display = ['id', 'name', 'code', 'market', 'industry']
 
 
 class HoldingStocksAdmin(admin.ModelAdmin):

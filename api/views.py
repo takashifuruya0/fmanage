@@ -386,6 +386,8 @@ def asset_order(request):
                 stock = Stocks()
                 stock.code = val["code"]
                 stock.name = stockinfo['name']
+                stock.industry = stockinfo['industry']
+                stock.market = stockinfo['market']
                 stock.save()
                 # kabuoji3よりデータ取得
                 if len(str(stock.code)) > 4:
