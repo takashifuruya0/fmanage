@@ -383,11 +383,19 @@
           <div class="modal-body">
             {% csrf_token %}
             <input type="hidden" name="post_type" value="stock_form">
-            <table>
+            <table class="table">
                 {{ stock_form }}
               <tr>
                 <th>Name:</th>
-                <td id="ajax_response"></td>
+                <td id="ajax_response_name"></td>
+              </tr>
+              <tr>
+                <th>Market:</th>
+                <td id="ajax_response_market"></td>
+              </tr>
+              <tr>
+                <th>Industry:</th>
+                <td id="ajax_response_industry"></td>
               </tr>
             </table>
           </div>
@@ -865,10 +873,12 @@
         method: form.prop("method"),
         data: form.serialize(),
         timeout: 10000,
-        dataType: "text",
+        dataType: "json",
       })
-      .done( function(data) {
-        $('#ajax_response').text(data);
+      .done( function(d) {
+        $('#ajax_response_name').text(d.name);
+        $('#ajax_response_industry').text(d.industry);
+        $('#ajax_response_market').text(d.market);
       })
     });
   </script>

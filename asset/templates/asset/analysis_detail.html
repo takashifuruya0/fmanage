@@ -57,6 +57,17 @@
 
       <hr>
       <div class="col-md-4">
+        <h4>銘柄</h4>
+        <table class="table table-light table-hover table-sm">
+          <tr>
+            <th>市場</th>
+            <td class="right">{{stock.market}}</td>
+          </tr>
+          <tr>
+            <th>業種</th>
+            <td class="right">{{stock.industry}}</td>
+          </tr>
+        </table>
         <h4>状態</h4>
         <table class="table table-light table-hover table-sm">
           {% for k, v in data.items %}

@@ -58,7 +58,10 @@ def asset_dashboard(request):
                     post_data = form.cleaned_data
                     stock = Stocks()
                     stock.code = post_data.get('code')
-                    stock.name = get_info.stock_overview(stock.code)['name']
+                    ov = get_info.stock_overview(stock.code)
+                    stock.name = ov['name']
+                    stock.market = ov['market']
+                    stock.industry = ov['industry']
                     stock.save()
                     # kabuoji3よりデータ取得
                     if len(stock.code) > 4:
@@ -211,22 +214,22 @@ def analysis_list(request):
             mark = analysis_asset.check_mark(df_ascending)
             # 最新データである最後尾を取得
             df_latest = df_ascending.tail(1)
-            # 指標
-            settle = get_info.stock_settlement_info(stock.code)
-            if settle:
-                roe = settle['ROE（自己資本利益率）']
-                finance = get_info.stock_finance_info(stock.code)
-                eps = finance['EPS（会社予想）']
-                per = finance['PER（会社予想）']
-                jika = "{:,}".format(int(finance['時価総額']))+"百万円"
-                data = {
-                    "ROE": roe,
-                    "EPS": eps,
-                    "PER": per,
-                    "時価総額": jika,
-                }
-            else:
-                data = {}
+            # # 指標
+            # settle = get_info.stock_settlement_info(stock.code)
+            # if settle:
+            #     roe = settle['ROE（自己資本利益率）']
+            #     finance = get_info.stock_finance_info(stock.code)
+            #     eps = finance['EPS（会社予想）']
+            #     per = finance['PER（会社予想）']
+            #     jika = "{:,}".format(int(finance['時価総額']))+"百万円"
+            #     data = {
+            #         "ROE": roe,
+            #         "EPS": eps,
+            #         "PER": per,
+            #         "時価総額": jika,
+            #     }
+            # else:
+            #     data = {}
             stocks[stock.code] = {
                 "name": stock.name,
                 "val_end": df_latest.val_end,
@@ -235,8 +238,9 @@ def analysis_list(request):
                 "turnover_diff_percent": float(df_latest.turnover_diff_percent),
                 "mark": mark,
                 "trend": trend,
-                #
-                "data": data,
+                "market": stock.market,
+                "industry": stock.industry,
+                # "data": data,
             }
     # for stock in stocks:
     output = {
