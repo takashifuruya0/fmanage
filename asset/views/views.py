@@ -270,6 +270,22 @@ def analysis_detail(request, code):
         df_ascending_reverse = df_ascending.sort_values('date', ascending=False)
         # 直近
         df_recent = df_ascending_reverse.iloc[0]
+        # 指標
+        settle = get_info.stock_settlement_info(stock.code)
+        if settle:
+            roe = settle['ROE（自己資本利益率）']
+            finance = get_info.stock_finance_info(stock.code)
+            eps = finance['EPS（会社予想）']
+            per = finance['PER（会社予想）']
+            jika = "{:,}".format(int(finance['時価総額'])) + "百万円"
+            data = {
+                "ROE": roe,
+                "EPS": eps,
+                "PER": per,
+                "時価総額": jika,
+            }
+        else:
+            data = {}
         # return
         output = {
             "stock": stock,
@@ -281,6 +297,7 @@ def analysis_detail(request, code):
             "length": length,
             "trend": trend,
             "order_points": order_points,
+            "data": data,
         }
         return TemplateResponse(request, 'asset/analysis_detail.html', output)
 

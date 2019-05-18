@@ -37,7 +37,7 @@ class Orders(models.Model):
             r = requests.get(url_chart)
             if r.status_code == 200:
                 # file
-                filename = "{}_{}.png".format(date.today(), self.stock.code)
+                filename = "{}_{}.png".format(self.datetime.date(), self.stock.code)
                 fp = BytesIO()
                 fp.write(r.content)
                 self.chart.save(filename, files.File(fp))

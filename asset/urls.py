@@ -1,7 +1,7 @@
 # coding:utf-8                                                                  
-                                                                                
+from django.contrib.auth.decorators import login_required
 from django.conf.urls import url
-from asset.views import views, views_ajax
+from asset.views import views, views_ajax, views_list
 # django-rest-framework
 from rest_framework import routers
 from asset.views.views_drm import OrdersViewSet, StocksViewSet, HoldingStocksViewSet
@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^analysis/$', views.analysis_list, name='analysis_list'),
     url(r'^analysis/(?P<code>\d+)/$', views.analysis_detail, name='analysis_detail'),
     url(r'^ajax/$', views_ajax.ajax_get_stock_name, name='ajax'),
+    url(r'order/$', login_required(views_list.OrdersList.as_view()), name='orders_list'),
     url(r'^test/$', views.test, name="test"),
 ]
 
