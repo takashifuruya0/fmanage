@@ -77,7 +77,10 @@ def stock_finance_info(code):
         soup = BeautifulSoup(ret.content, "lxml")
         chartfinance = soup.findAll('div', {'class': 'chartFinance'})[1]
         # 値の取得
-        vals = [dd.text.replace(",", "").replace("\n", "") for dd in chartfinance.findAll('strong')]
+        vals = [
+            dd.text.replace(",", "").replace("\n", "").replace("(連) ", "")
+            for dd in chartfinance.findAll('strong')
+        ]
         # タイトルの取得
         dts = chartfinance.findAll('dt')
         keys = list()
@@ -106,8 +109,61 @@ def stock_settlement_info(code):
         trs = table.findAll('tr')
         for tr in trs:
             tds = tr.findAll('td')
-            data[tds[0].text] = tds[1].text
+            data[tds[0].text] = tds[1].text.replace("%", "")
     except Exception as e:
         logger.error(e)
     finally:
         return data
+
+    # 'BPS（一株当たり純資産）'
+    # '178.37円'
+    # '経常利益'
+    # '40,714百万円'
+    # '営業利益'
+    # '‥百万円'
+    # '総資産'
+    # '1,141,926百万円'
+    # '総資産経常利益率'
+    # '3.76%'
+    # '自己資本'
+    # '212,559百万円'
+    # '自己資本比率'
+    # '18.6%'
+    # 'EPS（一株当たり利益）'
+    # '11.11円'
+    # '資本金'
+    # '30,679百万円'
+    # 'ROA（総資産利益率）'
+    # '1.22%'
+    # '決算期'
+    # '2019年3月期'
+    # 'ROE（自己資本利益率）'
+    # '6.24%'
+    # '当期利益'
+    # '13,236百万円'
+    # '売上高'
+    # '147,288百万円'
+
+
+def stock_settlement_info_rev(code):
+    url = "https://profile.yahoo.co.jp/consolidate/{}".format(code)
+    ret = requests.get(url)
+    data = dict()
+    try:
+        soup = BeautifulSoup(ret.content, "lxml")
+        table = soup.find('table', {'class': 'yjMt'})
+        trs = table.findAll('tr')
+    except Exception as e:
+        logger.error(e)
+        return False
+    for tr in trs:
+        try:
+            tds = tr.findAll('td')
+            text = tds[1].text.replace("%", "").replace(",", "").replace("円", "")
+            if "百万" in text:
+                text = int(text.replace("百万", "")) * 1000000
+            data[tds[0].text] = text
+        except Exception as e:
+            logger.warning(e)
+            data[tds[0].text] = None
+    return data
