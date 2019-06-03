@@ -6,6 +6,8 @@ from asset.models import *
 
 class KakeibosAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'fee', 'way', 'tag', 'memo', 'usage', 'move_from', 'move_to']
+    list_filter = ['date', 'usage__name']
+    search_fields = ['memo']
 
 
 class ResourcesAdmin(admin.ModelAdmin):
@@ -18,6 +20,8 @@ class UsagesAdmin(admin.ModelAdmin):
 
 class SharedKakeibosAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'fee', 'memo', 'usage', 'paid_by', 'is_settled']
+    list_filter = ['date', 'usage__name']
+    search_fields = ['memo']
 
 
 class CreditsAdmin(admin.ModelAdmin):

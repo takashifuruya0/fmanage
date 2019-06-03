@@ -1,5 +1,6 @@
 # coding:utf-8
 from asset.models import Stocks, HoldingStocks, AssetStatus, Orders, StockDataByDate
+from asset.models import StockFinancialInfo
 from asset.functions import get_info
 from datetime import date, datetime
 import requests
@@ -428,3 +429,44 @@ def update_asset():
     except Exception as e:
         print(e)
         return False
+
+
+def register_stock_financial_info(code):
+    # 情報取得
+    sdata = get_info.stock_settlement_info_rev(code)
+    fdata = get_info.stock_finance_info(code)
+    if sdata and fdata:
+        # StockFinancialInfoオブジェクト
+        data = {
+            "stock": Stocks.objects.get(code=code),
+            "date": datetime.strptime(sdata["決算発表日"], "%Y年%m月%d日").date(),
+            # sdata
+            'equity': sdata['自己資本'],
+            'equity_ratio': sdata["自己資本比率"],
+            'capital': sdata["資本金"],
+            'operating_income': sdata["営業利益"],
+            'assets': sdata["総資産"],
+            'recurring_profit': sdata["経常利益"],
+            'net_income': sdata["当期利益"],
+            'interest_bearing_debt': sdata["有利子負債"],
+            'eps': sdata["EPS（一株当たり利益）"],
+            'bps': sdata["BPS（一株当たり純資産）"],
+            'sales': sdata["売上高"],
+            'roa': sdata["ROA（総資産利益率）"],
+            'roa_2': sdata["総資産経常利益率"],
+            'roe': sdata["ROE（自己資本利益率）"],
+            # fdata
+            'market_value': fdata["時価総額"],
+            'dividend_yield': fdata["配当利回り（会社予想）"],
+            'bps_f': fdata["BPS（実績）"],
+            'eps_f': fdata["EPS（会社予想）"],
+            'pbr_f': fdata["PBR（実績）"],
+            'per_f': fdata["PER（会社予想）"],
+        }
+        # 保存
+        StockFinancialInfo.objects.create(**data)
+        # return
+        return True
+    else:
+        return False
+
