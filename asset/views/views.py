@@ -88,6 +88,10 @@ def asset_dashboard(request):
                         else:
                             # 取得失敗時
                             logger.error(data['msg'])
+                        # Financial
+                        check = mylib_asset.register_stock_financial_info(stock.code)
+                        if check:
+                            logger.info("StockFinancialInfo of {} was saved.".format(stock.code))
                     smsg = "New stock was registered:" + str(post_data.get('code'))
                     messages.success(request, smsg)
                     logger.info(smsg)
