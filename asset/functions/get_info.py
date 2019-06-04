@@ -97,6 +97,7 @@ def stock_finance_info(code):
             k: None if v == "---" else v
             for k, v in zip(keys, vals)
         }
+        data['時価総額'] = int(data['時価総額'])*1000000
 
     except Exception as e:
         logger.error(e)
