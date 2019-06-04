@@ -435,7 +435,8 @@ def register_stock_financial_info(code):
     # 情報取得
     sdata = get_info.stock_settlement_info_rev(code)
     fdata = get_info.stock_finance_info(code)
-    if sdata and fdata:
+    is_exist = StockFinancialInfo.objects.filter(date=sdata["決算発表日"], stock__code=code).exists()
+    if sdata and fdata and not is_exist:
         # StockFinancialInfoオブジェクト
         data = {
             "stock": Stocks.objects.get(code=code),
