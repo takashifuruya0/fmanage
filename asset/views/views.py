@@ -279,7 +279,9 @@ def analysis_detail(request, code):
         # 直近
         df_recent = df_ascending_reverse.iloc[0]
         # 指標
-        settle = get_info.stock_settlement_info(stock.code)
+        settle = get_info.stock_settlement_info_rev(stock.code)
+        if settle['決算期'] is None:
+            settle = get_info.stock_settlement_info_rev(stock.code, is_consolidated=False)
         if settle:
             roe = settle['ROE（自己資本利益率）']
             finance = get_info.stock_finance_info(stock.code)

@@ -434,6 +434,9 @@ def update_asset():
 def register_stock_financial_info(code):
     # 情報取得
     sdata = get_info.stock_settlement_info_rev(code)
+    if sdata['決算期'] is None:
+        # 単体の情報を取得
+        sdata = get_info.stock_settlement_info_rev(code, is_consolidated=False)
     fdata = get_info.stock_finance_info(code)
     is_exist = StockFinancialInfo.objects.filter(date=sdata["決算発表日"], stock__code=code).exists()
     if sdata and fdata and not is_exist:

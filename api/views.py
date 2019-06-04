@@ -414,6 +414,11 @@ def asset_order(request):
                     else:
                         # 取得失敗時
                         logger.error(data['msg'])
+                    # StockFinancialInfoを登録
+                    check = mylib_asset.register_stock_financial_info(stock.code)
+                    if check:
+                        logger.info("StockFinancialInfo of {} was saved.".format(stock.code))
+
                 smsg = "New stock was registered:{}".format(stock.code)
             else:
                 stock = Stocks.objects.get(code=val["code"])
