@@ -463,6 +463,7 @@ def register_stock_financial_info(code):
             'pbr_f': fdata["PBR（実績）"],
             'per_f': fdata["PER（会社予想）"],
         }
+        logger.debug(data)
         # 保存
         StockFinancialInfo.objects.create(**data)
         # return
