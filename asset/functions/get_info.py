@@ -1,6 +1,7 @@
 # coding:utf-8
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
 import logging
 logger = logging.getLogger("django")
 
@@ -91,7 +92,12 @@ def stock_finance_info(code):
                 keys.append(splited[1])
             else:
                 keys.append(splited[0])
-        data = {k: v for k, v in zip(keys, vals)}
+        # data設定
+        data = {
+            k: None if v == "---" else v
+            for k, v in zip(keys, vals)
+        }
+
     except Exception as e:
         logger.error(e)
         data = dict()
@@ -149,6 +155,7 @@ def stock_settlement_info_rev(code):
     url = "https://profile.yahoo.co.jp/consolidate/{}".format(code)
     ret = requests.get(url)
     data = dict()
+    # table取得
     try:
         soup = BeautifulSoup(ret.content, "lxml")
         table = soup.find('table', {'class': 'yjMt'})
@@ -156,12 +163,29 @@ def stock_settlement_info_rev(code):
     except Exception as e:
         logger.error(e)
         return False
+    # 最終更新日
+    try:
+        d = soup.find('div', {'class': 'yjSt info'}).text.split("：")[1]
+        data['最終更新日'] = datetime.strptime(d, '%Y年%m月%d日').date()
+    except Exception as e:
+        logger.warning(e)
+
+    # tableから
     for tr in trs:
         try:
             tds = tr.findAll('td')
             text = tds[1].text.replace("%", "").replace(",", "").replace("円", "")
             if "百万" in text:
                 text = int(text.replace("百万", "")) * 1000000
+            elif "年" in text and "月" in text:
+                if "日" in text:
+                    # 決算発表日
+                    text = datetime.strptime(text, "%Y年%m月%d日").date()
+                else:
+                    # 決算期
+                    text = datetime.strptime(text.replace("期", "1日"), "%Y年%m月%d日").date()
+            elif text == "---":
+                text = None
             data[tds[0].text] = text
         except Exception as e:
             logger.warning(e)

@@ -439,8 +439,8 @@ def register_stock_financial_info(code):
         # StockFinancialInfoオブジェクト
         data = {
             "stock": Stocks.objects.get(code=code),
-            "date": datetime.strptime(sdata["決算発表日"], "%Y年%m月%d日").date(),
             # sdata
+            "date": sdata["決算発表日"],
             'equity': sdata['自己資本'],
             'equity_ratio': sdata["自己資本比率"],
             'capital': sdata["資本金"],
