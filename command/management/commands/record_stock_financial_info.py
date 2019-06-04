@@ -18,7 +18,7 @@ class Command(BaseCommand):
         counter_skip = 0
         for s in Stocks.objects.all():
             try:
-                check = ac.register_stock_financial_info(s.code)
+                check = ac.register_stock_financial_info2(s.code)
                 if check:
                     counter += 1
                     self.stdout.write(self.style.SUCCESS("{}:{} was saved".format(s.code, s.name)))
@@ -26,4 +26,4 @@ class Command(BaseCommand):
                     counter_skip += 1
             except Exception as e:
                 pass
-        self.stdout.write(self.style.SUCCESS('{}件保存、{}件スキップしました'.format(counter, counter_skip)))
+        self.stdout.write(self.style.SUCCESS('{}件保存、{}件失敗しました'.format(counter, counter_skip)))

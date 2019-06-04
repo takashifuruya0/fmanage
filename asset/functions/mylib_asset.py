@@ -475,3 +475,75 @@ def register_stock_financial_info(code):
     else:
         return False
 
+
+def register_stock_financial_info2(code):
+    # 情報取得
+    sdatas = get_info.stock_settlement_info_rev2(code)
+    if sdatas and sdatas[0]['決算期'] is None:
+        # 単体の情報を取得
+        sdatas = get_info.stock_settlement_info_rev2(code, is_consolidated=False)
+    fdata = get_info.stock_finance_info(code)
+    sdata = sdatas[0]
+    try:
+        is_exist = StockFinancialInfo.objects.filter(date=sdata["決算発表日"], stock__code=code).exists()
+        if sdata and fdata and not is_exist:
+            # StockFinancialInfoオブジェクト
+            data = {
+                "stock": Stocks.objects.get(code=code),
+                # sdata
+                "date": sdata["決算発表日"],
+                'equity': sdata['自己資本'],
+                'equity_ratio': sdata["自己資本比率"],
+                'capital': sdata["資本金"],
+                'operating_income': sdata["営業利益"],
+                'assets': sdata["総資産"],
+                'recurring_profit': sdata["経常利益"],
+                'net_income': sdata["当期利益"],
+                'interest_bearing_debt': sdata["有利子負債"],
+                'eps': sdata["EPS（一株当たり利益）"],
+                'bps': sdata["BPS（一株当たり純資産）"],
+                'sales': sdata["売上高"],
+                'roa': sdata["ROA（総資産利益率）"],
+                'roa_2': sdata["総資産経常利益率"],
+                'roe': sdata["ROE（自己資本利益率）"],
+                # fdata
+                'market_value': fdata["時価総額"],
+                'dividend_yield': fdata["配当利回り（会社予想）"],
+                'bps_f': fdata["BPS（実績）"],
+                'eps_f': fdata["EPS（会社予想）"],
+                'pbr_f': fdata["PBR（実績）"],
+                'per_f': fdata["PER（会社予想）"],
+            }
+            logger.debug(data)
+            # 保存
+            StockFinancialInfo.objects.create(**data)
+
+        # 昨年、一昨年分
+        for i in (1, 2):
+            sdata = sdatas[i]
+            if not StockFinancialInfo.objects.filter(date=sdata["決算発表日"], stock__code=code).exists():
+                data = {
+                    "stock": Stocks.objects.get(code=code),
+                    # sdata
+                    "date": sdata["決算発表日"],
+                    'equity': sdata['自己資本'],
+                    'equity_ratio': sdata["自己資本比率"],
+                    'capital': sdata["資本金"],
+                    'operating_income': sdata["営業利益"],
+                    'assets': sdata["総資産"],
+                    'recurring_profit': sdata["経常利益"],
+                    'net_income': sdata["当期利益"],
+                    'interest_bearing_debt': sdata["有利子負債"],
+                    'eps': sdata["EPS（一株当たり利益）"],
+                    'bps': sdata["BPS（一株当たり純資産）"],
+                    'sales': sdata["売上高"],
+                    'roa': sdata["ROA（総資産利益率）"],
+                    'roa_2': sdata["総資産経常利益率"],
+                    'roe': sdata["ROE（自己資本利益率）"],
+                    # fdata
+                }
+                StockFinancialInfo.objects.create(**data)
+        return True
+    except Exception as e:
+        logger.error(e)
+        return False
