@@ -188,12 +188,13 @@ class UsageResourceRelations(models.Model):
 
 class Kakeibos(models.Model):
     objects = None
+    choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "支出（Suica）", "引き落とし", "収入", "振替"])
     # 日付
     date = models.DateField()
     # 金額
     fee = models.IntegerField()
     # 種類
-    way = models.CharField(max_length=20)
+    way = models.CharField(max_length=20, choices=choices)
     # タグ
     tag = models.CharField(max_length=100, null=True, blank=True)
     # メモ
@@ -206,7 +207,7 @@ class Kakeibos(models.Model):
     move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to")
 
     def __str__(self):
-        return self.way
+        return "{}_{}_{}_{}".format(self.date, self.way, self.usage, self.fee)
 
     def fee_yen(self):
         if self.fee >= 0:
@@ -282,6 +283,10 @@ class Credits(models.Model):
     credit_item = models.ForeignKey(CreditItems)
     card = models.ForeignKey(Cards, related_name="credits", null=True)
     memo = models.CharField(null=True, blank=True, max_length=255)
+    kakeibo = models.ForeignKey(Kakeibos, blank=True, null=True)
+
+    def __str__(self):
+        return "{}_{}".format(self.date, self.fee)
 
     def fee_yen(self):
         if self.fee >= 0:
@@ -325,10 +330,11 @@ class CronShared(models.Model):
 
 class UsualRecord(models.Model):
     objects = None
+    choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "支出（Suica）", "引き落とし", "収入", "振替"])
     # 金額
     fee = models.IntegerField()
     # 種類
-    way = models.CharField(max_length=20)
+    way = models.CharField(max_length=20, choices=choices)
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道/収入源

@@ -9,11 +9,11 @@ class KakeiboForm(forms.ModelForm):
     ModelForm を継承して作れば、HTMLで表示したいフィールドを
     指定するだけで HTML フォームを作ってくれる。
     """
-    choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "引き落とし", "収入", "振替"])
+    choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "支出（Suica）", "引き落とし", "収入", "振替"])
     way = forms.TypedChoiceField(choices=choices)
     way.widget.attrs['onchange'] = 'fill_resource()'
     tag_copy_to_shared = forms.BooleanField(required=False)
-    usage = forms.ModelChoiceField(queryset=Usages.objects.all().order_by('is_expense'))
+    usage = forms.ModelChoiceField(queryset=Usages.objects.all().order_by('is_expense'), required=False)
 
     class Meta:
         model = Kakeibos

@@ -25,11 +25,11 @@ class SharedKakeibosAdmin(admin.ModelAdmin):
 
 
 class CreditsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'debit_date', 'fee', 'credit_item', 'card']
+    list_display = ['id', 'date', 'debit_date', 'fee', 'credit_item', 'kakeibo']
 
 
 class CreditItemsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'date', 'usage', 'color']
+    list_display = ['id', 'name', 'date', 'usage', 'color', ]
 
 
 class CronKakeiboAdmin(admin.ModelAdmin):
