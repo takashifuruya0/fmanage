@@ -30,6 +30,13 @@ class Command(BaseCommand):
                     c.save()
                     counter[1] += 1
                 elif num == 0:
+                    # 前後月で該当しないかチェック
+                    check2 = kcs.filter(fee=c.fee, date__year=c.date.year, date__month__in=(c.date.month+1, c.date.month-1))
+                    if check2.count() == 1:
+                        c.kakeibo = check2[0]
+                        c.save()
+                        continue
+                    # 新規作成
                     k = Kakeibos()
                     k.date = c.date
                     k.fee = c.fee
