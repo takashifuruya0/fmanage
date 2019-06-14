@@ -74,8 +74,8 @@ def post_holdings_to_slack():
     return True
 
 
-def post_slack(params):
-    url = settings.SECRET["URL_SLACK_ASSET"]
+def post_slack(response_url, params):
+    url = response_url
     json_data = json.dumps(params)
     headers = {
         'Content-Type': 'application/json'
