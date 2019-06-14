@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_nose',
     'rest_framework',
     'django_filters',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
