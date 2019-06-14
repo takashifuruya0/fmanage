@@ -5,3 +5,4 @@ venv/*
 .env
 cover/*
 .coverage
+document/*
