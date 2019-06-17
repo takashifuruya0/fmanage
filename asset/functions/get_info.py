@@ -26,7 +26,7 @@ def stock_overview(code):
         # 業界 or 投資信託
         res['industry'] = soup.find('dd', {'class': 'category'}).text
         # 市場：株のみ
-        if len(code) == 4:
+        if len(str(code)) == 4:
             res['market'] = soup.findAll('span', {'class': 'stockMainTabName'})[0].text
         # memo
         res['memo'] = "Success"
