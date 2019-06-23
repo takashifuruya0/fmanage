@@ -34,7 +34,7 @@ class SharedKakeiboForm(forms.ModelForm):
     choices_paid_by = ((c, c) for c in ["敬士", "朋子",])
     paid_by = forms.TypedChoiceField(choices=choices_paid_by)
     date = forms.DateField()
-    usage = forms.ModelChoiceField(queryset=Usages.objects.all().order_by('is_expense'))
+    usage = forms.ModelChoiceField(queryset=Usages.objects.filter(is_expense=True))
 
     class Meta:
         model = SharedKakeibos
@@ -78,6 +78,7 @@ class CreditItemForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
 
 class UsageForm(forms.ModelForm):
     """

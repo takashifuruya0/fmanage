@@ -1,3 +1,4 @@
+# coding:utf-8
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.contrib import messages

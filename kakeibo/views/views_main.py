@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.conf import settings
-from django.db.models import Q
 from django.contrib import messages
 # csv
 import csv
@@ -19,7 +18,6 @@ from datetime import date
 from kakeibo.functions import mylib
 from kakeibo.functions.mylib import time_measure
 from kakeibo.functions import process_kakeibo
-from django.contrib.auth.models import User
 from django.db.transaction import set_rollback, atomic
 
 # Create your views here.
@@ -452,7 +450,7 @@ def shared(request):
     bar_eom = {"data": data, "labels": labels}
 
     # 年間
-    usage_list = ["家賃", "食費", "日常消耗品", "ガス", "電気", "水道", "その他"]
+    usage_list = ["家賃", "食費", "日常消耗品", "ガス", "電気", "水道", "交際費", "その他"]
     data_year = process_kakeibo.usage_shared_table(usage_list)
 
     # who paid ?
@@ -550,7 +548,7 @@ def credit(request):
 
 @time_measure
 def test(request):
-    today = date(2019,1,31)
+    today = date(2019, 1, 31)
     monthly_kakeibos = Kakeibos.objects.filter(
         date__year=today.year, date__month=today.month
     ).values('way', 'usage__name', "usage__color__name").annotate(sum=Sum('fee')).order_by("-sum")
