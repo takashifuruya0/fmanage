@@ -18,19 +18,22 @@ def stock_overview(code):
     ret = requests.get(base_url, params=query)
     try:
         soup = BeautifulSoup(ret.content, "lxml")
-        stocktable = soup.find('table', {'class': 'stocksTable'})
-        res['name'] = stocktable.findAll('th', {'class': 'symbol'})[0].text
-        # 投資信託は10000口単位
-        price = float(stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", ""))
-        res['price'] = float(price)/10000 if len(str(code)) > 4 else price
-        # 業界 or 投資信託
-        res['industry'] = soup.find('dd', {'class': 'category'}).text
-        # 市場：株のみ
         if len(str(code)) == 4:
+            # 株
+            stocktable = soup.find('table', {'class': 'stocksTable'})
+            res['name'] = stocktable.findAll('th', {'class': 'symbol'})[0].text
+            res['price'] = float(stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", ""))
+            res['industry'] = soup.find('dd', {'class': 'category'}).text
             res['market'] = soup.findAll('span', {'class': 'stockMainTabName'})[0].text
-        # memo
-        res['memo'] = "Success"
-        res['status'] = True
+            res['memo'] = "Success"
+            res['status'] = True
+        else:
+            # 投資信託
+            res['price'] = float(soup.find('span', {'class': "_3BGK5SVf"}).text.replace(",", ""))/10000
+            res['name'] = soup.find('span', {'class': "cj4y2d7f"}).text
+            res['industry'] = "投資信託"
+            res['memo'] = "Success"
+            res['status'] = True
     except Exception as e:
         logger.error(e)
         res['memo'] = e
