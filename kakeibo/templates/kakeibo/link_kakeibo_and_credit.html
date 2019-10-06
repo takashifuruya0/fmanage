@@ -12,7 +12,15 @@
   <form method="POST">
     {% csrf_token %}
     <div class="row">
-      <input class="btn btn-primary btn-block" type="submit" value="登録">
+      <div class="col-4">
+        <input class="btn btn-primary btn-block" name="type" type="submit" value="紐付">
+      </div>
+      <div class="col-4">
+        <input class="btn btn-warning btn-block" name="type" type="submit" value="紐付解除">
+      </div>
+      <div class="col-4">
+        <input class="btn btn-danger btn-block" name="type" type="submit" value="削除">
+      </div>
     </div>
     <hr>
     <div class="row">
@@ -38,8 +46,10 @@
               {% if kc.credits_set.count != 1 %}
                 <tr>
                   <td><input type="checkbox" name="kakeibo" value="{{kc.pk}}"></td>
-                  <td>{{kc.date}}</td>
-                  <td>¥{{kc.fee| intcomma}}</td>
+                  <td><a href="?year={{kc.date.year}}&month={{kc.date.month}}">{{kc.date}}</a></td>
+                  <td>
+                    <a href="?fee={{kc.fee}}">¥{{kc.fee| intcomma}}</a>
+                  </td>
                   <td>{{kc.usage.name}}</td>
                   <td>{{kc.memo}}</td>
                   <td>{{kc.credits_set.count}}</td>
@@ -72,8 +82,10 @@
               {% for c in credit %}
                 <tr>
                   <td><input type="checkbox" name="credit" value="{{c.pk}}"></td>
-                  <td>{{c.date}}</td>
-                  <td>¥{{c.fee| intcomma}}</td>
+                  <td><a href="?year={{c.date.year}}&month={{c.date.month}}">{{c.date}}</a></td>
+                  <td>
+                    <a href="?fee={{c.fee}}">¥{{c.fee| intcomma}}</a>
+                  </td>
                   <td>{{c.credit_item}}</td>
                   <td>{{c.credit_item.usage}}</td>
                   <td>{{c.memo}}</td>
