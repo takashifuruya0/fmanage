@@ -549,9 +549,10 @@ def credit(request):
 @time_measure
 def link_kakeibo_and_credit(request):
     if request.method == "POST":
+        messages.info(request, request.POST)
         if request.POST['type'] == "紐付":
-            if "kakeibo" in request.POST and "credit" in request.POST:
-                kakeibo = Kakeibos.objects.get(id=int(request.POST['kakeibo']))
+            if "kakeibo[]" in request.POST and "credit[]" in request.POST:
+                kakeibo = Kakeibos.objects.get(id=int(request.POST['kakeibo[]']))
                 if kakeibo.credits_set.count() != 0:
                     # すでに紐付いている場合、紐付け解除
                     credits_linked = kakeibo.credits_set.all()
@@ -559,34 +560,40 @@ def link_kakeibo_and_credit(request):
                         cl.kakeibo = None
                         cl.save()
                 # 新たに紐付け
-                credit = Credits.objects.get(id=int(request.POST['credit']))
+                credit = Credits.objects.get(id=int(request.POST['credit[]']))
                 credit.kakeibo = kakeibo
                 credit.save()
                 # msg
                 msg = "Successfully made a link between Kakeibo:" \
-                      + request.POST.get('kakeibo', "") + " and Credit:" + request.POST.get('credit', "")
-                messages.success(request, msg)
+                      + request.POST.get('kakeibo[]', "") + " and Credit:" + request.POST.get('credit[]', "")
+                messages.add_message(request, messages.SUCCESS, msg)
             else:
                 # エラー
                 msg = "You need to select one kakeibo and one credit"
                 messages.warning(request, msg)
         elif request.POST['type'] == "紐付解除":
-            kakeibo = Kakeibos.objects.get(id=int(request.POST['kakeibo']))
-            if kakeibo.credits_set.count() != 0:
-                credits_linked = kakeibo.credits_set.all()
-                for cl in credits_linked:
-                    cl.kakeibo = None
-                    cl.save()
-            msg = "Successfully delete a link of Kakeibo:" + request.POST['kakeibo']
-            messages.success(request, msg)
+            kakeibos = Kakeibos.objects.filter(id__in=request.POST.getlist('kakeibo[]'))
+            for kakeibo in kakeibos:
+                if kakeibo.credits_set.count() != 0:
+                    credits_linked = kakeibo.credits_set.all()
+                    for cl in credits_linked:
+                        cl.kakeibo = None
+                        cl.save()
+            msg = "Successfully delete a link of Kakeibo:" + request.POST['kakeibo[]']
+            messages.add_message(request, messages.SUCCESS, msg)
         elif request.POST['type'] == "削除":
-            if "kakeibo" in request.POST:
-                Kakeibos.objects.filter(id__in=request.POST['kakeibo']).delete()
-            if "credit" in request.POST:
-                Credits.objects.filter(id__in=request.POST['credit']).delete()
-            msg = "Successfully delete Kakeibo:" \
-                  + request.POST.get('kakeibo', "") + " and Credit:" + request.POST.get('credit', "")
-            messages.success(request, msg)
+            if "kakeibo[]" in request.POST:
+                k = Kakeibos.objects.filter(id__in=request.POST.getlist('kakeibo[]'))
+                # messages.warning(request, k.count())
+                k.delete()
+                msg = "Successfully delete Kakeibo:" + request.POST['kakeibo[]']
+                messages.add_message(request, messages.SUCCESS, msg)
+            if "credit[]" in request.POST:
+                c = Credits.objects.filter(id__in=request.POST.getlist('credit[]'))
+                # messages.warning(request, c.count())
+                c.delete()
+                msg = "Successfully delete Credit:" + request.POST['credit[]']
+                messages.add_message(request, messages.SUCCESS, msg)
         return redirect('kakeibo:link_kakeibo_and_credit')
     elif request.method == "GET":
         condition_k = {

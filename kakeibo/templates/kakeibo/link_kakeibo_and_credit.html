@@ -45,7 +45,7 @@
               {% for kc in kcs %}
               {% if kc.credits_set.count != 1 %}
                 <tr>
-                  <td><input type="checkbox" name="kakeibo" value="{{kc.pk}}"></td>
+                  <td><input type="checkbox" name="kakeibo[]" value="{{kc.pk}}"></td>
                   <td><a href="?year={{kc.date.year}}&month={{kc.date.month}}">{{kc.date}}</a></td>
                   <td>
                     <a href="?fee={{kc.fee}}">¥{{kc.fee| intcomma}}</a>
@@ -81,7 +81,7 @@
               <tbody>
               {% for c in credit %}
                 <tr>
-                  <td><input type="checkbox" name="credit" value="{{c.pk}}"></td>
+                  <td><input type="checkbox" name="credit[]" value="{{c.pk}}"></td>
                   <td><a href="?year={{c.date.year}}&month={{c.date.month}}">{{c.date}}</a></td>
                   <td>
                     <a href="?fee={{c.fee}}">¥{{c.fee| intcomma}}</a>
