@@ -48,7 +48,8 @@ urlpatterns = [
     url(r'^usage/update/(?P<pk>\d+)/$', login_required(views_detail.UsageUpdate.as_view()), name="usage_update"),
     url(r'^credit/update/(?P<pk>\d+)/$', login_required(views_detail.CreditUpdate.as_view()), name="credit_update"),
     url(r'^credit/items/update/(?P<pk>\d+)/$', login_required(views_detail.CreditItemUpdate.as_view()), name="credit_item_update"),
-
+    # link_kakeibo_and_credit
+    url(r'^link$', views.link_kakeibo_and_credit, name='link_kakeibo_and_credit'),
 
     # test
     url(r'^test$', views.test, name='test'),

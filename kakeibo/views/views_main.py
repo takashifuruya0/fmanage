@@ -547,14 +547,68 @@ def credit(request):
 
 
 @time_measure
+def link_kakeibo_and_credit(request):
+    if request.method == "POST":
+        if "kakeibo" in request.POST and "credit" in request.POST:
+            kakeibo = Kakeibos.objects.get(id=int(request.POST['kakeibo']))
+            if kakeibo.credits_set.count() != 0:
+                # すでに紐付いている場合、紐付け解除
+                credits_linked = kakeibo.credits_set.all()
+                for cl in credits_linked:
+                    cl.kakeibo = None
+                    cl.save()
+            # 新たに紐付け
+            credit = Credits.objects.get(id=int(request.POST['credit']))
+            credit.kakeibo = kakeibo
+            credit.save()
+            # msg
+            msg = "Successfully made a link between Kakeibo:" + request.POST['kakeibo'] + " and " + "Credit:" + request.POST['credit']
+            messages.success(request, msg)
+        else:
+            # エラー
+            msg = "You need to select one kakeibo and one credit"
+            messages.warning(request, msg)
+        return redirect('kakeibo:link_kakeibo_and_credit')
+    else:
+        kakeibo_credit = Kakeibos.objects.filter(way="支出（クレジット）").order_by('date')
+        num = 0
+        for kc in kakeibo_credit:
+            if kc.credits_set.count() != 1:
+                num += 1
+        credit = Credits.objects.filter(kakeibo=None).order_by('date')
+        output = {
+            "num": num,
+            "kcs": kakeibo_credit,
+            "credit": credit,
+        }
+        return TemplateResponse(request, 'kakeibo/link_kakeibo_and_credit.html', output)
+
+
+@time_measure
 def test(request):
-    kakeibo_credit = Kakeibos.objects.filter(way="支出（クレジット）").order_by('date')
-    credit = Credits.objects.filter(kakeibo=None).order_by('date')
-
-    output = {
-        "kcs": kakeibo_credit,
-        "credit": credit,
-    }
-    return TemplateResponse(request, 'kakeibo/test.html', output)
-
+    if request.method == "POST":
+        if "kakeibo" in request.POST and "credit" in request.POST:
+            kakeibo = Kakeibos.objects.get(id=int(request.POST['kakeibo']))
+            credit = Credits.objects.get(id=int(request.POST['credit']))
+            credit.kakeibo = kakeibo
+            credit.save()
+            msg = "Successfully made a link between Kakeibo:" + request.POST['kakeibo'] + " and " + "Credit:" + request.POST['credit']
+            messages.success(request, msg)
+        else:
+            msg = "You need to select one kakeibo and one credit"
+            messages.warning(request, msg)
+        return redirect('kakeibo:test')
+    else:
+        kakeibo_credit = Kakeibos.objects.filter(way="支出（クレジット）").order_by('date')
+        num = 0
+        for kc in kakeibo_credit:
+            if kc.credits_set.count() != 1:
+                num += 1
+        credit = Credits.objects.filter(kakeibo=None).order_by('date')
+        output = {
+            "num": num,
+            "kcs": kakeibo_credit,
+            "credit": credit,
+        }
+        return TemplateResponse(request, 'kakeibo/test.html', output)
 
