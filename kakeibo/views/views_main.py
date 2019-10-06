@@ -570,12 +570,32 @@ def link_kakeibo_and_credit(request):
             messages.warning(request, msg)
         return redirect('kakeibo:link_kakeibo_and_credit')
     else:
-        kakeibo_credit = Kakeibos.objects.filter(way="支出（クレジット）").order_by('date')
+        condition_k = {
+            "way": "支出（クレジット）",
+        }
+        condition_c = {
+            "kakeibo": None,
+        }
+        if 'fee' in request.GET:
+            fee = int(request.GET.get('fee'))
+            condition_k['fee'] = fee
+            condition_c['fee'] = fee
+        if "year" in request.GET:
+            year = int(request.GET.get('year'))
+            condition_k['date__year'] = year
+            condition_k['date__year'] = year
+        if "month" in request.GET:
+            month = int(request.GET.get('month'))
+            condition_k['date__month'] = month
+            condition_k['date__month'] = month
+        # query
+        kakeibo_credit = Kakeibos.objects.filter(**condition_k).order_by('date')
+        credit = Credits.objects.filter(**condition_c).order_by('date')
+        # kakeibo_creditのカウント
         num = 0
         for kc in kakeibo_credit:
             if kc.credits_set.count() != 1:
                 num += 1
-        credit = Credits.objects.filter(kakeibo=None).order_by('date')
         output = {
             "num": num,
             "kcs": kakeibo_credit,
