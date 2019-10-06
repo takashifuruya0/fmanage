@@ -596,8 +596,10 @@ def link_kakeibo_and_credit(request):
                 messages.add_message(request, messages.SUCCESS, msg)
         return redirect('kakeibo:link_kakeibo_and_credit')
     elif request.method == "GET":
+        last_date = Credits.objects.latest('date').date
         condition_k = {
             "way": "支出（クレジット）",
+            "date__lt": last_date,
         }
         condition_c = {
             "kakeibo": None,
@@ -623,6 +625,7 @@ def link_kakeibo_and_credit(request):
             if kc.credits_set.count() != 1:
                 num += 1
         output = {
+            "last_date": last_date,
             "num": num,
             "kcs": kakeibo_credit,
             "credit": credit,
