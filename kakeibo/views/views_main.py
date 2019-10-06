@@ -548,35 +548,12 @@ def credit(request):
 
 @time_measure
 def test(request):
-    today = date(2019, 1, 31)
-    monthly_kakeibos = Kakeibos.objects.filter(
-        date__year=today.year, date__month=today.month
-    ).values('way', 'usage__name', "usage__color__name").annotate(sum=Sum('fee')).order_by("-sum")
+    kakeibo_credit = Kakeibos.objects.filter(way="支出（クレジット）").order_by('date')
+    credit = Credits.objects.filter(kakeibo=None).order_by('date')
 
-    ways = ("支出（現金）", "支出（クレジット）", "引き落とし",)
-    # 支払い方法別の合計
-    monthly_sum_by_way = Kakeibos.objects.filter(
-        date__year=today.year, date__month=today.month, way__in=ways
-    ).values('way').annotate(sum=Sum('fee')).order_by("-sum")
-    # 支払い方法別の内訳
-    monthly_details_by_way = [dict() for w in ways]
-    for i, w in enumerate(ways):
-        monthly_details_by_way[i]["name"] = w
-        monthly_details_by_way[i]["data"] = monthly_kakeibos.filter(way=w)
-    # 用途別
-    monthly_expense_sum_by_usage = Kakeibos.objects.filter(
-        date__year=today.year, date__month=today.month, usage__is_expense=True
-    ).values('usage__name', "usage__color__name").annotate(sum=Sum('fee')).order_by("-sum")
-    monthly_income_sum_by_usage = Kakeibos.objects.filter(
-        date__year=today.year, date__month=today.month, usage__is_expense=False
-    ).values('usage__name', "usage__color__name").annotate(sum=Sum('fee')).order_by("-sum")
-
-    # return
     output = {
-        "monthly_details_by_way": monthly_details_by_way,
-        "monthly_sum_by_way": monthly_sum_by_way,
-        "monthly_expense_sum_by_usage": monthly_expense_sum_by_usage,
-        "monthly_income_sum_by_usage": monthly_income_sum_by_usage,
+        "kcs": kakeibo_credit,
+        "credit": credit,
     }
     return TemplateResponse(request, 'kakeibo/test.html', output)
 

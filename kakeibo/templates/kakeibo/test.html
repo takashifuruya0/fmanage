@@ -6,132 +6,73 @@
 
 {% block body %}
 <div class="container">
-  <h3>円</h3>
-  <div class="row">
-    {% for mdbw in monthly_details_by_way %}
-    <div class="col-sm-3">
-      <h5>{{mdbw.name}}</h5>
-      <canvas id="pie_{{forloop.counter0}}"></canvas>
-    </div>
-    {% endfor %}
-  </div>
-
+  <h2>Link credit to kakeibo</h2>
   <hr>
-  <h3>円</h3>
-  <div class="row">
-    <div class="col-sm-3">
-      <h5>支払い方法別</h5>
-      <canvas id="pie_sum"></canvas>
+  <form action="POST">
+    <div class="row">
+      <input class="btn btn-primary btn-block" type="submit" value="登録">
     </div>
-    <div class="col-sm-3">
-      <h5>用途別支出</h5>
-      <canvas id="pie_expense"></canvas>
+    <hr>
+    <div class="row">
+      <div class="col-6">
+        <h3>Kakeibo</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Check</th>
+              <th>Date</th>
+              <th>Fee</th>
+              <th>Usage</th>
+              <th>Memo</th>
+              <th>Credit</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for kc in kcs %}
+          {% if kc.credits_set.count != 1 %}
+            <tr>
+              <td><input type="checkbox" name="kakeibo" value="{{kc.pk}}"></td>
+              <td>{{kc.date}}</td>
+              <td>¥{{kc.fee| intcomma}}</td>
+              <td>{{kc.usage.name}}</td>
+              <td>{{kc.memo}}</td>
+              <td>{{kc.credits_set.count}}</td>
+            </tr>
+          {% endif %}
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="col-6">
+        <h3>Credit</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Check</th>
+              <th>Date</th>
+              <th>Fee</th>
+              <th>Item</th>
+              <th>Usage</th>
+              <th>Memo</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for c in credit %}
+            <tr>
+              <td><input type="checkbox" name="credit" value="{{c.pk}}"></td>
+              <td>{{c.date}}</td>
+              <td>¥{{c.fee| intcomma}}</td>
+              <td>{{c.credit_item}}</td>
+              <td>{{c.credit_item.usage}}</td>
+              <td>{{c.memo}}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="col-sm-3">
-      <h5>用途別収入</h5>
-      <canvas id="pie_income"></canvas>
-    </div>
-  </div>
+  </form>
 </div>
-
-<!-- pie -->
-{% for mdbw in monthly_details_by_way %}
-<script>
-  var ctx = document.getElementById('pie_{{forloop.counter0}}').getContext('2d');
-  ctx.canvas.width = 300
-  ctx.canvas.height = 150
-  var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: [{%for w in mdbw.data%}"{{w.usage__name}}",{%endfor%}],
-      datasets: [{
-        label: "alice",
-        data: [{%for w in mdbw.data%}{{w.sum}},{%endfor%}],
-        backgroundColor: [
-          {%for w in mdbw.data%}"{{w.usage__color__name}}",{%endfor%}
-         ]
-      }]
-    },
-    options: {
-      legend: {
-        display: false
-      }
-    }
-  });
-</script>
-{% endfor %}
-
-<script>
-  var ctx = document.getElementById('pie_sum').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: [{%for msbw in monthly_sum_by_way%}"{{msbw.way}}",{%endfor%}],
-      datasets: [{
-        label: "alice",
-        data: [{%for msbw in monthly_sum_by_way%}{{msbw.sum}},{%endfor%}],
-        backgroundColor: [
-          "#2ecc71",
-          "#3498db",
-          "#95a5a6",
-          "#9b59b6",
-          "#f1c40f",
-          "#e74c3c",
-          "#34495e"
-         ]
-      }]
-    },
-    options: {
-      legend: {
-        display: false
-      }
-    }
-  });
-</script>
-
-<script>
-  var ctx = document.getElementById('pie_income').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: [{%for msbw in monthly_income_sum_by_usage%}"{{msbw.usage__name}}",{%endfor%}],
-      datasets: [{
-        label: "alice",
-        data: [{%for msbw in monthly_income_sum_by_usage%}{{msbw.sum}},{%endfor%}],
-        backgroundColor: [
-          {%for msbw in monthly_income_sum_by_usage%}"{{msbw.usage__color__name}}",{%endfor%}
-         ]
-      }]
-    },
-    options: {
-      legend: {
-        display: false
-      }
-    }
-  });
-</script>
-
-<script>
-  var ctx = document.getElementById('pie_expense').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: [{%for msbw in monthly_expense_sum_by_usage%}"{{msbw.usage__name}}",{%endfor%}],
-      datasets: [{
-        label: "alice",
-        data: [{%for msbw in monthly_expense_sum_by_usage%}{{msbw.sum}},{%endfor%}],
-        backgroundColor: [
-          {%for msbw in monthly_expense_sum_by_usage%}"{{msbw.usage__color__name}}",{%endfor%}
-         ]
-      }]
-    },
-    options: {
-      legend: {
-        display: false
-      }
-    }
-  });
-</script>
 
 
 {% endblock %}
