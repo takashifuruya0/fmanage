@@ -584,7 +584,7 @@ def link_kakeibo_and_credit(request):
                 credit.kakeibo = kakeibo
                 credit.save()
             msg = "Successfully create Kakeibos for " \
-                  + request.POST.getlist('credit[]') + " and links for these"
+                  + str(request.POST.getlist('credit[]')) + " and links for these"
             messages.add_message(request, messages.SUCCESS, msg)
         elif request.POST['type'] == "紐付解除":
             kakeibos = Kakeibos.objects.filter(id__in=request.POST.getlist('kakeibo[]'))
@@ -594,20 +594,20 @@ def link_kakeibo_and_credit(request):
                     for cl in credits_linked:
                         cl.kakeibo = None
                         cl.save()
-            msg = "Successfully delete a link of Kakeibo:" + request.POST.getlist('kakeibo[]')
+            msg = "Successfully delete a link of Kakeibo:" + str(request.POST.getlist('kakeibo[]'))
             messages.add_message(request, messages.SUCCESS, msg)
         elif request.POST['type'] == "削除":
             if "kakeibo[]" in request.POST:
                 k = Kakeibos.objects.filter(id__in=request.POST.getlist('kakeibo[]'))
                 # messages.warning(request, k.count())
                 k.delete()
-                msg = "Successfully delete Kakeibo:" + request.POST['kakeibo[]']
+                msg = "Successfully delete Kakeibo:" + str(request.POST.getlist('kakeibo[]'))
                 messages.add_message(request, messages.SUCCESS, msg)
             if "credit[]" in request.POST:
                 c = Credits.objects.filter(id__in=request.POST.getlist('credit[]'))
                 # messages.warning(request, c.count())
                 c.delete()
-                msg = "Successfully delete Credit:" + request.POST['credit[]']
+                msg = "Successfully delete Credit:" + str(request.POST.getlist('credit[]'))
                 messages.add_message(request, messages.SUCCESS, msg)
         return redirect('kakeibo:link_kakeibo_and_credit')
     elif request.method == "GET":
