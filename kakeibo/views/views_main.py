@@ -571,6 +571,21 @@ def link_kakeibo_and_credit(request):
                 # エラー
                 msg = "You need to select one kakeibo and one credit"
                 messages.warning(request, msg)
+        elif request.POST['type'] == "作成":
+            credits = Credits.objects.filter(id__in=request.POST.getlist('credit[]'))
+            for credit in credits:
+                kakeibo = Kakeibos()
+                kakeibo.fee = credit.fee
+                kakeibo.way = "支出（クレジット）"
+                kakeibo.date = credit.date
+                kakeibo.usage = credit.credit_item.usage
+                kakeibo.memo = credit.memo
+                kakeibo.save()
+                credit.kakeibo = kakeibo
+                credit.save()
+            msg = "Successfully create Kakeibos for " \
+                  + request.POST.getlist('credit[]') + " and links for these"
+            messages.add_message(request, messages.SUCCESS, msg)
         elif request.POST['type'] == "紐付解除":
             kakeibos = Kakeibos.objects.filter(id__in=request.POST.getlist('kakeibo[]'))
             for kakeibo in kakeibos:
@@ -579,7 +594,7 @@ def link_kakeibo_and_credit(request):
                     for cl in credits_linked:
                         cl.kakeibo = None
                         cl.save()
-            msg = "Successfully delete a link of Kakeibo:" + request.POST['kakeibo[]']
+            msg = "Successfully delete a link of Kakeibo:" + request.POST.getlist('kakeibo[]')
             messages.add_message(request, messages.SUCCESS, msg)
         elif request.POST['type'] == "削除":
             if "kakeibo[]" in request.POST:

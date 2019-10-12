@@ -12,14 +12,17 @@
   <form method="POST">
     {% csrf_token %}
     <div class="row">
-      <div class="col-4">
-        <input class="btn btn-primary btn-block" name="type" type="submit" value="紐付">
+      <div class="col-3">
+        <input class="btn btn-primary btn-block" id="btn_link" name="type" type="submit" value="紐付" disabled>
       </div>
-      <div class="col-4">
-        <input class="btn btn-warning btn-block" name="type" type="submit" value="紐付解除">
+      <div class="col-3">
+        <input class="btn btn-secondary btn-block" id="btn_create" name="type" type="submit" value="作成" disabled>
       </div>
-      <div class="col-4">
-        <input class="btn btn-danger btn-block" name="type" type="submit" value="削除">
+      <div class="col-3">
+        <input class="btn btn-warning btn-block" id="btn_unlink" name="type" type="submit" value="紐付解除" disabled>
+      </div>
+      <div class="col-3">
+        <input class="btn btn-danger btn-block" id="btn_delete" name="type" type="submit" value="削除" disabled>
       </div>
     </div>
     <hr>
@@ -33,7 +36,7 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>Check</th>
+                  <th></th>
                   <th>Date</th>
                   <th>Fee</th>
                   <th>Usage</th>
@@ -70,7 +73,7 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>Check</th>
+                  <th></th>
                   <th>Date</th>
                   <th>Fee</th>
                   <th>Item</th>
@@ -100,5 +103,37 @@
   </form>
 </div>
 
-
+<script>
+  $(function(){
+    $('input:checkbox').change(function(){
+      // チェック数
+      var cnt_k = $('input[name="kakeibo[]"]:checkbox:checked').length;
+      var cnt_c = $('input[name="credit[]"]:checkbox:checked').length;
+      // 紐付
+      if (cnt_k==1 && cnt_c==1){
+        $('#btn_link').prop('disabled', false);
+      }else{
+        $('#btn_link').prop('disabled', true);
+      }
+      // 作成
+      if (cnt_k==0 && cnt_c>0){
+        $('#btn_create').prop('disabled', false);
+      }else{
+        $('#btn_create').prop('disabled', true);
+      }
+      // 紐付解除
+      if (cnt_k>0 && cnt_c==0){
+        $('#btn_unlink').prop('disabled', false);
+      }else{
+        $('#btn_unlink').prop('disabled', true);
+      }
+      // 削除
+      if (cnt_k>0 || cnt_c>0){
+        $('#btn_delete').prop('disabled', false);
+      }else{
+        $('#btn_delete').prop('disabled', true);
+      }
+    })
+  })
+</script>
 {% endblock %}
