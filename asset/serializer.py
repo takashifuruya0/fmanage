@@ -8,7 +8,7 @@ from .models import Stocks, Orders, AssetStatus, HoldingStocks, StockDataByDate
 class StocksSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stocks
-        fields = ('pk', "code", "name",)
+        fields = ('pk', "code", "name", "industry", "market")
 
 
 class OrdersSerializer(serializers.ModelSerializer):
