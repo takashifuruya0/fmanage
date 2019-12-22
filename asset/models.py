@@ -120,7 +120,7 @@ class ReasonLose(models.Model):
 class EntryExit(models.Model):
     objects = None
     # Stock
-    stock = models.ForeignKey(Stocks)
+    stock = models.ForeignKey(Stocks, on_delete=models.CASCADE)
     # Entry
     date_entry = models.DateField()
     chart_entry = models.ImageField(upload_to='images/')
@@ -137,7 +137,7 @@ class EntryExit(models.Model):
     # 手数料
     commission = models.IntegerField(default=0)
     # 敗因
-    reason_lose = models.ForeignKey(ReasonLose, null=True, blank=True)
+    reason_lose = models.ForeignKey(ReasonLose, null=True, blank=True, on_delete=models.CASCADE)
     # Memo
     memo = models.TextField(null=True, blank=True)
 
@@ -174,7 +174,7 @@ class EntryExit(models.Model):
 
 class StockFinancialInfo(models.Model):
     objects = None
-    stock = models.ForeignKey(Stocks)
+    stock = models.ForeignKey(Stocks, on_delete=models.CASCADE)
     date = models.DateField()
     """ stock_settlement_info """
     # 有利子負債
