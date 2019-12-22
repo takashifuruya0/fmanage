@@ -39,6 +39,5 @@ urlpatterns = [
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^trello/', include('trello.urls', namespace='trello')),
     url(r'^document/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-
-    url(r'^drm/', include(router.urls, namespace='drm')),
+    url(r'^drm/', include(router.urls)),
 ]

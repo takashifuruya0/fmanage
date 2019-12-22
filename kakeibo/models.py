@@ -34,10 +34,10 @@ class Colors(models.Model):
 
 
 class Usages(BaseModel):
-    objects = None
+    # objects = None
     is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
     memo = models.CharField(max_length=50, blank=True, null=True)
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
 
     def get_kakeibos_2(self):
         today = date.today()
@@ -160,9 +160,9 @@ class Usages(BaseModel):
 
 
 class Resources(BaseModel):
-    objects = None
+    # objects = None
     initial_val = models.IntegerField(null=False, blank=False)
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
     is_saving = models.BooleanField(default=False)
 
     def current_val(self):
@@ -200,7 +200,7 @@ class Kakeibos(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道/収入源
-    usage = models.ForeignKey(Usages, null=True, blank=True)
+    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
     # 現金移動元
     move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from", on_delete=models.CASCADE)
     # 現金移動先
@@ -248,13 +248,13 @@ class SharedKakeibos(models.Model):
 
 
 class Cards(BaseModel):
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
 
 
 class CreditItems(BaseModel):
-    objects = None
+    # objects = None
     usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
-    color = models.OneToOneField(Colors, blank=True, null=True)
+    color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
 
     def count_credit(self):
         return Credits.objects.filter(credit_item=self).__len__()
@@ -280,7 +280,7 @@ class Credits(models.Model):
     date = models.DateField()
     debit_date = models.DateField()
     fee = models.IntegerField()
-    credit_item = models.ForeignKey(CreditItems)
+    credit_item = models.ForeignKey(CreditItems, on_delete=models.CASCADE)
     card = models.ForeignKey(Cards, related_name="credits", null=True, on_delete=models.CASCADE)
     memo = models.CharField(null=True, blank=True, max_length=255)
     kakeibo = models.ForeignKey(Kakeibos, blank=True, null=True, on_delete=models.CASCADE)
