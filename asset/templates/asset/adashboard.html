@@ -49,6 +49,14 @@
           </span>
         </button>
       </div>
+      <div class="col-md-4">
+        <button class="btn btn-lg btn-block btn-{%if diff_investment > 0%}success{%else%}danger{%endif%}">
+          総額-投資額
+          <span class="badge badge-light">
+            ¥{{diff_investment |floatformat:0 |intcomma}} / {{diff_investment_percent}}%
+          </span>
+        </button>
+      </div>
     </div>
     <hr>
 

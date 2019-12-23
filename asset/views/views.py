@@ -184,6 +184,9 @@ def asset_dashboard(request):
 
     # 現在のトータル
     total = astatus.last().buying_power + current_benefit['total_all']
+    # トータルと投資額差分
+    diff_investment = total - astatus.last().investment
+    diff_investment_percent = round(diff_investment/astatus.last().investment*100, 2)
     # 最近のorder
     orders = Orders.objects.all().order_by('-datetime')[:10]
 
@@ -200,6 +203,8 @@ def asset_dashboard(request):
         "astatus": astatus,
         "astatus_recent": astatus_recent,
         "orders": orders,
+        "diff_investment": diff_investment,
+        "diff_investment_percent": diff_investment_percent,
     }
     return TemplateResponse(request, 'asset/adashboard.html', output)
 
