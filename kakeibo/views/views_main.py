@@ -15,7 +15,7 @@ from kakeibo.models import *
 from kakeibo.forms import *
 from datetime import date
 # function
-from kakeibo.functions import mylib
+from kakeibo.functions import mylib, process_kakeibo
 from kakeibo.functions.mylib import time_measure
 from kakeibo.functions import process_kakeibo
 from django.db.transaction import set_rollback, atomic
@@ -98,6 +98,7 @@ def dashboard(request):
                             debit_date=date(today.year, today.month, 1),
                             memo=line[6]
                         )
+                smsg, msgs = process_kakeibo.link_credit_kakeibo()
                 smsg = "Credit records were created"
                 messages.success(request, smsg)
                 logger.info(smsg)
