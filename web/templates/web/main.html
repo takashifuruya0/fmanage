@@ -1,0 +1,171 @@
+{% extends "kakeibo/base.html" %}
+{% load humanize %}
+{% block title %}
+    Main
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+	<div class="row">
+    <div class="col-12">
+	    <div class="card">
+		    <div class="card-header bg-dark text-white">
+					<h3><i class="fas fa-clipboard-list"></i> Entry</h3>
+		    </div>
+		    <div class="card-body">
+			    <table class="table table-responsive">
+				    <thead>
+				      <tr>
+					      <th>No.</th>
+					      <th>Stock</th>
+					      <th>Status</th>
+					      <th>Open</th>
+					      <th>Close</th>
+					      <th>Profit</th>
+								<th>Remaining</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				      {% for entry in entrys %}
+				      <tr>
+					      <td>
+						      <a href="{% url 'web:entry_detail' entry_id=entry.pk %}">{{entry.pk}}</a>
+					      </td>
+				        <td>{{entry.stock}}</td>
+					      <td>
+						      <h5>
+						      {%if entry.is_closed%}
+							      {%if entry.profit > 0 %}
+							      <span class="badge bg-large bg-success">Win</span>
+							      {%else%}
+							      <span class="badge bg-danger">Lose</span>
+							      {%endif%}
+						      {%else%}
+						        <span class="badge">Open</span>
+						      {%endif%}
+						      </h5>
+					      </td>
+					      <td>{{entry.date_open}}</td>
+					      <td>{{entry.date_close}}</td>
+					      <td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
+					      <td>{{entry.remaining |intcomma}}</td>
+				      </tr>
+				      {% endfor %}
+				    </tbody>
+			    </table>
+		    </div>
+		    <div class="card-footer">
+			    <a class="btn btn-secondary" href="{%url 'web:entry_list'%}">
+				    <i class="fas fa-list-alt"></i> Entrys
+			    </a>
+			    <a class="btn btn-outline-secondary" href="{%url 'web:order_list'%}">
+				    <i class="fas fa-list-alt"></i> Orders
+			    </a>
+			    <a class="btn btn-secondary" href="{%url 'web:stock_list'%}">
+				    <i class="fas fa-list-alt"></i> Stocks
+			    </a>
+		    </div>
+	    </div>
+    </div>
+  </div>
+
+	<hr>
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header bg-primary text-white">
+					<h3><i class="fas fa-user"></i> User</h3>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-12 col-sm-6">
+							<h5 class="card-title">User info</h5>
+							<dl>
+								<dt>User: </dt>
+								<dd>{{user}}</dd>
+								<dt>Mail Address: </dt>
+								<dd>{{user.email}}</dd>
+								<dt>Last Login: </dt>
+								<dd>{{user.last_login | date}}</dd>
+							</dl>
+						</div>
+						<div class="col-12 col-sm-6">
+							<h5 class="card-title">Asset Status ({{astatus.date |date}})</h5>
+							<dl>
+								<dt>Total: </dt>
+								<dd>¥{{astatus.get_total |default:"-" |intcomma}}</dd>
+								<dt>Stock: </dt>
+								<dd>¥{{astatus.sum_stock |default:"-" |intcomma}}</dd>
+								<dt>Trust: </dt>
+								<dd>¥{{astatus.sum_trust |default:"-" |intcomma}}</dd>
+								<dt>Buying Power: </dt>
+								<dd>¥{{astatus.buying_power |default:"-" |intcomma}}</dd>
+								<dt>Investment: </dt>
+								<dd>¥{{astatus.investment |default:"-" |intcomma}}</dd>
+								<dt>Gross Profit: </dt>
+								<dd>¥{{astatus.get_gp |default:"-" |intcomma}} / {{astatus.get_gpr |default:"-" |intcomma}}%</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<div class="card-footer">
+					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#investment">
+		        <i class="fas fa-hand-holding-usd"></i> Investment
+		      </button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{% if request.user.is_superuser %}
+	<hr>
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header bg-success text-white">
+					<h3><i class="fas fa-tasks"></i> Celery Tasks</h3>
+				</div>
+				<div class="card-body">
+					<h5 class="card-title">Tasks</h5>
+					<table class="table table-responsive">
+						<tr>
+							<th>ID</th>
+							<th>Status</th>
+							<th>Date</th>
+							<th>Name</th>
+							<th>Args</th>
+						</tr>
+						{% for task in tasks %}
+						<tr>
+							<td>
+								<a href="/admin/django_celery_results/taskresult/{{task.id}}">
+								{{task.task_id　|truncatechars:20}}
+								</a>
+							</td>
+							<td>
+								{%if task.status == "SUCCESS"%}
+								<label class="badge badge-pill badge-success">{{task.status}}</label>
+								{%else%}
+								<label class="badge badge-pill badge-danger">{{task.status}}</label>
+								{%endif%}
+							</td>
+							<td>{{task.date_done | date}}</td>
+							<td>{{task.task_name}}</td>
+							<td>{{task.task_args}}</td>
+						</tr>
+						{% endfor %}
+					</table>
+				</div>
+				<div class="card-footer">
+					{{msg}}
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+
+</div>
+
+<!-- Modal new-record -->
+{% include 'web/modal/modal_investment.html' %}
+{% endblock %}

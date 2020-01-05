@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'account',
     'command',
     "asset",
-    'trello',
+    'web',
     'django_extensions',
     'django.contrib.humanize',
     'pure_pagination',

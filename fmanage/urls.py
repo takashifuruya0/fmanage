@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^asset/', include('asset.urls', namespace='asset')),
     url(r'^api/', include('api.urls', namespace='api')),
     url(r'^account/', include('account.urls', namespace='account')),
-    url(r'^trello/', include('trello.urls', namespace='trello')),
+    url(r'^nams/', include('web.urls', namespace='web')),
     url(r'^document/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     url(r'^drm/', include(router.urls)),
 ]

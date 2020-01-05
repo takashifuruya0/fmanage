@@ -1,0 +1,61 @@
+{% extends "web/base.html" %}
+{% load humanize %}
+{% block title %}
+    Entry Detail
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header">
+					<h5>Candle Stick</h5>
+				</div>
+				<div class="card-body">
+					<p class="card-title">({{stock.code}}) {{stock.name}}</p>
+					<div class="candlestick-1day"></div>
+				</div>
+				<div class="card-footer">
+					ta
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="/document_nams/js/candlestick.js"></script>
+<script>
+	window.onload = function() {
+		var trades = [
+			{% for o in orders %}
+			{
+				date: "{{o.datetime|date:"Y-m-d"}}",
+				type: "{%if o.is_buy%}buy{%else%}sell{%endif%}",
+				price: {{o.val}},
+				quantity: {{o.num}},
+			},
+      {% endfor %}
+    ];
+    var data = [
+      {% for svd in svds %}
+      {
+        Date: "{{svd.date|date:"Y-m-d"}}",
+        High: {{svd.val_high}},
+        Low: {{svd.val_low}},
+        Open: {{svd.val_open}},
+        Close: {{svd.val_close}},
+        Volume: {{svd.turnover}},
+      },
+      {% endfor %}
+    ];
+		displayCandlestick(data, "1day", trades);
+		// 画面をリサイズした時に発火する
+		$(window).on("resize", function() {
+			displayCandlestick(data, "1day", trades);
+		});
+	}
+</script>
+
+
+{% endblock %}

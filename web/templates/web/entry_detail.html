@@ -1,0 +1,269 @@
+{% extends "web/base.html" %}
+{% load humanize %}
+{% block title %}
+    Entry Detail
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-12">
+			<h4>
+				Entry Overview
+				{% include 'web/part/entry_type.html' %}
+			</h4>
+			<table class="table">
+				<tr>
+					<th>Stock</th>
+					<td>
+						<a href="{%url 'web:stock_detail' stock_code=entry.stock.code%}">
+							{{entry.stock}}
+						</a>
+					</td>
+					<th>Market / Industry</th>
+					<td>{{entry.stock.market |default:"-"}} / {{entry.stock.industry |default:"-"}} </td>
+				</tr>
+				<tr>
+					<th>Open Date</th>
+					<td>{{entry.date_open}}</td>
+					<th>Close Date</th>
+					<td>{{entry.date_close | default_if_none:"-"}}</td>
+				</tr>
+				<tr>
+					<th>利確価格</th>
+					<td>
+						¥{{entry.border_profit_determination |default_if_none:"-" | intcomma }}
+						({% widthratio entry.border_profit_determination entry.val_buy 100.0 %}%)
+						{% if entry.border_profit_determination < entry.val_sell and entry.is_closed%}
+						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good</label>
+						{%endif%}
+					</td>
+					<th>損切価格</th>
+					<td>
+						¥{{entry.border_loss_cut |default_if_none:"-" | intcomma}}　
+						({% widthratio entry.border_loss_cut entry.val_buy 100.0 %}%)
+						{% if entry.border_loss_cut > entry.val_sell and entry.is_closed%}
+						<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Bad</label>
+						{%endif%}
+					</td>
+				</tr>
+				<tr>
+					<th>Remaining</th>
+					<td>{{entry.remaining | intcomma}}</td>
+					<th>Profit</th>
+					<td>
+						¥{{entry.profit |floatformat:0 |intcomma}}
+						({{entry.profit_pct}}%)
+						{% if entry.profit > 0 %}
+						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good</label>
+						{% else %}
+						<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Bad</label>
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<th>Reason</th>
+					<td colspan="3">{{entry.reason_win_loss| default_if_none:"-"}}</td>
+				</tr>
+				<tr>
+					<th>Memo</th>
+					<td colspan="3">{{entry.memo}}</td>
+				</tr>
+			</table>
+			<a class="btn btn-outline-info" href="{%url 'web:entry_edit' entry_id=entry.pk%}">
+				<i class="fas fa-edit"></i> Edit
+			</a>
+			<a class="btn btn-outline-secondary" href="{%url 'web:entry_list' %}">
+				<i class="fas fa-backward"></i> Back
+			</a>
+		</div>
+	</div>
+
+	<hr>
+	<div class="row">
+		<div class="col-12 col-sm-7">
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title">{{od}} ~ {{cd}}</h5>
+				</div>
+				<div class="card-body">
+					<p class="card-title">({{entry.stock.code}}) {{entry.stock.name}}</p>
+					<div class="candlestick-1day"></div>
+					<hr>
+					<p class="card-title">終値</p>
+					<canvas id="analysis" width="300" height="150"></canvas>
+				</div>
+				<div class="card-footer">
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-sm-5">
+			<h4>Order Overview</h4>
+			{%if df_trend.is_upper_25%}
+			<span class="badge badge-success">
+				25日トレンド <i class="fas fa-level-up-alt"></i>
+				<span class="badge badge-light">{{df_trend.period_25}}日継続中</span>
+			</span>
+			{%else%}
+			<span class="badge badge-danger">
+				25日トレンド <i class="fas fa-level-down-alt"></i>
+				<span class="badge badge-light">{{df_trend.period_25}}日継続中</span>
+			</span>
+			{%endif%}
+			{%if df_trend.is_upper_75%}
+			<span class="badge badge-success">
+				75日トレンド <i class="fas fa-level-up-alt"></i>
+				<span class="badge badge-light">{{df_trend.period_75}}日継続中</span>
+			</span>
+			{%else%}
+			<span class="badge badge-danger">
+				75日トレンド <i class="fas fa-level-down-alt"></i>
+				<span class="badge badge-light">{{df_trend.period_75}}日継続中</span>
+			</span>
+			{%endif%}
+			<table class="table">
+				<tr>
+					<th>買付口数</th>
+					<th>買付平均</th>
+					{% if entry.is_closed %}
+					<th>売付口数</th>
+					<th>売付平均</th>
+					{% else %}
+					<th>現在価格</th>
+					<th>ステータス</th>
+					{% endif %}
+				</tr>
+				<tr>
+					<td>{{entry.num_buy}}</td>
+					<td>
+						{% if entry.stock.is_trust %}
+						¥{{entry.val_buy |floatformat:4 |intcomma}}
+						{% else %}
+						¥{{entry.val_buy |intcomma}}
+						{% endif %}
+					</td>
+					{% if entry.is_closed %}
+					<td>{{entry.num_sell}}</td>
+					<td>¥{{entry.val_sell | intcomma}}</td>
+					{% else %}
+					<td>¥{{overview.val | intcomma}} ({% widthratio overview.val entry.val_buy 100.0 %}%)</td>
+					<td>
+						{%if overview.val < entry.border_loss_cut%}
+						<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Better to Loss cut</label>
+						{%elif overview.val > entry.border_profit_determination%}
+						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good to Sell</label>
+						{%endif%}
+						{% if overview.val == overview.financial_data.年初来安値 %}
+						<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Lowest in the year</label>
+						{% elif overview.val == overview.financial_data.年初来高値 %}
+						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Highest in the year</label>
+						{%endif%}
+					</td>
+					{% endif %}
+				</tr>
+			</table>
+			<hr>
+			<h5>Linked Orders</h5>
+			<form action="" method="post">
+				<table class="table">
+					<tr>
+						<th></th>
+						<th>No.</th>
+						<th>Date</th>
+						<th>Type</th>
+						<th>Num</th>
+						<th>Val</th>
+					</tr>
+					{% for ol in orders_linked %}
+					<tr>
+						<td><input type="checkbox" name="pk" value="{{ol.pk}}"></td>
+						<td>
+							<a href="{%url 'web:order_detail' order_id=ol.id%}">
+								{{ol.pk}}
+							</a>
+						</td>
+						<td>{{ol.datetime}}</td>
+						<td>
+							{%if ol.is_buy%}
+							<label class="badge badge-danger">現物買</label>
+							{%else%}
+							<label class="badge badge-primary">現物売</label>
+							{%endif%}
+						</td>
+						<td>{{ol.num | intcomma}}</td>
+						<td>{{ol.val | intcomma}}</td>
+					</tr>
+					{%endfor%}
+				</table>
+				<button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#link_orders">
+	        <i class="fas fa-link"></i> Link_orders
+	      </button>
+				<button type="submit" name="post_type" value="unlink_orders" class="btn btn-outline-secondary">
+					<i class="fas fa-unlink"></i> Unlink orders
+				</button>
+				{% csrf_token %}
+			</form>
+
+			<hr>
+			<h5>Analysis</h5>
+			<table class="table">
+				<tr>
+					<th>種類</th>
+					<th>日付</th>
+					<th>上ひげ</th>
+					<th>下ひげ</th>
+					<th>陽線/陰線</th>
+				</tr>
+				{% for d in df_check %}
+				<tr>
+					<td>
+						<label class="badge badge-{%if d.is_bottom%}success{%else%}danger{%endif%}">{{d.type}}</label>
+					</td>
+					<td>{{d.df.date}}</td>
+					<td>{{d.df.upper_mustache}}</td>
+					<td>{{d.df.lower_mustache}}</td>
+					<td>{{d.df.val_line}}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+</div>
+
+{% include 'web/modal/modal_link_orders.html' %}
+{% include 'web/part/chart.html' %}
+
+<script src="/document_nams/js/candlestick.js"></script>
+<script>
+	window.onload = function() {
+		var trades = [
+			{% for o in orders_linked %}
+			{
+				date: "{{o.datetime|date:"Y-m-d"}}",
+				type: "{%if o.is_buy%}buy{%else%}sell{%endif%}",
+				price: {%if o.stock.is_trust%}100{{o.val}}{%else%}{{o.val}}{%endif%},
+				quantity: {{o.num}},
+			},
+      {% endfor %}
+    ];
+    var data = [
+      {% for svd in svds %}
+      {
+        Date: "{{svd.date|date:"Y-m-d"}}",
+        High: {{svd.val_high}},
+        Low: {{svd.val_low}},
+        Open: {{svd.val_open}},
+        Close: {{svd.val_close}},
+        Volume: {{svd.turnover}},
+      },
+      {% endfor %}
+    ];
+		displayCandlestick(data, "1day", trades);
+		// 画面をリサイズした時に発火する
+		$(window).on("resize", function() {
+			displayCandlestick(data, "1day", trades);
+		});
+	}
+</script>
+
+{% endblock %}

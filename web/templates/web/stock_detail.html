@@ -1,0 +1,171 @@
+{% extends "web/base.html" %}
+{% load humanize %}
+{% block title %}
+    Stock Detail
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-12 col-sm-6">
+			<h4>Overview</h4>
+			<table class="table table-responsive">
+				<tr>
+					<th>Code</th>
+					<td>{{stock.code}}</td>
+				</tr>
+				<tr>
+					<th>Name</th>
+					<td>{{stock.name}}</td>
+				</tr>
+				<tr>
+					<th>Type</th>
+					<td>
+						{%if stock.is_trust%}
+						<label class="badge badge-info">投資信託</label>
+						{%else%}
+						<label class="badge badge-success">株</label>
+						{%endif%}
+					</td>
+				</tr>
+				<tr>
+					<th>Market</th>
+					<td>{{stock.market}}</td>
+				</tr>
+				<tr>
+					<th>Industry</th>
+					<td>{{stock.industry}}</td>
+				</tr>
+			</table>
+			<a class="btn btn-outline-secondary" href="{%url 'web:stock_list' %}">
+				<i class="fas fa-backward"></i> Back
+			</a>
+		</div>
+		<div class="col-12 col-sm-6">
+			<h4>Entry</h4>
+			<table class="table table-responsive">
+				<tr>
+					<th>No</th>
+					<th>Status</th>
+					<th>Open</th>
+					<th>Close</th>
+					<th>Profit</th>
+				</tr>
+				{% for e in stock.entry_set.all %}
+				<tr>
+					<td>
+						<a href="{%url 'web:entry_detail' entry_id=e.id %}">
+							{{e.id}}
+						</a>
+					</td>
+					<td>
+						{%if e.remaining == 0%}
+						Close
+						{%else%}
+						Open
+						{%endif%}
+					</td>
+					<td>{{e.date_open |date}}</td>
+					<td>{{e.date_close |date}}</td>
+					<td>¥{{e.profit |intcomma}}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+
+	<hr>
+	<div class="row">
+		<div class="col-12 col-sm-8">
+			<div class="card">
+				<div class="card-header">
+					<h5>Chart</h5>
+				</div>
+				<div class="card-body">
+					<p class="card-title">{{svds.first.date}} ~ {{svds.last.date}}</p>
+					<div class="candlestick-1day"></div>
+				</div>
+				<div class="card-footer">
+
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-sm-4">
+			<div class="card">
+				<div class="card-header">
+					<h5>Finance</h5>
+				</div>
+				<div class="card-body">
+					{%with sfd=sfds.last%}
+					<table class="table">
+						<tr>
+							<th>ROE</th>
+							<td>{{sfd.roe}}</td>
+						</tr>
+						<tr>
+							<th>ROA</th>
+							<td>{{sfd.roa}}</td>
+						</tr>
+						<tr>
+							<th>EPS</th>
+							<td>{{sfd.eps_f}}</td>
+						</tr>
+						<tr>
+							<th>PER</th>
+							<td>{{sfd.per_f}}</td>
+						</tr>
+						<tr>
+							<th>時価総額</th>
+							<td>{{sfd.market_value |intcomma}}</td>
+						</tr>
+						<tr>
+							<th>自己資本比率</th>
+							<td>{{sfd.equity_ratio}}%</td>
+						</tr>
+					</table>
+					{%endwith%}
+				</div>
+				<div class="card-footer">
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% include 'web/part/chart.html' %}
+
+<script src="/document_nams/js/candlestick.js"></script>
+<script>
+	window.onload = function() {
+		var trades = [
+			{% for o in entry.order_set.all %}
+			{
+				date: "{{o.datetime|date:"Y-m-d"}}",
+				type: "{%if o.is_buy%}buy{%else%}sell{%endif%}",
+				price: {{o.val}},
+				quantity: {{o.num}},
+			},
+      {% endfor %}
+    ];
+    var data = [
+      {% for svd in svds %}
+      {
+        Date: "{{svd.date|date:"Y-m-d"}}",
+        High: {{svd.val_high}},
+        Low: {{svd.val_low}},
+        Open: {{svd.val_open}},
+        Close: {{svd.val_close}},
+        Volume: {{svd.turnover}},
+      },
+      {% endfor %}
+    ];
+		displayCandlestick(data, "1day", trades);
+		// 画面をリサイズした時に発火する
+		$(window).on("resize", function() {
+			displayCandlestick(data, "1day", trades);
+		});
+	}
+</script>
+
+{% endblock %}

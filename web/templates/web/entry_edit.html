@@ -1,0 +1,82 @@
+{% extends "web/base.html" %}
+{% load humanize %}
+{% block title %}
+    Entry Edit
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-12 col-sm-6">
+			<form method="post" action="">
+				<h4>
+					Entry Edit
+				</h4>
+				<table>
+					{{form}}
+				</table>
+				{%csrf_token%}
+				<button type="submit" class="btn btn-outline-info">
+	        <i class="fas fa-check"></i> Submit
+	      </button>
+				<a href="{%url 'web:entry_detail' entry_id=entry.pk%}" class="btn btn-outline-secondary">
+					<i class="fas fa-backward"></i> Back
+				</a>
+			</form>
+		</div>
+		<div class="col-12 col-sm-6">
+			<h5>Order Overview</h5>
+			<table class="table">
+				<tr>
+					<th>買付口数</th>
+					<th>買付平均</th>
+					<th>売付口数</th>
+					<th>売付平均</th>
+				</tr>
+				<tr>
+					<td>{{entry.num_buy}}</td>
+					<td>
+						{% if entry.stock.is_trust %}
+						¥{{entry.val_buy |floatformat:4 |intcomma}}
+						{% else %}
+						¥{{entry.val_buy |intcomma}}
+						{% endif %}
+					</td>
+					<td>{{entry.num_sell}}</td>
+					<td>¥{{entry.val_sell | intcomma}}</td>
+				</tr>
+			</table>
+			<hr>
+			<h5>
+				Entry Overview
+				{% include 'web/part/entry_type.html' %}
+			</h5>
+			<table class="table">
+				<tr>
+					<th>Stock</th>
+					<td>{{entry.stock}}</td>
+				</tr>
+				<tr>
+					<th>Open Date</th>
+					<td>{{entry.date_open}}</td>
+				</tr>
+				<tr>
+					<th>Close Date</th>
+					<td>{{entry.date_close | default_if_none:"-"}}</td>
+				</tr>
+				<tr>
+					<th>Remaining</th>
+					<td>{{entry.remaining | intcomma}}</td>
+				</tr>
+				<tr>
+					<th>Profit</th>
+					<td>¥{{entry.profit | intcomma}}</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+
+<!-- Modal new-record -->
+{% include 'web/modal/modal_link_orders.html' %}
+{% endblock %}
