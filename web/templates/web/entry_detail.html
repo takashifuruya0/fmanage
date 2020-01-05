@@ -1,7 +1,7 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
 {% block title %}
-    Entry Detail
+    Entry Detail {{entry.stock}}
 {% endblock %}
 
 {% block body %}
@@ -233,7 +233,7 @@
 {% include 'web/modal/modal_link_orders.html' %}
 {% include 'web/part/chart.html' %}
 
-<script src="/document_nams/js/candlestick.js"></script>
+<script src="/document/js/candlestick.js"></script>
 <script>
 	window.onload = function() {
 		var trades = [
