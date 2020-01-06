@@ -49,14 +49,15 @@ def order():
             d.pop('price')
             d.pop('order_type')
             d.pop('chart')
-            os = Order.objects.filter(
-                datetime=d['datetime'], stock=d['stock'],
-                val=d['val'], is_buy=d['is_buy'], user=d['user']
-            )
+            # os = Order.objects.filter(
+            #     datetime=d['datetime'], stock=d['stock'],
+            #     val=d['val'], is_buy=d['is_buy'], user=d['user']
+            # )
+            os = Order.objects.filter(fkmanage_id=d['fkmanage_id'])
             logger.info("========d========")
             logger.info(d)
             if os.exists():
-                o = os.filter(fkmanage_id=None).first()
+                o = os.first()
                 if o:
                     Order.objects.filter(pk=o.pk).update(**d)
                     o = Order.objects.get(pk=o.pk)
