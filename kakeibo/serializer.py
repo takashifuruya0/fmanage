@@ -43,7 +43,11 @@ class KakeibosSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Kakeibos
-        fields = ('pk', 'date', 'fee', 'way', 'usage', 'move_to', 'move_from', 'memo', 'usage_uid', 'move_to_uid', 'move_from_uid')
+        fields = (
+            'pk', 'date', 'fee', 'way', 'usage',
+            'move_to', 'move_from', 'memo',
+            'usage_uid', 'move_to_uid', 'move_from_uid'
+        )
 
 
 class SharedKakeibosSerializer(serializers.ModelSerializer):
@@ -159,4 +163,8 @@ class UsualRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UsualRecord
-        fields = ('pk', 'fee', 'way', 'usage', 'move_to', 'move_from', 'memo', 'icon', 'usage_uid', 'move_from_id', 'move_to_id')
+        fields = (
+            'pk', 'fee', 'way', 'usage',
+            'move_to', 'move_from', 'memo',
+            'icon', 'usage_uid', 'move_from_uid', 'move_to_uid'
+        )
