@@ -7,7 +7,7 @@
 {% block body %}
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-12">
+		<div class="col-12 col-sm-6">
 			<table class="table table-responsive">
 				<tr>
 					<th>No</th>
@@ -60,6 +60,9 @@
 			<a class="btn btn-outline-secondary" href="{%url 'web:order_list' %}">
 				<i class="fas fa-backward"></i> Back
 			</a>
+		</div>
+		<div class="col-12 col-sm-6">
+			<img src="/document/{{order.chart}}">
 		</div>
 	</div>
 </div>
