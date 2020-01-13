@@ -176,7 +176,8 @@ def yf_detail(code):
                 k: None if v == "---" else v
                 for k, v in zip(keys, vals)
             }
-            data['financial_data']['時価総額'] = int(data['financial_data']['時価総額']) * 1000000
+            if not data['industry'] == "ETF":
+                data['financial_data']['時価総額'] = int(data['financial_data']['時価総額']) * 1000000
             res['data'] = data
             # 完了
             res['msg'] = "Success"
