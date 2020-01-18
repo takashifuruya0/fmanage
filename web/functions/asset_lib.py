@@ -267,12 +267,16 @@ def record_asset_status():
             asset_status = asset_status.latest('date')
             asset_status.pk = None
             asset_status.date = date.today()
-            # stock_value
+            # sum_stock / sum_trust
             asset_status.sum_stock = 0
+            asset_status.sum_trust = 0
             holdings = Entry.objects.select_related().filter(is_closed=False)
             for h in holdings:
                 val_close = StockValueData.objects.filter(stock=h.stock).latest('date').val_close
-                asset_status.sum_stock += (val_close * h.remaining())
+                if h.stock.is_trust:
+                    asset_status.sum_trust += (val_close/10000 * h.remaining())
+                else:
+                    asset_status.sum_stock += (val_close * h.remaining())
             asset_status.save()
             logger.info("Done for {}".format(u.username))
         else:
