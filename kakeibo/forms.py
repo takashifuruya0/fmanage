@@ -91,7 +91,7 @@ class UsageForm(forms.ModelForm):
 
     class Meta:
         model = Usages
-        fields = ['name', 'is_expense', 'memo']
+        fields = ['name', 'is_expense', 'memo', 'date']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
