@@ -34,6 +34,18 @@ class Event(models.Model):
     def __str__(self):
         return "{}_{}".format(self.date, self.name)
 
+    def sum_linked(self):
+        if self.event_kakeibo.exists():
+            return self.event_kakeibo.aggregate(sum=Sum('fee'))['sum']
+        else:
+            return None
+
+    def count_linked(self):
+        if self.event_kakeibo.exists():
+            return self.event_kakeibo.aggregate(count=Count('fee'))['count']
+        else:
+            return None
+
 
 class Colors(models.Model):
     objects = None
@@ -217,7 +229,7 @@ class Kakeibos(models.Model):
     # 現金移動先
     move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to", on_delete=models.CASCADE)
     # Event
-    event = models.ForeignKey(Event, null=True, blank=True, default=None, related_name="event", on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, null=True, blank=True, default=None, related_name="event_kakeibo", on_delete=models.CASCADE)
 
     def __str__(self):
         return "{}_{}_{}_{}".format(self.date, self.way, self.usage, self.fee)

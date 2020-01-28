@@ -61,7 +61,7 @@ class Entry(models.Model):
         return "E{:0>3}_{}".format(self.pk, self.stock)
 
     def val_order(self, is_buy):
-        orders = self.order_set.filter(is_buy=is_buy)
+        orders = self.order_set.filtedr(is_buy=is_buy)
         val = 0
         if orders.exists():
             for o in orders:

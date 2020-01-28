@@ -36,18 +36,21 @@ urlpatterns = [
     url(r'^shared/list/$', views_list.SharedList.as_view(), name="shared_list"),
     url(r'^credit/list/$', login_required(views_list.CreditList.as_view()), name="credit_list"),
     url(r'^credit/items/list/$', login_required(views_list.CreditItemList.as_view()), name="credit_item_list"),
+    url(r'^event/list/$', views_list.EventList.as_view(), name="event_list"),
     # detail
     url(r'^usage/detail/(?P<pk>\d+)/$', login_required(views_detail.UsageDetail.as_view()), name="usage_detail"),
     url(r'^mine/detail/(?P<pk>\d+)/$', login_required(views_detail.KakeiboDetail.as_view()), name="kakeibo_detail"),
     url(r'^shared/detail/(?P<pk>\d+)/$', views_detail.SharedDetail.as_view(), name="shared_detail"),
     url(r'^credit/detail/(?P<pk>\d+)/$', login_required(views_detail.CreditDetail.as_view()), name="credit_detail"),
     url(r'^credit/items/detail/(?P<pk>\d+)/$', login_required(views_detail.CreditItemDetail.as_view()), name="credit_item_detail"),
+    url(r'^event/detail/(?P<pk>\d+)/$', login_required(views_detail.EventDetail.as_view()), name="event_detail"),
     # update
     url(r'^mine/update/(?P<pk>\d+)/$', login_required(views_detail.KakeiboUpdate.as_view()), name="kakeibo_update"),
     url(r'^shared/update/(?P<pk>\d+)/$', views_detail.SharedUpdate.as_view(), name="shared_update"),
     url(r'^usage/update/(?P<pk>\d+)/$', login_required(views_detail.UsageUpdate.as_view()), name="usage_update"),
     url(r'^credit/update/(?P<pk>\d+)/$', login_required(views_detail.CreditUpdate.as_view()), name="credit_update"),
     url(r'^credit/items/update/(?P<pk>\d+)/$', login_required(views_detail.CreditItemUpdate.as_view()), name="credit_item_update"),
+    url(r'^event/update/(?P<pk>\d+)/$', login_required(views_detail.EventUpdate.as_view()), name="event_update"),
     # link_kakeibo_and_credit
     url(r'^link$', views.link_kakeibo_and_credit, name='link_kakeibo_and_credit'),
 

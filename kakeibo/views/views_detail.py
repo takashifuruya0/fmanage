@@ -2,13 +2,13 @@
 from django.conf import settings
 from django.views.generic import DetailView, UpdateView
 from django.urls import reverse
-
+from django.db.models import Sum, Count, Avg
 # logging
 import logging
 logger = logging.getLogger("django")
 # model
-from kakeibo.models import Kakeibos, SharedKakeibos, Usages, Resources, Credits, CreditItems
-from kakeibo.forms import KakeiboForm, SharedKakeiboForm, CreditForm, CreditItemForm, UsageForm
+from kakeibo.models import Kakeibos, SharedKakeibos, Usages, Resources, Credits, CreditItems, Event
+from kakeibo.forms import KakeiboForm, SharedKakeiboForm, CreditForm, CreditItemForm, UsageForm, EventForm
 
 
 # Create your views here.
@@ -53,6 +53,18 @@ class UsageDetail(DetailView):
         return res
 
 
+class EventDetail(DetailView):
+    model = Event
+
+    def get_context_data(self, **kwargs):
+        res = super().get_context_data(**kwargs)
+        return res
+
+    def get_queryset(self):
+        queryset = Event.objects.select_related().order_by('-date')
+        return queryset
+
+
 class KakeiboUpdate(UpdateView):
     model = Kakeibos
     form_class = KakeiboForm
@@ -91,3 +103,11 @@ class UsageUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse('kakeibo:usage_detail', kwargs={'pk': self.object.pk})
+
+
+class EventUpdate(UpdateView):
+    model = Event
+    form_class = EventForm
+
+    def get_success_url(self):
+        return reverse('kakeibo:event_detail', kwargs={'pk': self.object.pk})

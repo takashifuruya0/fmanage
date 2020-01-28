@@ -1,6 +1,6 @@
 from django import forms
 
-from kakeibo.models import Kakeibos, SharedKakeibos, Credits, CreditItems, Usages
+from kakeibo.models import Kakeibos, SharedKakeibos, Credits, CreditItems, Usages, Event
 
 
 class KakeiboForm(forms.ModelForm):
@@ -92,6 +92,23 @@ class UsageForm(forms.ModelForm):
     class Meta:
         model = Usages
         fields = ['name', 'is_expense', 'memo', 'date']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class EventForm(forms.ModelForm):
+    """
+    Memo モデルの作成、更新に使われる Django フォーム。
+    ModelForm を継承して作れば、HTMLで表示したいフィールドを
+    指定するだけで HTML フォームを作ってくれる。
+    """
+
+    class Meta:
+        model = Event
+        fields = ['date', 'name', 'memo', 'date']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

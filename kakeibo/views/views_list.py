@@ -12,7 +12,7 @@ logger = logging.getLogger("django")
 # model
 from kakeibo.models import Kakeibos, SharedKakeibos, Usages, Resources, Credits, CreditItems, Event
 # form
-from kakeibo.forms import UsageForm
+from kakeibo.forms import UsageForm, EventForm
 # module
 from kakeibo.functions.mylib import time_measure
 
@@ -157,3 +157,29 @@ class UsageList(PaginationMixin, ListView):
             messages.error(request, e)
             logger.error(e)
         return redirect('kakeibo:usage_list')
+
+
+class EventList(PaginationMixin, ListView):
+    model = Event
+    paginate_by = 20
+
+    @time_measure
+    def get_context_data(self, **kwargs):
+        res = super().get_context_data(**kwargs)
+        res['form'] = EventForm(initial={'date': date.today()})
+        return res
+
+    def get_queryset(self):
+        queryset = Event.objects.all()  # Default: Model.objects.all()
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        try:
+            form = EventForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "OK")
+        except Exception as e:
+            messages.error(request, e)
+            logger.error(e)
+        return redirect('kakeibo:event_list')
