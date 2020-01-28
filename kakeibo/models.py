@@ -20,9 +20,19 @@ class BaseModel(models.Model):
     def __str__(self):
         return self.name
 
+
 # ==============================
 #            model
 # ==============================
+class Event(models.Model):
+    objects = None
+    date = models.DateField()
+    name = models.CharField(max_length=30)
+    memo = models.CharField(max_length=100, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return "{}_{}".format(self.date, self.name)
 
 
 class Colors(models.Model):
@@ -206,6 +216,8 @@ class Kakeibos(models.Model):
     move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from", on_delete=models.CASCADE)
     # 現金移動先
     move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to", on_delete=models.CASCADE)
+    # Event
+    event = models.ForeignKey(Event, null=True, blank=True, default=None, related_name="event", on_delete=models.CASCADE)
 
     def __str__(self):
         return "{}_{}_{}_{}".format(self.date, self.way, self.usage, self.fee)

@@ -17,7 +17,7 @@ class KakeiboForm(forms.ModelForm):
 
     class Meta:
         model = Kakeibos
-        fields = ['date', 'fee', 'usage', 'way', 'move_from', 'move_to', 'memo', "tag_copy_to_shared"]
+        fields = ['date', 'fee', 'usage', 'way', 'move_from', 'move_to', 'memo', 'event', "tag_copy_to_shared", ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

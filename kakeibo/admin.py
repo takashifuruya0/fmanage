@@ -5,7 +5,7 @@ from asset.models import *
 
 
 class KakeibosAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'fee', 'way', 'tag', 'memo', 'usage', 'move_from', 'move_to']
+    list_display = ['id', 'date', 'fee', 'way', 'tag', 'memo', 'usage', 'move_from', 'move_to', 'event']
     list_filter = ['date', 'usage__name']
     search_fields = ['memo']
 
@@ -44,6 +44,10 @@ class UsualRecordAdmin(admin.ModelAdmin):
     list_display = ['id', 'fee', 'way', 'memo', 'usage', 'move_from', 'move_to']
 
 
+class EventAdmin(admin.ModelAdmin):
+    list_display = ['id', 'date', 'name', 'memo', ]
+
+
 admin.site.register(Kakeibos, KakeibosAdmin)
 admin.site.register(Resources, ResourcesAdmin)
 admin.site.register(Usages, UsagesAdmin)
@@ -60,3 +64,4 @@ admin.site.register(Credits, CreditsAdmin)
 admin.site.register(CronKakeibo, CronKakeiboAdmin)
 admin.site.register(CronShared, CronSharedAdmin)
 admin.site.register(UsualRecord, UsualRecordAdmin)
+admin.site.register(Event, EventAdmin)
