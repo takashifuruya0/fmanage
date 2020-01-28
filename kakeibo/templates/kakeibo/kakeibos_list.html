@@ -49,7 +49,7 @@
                     </div>
                 </th>
                 <th class="right">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">To</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Event</a>
                     <div class="nav-item dropdown active">
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <a class="dropdown-item" href="{% url 'kakeibo:kakeibo_list' %}">all</a>
@@ -60,6 +60,17 @@
                     </div>
                 </th>
                 <th class="right">Memo</th>
+                <th class="right">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">To</a>
+                    <div class="nav-item dropdown active">
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{% url 'kakeibo:kakeibo_list' %}">all</a>
+                            {% for e in events %}
+                            <a class="dropdown-item" href="{% url 'kakeibo:kakeibo_list' %}?event={{e.id}}">{{e}}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -73,6 +84,11 @@
                 <td class="right">{%if kakeibo.move_from%}{{kakeibo.move_from}}{% endif %}</td>
                 <td class="right">{%if kakeibo.move_to%}{{kakeibo.move_to}}{% endif %}</td>
                 <td class="right">{{kakeibo.memo}}</td>
+                <td class="right">
+                    <a href="">
+                        {{kakeibo.event}}
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

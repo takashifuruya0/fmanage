@@ -10,7 +10,7 @@ from datetime import date
 import logging
 logger = logging.getLogger("django")
 # model
-from kakeibo.models import Kakeibos, SharedKakeibos, Usages, Resources, Credits, CreditItems
+from kakeibo.models import Kakeibos, SharedKakeibos, Usages, Resources, Credits, CreditItems, Event
 # form
 from kakeibo.forms import UsageForm
 # module
@@ -28,6 +28,7 @@ class KakeiboList(PaginationMixin, ListView):
         res = super().get_context_data(**kwargs)
         res['usages'] = Usages.objects.all()
         res['resources'] = Resources.objects.all()
+        res['events'] = Event.objects.filter(is_active=True)
         res['ways'] = ["支出（現金）", "支出（クレジット）", "引き落とし", "共通支出", "収入"]
         return res
 
@@ -45,6 +46,8 @@ class KakeiboList(PaginationMixin, ListView):
             queryset = queryset.filter(move_from=self.request.GET['move_from'])
         if "move_to" in self.request.GET:
             queryset = queryset.filter(move_to=self.request.GET['move_to'])
+        if "event" in self.request.GET:
+            queryset = queryset.filter(event=self.request.GET['event'])
         return queryset
 
 
