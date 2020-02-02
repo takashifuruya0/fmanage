@@ -50,6 +50,7 @@ class Event(models.Model):
 class Colors(models.Model):
     objects = None
     name = models.CharField(max_length=30, unique=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -60,6 +61,7 @@ class Usages(BaseModel):
     is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
     memo = models.CharField(max_length=50, blank=True, null=True)
     color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
     def get_kakeibos_2(self):
         today = date.today()
@@ -187,6 +189,7 @@ class Resources(BaseModel):
     color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
     is_saving = models.BooleanField(default=False)
     is_visible = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
 
     def current_val(self):
         if self.name == "投資口座":
@@ -223,13 +226,34 @@ class Kakeibos(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道/収入源
-    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
+    usage = models.ForeignKey(
+        Usages, null=True, blank=True, on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from", on_delete=models.CASCADE)
+    move_from = models.ForeignKey(
+        Resources, null=True, blank=True, related_name="move_from", on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # 現金移動先
-    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to", on_delete=models.CASCADE)
+    move_to = models.ForeignKey(
+        Resources, null=True, blank=True, related_name="move_to", on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # Event
-    event = models.ForeignKey(Event, null=True, blank=True, default=None, related_name="event_kakeibo", on_delete=models.CASCADE)
+    event = models.ForeignKey(
+        Event, null=True, blank=True, default=None, related_name="event_kakeibo", on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return "{}_{}_{}_{}".format(self.date, self.way, self.usage, self.fee)
@@ -253,13 +277,24 @@ class SharedKakeibos(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道
-    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
+    usage = models.ForeignKey(
+        Usages, null=True, blank=True, on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True, on_delete=models.CASCADE)
+    move_from = models.ForeignKey(
+        Resources, null=True, blank=True, on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # 支払者
     paid_by = models.CharField(max_length=20)
     # 清算済み？
     is_settled = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.way
@@ -328,13 +363,29 @@ class CronKakeibo(models.Model):
     # 種類
     way = models.CharField(max_length=20)
     # 使い道/収入源
-    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
+    usage = models.ForeignKey(
+        Usages, null=True, blank=True, on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="move_from_cron", on_delete=models.CASCADE)
+    move_from = models.ForeignKey(
+        Resources, null=True, blank=True, related_name="move_from_cron", on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # 現金移動先
-    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="move_to_cron", on_delete=models.CASCADE)
+    move_to = models.ForeignKey(
+        Resources, null=True, blank=True, related_name="move_to_cron", on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
 
 class CronShared(models.Model):
@@ -346,11 +397,22 @@ class CronShared(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道
-    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
+    usage = models.ForeignKey(
+        Usages, null=True, blank=True, on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True, on_delete=models.CASCADE)
+    move_from = models.ForeignKey(
+        Resources, null=True, blank=True, on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # 支払者
     paid_by = models.CharField(max_length=20)
+    is_active = models.BooleanField(default=True)
 
 
 class UsualRecord(models.Model):
@@ -363,13 +425,29 @@ class UsualRecord(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道/収入源
-    usage = models.ForeignKey(Usages, null=True, blank=True, on_delete=models.CASCADE)
+    usage = models.ForeignKey(
+        Usages, null=True, blank=True, on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # 現金移動元
-    move_from = models.ForeignKey(Resources, null=True, blank=True, related_name="ur_move_from", on_delete=models.CASCADE)
+    move_from = models.ForeignKey(
+        Resources, null=True, blank=True, related_name="ur_move_from", on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # 現金移動先
-    move_to = models.ForeignKey(Resources, null=True, blank=True, related_name="ur_move_to", on_delete=models.CASCADE)
+    move_to = models.ForeignKey(
+        Resources, null=True, blank=True, related_name="ur_move_to", on_delete=models.CASCADE,
+        limit_choices_to={
+            "is_active": True,
+        }
+    )
     # fontawesome_icon
     icon = models.CharField(max_length=50, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def fee_yen(self):
         if self.fee >= 0:

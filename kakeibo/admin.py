@@ -1,27 +1,39 @@
 from django.contrib import admin
 from .models import *
-from asset.models import *
 # Register your models here.
 
 
+def activate(modeladmin, request, queryset):
+    queryset.update(is_active=True)
+    activate.short_description = "Mark selected stories as active"
+
+
 class KakeibosAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'fee', 'way', 'tag', 'memo', 'usage', 'move_from', 'move_to', 'event']
-    list_filter = ['date', 'usage__name']
-    search_fields = ['memo']
+    list_display = ['id', 'date', 'fee', 'way', 'memo', 'usage', 'move_from', 'move_to', 'event', "is_active"]
+    list_filter = ['date', 'usage__name', 'event', ]
+    list_editable = ['event', "is_active", ]
+    search_fields = ['memo', ]
+    actions = [activate]
 
 
 class ResourcesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'date', 'initial_val', 'current_val', 'is_saving', 'color']
+    list_display = ['id', 'name', 'date', 'initial_val', 'current_val', 'is_saving', 'color', "is_active"]
+    list_editable = ['is_active']
+    actions = [activate]
 
 
 class UsagesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'date', 'is_expense', 'color']
+    list_display = ['id', 'name', 'date', 'is_expense', 'color', "is_active"]
+    list_editable = ['is_active']
+    actions = [activate]
 
 
 class SharedKakeibosAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'fee', 'memo', 'usage', 'paid_by', 'is_settled']
+    list_display = ['id', 'date', 'fee', 'memo', 'usage', 'paid_by', 'is_settled', "is_active"]
     list_filter = ['date', 'usage__name']
     search_fields = ['memo']
+    list_editable = ['is_active']
+    actions = [activate]
 
 
 class CreditsAdmin(admin.ModelAdmin):
@@ -33,19 +45,25 @@ class CreditItemsAdmin(admin.ModelAdmin):
 
 
 class CronKakeiboAdmin(admin.ModelAdmin):
-    list_display = ['id', 'fee', 'way', 'usage', 'move_from', 'move_to']
+    list_display = ['id', 'fee', 'way', 'usage', 'move_from', 'move_to', "is_active"]
+    list_editable = ['is_active']
+    actions = [activate]
 
 
 class CronSharedAdmin(admin.ModelAdmin):
-    list_display = ['id', 'fee', 'way', 'usage', 'move_from', 'paid_by']
+    list_display = ['id', 'fee', 'way', 'usage', 'move_from', 'paid_by', "is_active"]
+    list_editable = ['is_active']
+    actions = [activate]
 
 
 class UsualRecordAdmin(admin.ModelAdmin):
-    list_display = ['id', 'fee', 'way', 'memo', 'usage', 'move_from', 'move_to']
+    list_display = ['id', 'fee', 'way', 'memo', 'usage', 'move_from', 'move_to', "is_active"]
+    list_editable = ['is_active']
+    actions = [activate]
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'name', 'memo', ]
+    list_display = ['id', 'date', 'name', 'memo', "is_active"]
 
 
 admin.site.register(Kakeibos, KakeibosAdmin)

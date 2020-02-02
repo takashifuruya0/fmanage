@@ -3,6 +3,7 @@ from django.conf import settings
 from django.views.generic import ListView
 from django.db.models import Count
 from pure_pagination.mixins import PaginationMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.contrib import messages
 from datetime import date

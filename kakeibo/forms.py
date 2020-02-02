@@ -13,11 +13,16 @@ class KakeiboForm(forms.ModelForm):
     way = forms.TypedChoiceField(choices=choices)
     way.widget.attrs['onchange'] = 'fill_resource()'
     tag_copy_to_shared = forms.BooleanField(required=False)
-    usage = forms.ModelChoiceField(queryset=Usages.objects.all().order_by('is_expense'), required=False)
+    usage = forms.ModelChoiceField(
+        queryset=Usages.objects.filter(is_active=True).order_by('is_expense'),
+        required=False
+    )
 
     class Meta:
         model = Kakeibos
-        fields = ['date', 'fee', 'usage', 'way', 'move_from', 'move_to', 'memo', 'event', "tag_copy_to_shared", ]
+        fields = [
+            'date', 'fee', 'way', 'usage', 'move_from', 'move_to', 'memo', 'event', "tag_copy_to_shared",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,7 +40,9 @@ class SharedKakeiboForm(forms.ModelForm):
     choices_paid_by = ((c, c) for c in ["敬士", "朋子",])
     paid_by = forms.TypedChoiceField(choices=choices_paid_by)
     date = forms.DateField()
-    usage = forms.ModelChoiceField(queryset=Usages.objects.filter(is_expense=True))
+    usage = forms.ModelChoiceField(
+        queryset=Usages.objects.filter(is_expense=True, is_active=True)
+    )
 
     class Meta:
         model = SharedKakeibos
