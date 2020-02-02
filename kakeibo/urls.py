@@ -1,7 +1,8 @@
 # coding:utf-8
 from django.conf.urls import url
+from django.urls import path
 from django.contrib.auth.decorators import login_required
-from kakeibo.views import views_figure, views_list, views_detail, views_create
+from kakeibo.views import views_figure, views_list, views_detail, views_create, views_delete
 from kakeibo.views import views_main as views
 from kakeibo.views import views_redirect as views_redirect
 # django-rest-framework
@@ -51,6 +52,9 @@ urlpatterns = [
     url(r'^credit/update/(?P<pk>\d+)/$', login_required(views_detail.CreditUpdate.as_view()), name="credit_update"),
     url(r'^credit/items/update/(?P<pk>\d+)/$', login_required(views_detail.CreditItemUpdate.as_view()), name="credit_item_update"),
     url(r'^event/update/(?P<pk>\d+)/$', login_required(views_detail.EventUpdate.as_view()), name="event_update"),
+    # delete
+    path("mine/detail/<int:pk>/delete", views_delete.KakeiboDelete.as_view(), name="kakeibo_delete"),
+    path("shared/detail/<int:pk>/delete", views_delete.SharedDelete.as_view(), name="shared_delete"),
     # link_kakeibo_and_credit
     url(r'^link$', views.link_kakeibo_and_credit, name='link_kakeibo_and_credit'),
 
