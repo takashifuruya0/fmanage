@@ -98,8 +98,18 @@ def dashboard(request):
                             debit_date=date(today.year, today.month, 1),
                             memo=line[6]
                         )
-                smsg, msgs = process_kakeibo.link_credit_kakeibo()
-                smsg = "Credit records were created"
+                    else:
+                        Kakeibos.objects.create(
+                            date=today,
+                            fee=line[5],
+                            way="引き落とし",
+                            usage=Usages.objects.get(name="クレジット（個人）"),
+                            move_from=Resources.objects.get(name="ゆうちょ"),
+                            memo="SFC {}/{}".format(today.year, today.month),
+                        )
+                        smsg = "Total {} / ".format(line[5])
+                process_kakeibo.link_credit_kakeibo()
+                smsg = smsg + "Credit records were created"
                 messages.success(request, smsg)
                 logger.info(smsg)
             except Exception as e:
@@ -278,9 +288,20 @@ def mine(request):
                             debit_date=date(today.year, today.month, 1),
                             memo=line[6]
                         )
-                text = "Credit records were created"
-                messages.success(request, text)
-                logger.info(text)
+                    else:
+                        Kakeibos.objects.create(
+                            date=today,
+                            fee=line[5],
+                            way="引き落とし",
+                            usage=Usages.objects.get(name="クレジット（個人）"),
+                            move_from=Resources.objects.get(name="ゆうちょ"),
+                            memo="SFC {}/{}".format(today.year, today.month),
+                        )
+                        smsg = "Total {} / ".format(line[5])
+                process_kakeibo.link_credit_kakeibo()
+                smsg = smsg + "Credit records were created"
+                messages.success(request, smsg)
+                logger.info(smsg)
             except Exception as e:
                 emsg = e
                 logger.error(emsg)
