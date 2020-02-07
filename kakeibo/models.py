@@ -30,21 +30,25 @@ class Event(models.Model):
     name = models.CharField(max_length=30)
     memo = models.CharField(max_length=100, blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    sum_plan = models.IntegerField(default=0)
 
     def __str__(self):
         return "{}_{}".format(self.date, self.name)
 
-    def sum_linked(self):
+    def sum_actual(self):
         if self.event_kakeibo.exists():
             return self.event_kakeibo.aggregate(sum=Sum('fee'))['sum']
         else:
-            return None
+            return 0
 
-    def count_linked(self):
+    def count_actual(self):
         if self.event_kakeibo.exists():
             return self.event_kakeibo.aggregate(count=Count('fee'))['count']
         else:
-            return None
+            return 0
+
+    def diff_btw_plan_and_acutual(self):
+        return self.sum_actual() - self.sum_actual()
 
 
 class Colors(models.Model):

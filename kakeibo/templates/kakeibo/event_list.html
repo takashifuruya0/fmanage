@@ -22,30 +22,38 @@
     <div class="row">
         {% for event in object_list %}
         <div class="col-sm-6 col-md-4 col-lg-3">
-            <div class="card">
-                <div class="card-header">
-                    <strong>{{event.name}}</strong>
-                </div>
-                <div class="card-body">
-                    <table class="table table-light table-sm table-hover">
-                        <tr>
-                            <th>日付</th>
-                            <td class="right">{{event.date}}</td>
-                        </tr>
-                        <tr>
-                            <th>概要</th>
-                            <td class="right">{{event.memo}}</td>
-                        </tr>
-                    </table>
-                    <button class="btn btn-primary" onClick=location.href="{% url 'kakeibo:event_detail' pk=event.pk %}">
-                        <i class="fas fa-info-circle"></i> Detail
-                    </button>
-                    <button class="btn btn-info" onClick=location.href="{% url 'kakeibo:event_update' pk=event.pk %}">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                </div>
+          <div class="card">
+            <div class="card-header">
+              <strong>{{event.name}}</strong>
             </div>
-            <br>
+            <div class="card-body">
+              <table class="table table-light table-sm table-hover">
+                <tr>
+                  <th>日付</th>
+                  <td class="right">{{event.date}}</td>
+                </tr>
+                <tr>
+                  <th>概要</th>
+                  <td class="right">{{event.memo}}</td>
+                </tr>
+                <tr>
+                  <th>計画</th>
+                  <td>{{event.sum_plan}}</td>
+                </tr>
+                <tr>
+                  <th>実績</th>
+                  <td>{{event.sum_actual}}</td>
+                </tr>
+              </table>
+              <button class="btn btn-primary" onClick=location.href="{% url 'kakeibo:event_detail' pk=event.pk %}">
+                  <i class="fas fa-info-circle"></i> Detail
+              </button>
+              <button class="btn btn-info" onClick=location.href="{% url 'kakeibo:event_update' pk=event.pk %}">
+                  <i class="fas fa-edit"></i> Edit
+              </button>
+            </div>
+          </div>
+          <br>
         </div>
         {% endfor %}
     </div>
