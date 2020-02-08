@@ -21,7 +21,7 @@
 
     <div class="row">
         {% for event in object_list %}
-        <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="col-sm-6 col-md-4 col-lg-4">
           <div class="card">
             <div class="card-header">
               <strong>{{event.name}}</strong>
@@ -38,11 +38,11 @@
                 </tr>
                 <tr>
                   <th>計画</th>
-                  <td>{{event.sum_plan}}</td>
+                  <td class="right">¥ {{event.sum_plan |intcomma}}</td>
                 </tr>
                 <tr>
                   <th>実績</th>
-                  <td>{{event.sum_actual}}</td>
+                  <td class="right">¥ {{event.sum_actual |intcomma}}</td>
                 </tr>
               </table>
               <button class="btn btn-primary" onClick=location.href="{% url 'kakeibo:event_detail' pk=event.pk %}">

@@ -28,8 +28,16 @@
             <td>{{object.memo}}</td>
         </tr>
         <tr>
-            <th>Sum</th>
+            <th>Sum (Actual)</th>
             <td>¥ {{object.sum_actual |intcomma}}</td>
+        </tr>
+        <tr>
+            <th>Sum (Plan)</th>
+            <td>¥ {{object.sum_plan |intcomma}}</td>
+        </tr>
+        <tr>
+            <th>Diff</th>
+            <td>¥ {{object.diff_from_plan |intcomma}}</td>
         </tr>
         <tr>
             <th>Count</th>

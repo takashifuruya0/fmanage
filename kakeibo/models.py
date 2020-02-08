@@ -47,8 +47,8 @@ class Event(models.Model):
         else:
             return 0
 
-    def diff_btw_plan_and_acutual(self):
-        return self.sum_actual() - self.sum_actual()
+    def diff_from_plan(self):
+        return self.sum_actual() - self.sum_plan
 
 
 class Colors(models.Model):
