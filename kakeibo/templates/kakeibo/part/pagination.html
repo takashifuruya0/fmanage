@@ -19,7 +19,7 @@
     {% endfor %}
 
     {% if page_obj.has_next %}
-      <li><a class="page-link text-primary d-inline-block" href="{{ page_obj.next_page_number.querystring }}">次</a></li>
+      <li><a class="page-link text-primary d-inline-block" href="?{{ page_obj.next_page_number.querystring }}">次</a></li>
     {% else %}
       <li class="disabled"><div class="page-link text-secondary d-inline-block disabled" href="#">次</div></li>
     {% endif %}
