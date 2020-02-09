@@ -32,11 +32,15 @@
                 <th>Memo</th>
                 <td>{{form.memo}}</td>
             </tr>
+            <tr>
+                <th>Active</th>
+                <td>{{form.is_active}}</td>
+            </tr>
         </table>
         <div class="row">
             <div class="col-sm-6">
                 <button class="btn btn-primary">Save</button>
-                <a href="{% url 'kakeibo:kakeibo_detail' pk=object.pk %}" class="btn btn-secondary">Back to detail</a>
+                <a href="{% url 'kakeibo:event_detail' pk=object.pk %}" class="btn btn-secondary">Back to detail</a>
             </div>
         </div>
         {% csrf_token %}

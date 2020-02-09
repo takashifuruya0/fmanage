@@ -98,7 +98,7 @@ class UsageForm(forms.ModelForm):
 
     class Meta:
         model = Usages
-        fields = ['name', 'is_expense', 'memo', 'date', ]
+        fields = ['name', 'is_expense', 'memo', 'date', 'is_active', ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -115,7 +115,7 @@ class EventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['date', 'name', 'memo', 'date', 'sum_plan', ]
+        fields = ['date', 'name', 'memo', 'date', 'sum_plan', 'is_active', ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

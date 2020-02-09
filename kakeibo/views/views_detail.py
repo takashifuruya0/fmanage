@@ -1,6 +1,8 @@
 # coding:utf-8
 from django.conf import settings
 from django.views.generic import DetailView, UpdateView
+from django.views.generic.list import MultipleObjectMixin
+from pure_pagination import PaginationMixin
 from django.urls import reverse
 from django.db.models import Sum, Count, Avg
 # logging
@@ -53,16 +55,14 @@ class UsageDetail(DetailView):
         return res
 
 
-class EventDetail(DetailView):
+class EventDetail(PaginationMixin, MultipleObjectMixin, DetailView):
     model = Event
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
-        res = super().get_context_data(**kwargs)
-        return res
-
-    def get_queryset(self):
-        queryset = Event.objects.select_related().order_by('-date')
-        return queryset
+        object_list = Kakeibos.objects.filter(event=self.get_object(), is_active=True).order_by('-date')
+        context = super(EventDetail, self).get_context_data(object_list=object_list, **kwargs)
+        return context
 
 
 class KakeiboUpdate(UpdateView):

@@ -50,6 +50,19 @@ class Event(models.Model):
     def diff_from_plan(self):
         return self.sum_actual() - self.sum_plan
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.count_actual() == 0:
+            Kakeibos.objects.create(
+                event=self,
+                date=self.date,
+                memo="init",
+                fee=0,
+                way="その他",
+                usage=Usages.objects.get(name="その他"),
+                is_active=False
+            )
+
 
 class Colors(models.Model):
     objects = None
