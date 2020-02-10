@@ -8,7 +8,10 @@
 <div class="container">
     <h1><i class="far fa-list-alt"></i> 家計簿記録</h1>
     <hr>
-
+    <form method="GET">
+        <input type="text" name="search" placeholder="search">
+        <button class="submit">Search</button>
+    </form>
     <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
         <thead>
             <tr>
@@ -49,7 +52,7 @@
                     </div>
                 </th>
                 <th class="right">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Event</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">To</a>
                     <div class="nav-item dropdown active">
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <a class="dropdown-item" href="{% url 'kakeibo:kakeibo_list' %}">all</a>
@@ -61,12 +64,12 @@
                 </th>
                 <th class="right">Memo</th>
                 <th class="right">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">To</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Event</a>
                     <div class="nav-item dropdown active">
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <a class="dropdown-item" href="{% url 'kakeibo:kakeibo_list' %}">all</a>
                             {% for e in events %}
-                            <a class="dropdown-item" href="{% url 'kakeibo:kakeibo_list' %}?event={{e.id}}">{{e}}</a>
+                            <a class="dropdown-item" href="{% url 'kakeibo:kakeibo_list' %}?event={{e.id}}">{{e.name}}</a>
                             {% endfor %}
                         </div>
                     </div>
@@ -81,49 +84,22 @@
                 <td class="right">{{kakeibo.fee_yen}}</td>
                 <td class="right">{{kakeibo.way}}</td>
                 <td class="right">{{kakeibo.usage}}</td>
-                <td class="right">{%if kakeibo.move_from%}{{kakeibo.move_from}}{% endif %}</td>
-                <td class="right">{%if kakeibo.move_to%}{{kakeibo.move_to}}{% endif %}</td>
-                <td class="right">{{kakeibo.memo}}</td>
+                <td class="right">{{kakeibo.move_from |default:'-'}}</td>
+                <td class="right">{{kakeibo.move_to |default:'-'}}</td>
+                <td class="right">{{kakeibo.memo |default:''}}</td>
                 <td class="right">
-                    <a href="">
-                        {{kakeibo.event}}
+                    {% if kakeibo.event %}
+                    <a href="{%url 'kakeibo:event_detail' pk=kakeibo.event.pk %}">
+                        {{kakeibo.event.name}}
                     </a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-{% if is_paginated %}
-  <ul class="pagination">
-      {% if page_obj.has_previous %}
-        <li><a class="page-link text-primary d-inline-block" href="?{{ page_obj.previous_page_number.querystring }}">前</a></li>
-      {% else %}
-        <li class="disabled"><div class="page-link text-secondary d-inline-block disabled" href="#">前</div></li>
-      {% endif %}
-
-      {% for link_page in page_obj.pages %}
-        {% if link_page %}
-          {% if link_page == page_obj.number %}
-            <li class="disabled"><div class="page-link text-secondary d-inline-block disabled" href="#">{{ link_page }}</div></li>
-          {% else %}
-            <li><a class="page-link text-primary d-inline-block" href="?{{ link_page.querystring  }}">{{ link_page }}</a></li>
-          {% endif %}
-        {% else %}
-          <li class="disabled"><a class="page-link text-secondary d-inline-block text-muted" href="#">・・・</a></li>
-        {% endif %}
-      {% endfor %}
-
-      {% if page_obj.has_next %}
-        <li><a class="page-link text-primary d-inline-block" href="?{{ page_obj.next_page_number.querystring }}">次</a></li>
-      {% else %}
-        <li class="disabled"><div class="page-link text-secondary d-inline-block disabled" href="#">次</div></li>
-      {% endif %}
-      <li class="p-md-2">
-        {{ page_obj.paginator.num_pages }} 頁中 {{ page_obj.number }} 頁目を表示
-      </li>
-  </ul>
-{% endif %}
+{% include 'kakeibo/part/pagination.html' %}
 </div>
 
 {% endblock %}

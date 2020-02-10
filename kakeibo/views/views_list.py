@@ -1,7 +1,7 @@
 # coding:utf-8
 from django.conf import settings
 from django.views.generic import ListView
-from django.db.models import Count
+from django.db.models import Count, Q
 from pure_pagination.mixins import PaginationMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
@@ -49,6 +49,12 @@ class KakeiboList(PaginationMixin, ListView):
             queryset = queryset.filter(move_to=self.request.GET['move_to'])
         if "event" in self.request.GET:
             queryset = queryset.filter(event=self.request.GET['event'])
+        if "search" in self.request.GET:
+            queryset = queryset.filter(
+                Q(memo__icontains=self.request.GET['search']) |
+                Q(event__name__icontains=self.request.GET['search']) |
+                Q(event__memo__icontains=self.request.GET['search'])
+            )
         return queryset
 
 
@@ -171,7 +177,7 @@ class EventList(PaginationMixin, ListView):
         return res
 
     def get_queryset(self):
-        queryset = Event.objects.all()  # Default: Model.objects.all()
+        queryset = Event.objects.all().order_by("-is_active", '-date')  # Default: Model.objects.all()
         return queryset
 
     def post(self, request, *args, **kwargs):
