@@ -290,7 +290,7 @@ def get_trend(df_ascending):
                     trend_period_25 += 1
                 else:
                     break
-        elif ma_25.iloc[0] < ma_25.iloc[1]:
+        elif ma_25.iloc[0] <= ma_25.iloc[1]:
             res['is_upper_25'] = False
             for i in range(2, len(df_ascending_reverse)):
                 if ma_25.iloc[i-1] < ma_25.iloc[i]:
@@ -305,7 +305,7 @@ def get_trend(df_ascending):
                     trend_period_75 += 1
                 else:
                     break
-        elif ma_75.iloc[0] < ma_75.iloc[1]:
+        elif ma_75.iloc[0] <= ma_75.iloc[1]:
             res['is_upper_75'] = False
             for i in range(2, len(df_ascending_reverse)):
                 if ma_75.iloc[i-1] < ma_75.iloc[i]:
