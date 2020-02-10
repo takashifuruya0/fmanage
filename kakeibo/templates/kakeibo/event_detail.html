@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{$ load settings $}
 {% block title %}
     Event-Detail
 {% endblock %}
@@ -17,7 +18,7 @@
         </tr>
         <tr>
             <th>Date</th>
-            <td>{{object.date | date}}</td>
+            <td>{{object.date |date}}</td>
         </tr>
         <tr>
             <th>Name</th>
@@ -30,7 +31,7 @@
         </tr>
         <tr>
             <th>Memo</th>
-            <td>{{object.memo}}</td>
+            <td>{{object.memo |default:''}}</td>
         </tr>
         <tr>
             <th>Sum (Actual)</th>
@@ -77,8 +78,15 @@
 
     <div class="row">
         <div class="col-sm-6">
-            <a href="{% url 'kakeibo:event_update' pk=object.pk %}" class="btn btn-info">Edit</a>
-            <a href="{% url 'kakeibo:event_list' %}" class="btn btn-secondary">Back to list</a>
+            <a href="{% url 'kakeibo:event_update' pk=object.pk %}" class="btn btn-info">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'kakeibo:kakeibo_create' %}?event={{object.pk}}" class="btn btn-primary">
+                <i class="fas fa-plus-square"></i> Add Kakeibo
+            </a>
+            <a href="{% url 'kakeibo:event_list' %}" class="btn btn-secondary">
+                <i class="fas fa-list"></i> Back to list
+            </a>
         </div>
     </div>
 </div>

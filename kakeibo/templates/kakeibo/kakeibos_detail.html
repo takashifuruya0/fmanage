@@ -46,9 +46,15 @@
     </table>
     <div class="row">
         <div class="col-sm-6">
-            <a href="{% url 'kakeibo:kakeibo_update' pk=object.pk %}" class="btn btn-info">Edit</a>
-            <a href="{% url 'kakeibo:kakeibo_delete' pk=object.pk %}" class="btn btn-danger">Delete</a>
-            <a href="{% url 'kakeibo:kakeibo_list' %}" class="btn btn-secondary">Back to list</a>
+            <a href="{% url 'kakeibo:kakeibo_update' pk=object.pk %}" class="btn btn-info">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'kakeibo:kakeibo_delete' pk=object.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash-alt"></i> Delete
+            </a>
+            <a href="{% url 'kakeibo:kakeibo_list' %}" class="btn btn-secondary">
+                <i class="fas fa-list"></i> Back to list
+            </a>
         </div>
     </div>
 </div>
