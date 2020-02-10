@@ -44,7 +44,7 @@ urlpatterns = [
     url(r'^shared/detail/(?P<pk>\d+)/$', views_detail.SharedDetail.as_view(), name="shared_detail"),
     url(r'^credit/detail/(?P<pk>\d+)/$', login_required(views_detail.CreditDetail.as_view()), name="credit_detail"),
     url(r'^credit/items/detail/(?P<pk>\d+)/$', login_required(views_detail.CreditItemDetail.as_view()), name="credit_item_detail"),
-    path('event/detail/(<int:pk>/)/', login_required(views_detail.EventDetail.as_view()), name="event_detail"),
+    path('event/detail/<int:pk>/', login_required(views_detail.EventDetail.as_view()), name="event_detail"),
     # update
     url(r'^mine/update/(?P<pk>\d+)/$', login_required(views_detail.KakeiboUpdate.as_view()), name="kakeibo_update"),
     url(r'^shared/update/(?P<pk>\d+)/$', views_detail.SharedUpdate.as_view(), name="shared_update"),
