@@ -12,7 +12,6 @@ from kakeibo.forms import KakeiboForm, SharedKakeiboForm
 
 
 # Create your views here.
-
 class KakeiboCreate(CreateView):
     model = Kakeibos
     form_class = KakeiboForm
@@ -27,9 +26,6 @@ class KakeiboCreate(CreateView):
     def get_success_url(self):
         return reverse('kakeibo:kakeibo_detail', kwargs={'pk': self.object.pk})
 
-    # def get_success_url(self):
-    #     return reverse('kakeibo:kakeibo_detail', kwargs={'pk': self.object.pk})
-
 
 class SharedCreate(CreateView):
     model = SharedKakeibos
@@ -38,7 +34,5 @@ class SharedCreate(CreateView):
     def get_success_url(self):
         return reverse('kakeibo:shared_detail', kwargs={'pk': self.object.pk})
 
-    # def get_success_url(self):
-    #     return reverse('kakeibo:shared_detail', kwargs={'pk': self.object.pk})
 
 

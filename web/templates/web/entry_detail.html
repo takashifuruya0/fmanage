@@ -67,7 +67,7 @@
 				</tr>
 				<tr>
 					<th>Memo</th>
-					<td colspan="3">{{entry.memo}}</td>
+					<td colspan="3">{{entry.memo |linebreaksbr}}</td>
 				</tr>
 			</table>
 			<a class="btn btn-outline-info" href="{%url 'web:entry_edit' entry_id=entry.pk%}">
