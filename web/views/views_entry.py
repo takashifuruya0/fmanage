@@ -1,6 +1,6 @@
 # coding:utf-8
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
+from django.shortcuts import redirect, reverse
 from django.template.response import TemplateResponse
 from django.conf import settings
 from datetime import date
@@ -11,7 +11,7 @@ from django.db import transaction
 from web.models import Entry, Order, StockValueData
 from web.functions import asset_scraping, asset_analysis
 # list view, pagination
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView
 from pure_pagination.mixins import PaginationMixin
 from django.utils.decorators import method_decorator
 # logging
@@ -20,50 +20,6 @@ logger = logging.getLogger("django")
 
 
 # Create your views here.
-@login_required
-@transaction.atomic
-def entry_list(request):
-    if request.method == "POST":
-        try:
-            with transaction.atomic():
-                # entryの統合
-                pks = request.POST.getlist('pk')
-                entrys = Entry.objects.prefetch_related('order_set').filter(pk__in=pks, user=request.user)
-                if request.POST['post_type'] == "merge_entrys":
-                    # 最初のEntry
-                    first_entry = entrys.first()
-                    for entry in entrys:
-                        if not entry == first_entry:
-                            entry.order_set.all().update(entry=first_entry)
-                        if entry.remaining() == 0:
-                            entry.delete()
-                        else:
-                            entry.save()
-                    msg = "Entrys {} are merged to Entry {}".format(pks, first_entry.pk)
-                    messages.success(request, msg)
-        except Exception as e:
-            logger.error(e)
-            messages.error(request, e)
-        finally:
-            return redirect('web:entry_list')
-    elif request.method == "GET":
-        msg = request.GET
-        if not settings.ENVIRONMENT == "production":
-            messages.info(request, msg)
-        logger.info(msg)
-        entrys = Entry.objects.prefetch_related('order_set').select_related().filter(user=request.user).order_by('-pk')
-        if request.GET.get("is_closed", False):
-            entrys = entrys.filter(is_closed=True)
-        elif request.GET.get("is_open", False):
-            entrys = entrys.filter(is_closed=False)
-        output = {
-            "msg": msg,
-            "user": request.user,
-            "entrys": entrys,
-        }
-        return TemplateResponse(request, "web/entry_list.html", output)
-
-
 @transaction.atomic
 @login_required
 def entry_detail(request, entry_id):
@@ -102,8 +58,11 @@ def entry_detail(request, entry_id):
                 .select_related().get(pk=entry_id, user=request.user)
             orders_unlinked = Order.objects.filter(entry=None, stock=entry.stock).order_by('datetime')
             orders_linked = entry.order_set.all().order_by('datetime')
-            edo = entry.date_open().date()
+            print("debug1")
+            edo = entry.date_open().date() if orders_linked.exists() else date.today()
+            print("debug2")
             edc = entry.date_close().date() if entry.is_closed else date.today()
+            print("debug3")
             # days日のマージンでグラフ化範囲を指定
             days = 60
             od = edo - relativedelta(days=days)
@@ -118,6 +77,7 @@ def entry_detail(request, entry_id):
             date_list = dict()
             for i, svd in enumerate(svds):
                 date_list[svd.date.__str__()] = i
+            print("debug4")
             # 売買注文のグラフ化
             bos_detail = [None for i in range(svds_count)]
             sos_detail = [None for i in range(svds_count)]
@@ -199,6 +159,7 @@ class EntryList(PaginationMixin, ListView):
         logger.info(msg)
         res["msg"] = msg
         res["user"] = self.request.user
+        res['form'] = EntryForm(initial={"user": self.request.user})
         return res
 
     def get_queryset(self):
@@ -233,3 +194,13 @@ class EntryList(PaginationMixin, ListView):
             messages.error(request, e)
         finally:
             return self.get(request, *args, **kwargs)
+
+
+@method_decorator(login_required, name='dispatch')
+class EntryCreate(CreateView):
+    model = Entry
+    form_class = EntryForm
+
+    def get_success_url(self):
+        return reverse('web:entry_detail', kwargs={'entry_id': self.object.pk})
+

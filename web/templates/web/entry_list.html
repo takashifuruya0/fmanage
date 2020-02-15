@@ -20,9 +20,9 @@
 				<button type="submit" class="btn btn-outline-primary" name="post_type" value="merge_entrys">
 					<i class="fas fa-object-group"></i> Merge
 				</button>
-				<a href="" class="btn btn-outline-primary">
+				<button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#new_entry">
 					<i class="fas fa-plus"></i> Create
-				</a>
+				</button>
 				<button type="submit" class="btn btn-outline-danger" name="post_type" value="delete_entrys">
 					<i class="fas fa-trash-alt"></i> Delete
 				</button>
@@ -77,4 +77,5 @@
 		</div>
 	</div>
 </div>
+{% include 'web/modal/modal_new_entry.html' %}
 {% endblock %}

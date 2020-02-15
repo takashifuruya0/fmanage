@@ -8,13 +8,18 @@ class EntryForm(forms.ModelForm):
     ModelForm を継承して作れば、HTMLで表示したいフィールドを
     指定するだけで HTML フォームを作ってくれる。
     """
+    is_plan = forms.BooleanField(initial=True)
+
     class Meta:
         model = Entry
         fields = [
+            "user",
+            "stock",
             "border_profit_determination",
             'border_loss_cut',
             'reason_win_loss',
-            'memo'
+            'memo',
+            "is_plan",
         ]
 
     def __init__(self, *args, **kwargs):

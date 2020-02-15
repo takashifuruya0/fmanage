@@ -25,9 +25,9 @@
 				</tr>
 				<tr>
 					<th>Open Date</th>
-					<td>{{entry.date_open}}</td>
+					<td>{{entry.date_open |default_if_none:"-"}}</td>
 					<th>Close Date</th>
-					<td>{{entry.date_close | default_if_none:"-"}}</td>
+					<td>{{entry.date_close |default_if_none:"-"}}</td>
 				</tr>
 				<tr>
 					<th>利確価格</th>
@@ -64,6 +64,10 @@
 				<tr>
 					<th>Reason</th>
 					<td colspan="3">{{entry.reason_win_loss| default_if_none:"-"}}</td>
+				</tr>
+				<tr>
+					<th>Plan</th>
+					<td colspan="3">{%if entry.is_plan%}✓{%endif%}</td>
 				</tr>
 				<tr>
 					<th>Memo</th>

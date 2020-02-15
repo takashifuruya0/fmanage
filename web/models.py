@@ -52,10 +52,11 @@ class Entry(models.Model):
     border_loss_cut = models.FloatField(blank=True, null=True, verbose_name="損切価格")
     border_profit_determination = models.FloatField(blank=True, null=True, verbose_name="利確価格")
     reason_win_loss = models.ForeignKey(ReasonWinLoss, on_delete=models.CASCADE, blank=True, null=True, verbose_name="理由")
-    memo = models.TextField(max_length=400, blank=True, null=True, verbose_name="メモ")
+    memo = models.TextField(blank=True, null=True, verbose_name="メモ")
+    is_plan = models.BooleanField(default=False, verbose_name="Plan")
     is_closed = models.BooleanField(default=False)
-    is_simulated = models.BooleanField()
-    is_nisa = models.BooleanField()
+    is_simulated = models.BooleanField(default=False)
+    is_nisa = models.BooleanField(default=False, verbose_name="NISA")
 
     def __str__(self):
         return "E{:0>3}_{}".format(self.pk, self.stock)
@@ -92,13 +93,11 @@ class Entry(models.Model):
         return self.order_set.count()
 
     def remaining(self):
-        remaining = self.num_buy() - self.num_sell()
-        return remaining
+        return self.num_buy() - self.num_sell()
 
     def profit(self):
         profit = 0
-        orders = self.order_set.all()
-        for o in orders:
+        for o in self.order_set.all():
             if o.is_buy:
                 profit -= (o.num * o.val + o.commission)
             else:
@@ -112,33 +111,26 @@ class Entry(models.Model):
         return profit
 
     def profit_pct(self):
-        return round(100 + self.profit() * 100 / self.val_buy() / self.num_buy(), 1)
+        return round(100 + self.profit() * 100 / self.val_buy() / self.num_buy(), 1) if self.order_set.exists() else 0
 
     def date_open(self):
         os = self.order_set.filter(is_buy=True)
-        if os.exists():
-            return min([o.datetime for o in os])
-        else:
-            return
+        return min([o.datetime for o in os]) if os.exists() else None
 
     def date_close(self):
         os = self.order_set.filter(is_buy=False)
-        if os.exists():
-            return max([o.datetime for o in os])
-        else:
-            return
+        return max([o.datetime for o in os]) if os.exists() else None
 
     def border_loss_cut_percent(self):
-        if self.border_loss_cut:
-            return round(self.border_loss_cut/self.val_buy()*100, 2)
+        return round(self.border_loss_cut/self.val_buy()*100, 2) if self.border_loss_cut else None
 
     def border_profit_determination_percent(self):
-        if self.border_profit_determination:
-            return round(self.border_profit_determination/self.val_buy()*100, 2)
+        return round(self.border_profit_determination/self.val_buy()*100, 2) if self.border_profit_determination else None
 
     def save(self, *args, **kwargs):
-        self.is_closed = True if self.remaining() == 0 else False
         if self.order_set.exists():
+            # check closed if remaining = 0
+            self.is_closed = True if self.remaining() == 0 else False
             # same stocks should be linked
             if not self.order_set.count() == self.order_set.filter(stock=self.order_set.first().stock).count():
                 raise Exception('Different stocks are linked')
@@ -148,6 +140,8 @@ class Entry(models.Model):
             # date_open should be earlier than date_close
             if self.is_closed and self.date_open() > self.date_close():
                 raise Exception('date_open should be earlier than date_close')
+        else:
+            self.is_closed = False
         super().save(*args, **kwargs)
 
 

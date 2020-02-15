@@ -13,6 +13,7 @@ urlpatterns = [
     # entry
     # path('entry/', views_entry.entry_list, name='entry_list'),
     path('entry/', views_entry.EntryList.as_view(), name='entry_list'),
+    path('entry/create', views_entry.EntryCreate.as_view(), name='entry_create'),
     path('entry/<int:entry_id>/', views_entry.entry_detail, name='entry_detail'),
     path('entry/<int:entry_id>/edit', views_entry.entry_edit, name='entry_edit'),
     # order
