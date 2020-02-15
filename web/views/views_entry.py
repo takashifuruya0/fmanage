@@ -11,7 +11,7 @@ from django.db import transaction
 from web.models import Entry, Order, StockValueData
 from web.functions import asset_scraping, asset_analysis
 # list view, pagination
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 from pure_pagination.mixins import PaginationMixin
 from django.utils.decorators import method_decorator
 # logging

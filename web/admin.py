@@ -51,7 +51,7 @@ class EntryAdmin(admin.ModelAdmin):
     list_display = [
         'pk', 'stock',
         # 'border_loss_cut', 'border_profit_determination',
-        'is_closed', 'is_simulated',
+        'is_closed', 'is_simulated', "is_plan",
         "remaining", "profit",
         'reason_win_loss', 'memo', "num_linked_orders",
     ]

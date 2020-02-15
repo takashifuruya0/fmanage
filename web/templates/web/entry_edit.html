@@ -42,8 +42,8 @@
 						¥{{entry.val_buy |intcomma}}
 						{% endif %}
 					</td>
-					<td>{{entry.num_sell}}</td>
-					<td>¥{{entry.val_sell | intcomma}}</td>
+					<td>{{entry.num_sell |intcomma}}</td>
+					<td>¥{{entry.val_sell |intcomma}}</td>
 				</tr>
 			</table>
 			<hr>
@@ -58,19 +58,19 @@
 				</tr>
 				<tr>
 					<th>Open Date</th>
-					<td>{{entry.date_open}}</td>
+					<td>{{entry.date_open |default_if_none:"-"}}</td>
 				</tr>
 				<tr>
 					<th>Close Date</th>
-					<td>{{entry.date_close | default_if_none:"-"}}</td>
+					<td>{{entry.date_close |default_if_none:"-"}}</td>
 				</tr>
 				<tr>
 					<th>Remaining</th>
-					<td>{{entry.remaining | intcomma}}</td>
+					<td>{{entry.remaining |intcomma}}</td>
 				</tr>
 				<tr>
 					<th>Profit</th>
-					<td>¥{{entry.profit | intcomma}}</td>
+					<td>¥{{entry.profit |intcomma}}</td>
 				</tr>
 			</table>
 		</div>

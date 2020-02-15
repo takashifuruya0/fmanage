@@ -3,9 +3,13 @@
 {%endif%}
 
 {%if entry.is_closed %}
-<label class="badge bg-secondary">Closed</label>
+  {%if entry.profit > 0 %}
+  <label class="badge badge-success">Closed Won</label>
+  {%else%}
+  <label class="badge badge-danger">Closed Lost</label>
+  {%endif%}
 {%elif not entry.is_plan%}
-<label class="badge bg-success">Open</label>
+<label class="badge badge-primary">Open</label>
 {%else%}
-<label class="badge bg-warning">Plan</label>
+<label class="badge badge-warning">Plan</label>
 {%endif%}

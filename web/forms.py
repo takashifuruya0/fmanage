@@ -8,7 +8,7 @@ class EntryForm(forms.ModelForm):
     ModelForm を継承して作れば、HTMLで表示したいフィールドを
     指定するだけで HTML フォームを作ってくれる。
     """
-    is_plan = forms.BooleanField(initial=True)
+    is_plan = forms.BooleanField(initial=True, required=False)
 
     class Meta:
         model = Entry
@@ -47,6 +47,18 @@ class OrderForm(forms.ModelForm):
 class InvestmentForm(forms.Form):
     value = forms.IntegerField(required=True)
     is_investment = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class OrderLinkForm(forms.Form):
+    orders = forms.ModelMultipleChoiceField(
+        queryset=Order.objects.all(),
+        required=True
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

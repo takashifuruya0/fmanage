@@ -8,15 +8,12 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-12">
-			<h4><i class="fas fa-dungeon"></i> Entrys</h4>
+			<h4><i class="fas fa-paw"></i> Entrys</h4>
 			<form action="" method="POST">
 				<a href="{%url 'web:entry_list'%}" class="btn btn-info">All</a>
-				<a href="?is_closed=true" class="btn btn-info">
-					Closed
-				</a>
-				<a href="?is_open=true" class="btn btn-info">
-					Open
-				</a>
+				<a href="?is_closed=true" class="btn btn-info">Closed</a>
+				<a href="?is_open=true" class="btn btn-info">Open</a>
+				<a href="?is_plan=true" class="btn btn-info">Plan</a>
 				<button type="submit" class="btn btn-outline-primary" name="post_type" value="merge_entrys">
 					<i class="fas fa-object-group"></i> Merge
 				</button>
