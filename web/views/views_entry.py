@@ -1,7 +1,6 @@
 # coding:utf-8
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, reverse
-from django.template.response import TemplateResponse
 from django.conf import settings
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -17,127 +16,6 @@ from django.utils.decorators import method_decorator
 # logging
 import logging
 logger = logging.getLogger("django")
-
-
-# Create your views here.
-@transaction.atomic
-@login_required
-def entry_detail(request, pk):
-    msg = "Hello Entry Detail"
-    if request.method == "POST":
-        try:
-            with transaction.atomic():
-                pks = request.POST.getlist('pk')
-                orders = Order.objects.filter(pk__in=pks)
-                entry = Entry.objects.get(pk=pk,  user=request.user)
-                # link_orders
-                if request.POST['post_type'] == "link_orders":
-                    orders.update(entry=entry)
-                    msg = "Orders {} are linked to Entry {}".format(pks, pk)
-                    entry.save()
-                    messages.success(request, msg)
-                # unlink_orders
-                elif request.POST['post_type'] == "unlink_orders":
-                    orders.update(entry=None)
-                    msg = "Orders {} are unlinked from Entry {}".format(pks, pk)
-                    entry.save()
-                    messages.success(request, msg)
-        except Exception as e:
-            logger.error(e)
-            messages.error(request, e)
-        finally:
-            return redirect('web:entry_detail', pk=pk)
-    elif request.method == "GET":
-        # production以外ではmsg表示
-        if not settings.ENVIRONMENT == "production":
-            messages.info(request, msg)
-        logger.info(msg)
-        try:
-            # 各種情報取得
-            entry = Entry.objects.prefetch_related('order_set')\
-                .select_related().get(pk=pk, user=request.user)
-            orders_unlinked = Order.objects.filter(entry=None, stock=entry.stock).order_by('datetime')
-            orders_linked = entry.order_set.all().order_by('datetime')
-            edo = entry.date_open().date() if orders_linked.exists() else date.today()
-            edc = entry.date_close().date() if entry.is_closed else date.today()
-            # days日のマージンでグラフ化範囲を指定
-            days = 60
-            od = edo - relativedelta(days=days)
-            cd = edc + relativedelta(days=days) if entry.is_closed else date.today()
-            svds = StockValueData.objects.filter(stock=entry.stock, date__gt=od, date__lt=cd).order_by('date')
-            df = asset_analysis.prepare(svds)
-            df_check = asset_analysis.check(df)
-            df_trend = asset_analysis.get_trend(df)
-            # グラフ化範囲のデータ数
-            svds_count = svds.count()
-            # 日付とindex番号の紐付け
-            date_list = dict()
-            for i, svd in enumerate(svds):
-                date_list[svd.date.__str__()] = i
-            print("debug4")
-            # 売買注文のグラフ化
-            bos_detail = [None for i in range(svds_count)]
-            sos_detail = [None for i in range(svds_count)]
-            for o in entry.order_set.all():
-                order_date = str(o.datetime.date())
-                if order_date in list(date_list.keys()):
-                    if o.is_buy:
-                        bos_detail[date_list[order_date]] = o.val*10000 if entry.stock.is_trust else o.val
-                    else:
-                        sos_detail[date_list[order_date]] = o.val*10000 if entry.stock.is_trust else o.val
-        except Exception as e:
-            logger.error(e)
-            messages.error(request, "Not found or not authorized to access it")
-            if not settings.ENVIRONMENT == "production":
-                messages.add_message(request, messages.ERROR, e.args)
-                messages.add_message(request, messages.ERROR, type(e))
-                # messages.info(list(date_list[order_date].keys()))
-            return redirect('web:main')
-        output = {
-            "msg": msg,
-            "user": request.user,
-            "entry": entry,
-            "orders_unlinked": orders_unlinked,
-            "orders_linked": orders_linked,
-            "svds": svds,
-            "bos_detail": bos_detail,
-            "sos_detail": sos_detail,
-            "od": od,
-            "cd": cd,
-            "df": df,
-            "df_check": df_check,
-            "df_trend": df_trend,
-        }
-        # openの場合、現在情報を取得
-        if not entry.is_closed:
-            overview = asset_scraping.yf_detail(entry.stock.code)
-            if overview['status']:
-                output['overview'] = overview['data']
-        logger.info(output)
-        return TemplateResponse(request, "web/entry_detail.html", output)
-
-
-@login_required
-def entry_edit(request, pk):
-    try:
-        entry = Entry.objects.get(id=pk, user=request.user)
-    except Exception as e:
-        logger.error(e.args)
-        messages.error(request, "Not found for pk = {}".format(pk))
-        return redirect("web:main")
-    if request.method == "POST":
-        form = EntryForm(request.POST, instance=entry)
-        if form.is_valid():
-            form.save()
-            messages.info(request, "Entry {} was updated".format(pk))
-        return redirect('web:entry_detail', pk=pk)
-    elif request.method == "GET":
-        form = EntryForm(instance=entry)
-        output = {
-            "entry": entry,
-            "form": form
-        }
-        return TemplateResponse(request, "web/entry_edit.html", output)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -159,6 +37,7 @@ class EntryUpdate(UpdateView):
     def form_valid(self, form):
         messages.info(self.request, "Entry {} was updated".format(self.object.pk))
         return super().form_valid(form)
+
 
 # Create your views here.
 @method_decorator(login_required, name='dispatch')
@@ -228,11 +107,6 @@ class EntryCreate(CreateView):
 class EntryDetail(DeleteView):
     model = Entry
     template_name = "web/entry_detail.html"
-
-    # def get_queryset(self):
-    #     entry = Entry.objects.prefetch_related('order_set') \
-    #         .select_related().get(pk=self.object.pk, user=self.request.user)
-    #     return entry
 
     def get_context_data(self, **kwargs):
         # 各種情報取得
