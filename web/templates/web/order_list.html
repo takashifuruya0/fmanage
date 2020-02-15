@@ -38,7 +38,7 @@
 					<td>¥{{order.val |intcomma}}</td>
 					<td>
 						{% if order.entry %}
-						<a href="{%url 'web:entry_detail' entry_id=order.entry.id%}">
+						<a href="{%url 'web:entry_detail' pk=order.entry.id%}">
 							{{order.entry}}
 						</a>
 						{%else%}-{%endif%}

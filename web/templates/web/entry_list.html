@@ -43,25 +43,17 @@
 					      <input type="checkbox" name="pk" value="{{entry.pk}}">
 				      </td>
 				      <td>
-					      <a href="{% url 'web:entry_detail' entry_id=entry.pk %}">{{entry.pk}}</a>
+					      <a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
 				      </td>
 			        <td>{{entry.stock}}</td>
 				      <td>
 					      <h5>
 					      {{entry.num_linked_orders}}
-					      {%if entry.is_closed%}
-						      {%if entry.profit > 0 %}
-						      <span class="badge bg-large bg-success">Win</span>
-						      {%else%}
-						      <span class="badge bg-danger">Lose</span>
-						      {%endif%}
-					      {%else%}
-					        <span class="badge">Open</span>
-					      {%endif%}
+								{% include 'web/part/entry_type.html' %}
 					      </h5>
 				      </td>
-				      <td>{{entry.date_open}}</td>
-				      <td>{{entry.date_close}}</td>
+				      <td>{{entry.date_open |default:"-"}}</td>
+				      <td>{{entry.date_close |default:"-"}}</td>
 				      <td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
 				      <td>{{entry.remaining | intcomma}}</td>
 			      </tr>

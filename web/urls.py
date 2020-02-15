@@ -11,11 +11,12 @@ urlpatterns = [
     # test
     path('test', views_main.test, name='test'),
     # entry
-    # path('entry/', views_entry.entry_list, name='entry_list'),
     path('entry/', views_entry.EntryList.as_view(), name='entry_list'),
     path('entry/create', views_entry.EntryCreate.as_view(), name='entry_create'),
-    path('entry/<int:entry_id>/', views_entry.entry_detail, name='entry_detail'),
-    path('entry/<int:entry_id>/edit', views_entry.entry_edit, name='entry_edit'),
+    # path('entry/<int:entry_id>/', views_entry.entry_detail, name='entry_detail'),
+    path('entry/<int:pk>/', views_entry.EntryDetail.as_view(), name='entry_detail'),
+    # path('entry/<int:entry_id>/edit', views_entry.entry_edit, name='entry_edit'),
+    path('entry/<int:pk>/edit', views_entry.EntryUpdate.as_view(), name='entry_edit'),
     # order
     # path('order/', views_order.order_list, name="order_list"),
     path('order/', views_order.OrderList.as_view(), name="order_list"),

@@ -54,7 +54,7 @@
 				{% for e in stock.entry_set.all %}
 				<tr>
 					<td>
-						<a href="{%url 'web:entry_detail' entry_id=e.id %}">
+						<a href="{%url 'web:entry_detail' pk=e.id %}">
 							{{e.id}}
 						</a>
 					</td>
