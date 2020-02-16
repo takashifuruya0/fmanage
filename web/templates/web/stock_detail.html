@@ -51,23 +51,19 @@
 					<th>Close</th>
 					<th>Profit</th>
 				</tr>
-				{% for e in stock.entry_set.all %}
+				{% for entry in stock.entry_set.all %}
 				<tr>
 					<td>
-						<a href="{%url 'web:entry_detail' pk=e.id %}">
-							{{e.id}}
+						<a href="{%url 'web:entry_detail' pk=entry.id %}">
+							{{entry.id}}
 						</a>
 					</td>
 					<td>
-						{%if e.remaining == 0%}
-						Close
-						{%else%}
-						Open
-						{%endif%}
+						{% include 'web/part/entry_type.html' %}
 					</td>
-					<td>{{e.date_open |date}}</td>
-					<td>{{e.date_close |date}}</td>
-					<td>¥{{e.profit |intcomma}}</td>
+					<td>{{entry.date_open |date}}</td>
+					<td>{{entry.date_close |date}}</td>
+					<td>¥{{entry.profit |intcomma}}</td>
 				</tr>
 				{% endfor %}
 			</table>
