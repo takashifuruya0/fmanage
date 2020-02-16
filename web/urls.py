@@ -20,9 +20,10 @@ urlpatterns = [
     path('order/<int:order_id>/', views_order.order_detail, name='order_detail'),
     path('order/<int:order_id>/edit', views_order.order_edit, name='order_edit'),
     # stock
-    path('stock/$', views_stock.StockList.as_view(), name="stock_list"),
-    # path('stock/<stock_code>/', views_stock.stock_detail, name='stock_detail'),
+    path('stock/', views_stock.StockList.as_view(), name="stock_list"),
+    path('stock/create', views_stock.StockCreate.as_view(), name='stock_create'),
     path('stock/<stock_code>/', views_stock.StockDetail.as_view(), name='stock_detail'),
-    path('stock/<stock_code>/edit', views_stock.stock_edit, name='stock_edit'),
+    path('stock/<stock_code>/edit', views_stock.StockUpdate.as_view(), name='stock_edit'),
+
 ]
 

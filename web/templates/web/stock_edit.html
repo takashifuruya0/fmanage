@@ -1,0 +1,29 @@
+{% extends "kakeibo/base.html" %}
+
+{% block title %}
+    Stock Edit
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-12">
+			<form method="post" action="">
+				<h4>
+					Stock Edit {{stock}}
+				</h4>
+				<table>
+					{{form}}
+				</table>
+				{%csrf_token%}
+				<button type="submit" class="btn btn-outline-info">
+					<i class="fas fa-check"></i> Submit
+				</button>
+				<a href="{%url 'web:stock_detail' stock_code=stock.code%}" class="btn btn-outline-secondary">
+					<i class="fas fa-backward"></i> Back
+				</a>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

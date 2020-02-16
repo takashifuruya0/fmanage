@@ -19,6 +19,15 @@ class Stock(models.Model):
     def __str__(self):
         return "({}) {}".format(self.code, self.name)
 
+    def save(self, *args, **kwargs):
+        data = asset_scraping.yf_detail(self.code)
+        if data['status']:
+            self.name = data['data']['name']
+            self.market = data['data']['market']
+            self.industry = data['data']['industry']
+            self.is_trust = False if len(self.code) == 4 else True
+        return super().save(*args, **kwargs)
+
 
 class StockValueData(models.Model):
     objects = None

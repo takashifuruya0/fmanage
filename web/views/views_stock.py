@@ -1,12 +1,10 @@
 # coding:utf-8
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect
-from django.template.response import TemplateResponse
+from django.shortcuts import redirect, reverse
 from django.conf import settings
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
-from web.forms import OrderForm, EntryForm
+from web.forms import OrderForm, EntryForm, StockForm
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, Stock, StockValueData, StockFinancialData
@@ -28,29 +26,35 @@ class StockDetail(LoginRequiredMixin, DetailView):
         return Stock.objects.prefetch_related('order_set', "entry_set").get(code=self.kwargs['stock_code'])
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        context['svds'] = StockValueData.objects.filter(stock=context['stock'], date__gte=(date.today() - relativedelta(months=6))).order_by(
-            'date')
+        context = super().get_context_data(**kwargs)
+        context['svds'] = StockValueData.objects.filter(
+            stock=context['stock'], date__gte=(date.today()-relativedelta(months=6))
+        ).order_by('date')
         context['sfds'] = StockFinancialData.objects.filter(stock=context['stock']).order_by('date')
         context['entry_form'] = EntryForm(initial={"user": self.request.user, "stock": context['stock']})
         return context
 
 
-@login_required
-def stock_edit(request, stock_code):
-    try:
-        stock = Stock.objects.prefetch_related('entry_set', "order_set").get(code=stock_code)
-    except Exception as e:
-        logger.error(e.args)
-        messages.error(request, "Not found or not authorized to access it")
-        return redirect('web:main')
-    if request.method == "POST":
-        return redirect('web:stock_detail', stock_code=stock_code)
-    elif request.method == "GET":
-        output = {
-            "stock": stock,
-        }
-        return TemplateResponse(request, "web/stock_edit.html", output)
+class StockUpdate(LoginRequiredMixin, UpdateView):
+    model = Stock
+    form_class = StockForm
+    context_object_name = "stock"
+    pk_url_kwarg = "stock_code"
+    template_name = "web/stock_edit.html"
+
+    def get_success_url(self):
+        return reverse("web:stock_detail", kwargs={"stock_code": self.kwargs['stock_code']})
+
+    def get_object(self, queryset=None):
+        return Stock.objects.prefetch_related('order_set', "entry_set").get(code=self.kwargs['stock_code'])
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Not found or not authorized to access it")
+        return super().form_valid(form)
+
+    def form_valid(self, form):
+        messages.success(self.request, "Stock {} was updated".format(self.get_object()))
+        return super().form_valid(form)
 
 
 class StockList(LoginRequiredMixin, PaginationMixin, ListView):
@@ -61,11 +65,26 @@ class StockList(LoginRequiredMixin, PaginationMixin, ListView):
 
     def get_context_data(self, **kwargs):
         res = super().get_context_data(**kwargs)
+        res['stock_form'] = StockForm()
         return res
 
     def get_queryset(self):
         queryset = Stock.objects.all().order_by('code')
         return queryset
+
+
+class StockCreate(LoginRequiredMixin, CreateView):
+    model = Stock
+    form_class = StockForm
+
+    def get_success_url(self):
+        return reverse("web:stock_detail", kwargs={"stock_code": self.object.code})
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return super().form_invalid(form)
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
@@ -76,4 +95,4 @@ class StockList(LoginRequiredMixin, PaginationMixin, ListView):
             logger.error(e)
             messages.error(request, e)
         finally:
-            return self.get(request, *args, **kwargs)
+            return super().post(self, request, *args, **kwargs)
