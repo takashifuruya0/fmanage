@@ -17,7 +17,7 @@ logger = logging.getLogger("django")
 
 
 # Create your views here.
-class Main(TemplateView, LoginRequiredMixin):
+class Main(LoginRequiredMixin, TemplateView):
     template_name = "web/main.html"
 
     def get_context_data(self, **kwargs):
@@ -36,7 +36,7 @@ class Main(TemplateView, LoginRequiredMixin):
         return output
 
 
-class Investment(FormView):
+class Investment(LoginRequiredMixin, FormView):
     form_class = InvestmentForm
 
     def get_success_url(self):

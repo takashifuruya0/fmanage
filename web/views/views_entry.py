@@ -1,5 +1,5 @@
 # coding:utf-8
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, reverse
 from django.conf import settings
 from datetime import date
@@ -12,14 +12,12 @@ from web.functions import asset_scraping, asset_analysis
 # list view, pagination
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 from pure_pagination.mixins import PaginationMixin
-from django.utils.decorators import method_decorator
 # logging
 import logging
 logger = logging.getLogger("django")
 
 
-@method_decorator(login_required, name='dispatch')
-class EntryUpdate(UpdateView):
+class EntryUpdate(LoginRequiredMixin, UpdateView):
     model = Entry
     template_name = "web/entry_edit.html"
     form_class = EntryForm
@@ -39,9 +37,7 @@ class EntryUpdate(UpdateView):
         return super().form_valid(form)
 
 
-# Create your views here.
-@method_decorator(login_required, name='dispatch')
-class EntryList(PaginationMixin, ListView):
+class EntryList(LoginRequiredMixin, PaginationMixin, ListView):
     model = Entry
     ordering = ['pk']
     paginate_by = 20
@@ -55,7 +51,7 @@ class EntryList(PaginationMixin, ListView):
         logger.info(msg)
         res["msg"] = msg
         res["user"] = self.request.user
-        res['form'] = EntryForm(initial={"user": self.request.user})
+        res['entry_form'] = EntryForm(initial={"user": self.request.user})
         return res
 
     def get_queryset(self):
@@ -94,8 +90,7 @@ class EntryList(PaginationMixin, ListView):
             return self.get(request, *args, **kwargs)
 
 
-@method_decorator(login_required, name='dispatch')
-class EntryCreate(CreateView):
+class EntryCreate(LoginRequiredMixin, CreateView):
     model = Entry
     form_class = EntryForm
 
@@ -103,8 +98,7 @@ class EntryCreate(CreateView):
         return reverse('web:entry_detail', kwargs={'pk': self.object.pk})
 
 
-@method_decorator(login_required, name="dispatch")
-class EntryDetail(DeleteView):
+class EntryDetail(LoginRequiredMixin, DeleteView):
     model = Entry
     template_name = "web/entry_detail.html"
 
