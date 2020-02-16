@@ -1,10 +1,7 @@
 # coding:utf-8
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.template.response import TemplateResponse
 from django.conf import settings
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -20,29 +17,6 @@ logger = logging.getLogger("django")
 
 
 # Create your views here.
-@login_required
-def main(request):
-    if request.method == "GET":
-        msg = "Hello Django Test"
-        entrys = Entry.objects.filter(user=request.user).order_by('-pk')[:5]
-        astatus_list = AssetStatus.objects.filter(user=request.user)
-        astatus = astatus_list.latest('date') if astatus_list.exists() else None
-        logger.info(msg)
-        if not settings.ENVIRONMENT == "production":
-            messages.info(request, msg)
-        if request.user.is_superuser:
-            tasks = TaskResult.objects.all()[:5]
-        output = {
-            "msg": msg,
-            "user": request.user,
-            "entrys": entrys,
-            "tasks": tasks,
-            "astatus": astatus,
-            "investment_form": InvestmentForm(),
-        }
-        return TemplateResponse(request, "web/main.html", output)
-
-
 class Main(TemplateView, LoginRequiredMixin):
     template_name = "web/main.html"
 

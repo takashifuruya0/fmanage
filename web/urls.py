@@ -7,7 +7,7 @@ from web.views import views_main, views_entry, views_order, views_stock
 app_name = 'web'
 urlpatterns = [
     # dashboard
-    path('', views_main.main, name='main'),
+    path('', views_main.Main.as_view(), name='main'),
     path('investment/', views_main.Investment.as_view(), name='investment'),
     # entry
     path('entry/', views_entry.EntryList.as_view(), name='entry_list'),
