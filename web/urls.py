@@ -11,21 +11,19 @@ urlpatterns = [
     path('investment/', views_main.Investment.as_view(), name='investment'),
     # entry
     path('entry/', views_entry.EntryList.as_view(), name='entry_list'),
-    path('entry/create', views_entry.EntryCreate.as_view(), name='entry_create'),
+    path('entry/create/', views_entry.EntryCreate.as_view(), name='entry_create'),
     path('entry/<int:pk>/', views_entry.EntryDetail.as_view(), name='entry_detail'),
-    path('entry/<int:pk>/edit', views_entry.EntryUpdate.as_view(), name='entry_edit'),
-    path('entry/<int:pk>/delete', views_entry.EntryDelete.as_view(), name='entry_delete'),
+    path('entry/<int:pk>/edit/', views_entry.EntryUpdate.as_view(), name='entry_edit'),
+    path('entry/<int:pk>/delete/', views_entry.EntryDelete.as_view(), name='entry_delete'),
     # order
     path('order/', views_order.OrderList.as_view(), name="order_list"),
-    # path('order/<int:order_id>/', views_order.order_detail, name='order_detail'),
     path('order/<int:order_id>/', views_order.OrderDetail.as_view(), name='order_detail'),
-    path('order/<int:order_id>/edit', views_order.OrderUpdate.as_view(), name='order_edit'),
-    # path('order/<int:order_id>/edit', views_order.order_edit, name='order_edit'),
+    path('order/<int:order_id>/edit/', views_order.OrderUpdate.as_view(), name='order_edit'),
     # stock
     path('stock/', views_stock.StockList.as_view(), name="stock_list"),
-    path('stock/create', views_stock.StockCreate.as_view(), name='stock_create'),
+    path('stock/create/', views_stock.StockCreate.as_view(), name='stock_create'),
     path('stock/<stock_code>/', views_stock.StockDetail.as_view(), name='stock_detail'),
-    path('stock/<stock_code>/edit', views_stock.StockUpdate.as_view(), name='stock_edit'),
+    path('stock/<stock_code>/edit/', views_stock.StockUpdate.as_view(), name='stock_edit'),
 
 ]
 

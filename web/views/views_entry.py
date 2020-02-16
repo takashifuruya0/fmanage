@@ -96,9 +96,19 @@ class EntryList(LoginRequiredMixin, PaginationMixin, ListView):
 class EntryCreate(LoginRequiredMixin, CreateView):
     model = Entry
     form_class = EntryForm
+    template_name = "web/entry_edit.html"
+    context_object_name = "entry"
 
     def get_success_url(self):
         return reverse('web:entry_detail', kwargs={'pk': self.object.pk})
+
+    def form_valid(self, form):
+        messages.success(self.request, "New entry {} was created".format(self.object))
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Creating new entry was failed")
+        return super().form_invalid(form)
 
 
 class EntryDelete(LoginRequiredMixin, DeleteView):

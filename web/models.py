@@ -29,7 +29,7 @@ class Stock(models.Model):
             self.name = data['data']['name']
             self.market = data['data']['market']
             self.industry = data['data']['industry']
-            self.is_trust = False if len(self.code) == 4 else True
+            self.is_trust = False if len(str(self.code)) == 4 else True
         return super().save(*args, **kwargs)
 
 
