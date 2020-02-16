@@ -82,7 +82,10 @@ class EntryList(LoginRequiredMixin, PaginationMixin, ListView):
                         else:
                             entry.save()
                     msg = "Entrys {} are merged to Entry {}".format(pks, first_entry.pk)
-                    messages.success(request, msg)
+                elif request.POST['post_type'] == "delete_entrys":
+                    entrys.delete()
+                    msg = "Entrys {} are deleted".format(pks)
+                messages.success(request, msg)
         except Exception as e:
             logger.error(e)
             messages.error(request, e)

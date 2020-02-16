@@ -1,5 +1,6 @@
 # coding:utf-8
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.conf import settings
@@ -10,58 +11,29 @@ from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, Stock, StockValueData, StockFinancialData
 # list view, pagination
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from pure_pagination.mixins import PaginationMixin
-from django.utils.decorators import method_decorator
 # logging
 import logging
 logger = logging.getLogger("django")
 
 
-# Create your views here.
-@login_required
-@transaction.atomic
-def stock_list(request):
-    if request.method == "POST":
-        return redirect('web:stock_list')
-    elif request.method == "GET":
-        msg = request.GET
-        if not settings.ENVIRONMENT == "production":
-            messages.info(request, msg)
-        logger.info(msg)
-        stocks = Stock.objects.all()
-        output = {
-            "msg": msg,
-            "user": request.user,
-            "stocks": stocks
-        }
-        return TemplateResponse(request, "web/stock_list.html", output)
+class StockDetail(LoginRequiredMixin, DetailView):
+    template_name = "web/stock_detail.html"
+    model = Stock
+    pk_url_kwarg = "stock_code"
+    context_object_name = "stock"
 
+    def get_object(self, queryset=None):
+        return Stock.objects.prefetch_related('order_set', "entry_set").get(code=self.kwargs['stock_code'])
 
-@login_required
-def stock_detail(request, stock_code):
-    msg = "Hello Stock Detail"
-    logger.info(msg)
-    if not settings.ENVIRONMENT == "production":
-        messages.info(request, msg)
-
-    try:
-        stock = Stock.objects.prefetch_related('entry_set', "order_set").get(code=stock_code)
-        svds = StockValueData.objects.filter(stock=stock, date__gte=(date.today()-relativedelta(months=6))).order_by('date')
-        sfds = StockFinancialData.objects.filter(stock=stock).order_by('date')
-        entry_form = EntryForm(initial={"user": request.user, "stock": stock})
-    except Exception as e:
-        logger.error(e)
-        messages.error(request, "Not found or not authorized to access it")
-        return redirect('web:main')
-    output = {
-        "msg": msg,
-        "stock": stock,
-        "svds": svds,
-        "sfds": sfds,
-        "entry_form": entry_form,
-    }
-    return TemplateResponse(request, "web/stock_detail.html", output)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['svds'] = StockValueData.objects.filter(stock=context['stock'], date__gte=(date.today() - relativedelta(months=6))).order_by(
+            'date')
+        context['sfds'] = StockFinancialData.objects.filter(stock=context['stock']).order_by('date')
+        context['entry_form'] = EntryForm(initial={"user": self.request.user, "stock": context['stock']})
+        return context
 
 
 @login_required
@@ -81,8 +53,7 @@ def stock_edit(request, stock_code):
         return TemplateResponse(request, "web/stock_edit.html", output)
 
 
-@method_decorator(login_required, name='dispatch')
-class StockList(PaginationMixin, ListView):
+class StockList(LoginRequiredMixin, PaginationMixin, ListView):
     model = Stock
     ordering = ['code']
     paginate_by = 20

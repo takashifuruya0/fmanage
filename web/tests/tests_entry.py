@@ -34,7 +34,8 @@ class ModelTest(TestCase):
             chart=None,
         )
 
-    def test_create(self):
+    def test_entry_create(self):
+        # Entryの作成
         url = reverse('web:entry_create')
         self.client.force_login(self.u)
         data = {
