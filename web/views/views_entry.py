@@ -10,7 +10,7 @@ from django.db import transaction
 from web.models import Entry, Order, StockValueData
 from web.functions import asset_scraping, asset_analysis
 # list view, pagination
-from django.views.generic import ListView, CreateView, DeleteView, UpdateView
+from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from pure_pagination.mixins import PaginationMixin
 # logging
 import logging
@@ -98,7 +98,23 @@ class EntryCreate(LoginRequiredMixin, CreateView):
         return reverse('web:entry_detail', kwargs={'pk': self.object.pk})
 
 
-class EntryDetail(LoginRequiredMixin, DeleteView):
+class EntryDelete(LoginRequiredMixin, DeleteView):
+    model = Entry
+    template_name = "web/entry_delete.html"
+    context_object_name = "entry"
+
+    def get_success_url(self):
+        return reverse('web:entry_list')
+
+    def delete(self, request, *args, **kwargs):
+        ob = self.get_object()
+        result = super().delete(request, *args, **kwargs)
+        messages.success(self.request, '「{}」を削除しました'.format(ob))
+        return result
+
+
+
+class EntryDetail(LoginRequiredMixin, DetailView):
     model = Entry
     template_name = "web/entry_detail.html"
 

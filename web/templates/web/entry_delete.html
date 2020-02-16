@@ -1,0 +1,43 @@
+{% extends "kakeibo/base.html" %}
+
+{% block title %}
+    Entry-Delete
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <hr>
+    <h1><i class="far fa-list-alt"></i> 本当に削除しますか？</h1>
+    <hr>
+
+    <table class="table table-hover">
+        <tr>
+            <th>id</th>
+            <td>{{entry.pk}}</td>
+        </tr>
+        <tr>
+            <th>Stock</th>
+            <td>{{entry.stock}}</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>{% include 'web/part/entry_type.html' %}</td>
+        </tr>
+        <tr>
+            <th>Memo</th>
+            <td>{{entry.memo |linebreaksbr}}</td>
+        </tr>
+    </table>
+    <div class="row">
+        <div class="col-sm-6">
+            <form method="POST">
+                <button class="btn btn-danger"><i class="fas fa-trash-alt"></i> Delete</button>
+                {% csrf_token %}
+                <a href="{% url 'web:entry_detail' entry.pk%}" class="btn btn-secondary">Back to detail</a>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

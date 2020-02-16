@@ -3,9 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.conf import settings
-from datetime import date,datetime
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
-from web.forms import OrderForm
+from web.forms import OrderForm, EntryForm
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, Stock, StockValueData, StockFinancialData
@@ -49,6 +49,7 @@ def stock_detail(request, stock_code):
         stock = Stock.objects.prefetch_related('entry_set', "order_set").get(code=stock_code)
         svds = StockValueData.objects.filter(stock=stock, date__gte=(date.today()-relativedelta(months=6))).order_by('date')
         sfds = StockFinancialData.objects.filter(stock=stock).order_by('date')
+        entry_form = EntryForm(initial={"user": request.user, "stock": stock})
     except Exception as e:
         logger.error(e)
         messages.error(request, "Not found or not authorized to access it")
@@ -58,6 +59,7 @@ def stock_detail(request, stock_code):
         "stock": stock,
         "svds": svds,
         "sfds": sfds,
+        "entry_form": entry_form,
     }
     return TemplateResponse(request, "web/stock_detail.html", output)
 

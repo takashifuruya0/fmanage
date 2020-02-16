@@ -14,6 +14,7 @@ urlpatterns = [
     path('entry/create', views_entry.EntryCreate.as_view(), name='entry_create'),
     path('entry/<int:pk>/', views_entry.EntryDetail.as_view(), name='entry_detail'),
     path('entry/<int:pk>/edit', views_entry.EntryUpdate.as_view(), name='entry_edit'),
+    path('entry/<int:pk>/delete', views_entry.EntryDelete.as_view(), name='entry_delete'),
     # order
     path('order/', views_order.OrderList.as_view(), name="order_list"),
     path('order/<int:order_id>/', views_order.order_detail, name='order_detail'),
