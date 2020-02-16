@@ -8,7 +8,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-12">
-			<h4><i class="fas fa-paw"></i> Entrys</h4>
+			<h4><i class="fas fa-paw"></i> Entry List</h4>
 			<form action="" method="POST">
 				<a href="{%url 'web:entry_list'%}" class="btn btn-info">All</a>
 				<a href="?is_closed=true" class="btn btn-info">Closed</a>
@@ -23,7 +23,7 @@
 				<button type="submit" class="btn btn-outline-danger" name="post_type" value="delete_entrys">
 					<i class="fas fa-trash-alt"></i> Delete
 				</button>
-				<table class="table">
+				<table class="table table-responsive">
 			    <thead>
 			      <tr>
 				      <th></th>
