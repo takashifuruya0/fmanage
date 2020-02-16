@@ -2,6 +2,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.views.generic import TemplateView, FormView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.template.response import TemplateResponse
 from django.conf import settings
 from datetime import date
@@ -40,39 +42,41 @@ def main(request):
         }
         return TemplateResponse(request, "web/main.html", output)
 
-    elif request.method == "POST":
-        if request.POST['post_type'] == "investment":
-            form = InvestmentForm(request.POST)
-            if form.is_valid():
-                astatus = AssetStatus.objects.latest('date')
-                astatus.buying_power += form.cleaned_data['value']
-                if form.cleaned_data['is_investment']:
-                    investment_type = "Investment"
-                    astatus.investment += form.cleaned_data['value']
-                else:
-                    investment_type = "Modification"
-                astatus.save()
-        messages.info(request, "Add ¥{:,} as {}".format(form.cleaned_data['value'], investment_type))
-        return redirect("web:main")
+
+class Main(TemplateView, LoginRequiredMixin):
+    template_name = "web/main.html"
+
+    def get_context_data(self, **kwargs):
+        entrys = Entry.objects.filter(user=self.request.user).order_by('-pk')[:5]
+        astatus_list = AssetStatus.objects.filter(user=self.request.user)
+        astatus = astatus_list.latest('date') if astatus_list.exists() else None
+        if self.request.user.is_superuser:
+            tasks = TaskResult.objects.all()[:5]
+        output = {
+            "user": self.request.user,
+            "entrys": entrys,
+            "tasks": tasks,
+            "astatus": astatus,
+            "investment_form": InvestmentForm(),
+        }
+        return output
 
 
-@login_required
-def test(request):
-    msg = "Hello Django Test"
-    logger.info(msg)
-    messages.info(request, msg)
-    code = request.GET.get("code", 1357)
-    stock = Stock.objects.get(code=code)
-    svds = StockValueData.objects.filter(stock__code=code).order_by('date')
-    date_start = svds.first().date
-    date_end = svds.last().date
-    orders = Order.objects.filter(stock__code=code, datetime__lte=date_end, datetime__gte=date_start).order_by('datetime')
-    output = {
-        "msg": msg,
-        "user": request.user,
-        "stock": stock,
-        "orders": orders,
-        "svds": svds,
-    }
-    return TemplateResponse(request, "web/d3.html", output)
+class Investment(FormView):
+    form_class = InvestmentForm
+
+    def get_success_url(self):
+        return reverse("web:main")
+
+    def form_valid(self, form):
+        astatus = AssetStatus.objects.latest('date')
+        astatus.buying_power += form.cleaned_data['value']
+        if form.cleaned_data['is_investment']:
+            investment_type = "Investment"
+            astatus.investment += form.cleaned_data['value']
+        else:
+            investment_type = "Modification"
+        astatus.save()
+        messages.info(self.request, "Add ¥{:,} as {}".format(form.cleaned_data['value'], investment_type))
+        return super().form_valid(form)
 

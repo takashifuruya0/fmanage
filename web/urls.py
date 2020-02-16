@@ -8,8 +8,7 @@ app_name = 'web'
 urlpatterns = [
     # dashboard
     path('', views_main.main, name='main'),
-    # test
-    path('test', views_main.test, name='test'),
+    path('investment/', views_main.Investment.as_view(), name='investment'),
     # entry
     path('entry/', views_entry.EntryList.as_view(), name='entry_list'),
     path('entry/create', views_entry.EntryCreate.as_view(), name='entry_create'),
