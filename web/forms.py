@@ -29,11 +29,6 @@ class EntryForm(forms.ModelForm):
 
 
 class OrderForm(forms.ModelForm):
-    """
-    Memo モデルの作成、更新に使われる Django フォーム。
-    ModelForm を継承して作れば、HTMLで表示したいフィールドを
-    指定するだけで HTML フォームを作ってくれる。
-    """
     class Meta:
         model = Order
         fields = '__all__'
@@ -42,6 +37,10 @@ class OrderForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+        self.fields['entry'].queryset = self.get_entry()
+
+    def get_entry(self):
+        return Entry.objects.filter(stock=self.initial['stock'])
 
 
 class InvestmentForm(forms.Form):
