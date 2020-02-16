@@ -137,7 +137,7 @@
 					{% endif %}
 				</tr>
 				<tr>
-					<td>{{entry.num_buy}}</td>
+					<td>{{entry.num_buy |intcomma}}</td>
 					<td>
 						{% if entry.stock.is_trust %}
 						¥{{entry.val_buy |floatformat:4 |intcomma}}
@@ -186,13 +186,7 @@
 							</a>
 						</td>
 						<td>{{ol.datetime}}</td>
-						<td>
-							{%if ol.is_buy%}
-							<label class="badge badge-danger">現物買</label>
-							{%else%}
-							<label class="badge badge-primary">現物売</label>
-							{%endif%}
-						</td>
+						<td>{% include 'web/part/order_type.html' %}</td>
 						<td>{{ol.num | intcomma}}</td>
 						<td>{{ol.val | intcomma}}</td>
 					</tr>

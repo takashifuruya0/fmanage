@@ -26,14 +26,10 @@
 						</a>
 					</td>
 					<td>{{order.datetime}}</td>
+					<td>{% include 'web/part/order_type.html' %}</td>
 					<td>
-						{%if order.is_buy%}
-						<label class="badge badge-danger">現物買</label>
-						{%else%}
-						<label class="badge badge-primary">現物売</label>
-						{%endif%}
+						<a href="{%url 'web:stock_detail' order.stock.code%}">{{order.stock}}</a>
 					</td>
-					<td>{{order.stock}}</td>
 					<td>{{order.num |intcomma}}</td>
 					<td>¥{{order.val |intcomma}}</td>
 					<td>

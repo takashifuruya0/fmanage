@@ -14,18 +14,18 @@
 					<td>{{order.id}}</td>
 				</tr>
 				<tr>
+					<th>Stock</th>
+					<td>
+						<a href="{%url 'web:stock_detail' order.stock.code%}">{{order.stock}}</a>
+					</td>
+				</tr>
+				<tr>
 					<th>Datetime</th>
 					<td>{{order.datetime}}</td>
 				</tr>
 				<tr>
 					<th>Type</th>
-					<td>
-						{%if order.is_buy%}
-						<label class="badge badge-danger">現物買</label>
-						{%else%}
-						<label class="badge badge-primary">現物売</label>
-						{%endif%}
-					</td>
+					<td>{% include 'web/part/order_type.html' %}</td>
 				</tr>
 				<tr>
 					<th>Num</th>
