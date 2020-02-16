@@ -5,6 +5,7 @@ from django.conf import settings
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from web.forms import OrderForm, EntryForm, StockForm
+from web.functions import asset_scraping
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, Stock, StockValueData, StockFinancialData
@@ -27,11 +28,18 @@ class StockDetail(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        data = asset_scraping.yf_detail(self.object.code)
+        context["current_val"] = data['data']['val'] if data['status'] else None
         context['svds'] = StockValueData.objects.filter(
             stock=context['stock'], date__gte=(date.today()-relativedelta(months=6))
         ).order_by('date')
         context['sfds'] = StockFinancialData.objects.filter(stock=context['stock']).order_by('date')
-        context['entry_form'] = EntryForm(initial={"user": self.request.user, "stock": context['stock']})
+        context['entry_form'] = EntryForm(initial={
+            "user": self.request.user,
+            "stock": context['stock'],
+            "border_loss_cut": context["current_val"],
+            "border_profit_determination": context["current_val"],
+        })
         return context
 
 
@@ -91,6 +99,7 @@ class StockCreate(LoginRequiredMixin, CreateView):
         try:
             with transaction.atomic():
                 pass
+                # SVD, SFDの取得
         except Exception as e:
             logger.error(e)
             messages.error(request, e)

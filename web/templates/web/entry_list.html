@@ -6,65 +6,71 @@
 
 {% block body %}
 <div class="container-fluid">
-	<div class="row">
-		<div class="col-12">
-			<h4><i class="fas fa-paw"></i> Entry List</h4>
-			<form action="" method="POST">
-				<a href="{%url 'web:entry_list'%}" class="btn btn-info">All</a>
-				<a href="?is_closed=true" class="btn btn-info">Closed</a>
-				<a href="?is_open=true" class="btn btn-info">Open</a>
-				<a href="?is_plan=true" class="btn btn-info">Plan</a>
-				<button type="submit" class="btn btn-outline-primary" name="post_type" value="merge_entrys">
-					<i class="fas fa-object-group"></i> Merge
-				</button>
-				<button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#new_entry">
-					<i class="fas fa-plus"></i> Create
-				</button>
-				<button type="submit" class="btn btn-outline-danger" name="post_type" value="delete_entrys">
-					<i class="fas fa-trash-alt"></i> Delete
-				</button>
+	<form action="" method="POST">
+		<div class="row">
+			<div class="col-12">
+				<h4><i class="fas fa-paw"></i> Entry List</h4>
+					<a href="{%url 'web:entry_list'%}" class="btn btn-info">All</a>
+					<a href="?is_closed=true" class="btn btn-info">Closed</a>
+					<a href="?is_open=true" class="btn btn-info">Open</a>
+					<a href="?is_plan=true" class="btn btn-info">Plan</a>
+					<button type="submit" class="btn btn-outline-primary" name="post_type" value="merge_entrys">
+						<i class="fas fa-object-group"></i> Merge
+					</button>
+					<button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#new_entry">
+						<i class="fas fa-plus"></i> Create Entry
+					</button>
+					<button type="submit" class="btn btn-outline-danger" name="post_type" value="delete_entrys">
+						<i class="fas fa-trash-alt"></i> Delete
+					</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12">
 				<table class="table table-responsive">
-			    <thead>
-			      <tr>
-				      <th></th>
-				      <th>No.</th>
-				      <th>Stock</th>
-				      <th>Status</th>
-				      <th>Open</th>
-				      <th>Close</th>
-				      <th>Profit</th>
+					<thead>
+						<tr>
+							<th></th>
+							<th>No.</th>
+							<th>Stock</th>
+							<th>Status</th>
+							<th>Open</th>
+							<th>Close</th>
+							<th>Profit</th>
 							<th>Remaining</th>
-			      </tr>
-			    </thead>
-			    <tbody>
-			      {% for entry in object_list %}
-			      <tr>
-				      <td>
-					      <input type="checkbox" name="pk" value="{{entry.pk}}">
-				      </td>
-				      <td>
-					      <a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
-				      </td>
-			        <td>{{entry.stock}}</td>
-				      <td>
-					      <h5>
-					      {{entry.num_linked_orders}}
+						</tr>
+					</thead>
+					<tbody>
+						{% for entry in object_list %}
+						<tr>
+							<td>
+								<input type="checkbox" name="pk" value="{{entry.pk}}">
+							</td>
+							<td>
+								<a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
+							</td>
+							<td>
+								<a href="{% url 'web:stock_detail' entry.stock.code %}">{{entry.stock}}</a>
+							</td>
+							<td>
+								<h5>
+								{{entry.num_linked_orders}}
 								{% include 'web/part/entry_type.html' %}
-					      </h5>
-				      </td>
-				      <td>{{entry.date_open |default:"-"}}</td>
-				      <td>{{entry.date_close |default:"-"}}</td>
-				      <td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
-				      <td>{{entry.remaining | intcomma}}</td>
-			      </tr>
-			      {% endfor %}
-			    </tbody>
-		    </table>
+								</h5>
+							</td>
+							<td>{{entry.date_open |default:"-"}}</td>
+							<td>{{entry.date_close |default:"-"}}</td>
+							<td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
+							<td>{{entry.remaining | intcomma}}</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
 				{% csrf_token %}
 				{% include 'web/part/pagination.html' %}
-			</form>
+			</div>
 		</div>
-	</div>
+	</form>
 </div>
 {% include 'web/modal/modal_new_entry.html' %}
 {% endblock %}

@@ -1,14 +1,19 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
 {% block title %}
-    Stock Detail {{stock}}
+    Stock Detail
 {% endblock %}
 
 {% block body %}
 <div class="container-fluid">
 	<div class="row">
+		<div class="col-12">
+			<h4><i class="fas fa-paw"></i> Stock Detail</h4>
+		</div>
+	</div>
+	<div class="row">
 		<div class="col-12 col-sm-6">
-			<h4>Overview</h4>
+			<h5>Overview</h5>
 			<table class="table">
 				<tr>
 					<th>Code</th>
@@ -30,16 +35,20 @@
 				</tr>
 				<tr>
 					<th>Market</th>
-					<td>{{stock.market}}</td>
+					<td>{{stock.market |default:"-"}}</td>
 				</tr>
 				<tr>
 					<th>Industry</th>
-					<td>{{stock.industry}}</td>
+					<td>{{stock.industry |default:"-"}}</td>
+				</tr>
+				<tr>
+					<th>Current Val</th>
+					<td>¥ {{current_val |default:"-" |intcomma}}</td>
 				</tr>
 			</table>
 		</div>
 		<div class="col-12 col-sm-6">
-			<h4>Entry</h4>
+			<h5>Entry</h5>
 			<table class="table">
 				<tr>
 					<th>No</th>
@@ -69,14 +78,11 @@
 
 	<div class="row">
 		<div class="col-12">
-<!--			<a class="btn btn-outline-info" href="{%url 'web:stock_edit' stock.code%}">-->
-<!--				<i class="fas fa-edit"></i> Edit-->
-<!--			</a>-->
 			<button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#new_entry">
-				<i class="fas fa-plus"></i> Create
+				<i class="fas fa-plus"></i> Create Entry
 			</button>
 			<a class="btn btn-outline-secondary" href="{%url 'web:stock_list' %}">
-				<i class="fas fa-backward"></i> Back
+				<i class="fas fa-backward"></i> Back to list
 			</a>
 		</div>
 	</div>

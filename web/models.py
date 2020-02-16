@@ -19,6 +19,10 @@ class Stock(models.Model):
     def __str__(self):
         return "({}) {}".format(self.code, self.name)
 
+    def current_val(self):
+        data = asset_scraping.yf_detail(self.code)
+        return data['data']['val'] if data['status'] else None
+
     def save(self, *args, **kwargs):
         data = asset_scraping.yf_detail(self.code)
         if data['status']:
