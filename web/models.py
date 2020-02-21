@@ -143,9 +143,10 @@ class Entry(models.Model):
     def save(self, *args, **kwargs):
         if self.order_set.exists():
             # check closed if remaining = 0
+            self.is_plan = False
             self.is_closed = True if self.remaining() == 0 else False
             # same stocks should be linked
-            if not self.order_set.count() == self.order_set.filter(stock=self.order_set.first().stock).count():
+            if not self.order_set.count() == self.order_set.filter(stock=self.stock).count():
                 raise Exception('Different stocks are linked')
             # remaining should be over 0
             if self.remaining() < 0:
@@ -154,6 +155,7 @@ class Entry(models.Model):
             if self.is_closed and self.date_open() > self.date_close():
                 raise Exception('date_open should be earlier than date_close')
         else:
+            self.is_plan = True
             self.is_closed = False
         super().save(*args, **kwargs)
 
@@ -180,7 +182,14 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.entry:
-            self.entry.save()
+            try:
+                entry = self.entry
+                entry.save()
+            except Exception as e:
+                self.entry = None
+                super().save(*args, **kwargs)
+                entry.save()
+
 
 
 class AssetStatus(models.Model):
