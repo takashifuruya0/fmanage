@@ -191,7 +191,6 @@ class Order(models.Model):
                 entry.save()
 
 
-
 class AssetStatus(models.Model):
     objects = None
     user = models.ForeignKey(User, on_delete=models.CASCADE)
