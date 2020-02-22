@@ -34,3 +34,28 @@ class BatchTest(TestCase):
         # 同じ日付は存在しない
         unique_check = set(a['c'] for a in AssetStatus.objects.values('date').annotate(c=Count('pk')))
         self.assertEqual(set([1, ]), unique_check)
+
+    def test_order(self):
+        # 最初はOrderが存在しない
+        self.assertFalse(Order.objects.exists())
+        # data_migration.orderを実行すると増える
+        data_migration.order()
+        self.assertTrue(Order.objects.exists())
+        num_1 = Order.objects.count()
+        latest_order = Order.objects.latest('datetime')
+        latest_order_id = latest_order.fkmanage_id
+        # 一つ削除する
+        latest_order.delete()
+        num_2 = Order.objects.count()
+        self.assertEqual(num_1, num_2+1)
+        self.assertFalse(Order.objects.filter(fkmanage_id=latest_order_id).exists())
+        # 再びdata_migration.orderを実行すると、差分更新
+        data_migration.order()
+        num_3 = Order.objects.count()
+        self.assertEqual(num_1, num_3)
+        self.assertTrue(Order.objects.filter(fkmanage_id=latest_order_id).exists())
+        # 同じfkmanage_idは存在しない
+        unique_check = set(
+            a['c'] for a in Order.objects.exclude(fkmanage_id=None).values('fkmanage_id').annotate(c=Count('pk'))
+        )
+        self.assertEqual(set([1, ]), unique_check)
