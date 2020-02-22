@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand
 from web.models import Stock, StockValueData
-from web.functions import asset_scraping
+from web.functions import data_migration
 import logging
 logger = logging.getLogger('django')
-from web.functions import data_migration
 
 
 # BaseCommandを継承して作成

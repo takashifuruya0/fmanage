@@ -9,7 +9,7 @@ logger = logging.getLogger('django')
 # BaseCommandを継承して作成
 class Command(BaseCommand):
     # python manage.py help count_entryで表示されるメッセージ
-    help = 'Record StockValueData by scraping kabuoji3'
+    help = 'Record StockValueData by scraping yahoo finance'
 
     # コマンドライン引数を指定します。(argparseモジュール https://docs.python.org/2.7/library/argparse.html)
     # コマンドが実行された際に呼ばれるメソッド
