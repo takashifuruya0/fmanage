@@ -162,8 +162,10 @@ def astatus():
                 "nisa_power": 1000000,
             }, data))
         astatus_list = list()
+        existing_astatus_date = [a.date for a in AssetStatus.objects.all()]
         for dm in data_mapped:
-            astatus_list.append(AssetStatus(**dm))
+            if not dm['date'] in existing_astatus_date:
+                astatus_list.append(AssetStatus(**dm))
         result = AssetStatus.objects.bulk_create(astatus_list)
     return result
 

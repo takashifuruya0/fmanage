@@ -2,7 +2,7 @@ from django.test import TestCase
 from web.models import *
 from django.contrib.auth.models import User
 from web.functions import data_migration
-from datetime import datetime
+from django.db.models import Count
 # Create your tests here.
 
 
@@ -31,3 +31,6 @@ class BatchTest(TestCase):
         num_3 = AssetStatus.objects.count()
         self.assertEqual(num_1, num_3)
         self.assertEqual(AssetStatus.objects.order_by('-date').first().date, alast_date)
+        # 同じ日付は存在しない
+        unique_check = set(a['c'] for a in AssetStatus.objects.values('date').annotate(c=Count('pk')))
+        self.assertEqual(set([1, ]), unique_check)
