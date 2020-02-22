@@ -198,14 +198,20 @@ def order_process(order, user=None):
             logger.info("AssetStatus is updated")
             logger.info(astatus)
 
-            #Entry作成
-            entry = Entry()
-            entry.user = User.objects.first() if user is None else user
-            entry.stock = order.stock
-            entry.border_profit_determination = int(order.val * 1.05)
-            entry.border_loss_cut = int(order.val * 0.95)
-            entry.save()
-            order.entry = entry
+            # Entry紐付け
+            entry_plan = Entry.objects.filter(is_plan=True, stock=order.stock, is_closed=False)
+            if entry_plan.count() == 1:
+                # 既存Entry(is_plan=True)に紐付け
+                order.entry = entry_plan[0]
+            else:
+                # Entry作成
+                entry = Entry()
+                entry.user = User.objects.first() if user is None else user
+                entry.stock = order.stock
+                entry.border_profit_determination = int(order.val * 1.05)
+                entry.border_loss_cut = int(order.val * 0.95)
+                entry.save()
+                order.entry = entry
             order.save()
             res['status'] = True
             res['msg'] = "Buy Order Process was done"

@@ -62,6 +62,7 @@ class ModelTest(TestCase):
         c = Order.objects.count()
         self.assertEqual(c, 2)
 
+
     def test_entry(self):
         e = Entry.objects.create(
             user=self.u,
