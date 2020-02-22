@@ -39,6 +39,7 @@ class BatchTest(TestCase):
         # 最初はOrderが存在しない
         self.assertFalse(Order.objects.exists())
         # data_migration.orderを実行すると増える
+        data_migration.stock()
         data_migration.order()
         self.assertTrue(Order.objects.exists())
         num_1 = Order.objects.count()
@@ -57,5 +58,30 @@ class BatchTest(TestCase):
         # 同じfkmanage_idは存在しない
         unique_check = set(
             a['c'] for a in Order.objects.exclude(fkmanage_id=None).values('fkmanage_id').annotate(c=Count('pk'))
+        )
+        self.assertEqual(set([1, ]), unique_check)
+
+    def test_stock(self):
+        # 最初はOrderが存在しない
+        self.assertFalse(Stock.objects.exists())
+        # data_migration.stock()を実行すると増える
+        data_migration.stock()
+        self.assertTrue(Stock.objects.exists())
+        num_1 = Stock.objects.count()
+        latest_stock = Stock.objects.latest('code')
+        latest_stock_code = latest_stock.code
+        # 一つ削除する
+        latest_stock.delete()
+        num_2 = Stock.objects.count()
+        self.assertEqual(num_1, num_2+1)
+        self.assertFalse(Stock.objects.filter(code=latest_stock_code).exists())
+        # 再びdata_migration.codeを実行すると、差分更新
+        data_migration.stock()
+        num_3 = Stock.objects.count()
+        self.assertEqual(num_1, num_3)
+        self.assertTrue(Stock.objects.filter(code=latest_stock_code).exists())
+        # 同じcodeは存在しない
+        unique_check = set(
+            a['c'] for a in Stock.objects.values('code').annotate(c=Count('pk'))
         )
         self.assertEqual(set([1, ]), unique_check)
