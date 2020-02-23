@@ -169,19 +169,17 @@ class ModelTest(TestCase):
         data = {
           "1571_現物売": {
             "datetime": "2018-03-06 14:14",
-            "order_id": "290\r",
             "code": 1571,
-            "kind": "現物売",
+            "is_buy": False,
             "num": 220,
-            "price": 1738
+            "val": 1738
           },
           "1571_現物買": {
             "datetime": "2018-03-06 14:12",
-            "order_id": "290\r",
             "code": 1571,
-            "kind": "現物買",
+            "is_buy": True,
             "num": 220,
-            "price": 1738
+            "val": 1740
           }
         }
         json_data = json.dumps(data)
@@ -193,7 +191,7 @@ class ModelTest(TestCase):
         response = self.client.post(url, data=json_data, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         # StockとOrderが作成されている
-        stock = Stock.objects.get(stock=1571)
+        stock = Stock.objects.get(code=1571)
         buy_order = Order.objects.get(stock=stock, is_buy=True)
         sell_order = Order.objects.get(stock=stock, is_buy=False)
         # Entryが作成され、buy_order, sell_orderが紐付いている
@@ -201,7 +199,7 @@ class ModelTest(TestCase):
         self.assertEqual(entry, buy_order.entry)
         self.assertEqual(entry, sell_order.entry)
         self.assertTrue(entry.is_closed)
-        self.assertFase(entry.is_plan)
+        self.assertFalse(entry.is_plan)
         # AssetStatusが更新される
         astatus_after = AssetStatus.objects.first()
         buying_power_after = astatus_after.buying_power
@@ -209,4 +207,4 @@ class ModelTest(TestCase):
         val_order = data['1571_現物買']['num'] * data['1571_現物買']['val'] - data['1571_現物売']['num'] * data['1571_現物売']['val']
         commission = buy_order.commission + sell_order.commission
         self.assertEqual(sum_stock_after, val_order)
-        self.assertEqual(buying_power_after, buying_power + val_order - commission)
+        self.assertEqual(buying_power_after, buying_power - val_order - commission)

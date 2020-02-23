@@ -2,6 +2,7 @@
 # from django.conf.urls import url
 from django.urls import include, path
 from web.views import views_main, views_entry, views_order, views_stock
+from web.views import views_api
 
 
 app_name = 'web'
@@ -24,6 +25,8 @@ urlpatterns = [
     path('stock/create/', views_stock.StockCreate.as_view(), name='stock_create'),
     path('stock/<stock_code>/', views_stock.StockDetail.as_view(), name='stock_detail'),
     path('stock/<stock_code>/edit/', views_stock.StockUpdate.as_view(), name='stock_edit'),
+    # api
+    path('api/create_order', views_api.create_order, name="api_create_order")
 
 ]
 
