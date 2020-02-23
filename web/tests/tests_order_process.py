@@ -5,7 +5,8 @@ from django.urls import reverse
 from web.functions import asset_lib
 from datetime import datetime
 import json
-# Create your tests here.
+import logging
+logger = logging.getLogger('django')
 
 
 class ModelTest(TestCase):
@@ -102,8 +103,8 @@ class ModelTest(TestCase):
         # order_process
         result = asset_lib.order_process(order=self.so, user=self.u)
         self.assertTrue(result['status'])
-        entry_after = self.bo.entry
         # is_plan=False and is_closed=True and stock=self.s and user=self.u
+        entry_after = Entry.objects.get(stock=self.s, user=self.u)
         self.assertEqual(entry_after, self.so.entry)
         self.assertFalse(entry_after.is_plan)
         self.assertEqual(entry_after.remaining(), self.bo.num - self.so.num)
@@ -130,8 +131,8 @@ class ModelTest(TestCase):
         # order_process
         result = asset_lib.order_process(order=self.so, user=self.u)
         self.assertTrue(result['status'])
-        entry_after = self.bo.entry
         # is_plan=False and is_closed=True and stock=self.s and user=self.u
+        entry_after = Entry.objects.get(stock=self.s, user=self.u)
         self.assertEqual(entry_after, self.so.entry)
         self.assertFalse(entry_after.is_plan)
         self.assertEqual(entry_after.remaining(), 0)

@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.db.models import Sum, Avg
 from web.functions import asset_scraping
 # from django.utils import timezone
-# Create your models here.
+import logging
+logger = logging.getLogger('django')
 
 
 class Stock(models.Model):
@@ -146,8 +147,9 @@ class Entry(models.Model):
             self.is_plan = False
             self.is_closed = True if self.remaining() == 0 else False
             # same stocks should be linked
-            if not self.order_set.count() == self.order_set.filter(stock=self.stock).count():
-                raise Exception('Different stocks are linked')
+            for o in self.order_set.all():
+                if not o.stock == self.stock:
+                    raise Exception('Different stocks are linked')
             # remaining should be over 0
             if self.remaining() < 0:
                 raise Exception('remaining should be over 0')
@@ -183,9 +185,11 @@ class Order(models.Model):
         super().save(*args, **kwargs)
         if self.entry:
             try:
-                entry = self.entry
-                entry.save()
+                self.entry.save()
+                logger.info("{} is updated with updates of {}".format(self.entry, self))
             except Exception as e:
+                logger.error(e)
+                entry = self.entry
                 self.entry = None
                 super().save(*args, **kwargs)
                 entry.save()

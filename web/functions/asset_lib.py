@@ -186,14 +186,13 @@ def order_process(order, user=None):
             if astatus.buying_power < 0:
                 logger.error("buying_power " + str(astatus.buying_power))
                 logger.error("order.num " + str(order.num))
-                logger.error("order.price " + str(order.val))
+                logger.error("order.val " + str(order.val))
                 logger.error("order.commision " + str(order.commission))
                 raise ValueError("buying_power < 0 !")
-            if len(str(order.stock.code)) == 4:
+            if not order.stock.is_trust:
                 astatus.sum_stock += order.num * order.val
             else:
                 astatus.sum_trust += order.num * order.val
-            # astatus.total = astatus.buying_power + astatus.stocks_value + astatus.other_value
             astatus.save()
             logger.info("AssetStatus is updated")
             logger.info(astatus)
@@ -202,7 +201,8 @@ def order_process(order, user=None):
             entry_plan = Entry.objects.filter(is_plan=True, stock=order.stock, is_closed=False)
             if entry_plan.count() == 1:
                 # 既存Entry(is_plan=True)に紐付け
-                order.entry = entry_plan[0]
+                entry = entry_plan[0]
+                order.entry = entry
             else:
                 # Entry作成
                 entry = Entry()
@@ -213,17 +213,18 @@ def order_process(order, user=None):
                 entry.save()
                 order.entry = entry
             order.save()
+            logger.info("{} is linked to {}".format(order, entry))
             res['status'] = True
             res['msg'] = "Buy Order Process was done"
         # 売り
-        elif order.order_type == "現物売":
+        elif order.is_buy is False:
             entry = Entry.objects.prefetch_related('order_set').filter(is_closed=False, stock=order.stock).last()
             # status更新
             if order.is_nisa:
                 # NISA: TAX=0%
                 astatus.buying_power = astatus.buying_power + order.num * order.val
                 logger.info("TAX 0%:NISA")
-            elif order.price - entry.val_buy() > 0:
+            elif order.val - entry.val_buy() > 0:
                 # 利益あり＋NISA以外: TAX=20%
                 tax = (order.val - entry.val_buy()) * order.num * 0.2
                 astatus.buying_power = astatus.buying_power + order.num * order.val - order.commission - tax
@@ -243,6 +244,7 @@ def order_process(order, user=None):
             if entry.remaining() >= order.num:
                 order.entry = entry
                 order.save()
+                logger.info("{} is linked to {}".format(order, entry))
             else:
                 logger.error("entry.remaining " + str(entry.remaining()))
                 logger.error("order.num " + str(order.num))
