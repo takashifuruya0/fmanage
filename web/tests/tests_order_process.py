@@ -1,8 +1,10 @@
 from django.test import TestCase
 from web.models import *
 from django.contrib.auth.models import User
+from django.urls import reverse
 from web.functions import asset_lib
 from datetime import datetime
+import json
 # Create your tests here.
 
 
@@ -31,6 +33,19 @@ class ModelTest(TestCase):
             entry=None,
             chart=None,
         )
+        self.so = Order.objects.create(
+            user=self.u,
+            stock=self.s,
+            datetime=self.now,
+            is_nisa=False,
+            is_buy=False,
+            is_simulated=False,
+            num=100,
+            val=1000,
+            commission=250,
+            entry=None,
+            chart=None,
+        )
         self.astatus = AssetStatus.objects.create(
             date=date.today(),
             user=self.u,
@@ -42,8 +57,8 @@ class ModelTest(TestCase):
             sum_other=0,
         )
 
-    def test_linking_order_to_plan_entry(self):
-        """売り注文作成時に、同じStockのEntry(is_plan=True)があれば紐付け＆is_plan=False"""
+    def test_linking_buy_order_to_plan_entry(self):
+        """買い注文作成時に、同じStockのEntry(is_plan=True)があれば紐付け＆is_plan=False"""
         e = Entry.objects.create(stock=self.s, user=self.u, is_plan=True)
         self.assertEqual(Entry.objects.count(), 1)
         result = asset_lib.order_process(order=self.bo, user=self.u)
@@ -60,8 +75,8 @@ class ModelTest(TestCase):
         self.assertEqual(self.astatus.buying_power, 1000000 - self.bo.num * self.bo.val - self.bo.commission)
         self.assertEqual(self.astatus.sum_stock, self.bo.num * self.bo.val)
 
-    def test_linking_order_to_new_entry(self):
-        """売り注文作成時に、同じStockのEntryがなければ新規作成して紐付け"""
+    def test_linking_buy_order_to_new_entry(self):
+        """買い注文作成時に、同じStockのEntryがなければ新規作成して紐付け"""
         result = asset_lib.order_process(order=self.bo, user=self.u)
         self.assertTrue(result['status'])
         self.assertEqual(Entry.objects.count(), 1)
@@ -74,6 +89,57 @@ class ModelTest(TestCase):
         self.astatus = AssetStatus.objects.first()
         self.assertEqual(self.astatus.buying_power, 1000000 - self.bo.num * self.bo.val - self.bo.commission)
         self.assertEqual(self.astatus.sum_stock, self.bo.num * self.bo.val)
+
+    def test_linking_sell_order_to_existing_entry(self):
+        """売り注文作成時に、同じStockのEntryに紐付け。口数が違うのでCloseしない"""
+        # 事前準備
+        self.bo.num = self.bo.num + 10
+        self.bo.save()
+        asset_lib.order_process(order=self.bo, user=self.u)
+        self.assertEqual(Entry.objects.count(), 1)
+        entry = self.bo.entry
+        # order_process
+        result = asset_lib.order_process(order=self.so, user=self.u)
+        self.assertTrue(result['status'])
+        # is_plan=False and is_closed=True and stock=self.s and user=self.u
+        self.assertEqual(self.so.entry, entry)
+        self.assertFalse(self.so.entry.is_plan)
+        self.assertTrue(self.so.entry.is_closed)
+        self.assertEqual(self.so.entry.stock, self.s)
+        self.assertEqual(self.so.entry.user, self.u)
+        self.assertEqual(self.so.entry.num_linked_orders(), 2)
+        # Astatusが更新される
+        self.astatus = AssetStatus.objects.first()
+        self.assertEqual(
+            self.astatus.buying_power,
+            1000000 - self.bo.num * self.bo.val - self.bo.commission + self.so.num * self.so.val - self.so.commission
+        )
+        self.assertEqual(self.astatus.sum_stock, 0)
+
+    def test_linking_sell_order_to_existing_entry_and_close(self):
+        """売り注文作成時に、同じStockのEntryに紐付け。口数が一緒なのでCloseもさせる"""
+        # 事前準備
+        result = asset_lib.order_process(order=self.bo, user=self.u)
+        self.assertTrue(result['status'])
+        self.assertEqual(Entry.objects.count(), 1)
+        entry = self.bo.entry
+        # order_process
+        result = asset_lib.order_process(order=self.so, user=self.u)
+        self.assertTrue(result['status'])
+        # is_plan=False and is_closed=True and stock=self.s and user=self.u
+        self.assertEqual(self.so.entry, entry)
+        self.assertFalse(self.so.entry.is_plan)
+        self.assertTrue(self.so.entry.is_closed)
+        self.assertEqual(self.so.entry.stock, self.s)
+        self.assertEqual(self.so.entry.user, self.u)
+        self.assertEqual(self.so.entry.num_linked_orders(), 2)
+        # Astatusが更新される
+        self.astatus = AssetStatus.objects.first()
+        self.assertEqual(
+            self.astatus.buying_power,
+            1000000 - self.bo.num * self.bo.val - self.bo.commission + self.so.num * self.so.val - self.so.commission
+        )
+        self.assertEqual(self.astatus.sum_stock, 0)
 
     def test_over_buying_power(self):
         """売り注文が買付余力を超えているとエラー"""
