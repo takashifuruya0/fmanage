@@ -50,7 +50,9 @@
 								<a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
 							</td>
 							<td>
-								<a href="{% url 'web:stock_detail' entry.stock.code %}">{{entry.stock}}</a>
+<!--								<a href="{% url 'web:stock_detail' entry.stock.code %}">-->
+									{{entry.stock}}
+<!--								</a>-->
 							</td>
 							<td>
 								<h5>
