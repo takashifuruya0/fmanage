@@ -104,10 +104,11 @@ class ModelTest(TestCase):
         # is_plan=False and is_closed=True and stock=self.s and user=self.u
         self.assertEqual(self.so.entry, entry)
         self.assertFalse(self.so.entry.is_plan)
-        self.assertTrue(self.so.entry.is_closed)
+        self.assertFalse(self.so.entry.is_closed)
         self.assertEqual(self.so.entry.stock, self.s)
         self.assertEqual(self.so.entry.user, self.u)
         self.assertEqual(self.so.entry.num_linked_orders(), 2)
+        self.assertEqual(entry.remaining(), self.bo.num - self.so.num)
         # Astatusが更新される
         self.astatus = AssetStatus.objects.first()
         self.assertEqual(
