@@ -235,8 +235,8 @@ NOSE_ARGS = [
     '--with-coverage',  # get coverage
     '--cover-html',  # output coverage to cover/ in html
     '--cover-package=kakeibo,asset,api,web',
-
-]# environment
+]
+# environment
 ENVIRONMENT = "develop"
 
 
