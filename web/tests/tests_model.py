@@ -17,6 +17,13 @@ class ModelTest(TestCase):
             industry="industry{}".format(1),
             is_trust=False
         )
+        self.t = Stock.objects.create(
+            code="1000aaaaa",
+            name="test{}".format(1),
+            market="market{}".format(1),
+            industry="industry{}".format(1),
+            is_trust=True
+        )
         self.bo = Order.objects.create(
             user=self.u,
             stock=self.s,
@@ -43,6 +50,32 @@ class ModelTest(TestCase):
             entry=None,
             chart=None,
         )
+        self.bto = Order.objects.create(
+            user=self.u,
+            stock=self.t,
+            datetime=self.now,
+            is_nisa=False,
+            is_buy=True,
+            is_simulated=False,
+            num=100,
+            val=1000,
+            commission=250,
+            entry=None,
+            chart=None,
+        )
+        self.sto = Order.objects.create(
+            user=self.u,
+            stock=self.t,
+            datetime=self.now,
+            is_nisa=False,
+            is_buy=False,
+            is_simulated=False,
+            num=100,
+            val=1200,
+            commission=250,
+            entry=None,
+            chart=None,
+        )
         self.wr = ReasonWinLoss.objects.create(
             reason="Won",
             is_win=True,
@@ -56,12 +89,11 @@ class ModelTest(TestCase):
 
     def test_stock(self):
         c = Stock.objects.all().count()
-        self.assertEqual(c, 1)
+        self.assertEqual(c, 2)
 
     def test_order(self):
         c = Order.objects.count()
-        self.assertEqual(c, 2)
-
+        self.assertEqual(c, 4)
 
     def test_entry(self):
         e = Entry.objects.create(
@@ -93,4 +125,43 @@ class ModelTest(TestCase):
         self.assertTrue(e.is_closed)
         self.assertFalse(e.is_plan)
         self.assertEqual(e.remaining(), 0)
+
+    def test_assetstaus(self):
+        astatus = AssetStatus.objects.create(
+            buying_power=1000000,
+            nisa_power=1000000,
+            sum_stock=0,
+            sum_trust=0,
+            sum_other=0,
+            date=date.today(),
+            investment=1000000,
+            user=self.u,
+        )
+        self.assertEqual(AssetStatus.objects.count(), 1)
+        # 準備
+        entry = Entry.objects.create(
+            user=self.u,
+            stock=self.s,
+            memo="test_entry",
+            border_loss_cut=1000,
+            border_profit_determination=1200,
+        )
+        entry_t = Entry.objects.create(
+            user=self.u,
+            stock=self.t,
+            memo="test_entry",
+            border_loss_cut=1000,
+            border_profit_determination=1200,
+        )
+        self.bo.entry = entry
+        self.bo.save()
+        self.bto.entry = entry_t
+        self.bto.save()
+        # update
+        astatus.update_status()
+        self.assertEqual(astatus.sum_stock, self.bo.num*self.bo.val)
+        self.assertEqual(astatus.sum_trust, self.bto.num * self.bto.val/10000)
+
+
+
 
