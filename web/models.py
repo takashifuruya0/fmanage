@@ -169,7 +169,7 @@ class Order(models.Model):
     datetime = models.DateTimeField(default=datetime.now)
     is_nisa = models.BooleanField(default=False)
     is_buy = models.BooleanField()
-    is_simulated = models.BooleanField()
+    is_simulated = models.BooleanField(default=False)
     num = models.IntegerField()
     val = models.FloatField()
     commission = models.IntegerField()
