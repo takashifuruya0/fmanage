@@ -7,10 +7,15 @@
 {% block body %}
 <div class="container-fluid">
 	<div class="row">
+		<div class="col-12">
+			<h3><i class="fas fa-paw"></i> New Asset Management System</h3>
+		</div>
+	</div>
+	<div class="row">
     <div class="col-12">
 	    <div class="card">
 		    <div class="card-header bg-dark text-white">
-					<h3><i class="fas fa-clipboard-list"></i> Entry</h3>
+					<h4><i class="fas fa-clipboard-list"></i> Entry</h4>
 		    </div>
 		    <div class="card-body">
 			    <table class="table table-responsive">
@@ -66,7 +71,7 @@
 		<div class="col-12">
 			<div class="card">
 				<div class="card-header bg-primary text-white">
-					<h3><i class="fas fa-user"></i> User</h3>
+					<h4><i class="fas fa-user"></i> User</h4>
 				</div>
 				<div class="card-body">
 					<div class="row">
@@ -101,9 +106,7 @@
 					</div>
 				</div>
 				<div class="card-footer">
-					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#investment">
-		        <i class="fas fa-hand-holding-usd"></i> Investment
-		      </button>
+					{% include 'web/modal/modal_investment.html' %}
 				</div>
 			</div>
 		</div>
@@ -115,7 +118,7 @@
 		<div class="col-12">
 			<div class="card">
 				<div class="card-header bg-success text-white">
-					<h3><i class="fas fa-tasks"></i> Celery Tasks</h3>
+					<h4><i class="fas fa-tasks"></i> Celery Tasks</h4>
 				</div>
 				<div class="card-body">
 					<h5 class="card-title">Tasks</h5>
@@ -155,9 +158,5 @@
 		</div>
 	</div>
 	{% endif %}
-
 </div>
-
-<!-- Modal new-record -->
-{% include 'web/modal/modal_investment.html' %}
 {% endblock %}

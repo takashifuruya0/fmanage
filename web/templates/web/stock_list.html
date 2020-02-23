@@ -9,9 +9,7 @@
 	<div class="row">
 		<div class="col-12">
 			<h4><i class="fas fa-paw"></i> Stock List</h4>
-			<button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#new_stock">
-				<i class="fas fa-plus"></i> Create Stock
-			</button>
+			{% include 'web/modal/modal_new_stock.html' %}
 		</div>
 	</div>
 	<div class="row">
@@ -48,6 +46,4 @@
 		</div>
 	</div>
 </div>
-
-{% include 'web/modal/modal_new_stock.html' %}
 {% endblock %}

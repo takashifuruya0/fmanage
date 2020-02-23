@@ -56,6 +56,7 @@
 						({{entry.profit_pct}}%)
 						{% if entry.profit > 0 %}
 						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good</label>
+						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good</label>
 						{% else %}
 						<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Bad</label>
 						{% endif %}
@@ -192,12 +193,10 @@
 					</tr>
 					{%endfor%}
 				</table>
-				<button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#link_orders">
-	        <i class="fas fa-link"></i> Link_orders
-	      </button>
 				<button type="submit" name="post_type" value="unlink_orders" class="btn btn-outline-secondary">
 					<i class="fas fa-unlink"></i> Unlink orders
 				</button>
+				{% include 'web/modal/modal_link_orders.html' %}
 				{% csrf_token %}
 			</form>
 
@@ -227,7 +226,6 @@
 	</div>
 </div>
 
-{% include 'web/modal/modal_link_orders.html' %}
 {% include 'web/part/chart.html' %}
 
 <script src="/document/js/candlestick.js"></script>
