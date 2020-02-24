@@ -25,13 +25,13 @@
               <th>Num</th>
               <th>Val</th>
             </tr>
-            {% for ou in orders_unlinked %}
+            {% for order in orders_unlinked %}
             <tr>
-              <td><input type="checkbox" value="{{ou.pk}}" name="pk"></td>
-              <td>{{ou.datetime}}</td>
-              <td>{%if ou.is_buy%}現物買{%else%}現物売{%endif%}</td>
-              <td>{{ou.num}}</td>
-              <td>{{ou.val}}</td>
+              <td><input type="checkbox" value="{{order.pk}}" name="pk"></td>
+              <td>{{order.datetime}}</td>
+              <td>{%include 'web/part/order_type.html'%}</td>
+              <td>{{order.num}}</td>
+              <td>{{order.val}}</td>
             </tr>
             {% endfor %}
           </table>

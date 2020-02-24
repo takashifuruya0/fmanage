@@ -12,6 +12,7 @@
 				<i class="fas fa-paw"></i> Entry Detail
 				{% include 'web/part/entry_type.html' %}
 			</h4>
+			<h5>Overview</h5>
 			<table class="table">
 				<tr>
 					<th>Stock</th>
@@ -30,38 +31,37 @@
 					<td>{{entry.date_close |default_if_none:"-"}}</td>
 				</tr>
 				<tr>
-					<th>利確価格</th>
+					<th>利確株価</th>
 					<td>
 						¥{{entry.border_profit_determination |default_if_none:"-" |intcomma }}
-						({% widthratio entry.border_profit_determination entry.val_buy 100.0 %}%)
 						{% if entry.border_profit_determination < entry.val_sell and entry.is_closed%}
 						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good</label>
 						{%endif%}
 					</td>
-					<th>損切価格</th>
+					<th>利確利益</th>
+					<td>
+						¥{{entry.profit_profit_determination |default_if_none:"-" |intcomma }}
+						({% widthratio entry.profit_profit_determination entry.total_buy 100.0 %}%)
+					</td>
+				</tr>
+				<tr>
+					<th>損切株価</th>
 					<td>
 						¥{{entry.border_loss_cut |default_if_none:"-" |intcomma}}　
-						({% widthratio entry.border_loss_cut entry.val_buy 100.0 %}%)
 						{% if entry.border_loss_cut > entry.val_sell and entry.is_closed%}
 						<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Bad</label>
 						{%endif%}
 					</td>
-				</tr>
-				<tr>
-					<th>Remaining</th>
-					<td>{{entry.remaining |intcomma}}</td>
-					<th>Profit</th>
+					<th>損切損失</th>
 					<td>
-						¥{{entry.profit |floatformat:0 |intcomma}}
-						({{entry.profit_pct}}%)
-						{% if entry.profit > 0 %}
-						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good</label>
-						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good</label>
-						{% else %}
-						<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Bad</label>
-						{% endif %}
+						¥{{entry.profit_loss_cut |default_if_none:"-" |intcomma }}
+						({% widthratio entry.profit_loss_cut entry.total_buy 100.0 %}%)
 					</td>
 				</tr>
+			</table>
+
+			<h5>Status</h5>
+			<table class="table">
 				<tr>
 					<th>Reason</th>
 					<td colspan="3">{{entry.reason_win_loss |default_if_none:"-"}}</td>
@@ -102,7 +102,7 @@
 			</div>
 		</div>
 		<div class="col-12 col-sm-5">
-			<h4>Order Overview</h4>
+			<h4>Current Status</h4>
 			{%if df_trend.is_upper_25%}
 			<span class="badge badge-success">
 				25日トレンド <i class="fas fa-level-up-alt"></i>
@@ -125,17 +125,23 @@
 				<span class="badge badge-light">{{df_trend.period_75}}日継続中</span>
 			</span>
 			{%endif%}
+			{%if overview.val < entry.border_loss_cut%}
+			<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Better to Loss cut</label>
+			{%elif overview.val > entry.border_profit_determination%}
+			<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good to Sell</label>
+			{%endif%}
+			{% if overview.val == overview.financial_data.年初来安値 %}
+			<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Lowest in the year</label>
+			{% elif overview.val == overview.financial_data.年初来高値 %}
+			<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Highest in the year</label>
+			{%endif%}
 			<table class="table">
+				{% if entry.is_closed %}
 				<tr>
-					<th>買付口数</th>
+					<th>口数</th>
 					<th>買付平均</th>
-					{% if entry.is_closed %}
-					<th>売付口数</th>
 					<th>売付平均</th>
-					{% else %}
-					<th>現在価格</th>
-					<th>ステータス</th>
-					{% endif %}
+					<th>利益</th>
 				</tr>
 				<tr>
 					<td>{{entry.num_buy |intcomma}}</td>
@@ -143,26 +149,30 @@
 						{% if entry.stock.is_trust %}
 						¥{{entry.val_buy |floatformat:4 |intcomma}}
 						{% else %}
-						¥{{entry.val_buy |intcomma}}
+						¥{{entry.val_buy |floatformat:0 |intcomma}}
 						{% endif %}
 					</td>
-					{% if entry.is_closed %}
-					<td>{{entry.num_sell}}</td>
-					<td>¥{{entry.val_sell | intcomma}}</td>
-					{% else %}
-					<td>¥{{overview.val | intcomma}} ({% widthratio overview.val entry.val_buy 100.0 %}%)</td>
+					<td>¥{{entry.val_sell |floatformat:0 |intcomma}} ({% widthratio entry.val_sell entry.val_buy 100.0 %}%)</td>
+					<td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
+				</tr>
+				{% else %}
+				<tr>
+					<th>残口数</th>
+					<th>買付平均</th>
+					<th>現在株価</th>
+					<th>現在利益</th>
+				</tr>
+				<tr>
+					<td>{{entry.remaining |intcomma}}</td>
 					<td>
-						{%if overview.val < entry.border_loss_cut%}
-						<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Better to Loss cut</label>
-						{%elif overview.val > entry.border_profit_determination%}
-						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good to Sell</label>
-						{%endif%}
-						{% if overview.val == overview.financial_data.年初来安値 %}
-						<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Lowest in the year</label>
-						{% elif overview.val == overview.financial_data.年初来高値 %}
-						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Highest in the year</label>
-						{%endif%}
+						{% if entry.stock.is_trust %}
+						¥{{entry.val_buy |floatformat:4 |intcomma}}
+						{% else %}
+						¥{{entry.val_buy |floatformat:0 |intcomma}}
+						{% endif %}
 					</td>
+					<td>¥{{overview.val | intcomma}} ({% widthratio overview.val entry.val_buy 100.0 %}%)</td>
+					<td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
 					{% endif %}
 				</tr>
 			</table>
@@ -178,18 +188,18 @@
 						<th>Num</th>
 						<th>Val</th>
 					</tr>
-					{% for ol in orders_linked %}
+					{% for order in orders_linked %}
 					<tr>
-						<td><input type="checkbox" name="pk" value="{{ol.pk}}"></td>
+						<td><input type="checkbox" name="pk" value="{{order.pk}}"></td>
 						<td>
-							<a href="{%url 'web:order_detail' order_id=ol.id%}">
-								{{ol.pk}}
+							<a href="{%url 'web:order_detail' order_id=order.id%}">
+								{{order.pk}}
 							</a>
 						</td>
-						<td>{{ol.datetime}}</td>
+						<td>{{order.datetime}}</td>
 						<td>{% include 'web/part/order_type.html' %}</td>
-						<td>{{ol.num | intcomma}}</td>
-						<td>{{ol.val | intcomma}}</td>
+						<td>{{order.num | intcomma}}</td>
+						<td>{{order.val | intcomma}}</td>
 					</tr>
 					{%endfor%}
 				</table>

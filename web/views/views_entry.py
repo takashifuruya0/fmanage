@@ -126,7 +126,6 @@ class EntryDelete(LoginRequiredMixin, DeleteView):
         return result
 
 
-
 class EntryDetail(LoginRequiredMixin, DetailView):
     model = Entry
     template_name = "web/entry_detail.html"

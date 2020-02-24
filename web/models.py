@@ -103,6 +103,12 @@ class Entry(models.Model):
     def val_sell(self):
         return self.val_order(is_buy=False)
 
+    def total_buy(self):
+        return self.val_buy() * self.num_buy()
+
+    def total_sell(self):
+        return self.val_sell() * self.num_sell() if self.num_sell() > 0 else None
+
     def num_linked_orders(self):
         return self.order_set.count()
 
@@ -110,6 +116,7 @@ class Entry(models.Model):
         return self.num_buy() - self.num_sell()
 
     def profit(self):
+        """利益"""
         profit = 0
         for o in self.order_set.all():
             if o.is_buy:
@@ -120,12 +127,29 @@ class Entry(models.Model):
             data = asset_scraping.yf_detail(self.stock.code)
             if data['status']:
                 profit += data['data']['val'] * self.remaining()
-        if profit > 0 and not self.is_nisa:
-            profit = round(profit * 0.8)
         return profit
 
+    def profit_after_tax(self):
+        profit = self.profit()
+        return round(profit * 0.8) if profit > 0 and not self.is_nisa else profit
+
     def profit_pct(self):
+        """利益率"""
         return round(100 + self.profit() * 100 / self.val_buy() / self.num_buy(), 1) if self.order_set.exists() else 0
+
+    def profit_profit_determination(self):
+        """利確後の利益額"""
+        if self.border_profit_determination:
+            return (self.border_profit_determination - self.val_buy()) * self.num_buy()
+        else:
+            return None
+
+    def profit_loss_cut(self):
+        """損切後の損失額"""
+        if self.border_loss_cut:
+            return (self.border_loss_cut - self.val_buy()) * self.num_buy()
+        else:
+            return None
 
     def date_open(self):
         os = self.order_set.filter(is_buy=True)

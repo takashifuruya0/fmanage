@@ -125,6 +125,9 @@ class ModelTest(TestCase):
         self.assertTrue(e.is_closed)
         self.assertFalse(e.is_plan)
         self.assertEqual(e.remaining(), 0)
+        # 利確株価/損切株価での利益
+        self.assertEqual(e.profit_profit_determination(), (e.border_profit_determination-e.val_buy())*e.num_buy())
+        self.assertEqual(e.profit_loss_cut(), (e.border_loss_cut-e.val_buy()) * e.num_buy())
 
     def test_assetstaus(self):
         astatus = AssetStatus.objects.create(
