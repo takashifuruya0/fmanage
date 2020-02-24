@@ -141,7 +141,7 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         days = 60
         od = edo - relativedelta(days=days)
         cd = edc + relativedelta(days=days) if entry.is_closed else date.today()
-        svds = StockValueData.objects.filter(stock=entry.stock, date__gt=od, date__lt=cd).order_by('date')
+        svds = StockValueData.objects.filter(stock=entry.stock, date__gte=od, date__lte=cd).order_by('date')
         df = asset_analysis.prepare(svds)
         df_check = asset_analysis.check(df)
         df_trend = asset_analysis.get_trend(df)
