@@ -11,14 +11,14 @@ class ModelTest(TestCase):
     def setUp(self):
         self.u = User.objects.create_user('HogeTaro', 'taro@hoge.com', 'password')
         self.s = Stock.objects.create(
-            code=1000,
+            code=1570,
             name="test{}".format(1),
             market="market{}".format(1),
             industry="industry{}".format(1),
             is_trust=False
         )
         self.t = Stock.objects.create(
-            code="1000aaaaa",
+            code="64317081",
             name="test{}".format(1),
             market="market{}".format(1),
             industry="industry{}".format(1),
@@ -159,8 +159,8 @@ class ModelTest(TestCase):
         self.bto.save()
         # update
         astatus.update_status()
-        self.assertEqual(astatus.sum_stock, self.bo.num*self.bo.val)
-        self.assertEqual(astatus.sum_trust, self.bto.num * self.bto.val/10000)
+        self.assertEqual(astatus.sum_stock, self.bo.num * self.bo.stock.current_val())
+        self.assertEqual(astatus.sum_trust, self.bto.num * self.bto.stock.current_val())
 
 
 

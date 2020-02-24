@@ -218,6 +218,12 @@ class AssetStatus(models.Model):
     def get_gpr(self):
         return round((self.get_total() - self.investment)/self.investment * 100, 2)
 
+    def update_status(self):
+        es = Entry.objects.filter(is_closed=False, is_plan=False)
+        self.sum_stock = sum([e.remaining()*e.stock.current_val() for e in es.filter(stock__is_trust=False)])
+        self.sum_trust = sum([e.remaining()*e.stock.current_val() for e in es.filter(stock__is_trust=True)])
+        self.save()
+
 
 class StockFinancialData(models.Model):
     objects = None
