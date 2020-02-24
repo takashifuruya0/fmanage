@@ -34,7 +34,7 @@ class StockDetail(LoginRequiredMixin, DetailView):
             stock=context['stock'], date__gte=(date.today()-relativedelta(months=6))
         ).order_by('date')
         context['sfds'] = StockFinancialData.objects.filter(stock=context['stock']).order_by('date')
-        context['df_trend'] = asset_analysis.get_trend(context['sfds'])
+        context['df_trend'] = asset_analysis.get_trend(context['svds'])
         context['entry_form'] = EntryForm(initial={
             "user": self.request.user,
             "stock": context['stock'],
