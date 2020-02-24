@@ -46,12 +46,12 @@ class ModelTest(TestCase):
         self.assertEqual(Budget.objects.count(), 1)
         # sum取得
         self.assertEqual(b.total(), takashi+hoko)
+        # 違う年月のBudgetは作成できる
+        b2 = Budget.objects.create(takashi=takashi, hoko=hoko, date=date.today() + relativedelta(months=1))
+        self.assertEqual(Budget.objects.count(), 2)
         # 同じ年月のbudgetは作成できない
         try:
             b1 = Budget.objects.create(takashi=takashi, hoko=hoko, date=date.today())
             self.fail("同じ年月のbudgetは作成できない")
         except Exception as e:
             pass
-        # 違う年月のBudgetは作成できる
-        b2 = Budget.objects.create(takashi=takashi, hoko=hoko, date=date.today()+relativedelta(months=1))
-        self.assertEqual(Budget.objects.count(), 2)

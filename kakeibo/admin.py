@@ -66,6 +66,10 @@ class EventAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'name', 'memo', "is_active"]
 
 
+class BudgetAdmin(admin.ModelAdmin):
+    list_display = ["id", "date", "takashi", "hoko", "total"]
+
+
 admin.site.register(Kakeibos, KakeibosAdmin)
 admin.site.register(Resources, ResourcesAdmin)
 admin.site.register(Usages, UsagesAdmin)
@@ -83,3 +87,4 @@ admin.site.register(CronKakeibo, CronKakeiboAdmin)
 admin.site.register(CronShared, CronSharedAdmin)
 admin.site.register(UsualRecord, UsualRecordAdmin)
 admin.site.register(Event, EventAdmin)
+admin.site.register(Budget, BudgetAdmin)

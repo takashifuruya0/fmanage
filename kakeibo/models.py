@@ -473,3 +473,16 @@ class UsualRecord(models.Model):
             new_val = '-¥{:,}'.format(-self.fee)
         return new_val
 
+
+class Budget(models.Model):
+    objects = None
+    date = models.DateField(unique=True)
+    takashi = models.IntegerField()
+    hoko = models.IntegerField()
+    memo = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return "Budget_{}/{}".format(self.date.year, str(self.date.month).zfill(2))
+
+    def total(self):
+        return self.takashi + self.hoko
