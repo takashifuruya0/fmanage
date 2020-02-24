@@ -1,6 +1,6 @@
 from django.test import TestCase
-from kakeibo.models import Kakeibos, SharedKakeibos, Usages, Resources, Credits, CreditItems
-from django.db.models import Sum
+from kakeibo.models import *
+from dateutil.relativedelta import relativedelta
 from datetime import date
 
 
@@ -37,3 +37,21 @@ class ModelTest(TestCase):
     def test_kakeibo(self):
         c = Kakeibos.objects.all().count()
         self.assertEqual(c, self.num_kakeibo)
+
+    def test_budget(self):
+        # Budget作成
+        takashi = 90000
+        hoko = 60000
+        b = Budget.objects.create(takashi=takashi, hoko=hoko, date=date.today())
+        self.assertEqual(Budget.objects.count(), 1)
+        # sum取得
+        self.assertEqual(b.total(), takashi+hoko)
+        # 同じ年月のbudgetは作成できない
+        try:
+            b1 = Budget.objects.create(takashi=takashi, hoko=hoko, date=date.today())
+            self.fail("同じ年月のbudgetは作成できない")
+        except Exception as e:
+            pass
+        # 違う年月のBudgetは作成できる
+        b2 = Budget.objects.create(takashi=takashi, hoko=hoko, date=date.today()+relativedelta(months=1))
+        self.assertEqual(Budget.objects.count(), 2)
