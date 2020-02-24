@@ -58,17 +58,15 @@
 						({% widthratio entry.profit_loss_cut entry.total_buy 100.0 %}%)
 					</td>
 				</tr>
-			</table>
-
-			<h5>Status</h5>
-			<table class="table">
+				{% if entry.is_closed %}
 				<tr>
 					<th>Reason</th>
 					<td colspan="3">{{entry.reason_win_loss |default_if_none:"-"}}</td>
 				</tr>
+				{% endif %}
 				<tr>
 					<th>Memo</th>
-					<td colspan="3">{{entry.memo |linebreaksbr}}</td>
+					<td colspan="3">{{entry.memo |default:"-" |linebreaksbr}}</td>
 				</tr>
 			</table>
 			<a class="btn btn-outline-info" href="{%url 'web:entry_edit' pk=entry.pk%}">
@@ -88,7 +86,10 @@
 		<div class="col-12 col-sm-7">
 			<div class="card">
 				<div class="card-header">
-					<h5 class="card-title">{{od}} ~ {{cd}}</h5>
+					<h5 class="card-title">
+						{{od}} ~ {{cd}}
+						{% include 'web/part/trend_type.html' %}
+					</h5>
 				</div>
 				<div class="card-body">
 					<p class="card-title">({{entry.stock.code}}) {{entry.stock.name}}</p>
@@ -102,39 +103,16 @@
 			</div>
 		</div>
 		<div class="col-12 col-sm-5">
-			<h4>Current Status</h4>
-			{%if df_trend.is_upper_25%}
-			<span class="badge badge-success">
-				25日トレンド <i class="fas fa-level-up-alt"></i>
-				<span class="badge badge-light">{{df_trend.period_25}}日継続中</span>
-			</span>
-			{%else%}
-			<span class="badge badge-danger">
-				25日トレンド <i class="fas fa-level-down-alt"></i>
-				<span class="badge badge-light">{{df_trend.period_25}}日継続中</span>
-			</span>
-			{%endif%}
-			{%if df_trend.is_upper_75%}
-			<span class="badge badge-success">
-				75日トレンド <i class="fas fa-level-up-alt"></i>
-				<span class="badge badge-light">{{df_trend.period_75}}日継続中</span>
-			</span>
-			{%else%}
-			<span class="badge badge-danger">
-				75日トレンド <i class="fas fa-level-down-alt"></i>
-				<span class="badge badge-light">{{df_trend.period_75}}日継続中</span>
-			</span>
-			{%endif%}
+			<h5>Current Status</h5>
+
 			{%if overview.val < entry.border_loss_cut%}
 			<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Better to Loss cut</label>
 			{%elif overview.val > entry.border_profit_determination%}
 			<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good to Sell</label>
 			{%endif%}
-			{% if overview.val == overview.financial_data.年初来安値 %}
-			<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Lowest in the year</label>
-			{% elif overview.val == overview.financial_data.年初来高値 %}
-			<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Highest in the year</label>
-			{%endif%}
+
+			{% include 'web/part/finance_type.html' %}
+
 			<table class="table">
 				{% if entry.is_closed %}
 				<tr>
@@ -176,6 +154,7 @@
 					{% endif %}
 				</tr>
 			</table>
+
 			<hr>
 			<h5>Linked Orders</h5>
 			<form action="" method="post">
@@ -192,9 +171,7 @@
 					<tr>
 						<td><input type="checkbox" name="pk" value="{{order.pk}}"></td>
 						<td>
-							<a href="{%url 'web:order_detail' order_id=order.id%}">
-								{{order.pk}}
-							</a>
+							<a href="{%url 'web:order_detail' order_id=order.id%}">{{order.pk}}</a>
 						</td>
 						<td>{{order.datetime}}</td>
 						<td>{% include 'web/part/order_type.html' %}</td>

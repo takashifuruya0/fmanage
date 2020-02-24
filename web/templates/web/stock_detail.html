@@ -90,7 +90,7 @@
 		<div class="col-12 col-sm-8">
 			<div class="card">
 				<div class="card-header">
-					<h5>Chart</h5>
+					<h5>Chart {% include 'web/part/trend_type.html' %}</h5>
 				</div>
 				<div class="card-body">
 					<p class="card-title">{{svds.first.date}} ~ {{svds.last.date}}</p>
@@ -104,7 +104,7 @@
 		<div class="col-12 col-sm-4">
 			<div class="card">
 				<div class="card-header">
-					<h5>Finance</h5>
+					<h5>Finance {% include 'web/part/finance_type.html' %}</h5>
 				</div>
 				<div class="card-body">
 					{%with sfd=sfds.last%}

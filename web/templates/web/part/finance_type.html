@@ -1,0 +1,5 @@
+{% if overview.val == overview.financial_data.年初来安値 %}
+<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Lowest in the year</label>
+{% elif overview.val == overview.financial_data.年初来高値 %}
+<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Highest in the year</label>
+{%endif%}

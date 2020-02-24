@@ -5,7 +5,7 @@ from django.conf import settings
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from web.forms import OrderForm, EntryForm, StockForm
-from web.functions import asset_scraping
+from web.functions import asset_scraping, asset_analysis
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, Stock, StockValueData, StockFinancialData
@@ -34,12 +34,17 @@ class StockDetail(LoginRequiredMixin, DetailView):
             stock=context['stock'], date__gte=(date.today()-relativedelta(months=6))
         ).order_by('date')
         context['sfds'] = StockFinancialData.objects.filter(stock=context['stock']).order_by('date')
+        context['df_trend'] = asset_analysis.get_trend(context['sfds'])
         context['entry_form'] = EntryForm(initial={
             "user": self.request.user,
             "stock": context['stock'],
             "border_loss_cut": context["current_val"],
             "border_profit_determination": context["current_val"],
         })
+        # 現在情報を取得
+        overview = asset_scraping.yf_detail(self.object.code)
+        if overview['status']:
+            context['overview'] = overview['data']
         return context
 
 

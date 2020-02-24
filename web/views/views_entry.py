@@ -161,6 +161,10 @@ class EntryDetail(LoginRequiredMixin, DetailView):
                     bos_detail[date_list[order_date]] = o.val*10000 if entry.stock.is_trust else o.val
                 else:
                     sos_detail[date_list[order_date]] = o.val*10000 if entry.stock.is_trust else o.val
+        # 現在情報を取得
+        overview = asset_scraping.yf_detail(entry.stock.code)
+        if overview['status']:
+            overview_data = overview['data']
         output = {
             "user": self.request.user,
             "entry": entry,
@@ -174,12 +178,8 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "df": df,
             "df_check": df_check,
             "df_trend": df_trend,
+            "overview": overview_data,
         }
-        # openの場合、現在情報を取得
-        if not entry.is_closed:
-            overview = asset_scraping.yf_detail(entry.stock.code)
-            if overview['status']:
-                output['overview'] = overview['data']
         return output
 
     @transaction.atomic
