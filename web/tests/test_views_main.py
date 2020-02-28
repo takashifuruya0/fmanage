@@ -28,6 +28,7 @@ class ViewTest(TestCase):
             buying_power=100, nisa_power=1000000,
             user=self.u,
         )
+        # is_investment=TrueでPOST
         response = self.client.post(
             url, data={
                 "value": 100,
@@ -38,4 +39,16 @@ class ViewTest(TestCase):
         self.assertRedirects(response, reverse('web:main'))
         # is_investment=Trueなのでbuying_power, investement両方が増加
         self.assertEqual(AssetStatus.objects.get(pk=astatus.pk).buying_power, 200)
+        self.assertEqual(AssetStatus.objects.get(pk=astatus.pk).investment, 200)
+        # is_investment=FalseでPOST
+        response = self.client.post(
+            url, data={
+                "value": 100,
+                "is_investment": False,
+            }
+        )
+        # トップページへリダイレクト
+        self.assertRedirects(response, reverse('web:main'))
+        # is_investment=Falseなのでbuying_powerのみ両方が増加
+        self.assertEqual(AssetStatus.objects.get(pk=astatus.pk).buying_power, 300)
         self.assertEqual(AssetStatus.objects.get(pk=astatus.pk).investment, 200)
