@@ -1,12 +1,14 @@
 from django.test import TestCase
-from web.models import *
+from web.models import Stock, Order, Entry, AssetStatus, ReasonWinLoss
+from web.models import StockValueData, StockFinancialData
 from django.contrib.auth.models import User
-from datetime import datetime
+from datetime import datetime, date
 # Create your tests here.
 
 
 class ModelTest(TestCase):
     now = datetime.now()
+    today = date.today()
 
     def setUp(self):
         self.u = User.objects.create_user('HogeTaro', 'taro@hoge.com', 'password')
@@ -160,11 +162,31 @@ class ModelTest(TestCase):
         self.bo.save()
         self.bto.entry = entry_t
         self.bto.save()
-        # update
+        # update：エントリーを参照して、各種値を更新
         astatus.update_status()
         self.assertEqual(astatus.sum_stock, self.bo.num * self.bo.stock.current_val())
         self.assertEqual(astatus.sum_trust, self.bto.num * self.bto.stock.current_val())
 
+    def test_stockvaludedata(self):
+        StockValueData.objects.create(
+            stock=self.s, date=self.today,
+            val_high=1200, val_low=1100, val_open=1150, val_close=1170,
+            turnover=50000
+        )
+        self.assertEqual(StockValueData.objects.count(), 1)
 
+    def test_stockfinancialdata(self):
+        StockFinancialData.objects.create(
+            stock=self.s, date=self.today,
+            interest_bearing_debt=100.0,
+            roa=10.0, roe=10.0, sales=10.0, assets=10.0,
+            eps=10.0, net_income=10.0, bps=10.0, roa_2=10.0,
+            operating_income=10.0, equity_ratio=10.0,
+            capital=10.0, recurring_profit=10.0,
+            equity=10.0, pbr_f=10.0, eps_f=10.0,
+            market_value=10.0, per_f=10.0, dividend_yield=10.0, bps_f=10.0,
+        )
+        self.assertEqual(StockFinancialData.objects.count(), 1)
 
-
+    def test_reasonwinloss(self):
+        self.assertEqual(ReasonWinLoss.objects.count(), 2)

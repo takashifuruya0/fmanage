@@ -24,15 +24,15 @@ class Main(LoginRequiredMixin, TemplateView):
         entrys = Entry.objects.filter(user=self.request.user).order_by('-pk')[:5]
         astatus_list = AssetStatus.objects.filter(user=self.request.user)
         astatus = astatus_list.latest('date') if astatus_list.exists() else None
-        if self.request.user.is_superuser:
-            tasks = TaskResult.objects.all()[:5]
         output = {
             "user": self.request.user,
             "entrys": entrys,
-            "tasks": tasks,
             "astatus": astatus,
             "investment_form": InvestmentForm(),
         }
+        if self.request.user.is_superuser:
+            tasks = TaskResult.objects.all()
+            output["tasks"] = tasks[:5] if tasks.count() > 5 else tasks
         return output
 
 
