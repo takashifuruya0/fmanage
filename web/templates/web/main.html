@@ -26,8 +26,8 @@
 					      <th>Status</th>
 					      <th>Open</th>
 					      <th>Close</th>
-					      <th>Profit</th>
-								<th>Remaining</th>
+					      <th class="right">Profit</th>
+								<th class="right">Remaining</th>
 				      </tr>
 				    </thead>
 				    <tbody>
@@ -44,8 +44,8 @@
 					      </td>
 					      <td>{{entry.date_open |default_if_none:"-"}}</td>
 					      <td>{{entry.date_close |default_if_none:"-"}}</td>
-					      <td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
-					      <td>{{entry.remaining |intcomma}}</td>
+					      <td class="right">¥{{entry.profit |floatformat:0 |intcomma}}</td>
+					      <td class="right">{{entry.remaining |intcomma}}</td>
 				      </tr>
 				      {% endfor %}
 				    </tbody>

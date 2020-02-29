@@ -116,41 +116,41 @@
 			<table class="table">
 				{% if entry.is_closed %}
 				<tr>
-					<th>口数</th>
-					<th>買付平均</th>
-					<th>売付平均</th>
-					<th>利益</th>
+					<th class="right">口数</th>
+					<th class="right">買付平均</th>
+					<th class="right">売付平均</th>
+					<th class="right">利益</th>
 				</tr>
 				<tr>
-					<td>{{entry.num_buy |intcomma}}</td>
-					<td>
+					<td class="right">{{entry.num_buy |intcomma}}</td>
+					<td class="right">
 						{% if entry.stock.is_trust %}
 						¥{{entry.val_buy |floatformat:4 |intcomma}}
 						{% else %}
 						¥{{entry.val_buy |floatformat:0 |intcomma}}
 						{% endif %}
 					</td>
-					<td>¥{{entry.val_sell |floatformat:0 |intcomma}} ({% widthratio entry.val_sell entry.val_buy 100.0 %}%)</td>
-					<td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
+					<td class="right">¥{{entry.val_sell |floatformat:0 |intcomma}} ({% widthratio entry.val_sell entry.val_buy 100.0 %}%)</td>
+					<td class="right">¥{{entry.profit |floatformat:0 |intcomma}}</td>
 				</tr>
 				{% else %}
 				<tr>
-					<th>残口数</th>
-					<th>買付平均</th>
-					<th>現在株価</th>
-					<th>現在利益</th>
+					<th class="right">残口数</th>
+					<th class="right">買付平均</th>
+					<th class="right">現在株価</th>
+					<th class="right">現在利益</th>
 				</tr>
 				<tr>
-					<td>{{entry.remaining |intcomma}}</td>
-					<td>
+					<td class="right">{{entry.remaining |intcomma}}</td>
+					<td class="right">
 						{% if entry.stock.is_trust %}
 						¥{{entry.val_buy |floatformat:4 |intcomma}}
 						{% else %}
 						¥{{entry.val_buy |floatformat:0 |intcomma}}
 						{% endif %}
 					</td>
-					<td>¥{{overview.val | intcomma}} ({% widthratio overview.val entry.val_buy 100.0 %}%)</td>
-					<td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
+					<td class="right">¥{{overview.val | intcomma}} ({% widthratio overview.val entry.val_buy 100.0 %}%)</td>
+					<td class="right">¥{{entry.profit |floatformat:0 |intcomma}}</td>
 					{% endif %}
 				</tr>
 			</table>
@@ -164,8 +164,8 @@
 						<th>No.</th>
 						<th>Date</th>
 						<th>Type</th>
-						<th>Num</th>
-						<th>Val</th>
+						<th class="right">Num</th>
+						<th class="right">Val</th>
 					</tr>
 					{% for order in orders_linked %}
 					<tr>
@@ -175,8 +175,8 @@
 						</td>
 						<td>{{order.datetime}}</td>
 						<td>{% include 'web/part/order_type.html' %}</td>
-						<td>{{order.num | intcomma}}</td>
-						<td>{{order.val | intcomma}}</td>
+						<td class="right">{{order.num | intcomma}}</td>
+						<td class="right">{{order.val | intcomma}}</td>
 					</tr>
 					{%endfor%}
 				</table>
