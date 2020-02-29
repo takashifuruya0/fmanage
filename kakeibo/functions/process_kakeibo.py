@@ -1,4 +1,4 @@
-from kakeibo.models import Kakeibos, Usages, SharedKakeibos, Resources, Credits, CreditItems
+from kakeibo.models import Kakeibos, Usages, SharedKakeibos, Resources, Credits, CreditItems, Budget
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Avg, Q, Count
 from django.conf import settings
@@ -20,7 +20,6 @@ def usage_shared_table(usage_list):
     this_month = date(today.year, today.month, 1) + relativedelta(months=1, days=-1)
     # e.g. 2018/12/31 ~ 2019/11/30
     target_range = [this_month + relativedelta(months=-12, days=1), this_month]
-    budget_shared = {"all": settings.BUDGET_TAKA + settings.BUDGET_HOKO}
     suy = SharedKakeibos.objects.filter(date__range=target_range) \
         .annotate(month=TruncMonth('date')) \
         .values('month', 'usage').order_by('month') \
@@ -28,20 +27,21 @@ def usage_shared_table(usage_list):
     # data用意
     data_year = [
         {
+            "budget_shared": Budget.objects.filter(date__lte=(this_month-relativedelta(months=i))).latest('date').total(),
             "year": (this_month-relativedelta(months=i)).year,
             "month": (this_month-relativedelta(months=i)).month,
             "sum": "",
             "color": "",
             "percent": "",
-            "data": list()
+            "data": [0 for j in range(len(usage_list))]
         } for i in range(12)
     ]
     month_order = {
         (this_month - relativedelta(months=i)).month: i for i in range(12)
     }
     # usage_listの数だけ、0を用意
-    for i in range(12):
-        data_year[i]['data'] = [0 for j in range(len(usage_list))]
+    # for i in range(12):
+    #     data_year[i]['data'] = [0 for j in range(len(usage_list))]
     # pk:name のdictを用意
     usage_names = {u.pk: u.name for u in Usages.objects.all()}
     for s in suy:
@@ -51,8 +51,8 @@ def usage_shared_table(usage_list):
                 data_year[month_order[s['month'].month]]['data'][u] = s['sum']
     for i in range(12):
         data_year[i]['sum'] = sum(data_year[i]['data'])
-        data_year[i]["percent"] = data_year[i]['sum'] / (budget_shared['all'] + 30000) * 100
-        data_year[i]["color"] = "success" if data_year[i]['sum'] < budget_shared['all'] else "danger"
+        data_year[i]["percent"] = data_year[i]['sum'] / (data_year[i]['budget_shared'] + 30000) * 100
+        data_year[i]["color"] = "success" if data_year[i]['sum'] < data_year[i]['budget_shared'] else "danger"
     return data_year
 
 

@@ -1,7 +1,7 @@
 # coding: utf-8
 from django.db.models import Sum, Avg
 from django.conf import settings
-from kakeibo.models import SharedKakeibos
+from kakeibo.models import SharedKakeibos, Budget
 from datetime import date
 import time
 # logging
@@ -29,8 +29,9 @@ def seisan(year=date.today().year, month=date.today().month):
     budget = dict()
     payment = dict()
     sk = SharedKakeibos.objects.filter(date__year=year, date__month=month)
-    budget['taka'] = settings.BUDGET_TAKA
-    budget['hoko'] = settings.BUDGET_HOKO
+    bd = Budget.objects.filter(date__lte=date(year, month, 1)).latest('date')
+    budget['taka'] = bd.takashi
+    budget['hoko'] = bd.hoko
     budget['sum'] = sum(budget.values())
     payment['taka'] = cal_sum_or_0(sk.filter(paid_by="敬士"))
     payment['hoko'] = cal_sum_or_0(sk.filter(paid_by="朋子"))

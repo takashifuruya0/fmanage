@@ -30,23 +30,23 @@
   <div class="row">
     <div class="col-sm-6 col-md-3 col-lg-2">
       <button class="btn btn-block btn-lg btn-info">
-        精算額 <span class="badge badge-light">¥{{move | intcomma}}</span>
+        精算額 <span class="badge badge-light">¥{{move |intcomma}}</span>
       </button>
     </div>
     <div class="col-sm-6 col-md-3 col-lg-2">
       <button class="btn btn-block btn-lg btn-{{status}}">
-        収支 <span class="badge badge-light">¥{{inout | intcomma}}</span>
+        収支 <span class="badge badge-light">¥{{inout |intcomma}}</span>
       </button>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-8">
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-success progress-bar-striped" style="width:{{pb_shared.in}}%; height:25px">
-          予算 <span class="badge badge-light">¥{{budget.all | intcomma}}</span>
+          予算 <span class="badge badge-light">¥{{budget.all |intcomma}}</span>
         </div>
       </div>
       <div class="progress" style="height:25px">
         <div class="progress-bar bg-warning progress-bar-striped" style="width:{{pb_shared.out}}%; height:25px">
-          支出 <span class="badge badge-light">¥{{expense.all | intcomma}}</span>
+          支出 <span class="badge badge-light">¥{{expense.all |intcomma}}</span>
         </div>
       </div>
     </div>
@@ -76,15 +76,15 @@
             <tbody>
               <tr>
                 <td>合計</td>
-                <td class="right">¥{{expense.all | intcomma}}</td>
+                <td class="right">¥{{expense.all |intcomma}}</td>
               </tr>
               <tr>
                 <td>敬士</td>
-                <td class="right">¥{{expense.t | intcomma}}</td>
+                <td class="right">¥{{expense.t |intcomma}}</td>
               </tr>
               <tr>
                 <td>朋子</td>
-                <td class="right">¥{{expense.h | intcomma}}</td>
+                <td class="right">¥{{expense.h |intcomma}}</td>
               </tr>
             </tbody>
           </table>
@@ -101,7 +101,7 @@
             {% for su in shared_usages %}
               <tr>
                 <td>{{su.usage__name}}</td>
-                <td class="right">¥{{su.fee__sum | intcomma}}</td>
+                <td class="right">¥{{su.fee__sum |intcomma}}</td>
               </tr>
             {% endfor %}
             </tbody>
@@ -123,7 +123,7 @@
               <tr>
                 <td>{{w.usage__name}}</td>
                 <td>{{w.paid_by}}</td>
-                <td class="right">¥{{w.fee__sum | intcomma}}</td>
+                <td class="right">¥{{w.fee__sum |intcomma}}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -150,6 +150,7 @@
           <tr>
             <th></th>
             <th class="right">合計</th>
+            <th class="right">予算</th>
             {% for i in usage_list %}
             <th class="right">{{i}}</th>
             {% endfor%}
@@ -162,12 +163,15 @@
             <td class="right">
               <div class="progress" style="height:25px">
                 <div class="progress-bar bg-{{i.color}} progress-bar-striped" style="width:{{i.percent}}%; height:25px">
-                  ¥{{i.sum | intcomma}}
+                  ¥{{i.sum |intcomma}}
                 </div>
               </div>
             </td>
+            <td>
+              ¥{{i.budget_shared |intcomma}}
+            </td>
             {% for j in i.data %}
-            <td class="right">¥{{j | intcomma}}</td>
+            <td class="right">¥{{j |intcomma}}</td>
             {% endfor %}
           </tr>
           {% endfor %}
