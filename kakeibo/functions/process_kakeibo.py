@@ -39,10 +39,6 @@ def usage_shared_table(usage_list):
     month_order = {
         (this_month - relativedelta(months=i)).month: i for i in range(12)
     }
-    # usage_listの数だけ、0を用意
-    # for i in range(12):
-    #     data_year[i]['data'] = [0 for j in range(len(usage_list))]
-    # pk:name のdictを用意
     usage_names = {u.pk: u.name for u in Usages.objects.all()}
     for s in suy:
         name = usage_names[s['usage']]
@@ -74,15 +70,12 @@ def usage_kakeibo_table(usage_list):
             "year": (this_month - relativedelta(months=i)).year,
             "month": (this_month-relativedelta(months=i)).month,
             "sum": "",
-            "data": list()
+            "data": [0 for j in range(len(usage_list))]
         } for i in range(12)
     ]
     month_order = {
         (this_month - relativedelta(months=i)).month: i for i in range(12)
     }
-    # usage_listの数だけ、0を用意
-    for i in range(12):
-        data_year[i]['data'] = [0 for j in range(len(usage_list))]
     # pk:name のdictを用意
     usage_names = {u.pk: u.name for u in Usages.objects.all()}
     for s in kakeibos:
