@@ -117,7 +117,7 @@ class CronKakeiboSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CronKakeibo
-        fields = ('pk', 'fee', 'way', 'usage', 'move_to', 'move_from', 'memo', 'usage_uid', 'move_from_id', 'move_to_id')
+        fields = ('pk', 'fee', 'way', 'usage', 'move_to', 'move_from', 'memo', 'usage_uid', 'move_from_uid', 'move_to_uid')
 
 
 class CronSharedSerializer(serializers.ModelSerializer):
