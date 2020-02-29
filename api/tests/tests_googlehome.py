@@ -4,7 +4,7 @@ from django.urls import reverse
 from datetime import date
 import json
 from django.conf import settings
-from kakeibo.models import Usages, SharedKakeibos, Resources
+from kakeibo.models import Usages, SharedKakeibos, Resources, Budget
 import logging
 logger = logging.getLogger('django')
 
@@ -135,6 +135,9 @@ class GoogleHomeTest(TestCase):
                   },
                   "session": "projects/home-802ab/agent/sessions/9e472c5f-16a5-65a9-a97d-a188638d9e0f"
                 }
+        budget = Budget.objects.create(
+            date=date(1999, 1, 1), takashi=90000, hoko=60000
+        )
 
     def test_individual_no_data(self):
         data_in = self.data.copy()

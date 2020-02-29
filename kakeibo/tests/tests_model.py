@@ -24,7 +24,7 @@ class ModelTest(TestCase):
                 date=today,
                 is_expense=is_expense
             )
-        ways = ["支出（現金）", "振替", "収入"]
+        ways = ["支出（現金）", "振替", "収入", "支出（クレジット）", "支出（Suica）"]
         usages = [u for u in Usages.objects.all()]
         for i in range(self.num_kakeibo):
             Kakeibos.objects.create(
@@ -55,3 +55,33 @@ class ModelTest(TestCase):
             self.fail("同じ年月のbudgetは作成できない")
         except Exception as e:
             pass
+
+    def test_resources(self):
+        self.assertEqual(self.num_resource, Resources.objects.count())
+
+    def test_usages(self):
+        self.assertEqual(self.num_usage, Usages.objects.count())
+
+    def test_event(self):
+        Usages.objects.create(
+            name="その他",
+            date=date.today(),
+            is_expense=True
+        )
+        event = Event.objects.create(
+            date=date.today(), name="test_event", memo="test_memo", sum_plan=10000, is_active=True
+        )
+        self.assertEqual(Event.objects.count(), 1)
+        # initデータが紐づく
+        self.assertEqual(Kakeibos.objects.filter(event=event).count(), 1)
+        # Event紐付け
+        k = Kakeibos.objects.first()
+        k.event = event
+        k.save()
+        self.assertEqual(Kakeibos.objects.filter(event=event).count(), 2)
+        # Event側の関数
+        event = Event.objects.first()
+        self.assertEqual(event.sum_actual(), k.fee)
+        self.assertEqual(event.count_actual(), 2)
+        self.assertEqual(event.diff_from_plan(), event.sum_actual()-event.sum_plan)
+

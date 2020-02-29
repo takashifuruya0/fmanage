@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
-from kakeibo.models import Kakeibos, Usages, Resources, SharedKakeibos, Credits, CreditItems
+from kakeibo.models import Kakeibos, Usages, Resources, SharedKakeibos, Credits, CreditItems, Budget
 from asset.models import AssetStatus
 from datetime import date
 import logging
@@ -38,6 +38,9 @@ class ViewTest(TestCase):
             stocks_value=30000,
             other_value=20000,
             investment=100000
+        )
+        budget = Budget.objects.create(
+            date=date(1999, 1, 1), takashi=90000, hoko=60000
         )
 
     def test_dashboard(self):
@@ -133,7 +136,7 @@ class ViewTest(TestCase):
         kdict = Kakeibos.objects.last().__dict__
         url = reverse("kakeibo:kakeibo_update", kwargs={"pk": kdict['id']})
         response = self.client.post(url, {
-            "date": date(kdict['date'].year, kdict['date'].month, kdict['date'].day+1),
+            "date": date(2019,1,1),
             "fee": kdict['fee'] + 200,
             "way": kdict['way'],
             "usage": kdict['usage_id'],
@@ -152,7 +155,7 @@ class ViewTest(TestCase):
         kdict = SharedKakeibos.objects.last().__dict__
         url = reverse("kakeibo:shared_update", kwargs={"pk": kdict['id']})
         response = self.client.post(url, {
-            "date": date(kdict['date'].year, kdict['date'].month, kdict['date'].day+1),
+            "date": date(2019, 1, 1),
             "fee": kdict['fee'] + 200,
             "paid_by": "朋子",
             "usage": kdict['usage_id'],
@@ -171,7 +174,7 @@ class ViewTest(TestCase):
         kdict = Credits.objects.last().__dict__
         url = reverse("kakeibo:credit_update", kwargs={"pk": kdict['id']})
         response = self.client.post(url, {
-            "date": date(kdict['date'].year, kdict['date'].month, kdict['date'].day+1),
+            "date": date(2019, 1, 1),
             "debit_date": kdict['date'],
             "fee": kdict['fee'] + 200,
             "credit_item": kdict["credit_item_id"],
