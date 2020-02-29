@@ -39,6 +39,7 @@ class BatchTest(TestCase):
         # 最初はOrderが存在しない
         self.assertFalse(Order.objects.exists())
         # data_migration.orderを実行すると増える
+        data_migration.astatus()
         data_migration.stock()
         data_migration.order()
         self.assertTrue(Order.objects.exists())
