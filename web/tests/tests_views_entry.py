@@ -56,6 +56,7 @@ class ModelTest(TestCase):
             'reason_win_loss': self.r.pk,
             'memo': "A",
             "is_plan": True,
+            "num_plan": 0,
         }
         response = self.client.post(url, data=data)
         self.e = Entry.objects.get(pk=self.e.pk)
@@ -78,6 +79,7 @@ class ModelTest(TestCase):
             'reason_win_loss': self.r.pk,
             'memo': "A",
             "is_plan": True,
+            "num_plan": 0,
         }
         response = self.client.post(url, data=data)
         self.e = Entry.objects.last()
