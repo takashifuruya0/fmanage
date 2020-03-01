@@ -41,7 +41,11 @@
 					<th>利確利益</th>
 					<td>
 						¥{{entry.profit_profit_determination |default_if_none:"-" |intcomma }}
+						{% if entry.is_plan %}
+						({{ entry.border_profit_determination_percent }}%)
+						{% else %}
 						({% widthratio entry.profit_profit_determination entry.total_buy 100.0 %}%)
+						{% endif %}
 					</td>
 				</tr>
 				<tr>
@@ -55,15 +59,19 @@
 					<th>損切損失</th>
 					<td>
 						¥{{entry.profit_loss_cut |default_if_none:"-" |intcomma }}
+						{% if entry.is_plan %}
+						({{ entry.border_loss_cut_percent }}%)
+						{% else %}
 						({% widthratio entry.profit_loss_cut entry.total_buy 100.0 %}%)
+						{% endif %}
 					</td>
 				</tr>
-				{% if entry.is_closed %}
 				<tr>
+					<th>予定口数</th>
+					<td>{{entry.num_plan |intcomma |default:"-"}}</td>
 					<th>Reason</th>
-					<td colspan="3">{{entry.reason_win_loss |default_if_none:"-"}}</td>
+					<td>{{entry.reason_win_loss |default_if_none:"-"}}</td>
 				</tr>
-				{% endif %}
 				<tr>
 					<th>Memo</th>
 					<td colspan="3">{{entry.memo |default:"-" |linebreaksbr}}</td>

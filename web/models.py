@@ -68,14 +68,16 @@ class Entry(models.Model):
     reason_win_loss = models.ForeignKey(ReasonWinLoss, on_delete=models.CASCADE, blank=True, null=True, verbose_name="理由")
     memo = models.TextField(blank=True, null=True, verbose_name="メモ")
     is_plan = models.BooleanField(default=False, verbose_name="Plan")
-    is_closed = models.BooleanField(default=False)
-    is_simulated = models.BooleanField(default=False)
+    is_closed = models.BooleanField(default=False, verbose_name="Closed", help_text="終了したEntryかどうか")
+    is_simulated = models.BooleanField(default=False, verbose_name="Simulation")
     is_nisa = models.BooleanField(default=False, verbose_name="NISA")
+    num_plan = models.IntegerField(default=0, verbose_name="予定口数")
 
     def __str__(self):
         return "E{:0>3}_{}".format(self.pk, self.stock)
 
     def val_order(self, is_buy):
+        """取引株価"""
         orders = self.order_set.filter(is_buy=is_buy)
         val = 0
         if orders.exists():
@@ -85,6 +87,7 @@ class Entry(models.Model):
         return val
 
     def num_order(self, is_buy):
+        """取引口数"""
         orders = self.order_set.filter(is_buy=is_buy)
         num = 0
         if orders.exists():
@@ -92,27 +95,35 @@ class Entry(models.Model):
         return num
 
     def num_buy(self):
+        """買付口数"""
         return self.num_order(is_buy=True)
 
     def num_sell(self):
+        """売付口数"""
         return self.num_order(is_buy=False)
 
     def val_buy(self):
+        """買付株価"""
         return self.val_order(is_buy=True)
 
     def val_sell(self):
+        """売付株価"""
         return self.val_order(is_buy=False)
 
     def total_buy(self):
+        """買付合計"""
         return self.val_buy() * self.num_buy()
 
     def total_sell(self):
+        """売付合計"""
         return self.val_sell() * self.num_sell() if self.num_sell() > 0 else None
 
     def num_linked_orders(self):
+        """紐づくOrder数"""
         return self.order_set.count()
 
     def remaining(self):
+        """残口数"""
         return self.num_buy() - self.num_sell()
 
     def profit(self):
@@ -130,6 +141,7 @@ class Entry(models.Model):
         return profit
 
     def profit_after_tax(self):
+        """税引利益"""
         profit = self.profit()
         return round(profit * 0.8) if profit > 0 and not self.is_nisa else profit
 
@@ -140,30 +152,44 @@ class Entry(models.Model):
     def profit_profit_determination(self):
         """利確後の利益額"""
         if self.border_profit_determination:
-            return (self.border_profit_determination - self.val_buy()) * self.num_buy()
+            num = self.num_plan if self.is_plan else self.num_buy()
+            return (self.border_profit_determination - self.val_buy()) * num
         else:
             return None
 
     def profit_loss_cut(self):
         """損切後の損失額"""
         if self.border_loss_cut:
-            return (self.border_loss_cut - self.val_buy()) * self.num_buy()
+            num = self.num_plan if self.is_plan else self.num_buy()
+            return (self.border_loss_cut - self.val_buy()) * num
         else:
             return None
 
     def date_open(self):
+        """EntryをOpenした日付"""
         os = self.order_set.filter(is_buy=True)
         return min([o.datetime for o in os]) if os.exists() else None
 
     def date_close(self):
+        """EntryをCloseした日付"""
         os = self.order_set.filter(is_buy=False)
         return max([o.datetime for o in os]) if os.exists() else None
 
     def border_loss_cut_percent(self):
-        return round(self.border_loss_cut/self.val_buy()*100, 2) if self.border_loss_cut else None
+        """損切り損失率"""
+        if self.border_loss_cut:
+            val = self.stock.current_val() if self.is_plan else self.val_buy()
+            return round(self.border_loss_cut / val * 100, 2)
+        else:
+            return None
 
     def border_profit_determination_percent(self):
-        return round(self.border_profit_determination/self.val_buy()*100, 2) if self.border_profit_determination else None
+        """利確利益率"""
+        if self.border_profit_determination:
+            val = self.stock.current_val() if self.is_plan else self.val_buy()
+            return round(self.border_profit_determination / val * 100, 2)
+        else:
+            return None
 
     def save(self, *args, **kwargs):
         if self.order_set.exists():

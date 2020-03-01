@@ -17,6 +17,7 @@ class EntryForm(forms.ModelForm):
             "stock",
             "border_profit_determination",
             'border_loss_cut',
+            "num_plan",
             'reason_win_loss',
             'memo',
             "is_plan",
