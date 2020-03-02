@@ -372,102 +372,105 @@ def asset_order(request):
         }
     elif request.method == "POST":
         try:
-            val = json.loads(request.body.decode())
-            logger.info("request_json: {}".format(val))
-            stockinfo = get_info.stock_overview(val["code"])
-            bo = Orders()
-            bo.datetime = val["datetime"]
-            bo.order_type = val["kind"]
-            if bo.order_type == "現物買":
-                # SBIの通知を設定
-                sbi_asset.set_alert(val['code'])
-            if Stocks.objects.filter(code=val["code"]).__len__() == 0:
-                # Stocksにデータがない→登録
-                stock = Stocks()
-                stock.code = val["code"]
-                stock.name = stockinfo['name']
-                stock.industry = stockinfo['industry']
-                stock.market = stockinfo['market']
-                stock.save()
-                # kabuoji3よりデータ取得
-                if len(str(stock.code)) > 4:
-                    # 投資信託→スキップ
-                    pass
-                else:
-                    # 株→登録
-                    data = get_info.kabuoji3(stock.code)
-                    if data['status']:
-                        # 取得成功時
-                        for d in data['data']:
-                            # (date, stock)の組み合わせでデータがなければ追加
-                            if StockDataByDate.objects.filter(stock=stock, date=d[0]).__len__() == 0:
-                                sdbd = StockDataByDate()
-                                sdbd.stock = stock
-                                sdbd.date = d[0]
-                                sdbd.val_start = d[1]
-                                sdbd.val_high = d[2]
-                                sdbd.val_low = d[3]
-                                sdbd.val_end = d[4]
-                                sdbd.turnover = d[5]
-                                sdbd.save()
-                        logger.info('StockDataByDate of "%s" are updated' % stock.code)
+            datas = list()
+            vals = json.loads(request.body.decode())
+            for key, val in vals.items():
+                logger.info("request_json: {}".format(val))
+                stockinfo = get_info.stock_overview(val["code"])
+                bo = Orders()
+                bo.datetime = val["datetime"]
+                bo.order_type = val["kind"]
+                if bo.order_type == "現物買":
+                    # SBIの通知を設定
+                    sbi_asset.set_alert(val['code'])
+                if Stocks.objects.filter(code=val["code"]).__len__() == 0:
+                    # Stocksにデータがない→登録
+                    stock = Stocks()
+                    stock.code = val["code"]
+                    stock.name = stockinfo['name']
+                    stock.industry = stockinfo['industry']
+                    stock.market = stockinfo['market']
+                    stock.save()
+                    # kabuoji3よりデータ取得
+                    if len(str(stock.code)) > 4:
+                        # 投資信託→スキップ
+                        pass
                     else:
-                        # 取得失敗時
-                        logger.error(data['msg'])
-                    # StockFinancialInfoを登録
-                    check = mylib_asset.register_stock_financial_info(stock.code)
-                    if check:
-                        logger.info("StockFinancialInfo of {} was saved.".format(stock.code))
+                        # 株→登録
+                        data = get_info.kabuoji3(stock.code)
+                        if data['status']:
+                            # 取得成功時
+                            for d in data['data']:
+                                # (date, stock)の組み合わせでデータがなければ追加
+                                if StockDataByDate.objects.filter(stock=stock, date=d[0]).__len__() == 0:
+                                    sdbd = StockDataByDate()
+                                    sdbd.stock = stock
+                                    sdbd.date = d[0]
+                                    sdbd.val_start = d[1]
+                                    sdbd.val_high = d[2]
+                                    sdbd.val_low = d[3]
+                                    sdbd.val_end = d[4]
+                                    sdbd.turnover = d[5]
+                                    sdbd.save()
+                            logger.info('StockDataByDate of "%s" are updated' % stock.code)
+                        else:
+                            # 取得失敗時
+                            logger.error(data['msg'])
+                        # StockFinancialInfoを登録
+                        check = mylib_asset.register_stock_financial_info(stock.code)
+                        if check:
+                            logger.info("StockFinancialInfo of {} was saved.".format(stock.code))
 
-                smsg = "New stock was registered:{}".format(stock.code)
-            else:
-                stock = Stocks.objects.get(code=val["code"])
-                smsg = "This stock has been already registered:{}".format(stock.code)
-            logger.info(smsg)
-            bo.stock = stock
-            bo.num = val["num"]
-            bo.price = val["price"]
-            bo.is_nisa = False
-            bo.commission = mylib_asset.get_commission(bo.num*bo.price)
-            bo.save()
-            logger.info("New Order is created: {}".format(bo))
-
-            # order時のholding stocks, asset status の変更
-            smsg, emsg = mylib_asset.order_process(bo)
-
-            # res
-            if smsg:
-                msg = smsg
-                status = True
+                    smsg = "New stock was registered:{}".format(stock.code)
+                else:
+                    stock = Stocks.objects.get(code=val["code"])
+                    smsg = "This stock has been already registered:{}".format(stock.code)
                 logger.info(smsg)
-            else:
-                msg = emsg
-                status = False
-                logger.error(emsg)
-                logger.error(val)
-            # message
-            d = {
-                "is_nisa": bo.is_nisa,
-                "commission": bo.commission,
-                "price": bo.price,
-                "num": bo.num,
-                "datetime": str(bo.datetime),
-                "order_type": bo.order_type,
-                "stock": {
-                    "code": bo.stock.code,
-                    "name": bo.stock.name,
+                bo.stock = stock
+                bo.num = val["num"]
+                bo.price = val["price"]
+                bo.is_nisa = False
+                bo.commission = mylib_asset.get_commission(bo.num*bo.price)
+                bo.save()
+                logger.info("New Order is created: {}".format(bo))
+
+                # order時のholding stocks, asset status の変更
+                smsg, emsg = mylib_asset.order_process(bo)
+
+                # res
+                if smsg:
+                    msg = smsg
+                    status = True
+                    logger.info(smsg)
+                else:
+                    msg = emsg
+                    status = False
+                    logger.error(emsg)
+                    logger.error(val)
+                # message
+                d = {
+                    "is_nisa": bo.is_nisa,
+                    "commission": bo.commission,
+                    "price": bo.price,
+                    "num": bo.num,
+                    "datetime": str(bo.datetime),
+                    "order_type": bo.order_type,
+                    "stock": {
+                        "code": bo.stock.code,
+                        "name": bo.stock.name,
+                    }
                 }
-            }
-            data = {
-                "message": msg,
-                "status": status,
-                "data_list": [d,],
-                "length": 1,
-            }
+                data = {
+                    "message": msg,
+                    "status": status,
+                    "data_list": [d,],
+                    "length": 1,
+                }
+                datas.append(data)
         except Exception as e:
             logger.error(e)
     # json
-    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    json_str = json.dumps(datas, ensure_ascii=False, indent=2)
     response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
     return response
 
