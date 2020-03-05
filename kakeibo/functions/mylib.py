@@ -26,6 +26,8 @@ def cal_avg_or_0(model):
 
 
 def seisan(year=date.today().year, month=date.today().month):
+    year = int(year)
+    month = int(month)
     budget = dict()
     payment = dict()
     sk = SharedKakeibos.objects.filter(date__year=year, date__month=month)
