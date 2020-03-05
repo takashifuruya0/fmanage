@@ -15,7 +15,8 @@ class ViewTest(TestCase):
     def setUp(self):
         user = User.objects.create(username="user1", password="password1")
         self.client.force_login(user=user)
-        today = date.today()
+        self.today = date.today()
+        today = self.today
         usage = Usages.objects.create(name="usage", date=today, is_expense=True)
         resource = Resources.objects.create(name="resource", date=today, initial_val=10000)
         kakeibo = Kakeibos.objects.create(fee=100, usage=usage, way="支出（現金）", date=today, move_from=resource)
@@ -23,17 +24,17 @@ class ViewTest(TestCase):
         citem = CreditItems.objects.create(
             name="citem",
             usage=usage,
-            date=today
+            date=self.today
         )
         credit = Credits.objects.create(
             fee=100,
-            date=today,
-            debit_date=today,
+            date=self.today,
+            debit_date=self.today,
             credit_item=citem
         )
         astatus = AssetStatus.objects.create(
             total=100000,
-            date=today,
+            date=self.today,
             buying_power=50000,
             stocks_value=30000,
             other_value=20000,
@@ -58,6 +59,9 @@ class ViewTest(TestCase):
     def test_shared(self):
         url = reverse("kakeibo:shared")
         response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        url = reverse("kakeibo:shared")
+        response = self.client.get(url+"?yearmonth={}-{}".format(self.today.year, str(self.today.month).zfill(2)))
         self.assertEqual(response.status_code, 200)
 
     def test_credit(self):
