@@ -432,7 +432,8 @@ def shared(request):
 
     # check year and month from GET parameter
     year, month = process_kakeibo.yearmonth(request)
-
+    year = int(year)
+    month = int(month)
     # shared
     seisan = mylib.seisan(year, month)
     budget_shared = {
