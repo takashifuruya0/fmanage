@@ -31,9 +31,13 @@ def seisan(year=date.today().year, month=date.today().month):
     budget = dict()
     payment = dict()
     sk = SharedKakeibos.objects.filter(date__year=year, date__month=month)
-    bd = Budget.objects.filter(date__lte=date(year, month, 1)).latest('date')
-    budget['taka'] = bd.takashi
-    budget['hoko'] = bd.hoko
+    try:
+        bd = Budget.objects.filter(date__lte=date(year, month, 1)).latest('date')
+    except:
+        bd = Budget.objects.first()
+    finally:
+        budget['taka'] = bd.takashi
+        budget['hoko'] = bd.hoko
     budget['sum'] = sum(budget.values())
     payment['taka'] = cal_sum_or_0(sk.filter(paid_by="敬士"))
     payment['hoko'] = cal_sum_or_0(sk.filter(paid_by="朋子"))
