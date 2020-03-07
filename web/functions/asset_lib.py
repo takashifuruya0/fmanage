@@ -198,10 +198,10 @@ def order_process(order, user=None):
             logger.info(astatus)
 
             # Entry紐付け
-            entry_plan = Entry.objects.filter(is_plan=True, stock=order.stock, is_closed=False)
-            if entry_plan.count() == 1:
+            existing_entries = Entry.objects.filter(stock=order.stock, is_closed=False)
+            if existing_entries.count() == 1:
                 # 既存Entry(is_plan=True)に紐付け
-                entry = entry_plan[0]
+                entry = existing_entries[0]
                 order.entry = entry
             else:
                 # Entry作成
