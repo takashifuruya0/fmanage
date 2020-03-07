@@ -61,9 +61,7 @@
 			    <a class="btn btn-secondary" href="{%url 'web:stock_list'%}">
 				    <i class="fas fa-list-alt"></i> Stocks
 			    </a>
-					<button class="btn btn-outline-info" id="ajax_get_order">
-						<i class="fas fa-sync"></i> Get Orders
-					</button>
+					{% include 'web/part/ajaxbtn_get_orders.html' %}
 		    </div>
 	    </div>
     </div>
@@ -162,51 +160,5 @@
 	</div>
 	{% endif %}
 </div>
-
-<style type="text/css">
-.hide {
-  display: none;
-}
-.loading {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: rgba(0,0,0,.5);
-  background-image: url(/document/loading.gif);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center center;
-  background-size: 150px 150px;
-}
-</style>
-<div class="loading hide"></div>
-<script type="text/javascript">
-  $('#ajax_get_order').click(function(event){
-    $.ajax({
-      url: "{% url 'web:ajax_get_order' %}",
-      method: "GET",
-      data: [],
-      timeout: 10000,
-      dataType: "json",
-      beforeSend: function(){
-				$('.loading').removeClass('hide');
-			}
-    })
-    .done( function(d) {
-    	$('.loading').addClass('hide');
-    	if (d['status']==true) {
-    		if (d['num_added'] > 0) {
-    			window.alert("Success to get orders. "+d['num_added']+" new orders.")
-				} else {
-					window.alert("Success to get orders. No new order was found.")
-				}
-    	}else{
-				window.alert("Failed to get orders")
-			}
-    })
-  });
-</script>
 {% endblock %}
 
