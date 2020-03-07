@@ -34,7 +34,7 @@
 					<th>売付平均</th>
 				</tr>
 				<tr>
-					<td>{{entry.num_buy}}</td>
+					<td>{{entry.num_buy |intcomma}}</td>
 					<td>
 						{% if entry.stock.is_trust %}
 						¥{{entry.val_buy |floatformat:4 |intcomma}}
@@ -70,7 +70,7 @@
 				</tr>
 				<tr>
 					<th>Profit</th>
-					<td>¥{{entry.profit |intcomma}}</td>
+					<td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
 				</tr>
 			</table>
 		</div>

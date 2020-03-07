@@ -40,7 +40,7 @@
 					</td>
 					<th>利確利益</th>
 					<td>
-						¥{{entry.profit_profit_determination |default_if_none:"-" |intcomma }}
+						¥{{entry.profit_profit_determination |floatformat:0 |default_if_none:"-" |intcomma }}
 						{% if entry.is_plan %}
 						({{ entry.border_profit_determination_percent }}%)
 						{% else %}
@@ -58,7 +58,7 @@
 					</td>
 					<th>損切損失</th>
 					<td>
-						¥{{entry.profit_loss_cut |default_if_none:"-" |intcomma }}
+						¥{{entry.profit_loss_cut |floatformat:0 |default_if_none:"-" |intcomma }}
 						{% if entry.is_plan %}
 						({{ entry.border_loss_cut_percent }}%)
 						{% else %}
