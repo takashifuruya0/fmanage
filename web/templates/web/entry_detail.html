@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{% load web_template %}
 {% block title %}
     Entry Detail {{entry.stock}}
 {% endblock %}
@@ -58,7 +59,7 @@
 					</td>
 					<th>損切損失</th>
 					<td>
-						¥{{entry.profit_loss_cut |floatformat:0 |default_if_none:"-" |intcomma }}
+						{{entry.profit_loss_cut |yen |safe}}
 						{% if entry.is_plan %}
 						({{ entry.border_loss_cut_percent }}%)
 						{% else %}
@@ -139,7 +140,7 @@
 						{% endif %}
 					</td>
 					<td class="right">¥{{entry.val_sell |floatformat:0 |intcomma}} ({% widthratio entry.val_sell entry.val_buy 100.0 %}%)</td>
-					<td class="right">¥{{entry.profit |floatformat:0 |intcomma}}</td>
+					<td class="right">{{entry.profit |yen |safe}}</td>
 				</tr>
 				{% else %}
 				<tr>
@@ -158,7 +159,7 @@
 						{% endif %}
 					</td>
 					<td class="right">¥{{overview.val | intcomma}} ({% widthratio overview.val entry.val_buy 100.0 %}%)</td>
-					<td class="right">¥{{entry.profit |floatformat:0 |intcomma}}</td>
+					<td class="right">¥{{entry.profit |yen |safe}}</td>
 					{% endif %}
 				</tr>
 			</table>
