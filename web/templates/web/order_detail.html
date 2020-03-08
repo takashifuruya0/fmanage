@@ -58,6 +58,12 @@
 					<th>Chart</th>
 					<td>{{order.chart}}</td>
 				</tr>
+				{% if order.fkmanage_id %}
+				<tr>
+					<th>fmanage_id</th>
+					<td><a href="/admin/asset/orders/{{order.fkmanage_id}}/change/">Link</a></td>
+				</tr>
+				{% endif %}
 			</table>
 			<a class="btn btn-outline-info" href="{%url 'web:order_edit' order_id=order.pk%}">
 				<i class="fas fa-edit"></i> Edit
