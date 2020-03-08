@@ -16,6 +16,7 @@
       </script>
       <form class="form-horizontal" method="post" action="" enctype="multipart/form-data">
         <div class="modal-body">
+          <input type="date" name="debit_date" value="" readonly="readonly" id="id_date_readcsv" class="form-control" required="true">
           <input type="file" class="dropify" name="csv">
           {% csrf_token %}
         </div>

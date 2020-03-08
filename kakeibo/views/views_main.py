@@ -13,7 +13,7 @@ logger = logging.getLogger("django")
 # model
 from kakeibo.models import *
 from kakeibo.forms import *
-from datetime import date
+from datetime import date, datetime
 # function
 from kakeibo.functions import mylib, process_kakeibo
 from kakeibo.functions.mylib import time_measure
@@ -78,6 +78,8 @@ def dashboard(request):
         # read_csv
         elif request.POST['post_type'] == "read_csv":
             try:
+                debit_date = datetime.strptime(request.POST['debit_date'], "%Y-%m-%d").date()
+                logger.info("Debit Date: {}/{}".format(debit_date.year, debit_date.month))
                 form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
                 csv_file = csv.reader(form_data)
                 logger.info(next(csv_file))
@@ -95,7 +97,7 @@ def dashboard(request):
                             credit_item=ci,
                             date=date(int(d[0]), int(d[1]), int(d[2])),
                             fee=line[5],
-                            debit_date=date(today.year, today.month, 1),
+                            debit_date=date(debit_date.year, debit_date.month, 1),
                             memo=line[6]
                         )
                     else:
@@ -105,7 +107,7 @@ def dashboard(request):
                             way="引き落とし",
                             usage=Usages.objects.get(name="クレジット（個人）"),
                             move_from=Resources.objects.get(name="ゆうちょ"),
-                            memo="SFC {}/{}".format(today.year, today.month),
+                            memo="SFC {}/{}".format(debit_date.year, debit_date.month),
                         )
                         smsg = "Total {} / ".format(line[5])
                 process_kakeibo.link_credit_kakeibo()
@@ -268,6 +270,8 @@ def mine(request):
                 return redirect('kakeibo:mine')
         elif request.POST['post_type'] == "read_csv":
             try:
+                debit_date = datetime.strptime(request.POST['debit_date'], "%Y-%m-%d").date()
+                logger.info("Debit Date: {}/{}".format(debit_date.year, debit_date.month))
                 form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
                 csv_file = csv.reader(form_data)
                 logger.info(next(csv_file))
@@ -285,7 +289,7 @@ def mine(request):
                             credit_item=ci,
                             date=date(int(d[0]), int(d[1]), int(d[2])),
                             fee=line[5],
-                            debit_date=date(today.year, today.month, 1),
+                            debit_date=date(debit_date.year, debit_date.month, 1),
                             memo=line[6]
                         )
                     else:
@@ -295,7 +299,7 @@ def mine(request):
                             way="引き落とし",
                             usage=Usages.objects.get(name="クレジット（個人）"),
                             move_from=Resources.objects.get(name="ゆうちょ"),
-                            memo="SFC {}/{}".format(today.year, today.month),
+                            memo="SFC {}/{}".format(debit_date.year, debit_date.month),
                         )
                         smsg = "Total {} / ".format(line[5])
                 process_kakeibo.link_credit_kakeibo()
@@ -307,7 +311,7 @@ def mine(request):
                 logger.error(emsg)
                 messages.error(request, emsg)
             finally:
-                return redirect('kakeibo:mine')
+                return redirect('kakeibo:dashboard')
 
     # Form
     kakeibo_form = KakeiboForm(initial={'date': today})
