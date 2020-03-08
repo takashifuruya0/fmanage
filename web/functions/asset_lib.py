@@ -163,7 +163,7 @@ def order_process(order, user=None):
         '''chart保存'''
         url_chart = "https://chart.yahoo.co.jp/?code={}.T&tm=6m&type=c&log=off&size=m&over=m25,m75&add=m,r,vm&comp=".format(order.stock.code)
         r = requests.get(url_chart)
-        if r.status_code == 200:
+        if r.status_code == 200 and not order.stock.is_trust:
             # file
             filename = "{}_{}.png".format(date.today(), order.stock.code)
             fp = BytesIO()
