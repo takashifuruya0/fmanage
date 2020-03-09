@@ -14,6 +14,9 @@ class Stocks(models.Model):
     def __str__(self):
         return str(self.code) + ": " + self.name
 
+    def is_trust(self):
+        return False if len(self.code) == 4 else True
+
 
 class Orders(models.Model):
     objects = None
