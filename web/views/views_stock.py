@@ -63,8 +63,9 @@ class StockUpdate(LoginRequiredMixin, UpdateView):
         return Stock.objects.prefetch_related('order_set', "entry_set").get(code=self.kwargs['stock_code'])
 
     def form_invalid(self, form):
+        print(form.errors)
         messages.error(self.request, "Not found or not authorized to access it")
-        return super().form_valid(form)
+        return super().form_invalid(form)
 
     def form_valid(self, form):
         messages.success(self.request, "Stock {} was updated".format(self.get_object()))
