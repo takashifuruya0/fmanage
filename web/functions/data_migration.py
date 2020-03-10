@@ -125,7 +125,14 @@ def astatus():
         existing_astatus_date = [a.date for a in AssetStatus.objects.all()]
         for dm in data_mapped:
             if not dm['date'] in existing_astatus_date:
-                astatus_list.append(AssetStatus(**dm))
-        result = AssetStatus.objects.bulk_create(astatus_list)
-    return result
+                astatus = AssetStatus.objects.create(**dm)
+                if dm['date'] == date.today():
+                    astatus.update_status()
+                    logger.info("Today's AssetStatus {} is updated".format(astatus))
+                astatus_list.append(astatus)
+        # result = AssetStatus.objects.bulk_create(astatus_list)
+        # 今日の日付は更新
+        # if AssetStatus.objects.filter(date=date.today()).count() == 1:
+        #     AssetStatus.objects.get(date=date.today()).update_status()
+    return astatus_list
 

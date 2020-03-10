@@ -6,7 +6,9 @@ register = template.Library()
 def yen(val, digit=0):
     if not val:
         return "-"
-    elif val >= 0:
+    elif val >= 0 and digit == 0:
+        return "¥{:,}".format(round(val))
+    elif val >= 0 and digit > 0:
         return "¥{:,}".format(round(val, digit))
     else:
         return "<font color='red'>-¥{:,}</font>".format(round(-val, digit))
