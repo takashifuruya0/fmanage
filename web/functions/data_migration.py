@@ -60,14 +60,13 @@ def order():
                 logger.info(d)
                 if os.exists():
                     o = os.first()
-                    if o:
-                        Order.objects.filter(pk=o.pk).update(**d)
-                        o = Order.objects.get(pk=o.pk)
-                    else:
-                        continue
+                    Order.objects.filter(pk=o.pk).update(**d)
+                    o = Order.objects.get(pk=o.pk)
                 else:
                     o = Order.objects.create(**d)
+                    logger.info("Order process for {} is starting in data_migration.order().")
                     asset_lib.order_process(o, user)
+                    logger.info("Order process for {} completed in data_migration.order().")
                 # entry
                 if not o.stock.is_trust and o.is_buy and not o.entry:
                     ed = {

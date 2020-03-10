@@ -45,7 +45,7 @@
 					      </td>
 					      <td>{{entry.date_open |default_if_none:"-"}}</td>
 					      <td>{{entry.date_close |default_if_none:"-"}}</td>
-					      <td class="right">{{entry.profit |floatformat:0 |yen}}</td>
+					      <td class="right">{{entry.profit |yen}}</td>
 					      <td class="right">{{entry.remaining |intcomma}}</td>
 				      </tr>
 				      {% endfor %}
