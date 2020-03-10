@@ -159,7 +159,7 @@
 						{% endif %}
 					</td>
 					<td class="right">¥{{overview.val | intcomma}} ({% widthratio overview.val entry.val_buy 100.0 %}%)</td>
-					<td class="right">¥{{entry.profit |yen |safe}}</td>
+					<td class="right">{{entry.profit |yen |safe}}</td>
 					{% endif %}
 				</tr>
 			</table>
