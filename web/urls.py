@@ -27,6 +27,7 @@ urlpatterns = [
     path('stock/<stock_code>/edit/', views_stock.StockUpdate.as_view(), name='stock_edit'),
     # api
     path('api/create_order/', views_api.create_order, name="api_create_order"),
+    path('api/get_current_vals/', views_api.GetCurrentVals.as_view(), name="api_get_current_vals"),
     # ajax
     path('ajax/get_order/', views_ajax.GetOrder.as_view(), name='ajax_get_order'),
 

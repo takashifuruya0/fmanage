@@ -1,5 +1,7 @@
 # coding:utf-8
 from django.template.response import HttpResponse
+from django.views.generic import View
+from django.http import JsonResponse
 from django.conf import settings
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -94,3 +96,15 @@ def create_order(request):
         json_str = json.dumps(data, ensure_ascii=False, indent=2)
         response = HttpResponse(json_str, content_type='application/json; charset=UTF-8', status=None)
         return response
+
+
+class GetCurrentVals(View):
+    def get(self, request, *args, **kwargs):
+        stocks = Stock.objects.all()
+        res = list()
+        for stock in stocks:
+            res.append({
+                "code": stock.code,
+                "val": stock.current_val(),
+            })
+        return JsonResponse(res, safe=False)

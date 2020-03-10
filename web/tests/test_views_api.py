@@ -27,7 +27,7 @@ class APIViewTest(TestCase):
         self.assertEqual(url, "/nams/api/get_current_vals/")
         # GET
         response = self.client.get(url)
-        data = json.loads(response.body)
+        data = json.loads(response.content)
         codes = set(d['code'] for d in data)
         vals = {d['code']: d['val'] for d in data}
         # 存在の確認
