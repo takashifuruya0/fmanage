@@ -177,16 +177,18 @@ class Entry(models.Model):
 
     def border_loss_cut_percent(self):
         """損切り損失率"""
-        if self.border_loss_cut:
-            val = self.stock.current_val() if self.is_plan else self.val_buy()
+        current_val = self.stock.current_val()
+        if self.border_loss_cut and current_val:
+            val = current_val if self.is_plan else self.val_buy()
             return round(self.border_loss_cut / val * 100, 2)
         else:
             return None
 
     def border_profit_determination_percent(self):
         """利確利益率"""
-        if self.border_profit_determination:
-            val = self.stock.current_val() if self.is_plan else self.val_buy()
+        current_val = self.stock.current_val()
+        if self.border_profit_determination and current_val:
+            val = current_val if self.is_plan else self.val_buy()
             return round(self.border_profit_determination / val * 100, 2)
         else:
             return None
