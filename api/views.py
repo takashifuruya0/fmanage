@@ -374,6 +374,7 @@ def asset_order(request):
         try:
             datas = list()
             vals = json.loads(request.body.decode())
+            bo_list = list()
             for key, val in vals.items():
                 logger.info("request_json: {}".format(val))
                 stockinfo = get_info.stock_overview(val["code"])
@@ -433,10 +434,12 @@ def asset_order(request):
                 bo.commission = mylib_asset.get_commission(bo.num*bo.price)
                 bo.save()
                 logger.info("New Order is created: {}".format(bo))
+                bo_list.append(bo.pk)
 
+            order_list = Orders.objects.filter(pk__in=bo_list).order_by('datetime')
+            for bo in order_list:
                 # order時のholding stocks, asset status の変更
                 smsg, emsg = mylib_asset.order_process(bo)
-
                 # res
                 if smsg:
                     msg = smsg
