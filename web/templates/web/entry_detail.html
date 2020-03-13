@@ -92,25 +92,6 @@
 
 	<hr>
 	<div class="row">
-		<div class="col-12 col-sm-7">
-			<div class="card">
-				<div class="card-header">
-					<h5 class="card-title">
-						{{od}} ~ {{cd}}
-						{% include 'web/part/trend_type.html' %}
-					</h5>
-				</div>
-				<div class="card-body">
-					<p class="card-title">({{entry.stock.code}}) {{entry.stock.name}}</p>
-					<div class="candlestick-1day"></div>
-					<hr>
-					<p class="card-title">終値</p>
-					<canvas id="analysis" width="300" height="150"></canvas>
-				</div>
-				<div class="card-footer">
-				</div>
-			</div>
-		</div>
 		<div class="col-12 col-sm-5">
 			<h5>Current Status</h5>
 
@@ -218,6 +199,25 @@
 				</tr>
 				{% endfor %}
 			</table>
+		</div>
+		<div class="col-12 col-sm-7">
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title">
+						{{od}} ~ {{cd}}
+						{% include 'web/part/trend_type.html' %}
+					</h5>
+				</div>
+				<div class="card-body">
+					<p class="card-title">({{entry.stock.code}}) {{entry.stock.name}}</p>
+					<div class="candlestick-1day"></div>
+					<hr>
+					<p class="card-title">終値</p>
+					<canvas id="analysis" width="300" height="150"></canvas>
+				</div>
+				<div class="card-footer">
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
