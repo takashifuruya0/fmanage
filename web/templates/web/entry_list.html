@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize%}
+{% load web_template %}
 {% block title %}
     Entry List
 {% endblock %}
@@ -61,7 +62,7 @@
 							</td>
 							<td>{{entry.date_open |default:"-"}}</td>
 							<td>{{entry.date_close |default:"-"}}</td>
-							<td class="right">¥{{entry.profit |floatformat:0 |intcomma}}</td>
+							<td class="right">¥{{entry.profit |yen |safe}}</td>
 							<td class="right">{{entry.remaining | intcomma}}</td>
 						</tr>
 						{% endfor %}
