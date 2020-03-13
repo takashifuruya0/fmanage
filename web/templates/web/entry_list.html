@@ -62,7 +62,7 @@
 							</td>
 							<td>{{entry.date_open |default:"-"}}</td>
 							<td>{{entry.date_close |default:"-"}}</td>
-							<td class="right">¥{{entry.profit |yen |safe}}</td>
+							<td class="right">{{entry.profit |yen |safe}}</td>
 							<td class="right">{{entry.remaining | intcomma}}</td>
 						</tr>
 						{% endfor %}
