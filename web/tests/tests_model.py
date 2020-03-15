@@ -1,6 +1,6 @@
 from django.test import TestCase
 from web.models import Stock, Order, Entry, AssetStatus, ReasonWinLoss
-from web.models import StockValueData, StockFinancialData
+from web.models import StockValueData, StockFinancialData, SBIAlert
 from django.contrib.auth.models import User
 from datetime import datetime, date
 # Create your tests here.
@@ -190,3 +190,16 @@ class ModelTest(TestCase):
 
     def test_reasonwinloss(self):
         self.assertEqual(ReasonWinLoss.objects.count(), 2)
+
+    def test_sbialert(self):
+        self.assertEqual(SBIAlert.objects.count(), 0)
+        sbialert = SBIAlert.objects.create(
+            stock=self.s, val=1, type=2,
+        )
+        self.assertEqual(SBIAlert.objects.count(), 1)
+        self.assertEqual(sbialert.type, 2)
+        self.assertEqual(sbialert.stock, self.s)
+        self.assertEqual(sbialert.val, 1)
+        self.assertEqual(sbialert.created_at.date(), date.today())
+        self.assertIsNone(sbialert.checked_at)
+        self.assertTrue(sbialert.is_active)
