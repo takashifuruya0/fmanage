@@ -4,10 +4,10 @@ from django.shortcuts import redirect, reverse
 from django.conf import settings
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from web.forms import EntryForm
+from web.forms import EntryForm, SBIAlertForm
 from django.contrib import messages
 from django.db import transaction
-from web.models import Entry, Order, StockValueData
+from web.models import Entry, Order, StockValueData, SBIAlert
 from web.functions import asset_scraping, asset_analysis
 # list view, pagination
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
@@ -137,6 +137,9 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         orders_linked = entry.order_set.all().order_by('datetime')
         edo = entry.date_open().date() if orders_linked.exists() else date.today()
         edc = entry.date_close().date() if entry.is_closed else date.today()
+        # sbialert
+        sbialerts = SBIAlert.objects.filter(stock=entry.stock, is_active=True)
+        sbialert_form = SBIAlertForm(initial={"stock": entry.stock})
         # days日のマージンでグラフ化範囲を指定
         days = 60
         od = edo - relativedelta(days=days)
@@ -174,6 +177,8 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "df": df,
             "df_check": df_check,
             "df_trend": df_trend,
+            "sbialert_form": sbialert_form,
+            "sbialerts": sbialerts,
         }
         # 現在情報を取得
         overview = asset_scraping.yf_detail(entry.stock.code)

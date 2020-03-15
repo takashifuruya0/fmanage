@@ -73,11 +73,28 @@
 				</tr>
 				{% endfor %}
 			</table>
+			<hr>
+			<h5>Alert</h5>
+			<table class="table">
+				<tr>
+					<th>No</th>
+					<th>Open</th>
+					<th>Alert</th>
+				</tr>
+				{% for sbialert in sbialerts %}
+				<tr>
+					<td>{{sbialert.id}}</td>
+					<td>{{sbialert.created_at}}</td>
+					<td>{{sbialert.val}} {{sbialert.get_type_display}}</td>
+				</tr>
+				{% endfor %}
+			</table>
 		</div>
 	</div>
 
 	<div class="row">
 		<div class="col-12">
+			{% include 'web/modal/modal_sbialert.html' %}
 			{% include 'web/modal/modal_new_entry.html' %}
 			<a class="btn btn-outline-secondary" href="{%url 'web:stock_list' %}">
 				<i class="fas fa-backward"></i> Back to list

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from web.functions import selenium_sbi
 from web.models import Stock, SBIAlert
 from datetime import date
+import json
 
 
 class SBIViewTest(TestCase):
@@ -26,20 +27,21 @@ class SBIViewTest(TestCase):
         # SBIStockは存在しない
         self.assertEqual(0, SBIAlert.objects.count())
         # URL
-        url = reverse("web:set_alert")
-        self.assertEqual(url, "/nams/set_alert")
+        url = reverse("web:ajax_set_alert")
+        self.assertEqual(url, "/nams/ajax/set_alert/")
         # POST
         data = {
-            "stock": self.s,  # stockオブジェクト
+            "stock": self.s.pk,  # stockオブジェクト. formではPKが入る
             "val": 1570,  # 設定する値 (float)
             "type": 1,  # 0：現在値（円以上）, 1：現在値（円以下）, 2：前日比（％以上）, 3：前日比（％以下）
         }
         res = self.client.post(url, data=data)
+        res_data = json.loads(res.content)
+        print(res_data)
         for key in ("status", "msg"):
-            self.assertTrue(key in res.keys())
+            self.assertTrue(key in res_data.keys())
         # SBIStockが作成される
         self.assertEqual(1, SBIAlert.objects.count())
-        sbialert = SBIAlert.objects.first()
         # {
         # "type": IntegerField(choices=OPTIONS), 0~4
         # "stock": ForeignKey(Stock),
@@ -48,6 +50,7 @@ class SBIViewTest(TestCase):
         # "checked_at": datetime
         # }
         """Celery経由で作るので下記は確認不要"""
+        # sbialert = SBIAlert.objects.first()
         # self.assertEqual(sbialert.type, data['type'])
         # self.assertEqual(sbialert.stock, data['stock'])
         # self.assertEqual(sbialert.val, data['val'])

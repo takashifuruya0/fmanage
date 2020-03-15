@@ -3,13 +3,13 @@ from django.template.response import HttpResponse
 from django.views.generic import View
 from django.http import JsonResponse
 from django.conf import settings
-from datetime import date
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 import json
 from django.db import transaction
 from web.functions import asset_scraping, asset_lib
-from web.models import Entry, Order, Stock
+from web.models import Entry, Order, Stock, SBIAlert
 # logging
 import logging
 logger = logging.getLogger("django")
@@ -108,3 +108,41 @@ class GetCurrentVals(View):
                 "val": stock.current_val(),
             })
         return JsonResponse(res, safe=False)
+
+
+class ReceiveAlert(View):
+    """
+    {
+        "message": "2020/03/03 13:22に\r\nアラート条件\r\n前日比1\r\n％以上\r\nに達しました。\r\n日経ダブルインバ\r\n1357 東証\r\n現在値:1,063\r\n現時刻:2020/03/03 13:22\r\n前日比:+11\r\n出来高:61,214,318\r\n始値  :1,022\r\n高値  :1,063\r\n安値  :1,015\r\n売気配:1,063\r\n買気配:1,061\r\n買残  :72,668,214\r\n前週比:-2,111,136\r\n売残  :2,301,459\r\n前週比:-494,396\r\n倍率 :+31.57\r\n\r\n-- \r\n古屋敬士\r\nTel  08054506740\r\nMail takashi.furuya.0@gmail.com\r\n",
+        "code": "1357",
+        "val": 1,
+        "type": 2
+    }
+    """
+    def post(self, request, *args, **kwargs):
+        json_data = json.loads(request.body.decode())
+        try:
+            if Stock.objects.filter(code=json_data['code']).count() == 1:
+                stock = Stock.objects.get(code=json_data['code'])
+            else:
+                stockinfo = asset_scraping.yf_detail(json_data["code"])
+                if stockinfo['status']:
+                    stock = Stock()
+                    stock.code = json_data["code"]
+                    stock.name = stockinfo['data']['name']
+                    stock.industry = stockinfo['data']['industry']
+                    stock.market = stockinfo['data']['market']
+                    stock.is_trust = False if len(str(stock.code)) == 4 else True
+                    stock.save()
+                else:
+                    res = {"status": False, "message": "Failed to create Stock"}
+                    return JsonResponse(res, safe=False)
+            SBIAlert.objects.filter(
+                stock=stock, is_active=True, val=json_data['val'], type=json_data['type']
+            ).update(checked_at=datetime.now(), is_active=False, message=json_data['message'])
+            res = {"status": True, "message": json_data['message']}
+        except Exception as e:
+            logger.error(e)
+            res = {"status": False, "message": str(e)}
+        finally:
+            return JsonResponse(res, safe=False)

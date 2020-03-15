@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Stock, StockFinancialData, AssetStatus
 from .models import StockValueData, Order, Entry, ReasonWinLoss
+from .models import SBIAlert
 
 
 # Register your models here.
@@ -85,6 +86,13 @@ class ReasonWinLossAdmin(admin.ModelAdmin):
     list_display = ["pk", "reason", "is_win", ]
 
 
+class SBIAlertAdmin(admin.ModelAdmin):
+    list_display = [
+        "pk", "created_at", "checked_at",
+        "stock", "val", "type", "is_active"
+    ]
+
+
 admin.site.register(Stock, StockAdmin)
 admin.site.register(AssetStatus, AssetStatusAdmin)
 admin.site.register(Order, OrderAdmin)
@@ -92,3 +100,4 @@ admin.site.register(StockValueData, StockValueDataAdmin)
 admin.site.register(Entry, EntryAdmin)
 admin.site.register(StockFinancialData, StockFinancialDataAdmin)
 admin.site.register(ReasonWinLoss, ReasonWinLossAdmin)
+admin.site.register(SBIAlert, SBIAlertAdmin)

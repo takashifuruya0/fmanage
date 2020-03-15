@@ -4,11 +4,11 @@ from django.shortcuts import redirect, reverse
 from django.conf import settings
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
-from web.forms import OrderForm, EntryForm, StockForm
+from web.forms import OrderForm, EntryForm, StockForm, SBIAlertForm
 from web.functions import asset_scraping, asset_analysis
 from django.contrib import messages
 from django.db import transaction
-from web.models import Entry, Order, Stock, StockValueData, StockFinancialData
+from web.models import Entry, Order, Stock, StockValueData, StockFinancialData, SBIAlert
 # list view, pagination
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from pure_pagination.mixins import PaginationMixin
@@ -42,6 +42,8 @@ class StockDetail(LoginRequiredMixin, DetailView):
             "border_loss_cut": context["current_val"],
             "border_profit_determination": context["current_val"],
         })
+        context["sbialert_form"] = SBIAlertForm(initial={"stock": self.object})
+        context["sbialerts"] = SBIAlert.objects.filter(stock=self.object, is_active=True)
         # 現在情報を取得
         overview = asset_scraping.yf_detail(self.object.code)
         if overview['status']:

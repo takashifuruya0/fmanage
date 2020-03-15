@@ -93,16 +93,15 @@
 	<hr>
 	<div class="row">
 		<div class="col-12 col-sm-5">
-			<h5>Current Status</h5>
-
-			{%if overview.val < entry.border_loss_cut%}
-			<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Better to Loss cut</label>
-			{%elif overview.val > entry.border_profit_determination%}
-			<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good to Sell</label>
-			{%endif%}
-
+			<h5>
+				Current Status
+				{%if overview.val < entry.border_loss_cut%}
+				<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Better to Loss cut</label>
+				{%elif overview.val > entry.border_profit_determination%}
+				<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good to Sell</label>
+				{%endif%}
+			</h5>
 			{% include 'web/part/finance_type.html' %}
-
 			<table class="table">
 				{% if entry.is_closed %}
 				<tr>
@@ -176,6 +175,24 @@
 				{% include 'web/modal/modal_link_orders.html' %}
 				{% csrf_token %}
 			</form>
+
+			<hr>
+			<h5>Alert</h5>
+			<table class="table">
+				<tr>
+					<th>No</th>
+					<th>Open</th>
+					<th>Alert</th>
+				</tr>
+				{% for sbialert in sbialerts %}
+				<tr>
+					<td>{{sbialert.id}}</td>
+					<td>{{sbialert.created_at}}</td>
+					<td>{{sbialert.val}} {{sbialert.get_type_display}}</td>
+				</tr>
+				{% endfor %}
+			</table>
+			{% include 'web/modal/modal_sbialert.html' %}
 
 			<hr>
 			<h5>Analysis</h5>

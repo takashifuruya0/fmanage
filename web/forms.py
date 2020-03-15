@@ -1,5 +1,5 @@
 from django import forms
-from web.models import Entry, Order, Stock
+from web.models import Entry, Order, Stock, SBIAlert
 
 
 class EntryForm(forms.ModelForm):
@@ -71,6 +71,18 @@ class StockForm(forms.ModelForm):
     class Meta:
         model = Stock
         fields = ["code",]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class SBIAlertForm(forms.ModelForm):
+
+    class Meta:
+        model = SBIAlert
+        fields = ["stock", "val", "type", ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

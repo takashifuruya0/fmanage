@@ -10,6 +10,7 @@ urlpatterns = [
     # dashboard
     path('', views_main.Main.as_view(), name='main'),
     path('investment/', views_main.Investment.as_view(), name='investment'),
+
     # entry
     path('entry/', views_entry.EntryList.as_view(), name='entry_list'),
     path('entry/create/', views_entry.EntryCreate.as_view(), name='entry_create'),
@@ -28,8 +29,10 @@ urlpatterns = [
     # api
     path('api/create_order/', views_api.create_order, name="api_create_order"),
     path('api/get_current_vals/', views_api.GetCurrentVals.as_view(), name="api_get_current_vals"),
+    path('api/receive_alert/', views_api.ReceiveAlert.as_view(), name="api_receive_alert"),
     # ajax
     path('ajax/get_order/', views_ajax.GetOrder.as_view(), name='ajax_get_order'),
+    path('ajax/set_alert/', views_ajax.SetAlert.as_view(), name='ajax_set_alert'),
 
 ]
 

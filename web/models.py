@@ -307,3 +307,23 @@ class StockFinancialData(models.Model):
     def __str__(self):
         return "{}_{}".format(self.date, self.stock)
 
+
+class SBIAlert(models.Model):
+    objects = None
+    CHOICES = (
+        (0, "円以上"), (1, "円以下"), (2, "％以上"), (3, "％以下"),
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    checked_at = models.DateTimeField(blank=True, null=True)
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+    val = models.IntegerField()
+    type = models.IntegerField(choices=CHOICES)
+    message = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return "{}_{}".format(self.type, self.stock)
+
+    def save(self, *args, **kwargs):
+        self.is_active = False if self.checked_at else True
+        return super().save(*args, **kwargs)
