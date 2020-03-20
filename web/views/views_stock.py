@@ -39,8 +39,8 @@ class StockDetail(LoginRequiredMixin, DetailView):
         context['entry_form'] = EntryForm(initial={
             "user": self.request.user,
             "stock": context['stock'],
-            "border_loss_cut": context["current_val"],
-            "border_profit_determination": context["current_val"],
+            "border_loss_cut": context["current_val"]*1.05,
+            "border_profit_determination": context["current_val"]*0.9,
         })
         context["sbialert_form"] = SBIAlertForm(initial={"stock": self.object})
         context["sbialerts"] = SBIAlert.objects.filter(stock=self.object, is_active=True)

@@ -71,7 +71,7 @@
 				</tr>
 				<tr>
 					<th>Profit</th>
-					<td>¥{{entry.profit |floatformat:0 |intcomma}}</td>
+					<td>{{entry.profit |yen |safe}}</td>
 				</tr>
 			</table>
 		</div>

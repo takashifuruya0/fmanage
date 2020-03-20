@@ -55,15 +55,21 @@ class SeleniumSBI:
         e = self.driver.find_element_by_id('botton2')
         e.click()
         # check
-        for i in range(10):
-            if not self.driver.current_url == url_buy:
-                logger.info("Completed buy-order. Code: {}, Num: {}".format(stock_code, num))
-                return True
-            else:
-                logger.info("In process {}".format(i))
-                time.sleep(2)
-        logger.error("Failed buy order")
-        return False
+        if not self.driver.current_url == url_buy:
+            try:
+                a = self.driver.find_element_by_xpath('//*[@id="MAINAREA02_780"]/form/div[1]/p/b')
+                if a.text == 'ご注文を受け付けました。':
+                    logger.info("Completed buy-order. Code: {}, Num: {}".format(stock_code, num))
+                    return True
+                else:
+                    logger.error("Failed buy order")
+                    return False
+            except Exception as e:
+                logger.error(e)
+                return False
+        else:
+            logger.error("Failed buy order")
+            return False
 
     def sell(self, stock_code, num):
         url_sell = "https://site2.sbisec.co.jp/ETGate/?_ControlID=WPLETstT004Control&_DataStoreID=DSWPLETstT004Control&stock_sec_code={}".format(stock_code)
@@ -84,15 +90,22 @@ class SeleniumSBI:
         e = self.driver.find_element_by_id('botton2')
         e.click()
         # check
-        for i in range(10):
-            if not self.driver.current_url == url_sell:
-                logger.info("Completed sell-order. Code: {}, Num: {}".format(stock_code, num))
-                return True
-            else:
-                logger.info("In process {}".format(i))
-                time.sleep(2)
-        logger.error("Failed sell-order")
-        return False
+        if not self.driver.current_url == url_sell:
+            try:
+                a = self.driver.find_element_by_xpath('//*[@id="MAINAREA02_780"]/form/div[1]/p/b')
+                if a.text == 'ご注文を受け付けました。':
+                    logger.info("Completed sell-order. Code: {}, Num: {}".format(stock_code, num))
+                    return True
+                else:
+                    logger.error("Failed buy order")
+                    return False
+            except Exception as e:
+                logger.error(e)
+                return False
+
+        else:
+            logger.error("Failed buy order")
+            return False
 
     def alert(self, stock_code, val, alert_type):
         alert_msg = [
@@ -123,15 +136,12 @@ class SeleniumSBI:
         e = self.driver.find_element_by_xpath("//img[@title='設定']")
         e.click()
         # check
-        for i in range(10):
-            if not self.driver.current_url == url_alert:
-                logger.info("Completed process")
-                return True
-            else:
-                logger.info("In process {}".format(i))
-                time.sleep(2)
-        logger.error("Failed process")
-        return False
+        if not self.driver.current_url == url_alert:
+            logger.info("Completed process")
+            return True
+        else:
+            logger.error("Failed process")
+            return False
 
     def delete_all_alerts(self):
         url = "https://site0.sbisec.co.jp/marble/domestic/top.do?"
