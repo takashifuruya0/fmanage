@@ -21,12 +21,14 @@ class Main(LoginRequiredMixin, TemplateView):
     template_name = "web/main.html"
 
     def get_context_data(self, **kwargs):
-        entrys = Entry.objects.filter(user=self.request.user).order_by('-pk')[:5]
+        entrys = Entry.objects.filter(user=self.request.user).exclude(is_closed=False).exclude(is_plan=True).order_by('-pk')[:5]
+        open_entrys = Entry.objects.filter(user=self.request.user, is_closed=False).exclude(is_plan=True).order_by('-pk')[:5]
         astatus_list = AssetStatus.objects.filter(user=self.request.user)
         astatus = astatus_list.latest('date') if astatus_list.exists() else None
         output = {
             "user": self.request.user,
             "entrys": entrys,
+            "open_entrys": open_entrys,
             "astatus": astatus,
             "investment_form": InvestmentForm(),
         }

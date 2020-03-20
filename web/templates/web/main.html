@@ -12,6 +12,78 @@
 			<h3><i class="fas fa-paw"></i> New Asset Management System</h3>
 		</div>
 	</div>
+
+	<hr>
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header bg-primary text-white">
+					<h4><i class="fas fa-user"></i> {{user}}'s overview</h4>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-12 col-md-5">
+							<h5 class="card-title">Asset Status ({{astatus.date |date}})</h5>
+							<table class="table table-responsive">
+								<tr>
+									<th>Total: </th>
+									<td>{{astatus.get_total |yen |safe}}</td>
+									<th>Stock: </th>
+									<td>{{astatus.sum_stock |yen |safe}}</td>
+								</tr>
+								<tr>
+									<th>Investment: </th>
+									<td>{{astatus.investment |yen |safe}}</td>
+									<th>Buying Power: </th>
+									<td>{{astatus.buying_power |yen |safe}}</td>
+								</tr>
+								<tr>
+									<th>Gross Profit: </th>
+									<td>{{astatus.get_gp |yen |safe}} ({{astatus.get_gpr |default:"-" |intcomma}}%)</td>
+									<th>Trust: </th>
+									<td>{{astatus.sum_trust |yen |safe}}</td>
+								</tr>
+							</table>
+						</div>
+
+						<div class="col-12 col-md-7">
+							<h5 class="card-title">Open Entry</h5>
+							<table class="table table-responsive">
+								<thead>
+									<tr>
+										<th>No.</th>
+										<th>Stock</th>
+										<th>Open</th>
+										<th class="right">Profit</th>
+										<th class="right">Remaining</th>
+									</tr>
+								</thead>
+								<tbody>
+								{% for entry in open_entrys %}
+								<tr>
+									<td>
+										<a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
+									</td>
+									<td>{{entry.stock}}</td>
+									<td>{{entry.date_open |default_if_none:"-"}}</td>
+									<td class="right">{{entry.profit |yen |safe}}</td>
+									<td class="right">{{entry.remaining |intcomma}}</td>
+								</tr>
+								{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="card-footer">
+					{% include 'web/modal/modal_investment.html' %}
+					{% include 'web/part/ajaxbtn_get_orders.html' %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<hr>
 	<div class="row">
     <div class="col-12">
 	    <div class="card">
@@ -62,57 +134,10 @@
 			    <a class="btn btn-secondary" href="{%url 'web:stock_list'%}">
 				    <i class="fas fa-list-alt"></i> Stocks
 			    </a>
-					{% include 'web/part/ajaxbtn_get_orders.html' %}
 		    </div>
 	    </div>
     </div>
   </div>
-
-	<hr>
-	<div class="row">
-		<div class="col-12">
-			<div class="card">
-				<div class="card-header bg-primary text-white">
-					<h4><i class="fas fa-user"></i> User</h4>
-				</div>
-				<div class="card-body">
-					<div class="row">
-						<div class="col-12 col-sm-6">
-							<h5 class="card-title">User info</h5>
-							<dl>
-								<dt>User: </dt>
-								<dd>{{user}}</dd>
-								<dt>Mail Address: </dt>
-								<dd>{{user.email}}</dd>
-								<dt>Last Login: </dt>
-								<dd>{{user.last_login |date}}</dd>
-							</dl>
-						</div>
-						<div class="col-12 col-sm-6">
-							<h5 class="card-title">Asset Status ({{astatus.date |date}})</h5>
-							<dl>
-								<dt>Total: </dt>
-								<dd>¥{{astatus.get_total |default:"-" |intcomma}}</dd>
-								<dt>Stock: </dt>
-								<dd>¥{{astatus.sum_stock |default:"-" |intcomma}}</dd>
-								<dt>Trust: </dt>
-								<dd>¥{{astatus.sum_trust |default:"-" |intcomma}}</dd>
-								<dt>Buying Power: </dt>
-								<dd>¥{{astatus.buying_power |default:"-" |intcomma}}</dd>
-								<dt>Investment: </dt>
-								<dd>¥{{astatus.investment |default:"-" |intcomma}}</dd>
-								<dt>Gross Profit: </dt>
-								<dd>¥{{astatus.get_gp |default:"-" |intcomma}} / {{astatus.get_gpr |default:"-" |intcomma}}%</dd>
-							</dl>
-						</div>
-					</div>
-				</div>
-				<div class="card-footer">
-					{% include 'web/modal/modal_investment.html' %}
-				</div>
-			</div>
-		</div>
-	</div>
 
 	{% if request.user.is_superuser %}
 	<hr>

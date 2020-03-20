@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{% load web_template %}
 {% block title %}
     Stock Detail
 {% endblock %}
@@ -69,7 +70,7 @@
 					</td>
 					<td>{{entry.date_open |date}}</td>
 					<td>{{entry.date_close |date}}</td>
-					<td>¥{{entry.profit |intcomma}}</td>
+					<td>{{entry.profit |yen |safe}}</td>
 				</tr>
 				{% endfor %}
 			</table>
