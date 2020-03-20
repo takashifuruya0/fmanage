@@ -21,11 +21,12 @@ class SeleniumSBI:
             # mac
             self.driver = webdriver.Chrome('/usr/local/bin/chromedriver')
         logger.info("the driver has started")
-        self.driver.get("https://site2.sbisec.co.jp/ETGate/")
+        self.driver.get("https://www.sbisec.co.jp/ETGate/")
         self.driver.find_element_by_name('user_password').send_keys(settings.SECRET['SBI_PASSWORD_LOGIN'])
         self.driver.find_element_by_name('user_id').send_keys(settings.SECRET['SBI_USER_ID'])
         self.driver.find_element_by_name('ACT_login').click()
         logger.info("login SBI")
+        self.driver.get("https://site2.sbisec.co.jp/ETGate")
 
     def __del__(self):
         self.driver.close()
@@ -133,8 +134,12 @@ class SeleniumSBI:
         return False
 
     def delete_all_alerts(self):
-        url = "https://site0.sbisec.co.jp/marble/account/registinfo/dmstic/sAlert.do"
+        url = "https://site0.sbisec.co.jp/marble/domestic/top.do?"
         self.driver.get(url)
+        url = "https://www.sbisec.co.jp/ETGate/WPLETmgR001Control?OutSide=on&getFlg=on&burl=search_home&cat1=home&cat2=service&dir=service&file=home_mail_alert.html"
+        self.driver.get(url)
+        self.driver.find_element_by_xpath("//img[@alt='スマートアラート（株価通知）のご登録はこちら']").click()
+        self.driver.find_element_by_id("regListPage").click()
         # 登録数
         num_registered = int(self.driver.find_element_by_id("regListPage").text.split("(")[1].split("/")[0])
         cnt = 0
@@ -142,7 +147,7 @@ class SeleniumSBI:
             id = "copyTD3_{}".format(i)
             if self.driver.find_elements_by_id(id).__len__() == 0:
                 id = "nextTd3_{}".format(i)
-            if self.driver.find_element_by_id(id).text == "配信済":
+            if self.driver.find_element_by_id(id).text == "送信済":
                 cnt += 1
                 self.driver.find_element_by_id(id).click()
         # click
