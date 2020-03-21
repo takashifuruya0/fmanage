@@ -65,7 +65,7 @@
 										<a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
 									</td>
 									<td>{{entry.stock}}</td>
-									<td>{{entry.date_open |default_if_none:"-"}}</td>
+									<td>{{entry.date_open |date}}</td>
 									<td class="right">{{entry.profit |yen |safe}}</td>
 									<td class="right">{{entry.remaining |intcomma}}</td>
 								</tr>
