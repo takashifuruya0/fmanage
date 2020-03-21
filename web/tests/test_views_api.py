@@ -47,7 +47,7 @@ class APIViewTest(TestCase):
         url = reverse("web:api_create_order")
         self.assertEqual(url, "/nams/api/create_order/")
 
-    def test_recieve_alert(self):
+    def test_receive_alert(self):
         # url
         url = reverse("web:api_receive_alert")
         self.assertEqual(url, "/nams/api/receive_alert/")

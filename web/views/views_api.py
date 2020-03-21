@@ -7,6 +7,8 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 import json
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.db import transaction
 from web.functions import asset_scraping, asset_lib
 from web.models import Entry, Order, Stock, SBIAlert
@@ -17,6 +19,7 @@ logger = logging.getLogger("django")
 
 # Create your views here.
 @transaction.atomic
+@csrf_exempt
 def create_order(request):
     if request.method == "POST":
         try:
@@ -110,6 +113,7 @@ class GetCurrentVals(View):
         return JsonResponse(res, safe=False)
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class ReceiveAlert(View):
     """
     {
