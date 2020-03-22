@@ -10,7 +10,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db import transaction
-from web.functions import mylib_scraping, mylib_asset
+from web.functions import mylib_scraping, mylib_asset, mylib_slack
 from web.models import Entry, Order, Stock, SBIAlert
 # logging
 import logging
@@ -141,9 +141,15 @@ class ReceiveAlert(View):
                 else:
                     res = {"status": False, "message": "Failed to create Stock"}
                     return JsonResponse(res, safe=False)
-            SBIAlert.objects.filter(
+            sbialerts = SBIAlert.objects.filter(
                 stock=stock, is_active=True, val=json_data['val'], type=json_data['type']
-            ).update(checked_at=datetime.now(), is_active=False, message=json_data['message'])
+            )
+            for sbialert in sbialerts:
+                text = "【({}) {}】{}{}".format(stock.code, stock.name, sbialert.val, sbialert.get_type_display())
+                mylib_slack.post_message(text)
+            # slack
+            sbialerts.update(checked_at=datetime.now(), is_active=False, message=json_data['message'])
+            # res
             res = {"status": True, "message": json_data['message']}
         except Exception as e:
             logger.error(e)

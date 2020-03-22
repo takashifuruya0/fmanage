@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
-from web.models import AssetStatus, Stock, SBIAlert
+from web.models import AssetStatus, Stock, SBIAlert, Entry
 from datetime import date
 import json
 
@@ -55,7 +55,7 @@ class APIViewTest(TestCase):
         self.assertTrue(1, SBIAlert.objects.filter(stock=self.stock1, type=2).count())
         # POST
         postdata = {
-          "message": "2020/03/03 13:22に\r\nアラート条件\r\n前日比1\r\n％以上\r\nに達しました。\r\n日経ダブルインバ\r\n1357 東証\r\n現在値:1,063\r\n現時刻:2020/03/03 13:22\r\n前日比:+11\r\n出来高:61,214,318\r\n始値  :1,022\r\n高値  :1,063\r\n安値  :1,015\r\n売気配:1,063\r\n買気配:1,061\r\n買残  :72,668,214\r\n前週比:-2,111,136\r\n売残  :2,301,459\r\n前週比:-494,396\r\n倍率 :+31.57\r\n\r\n-- \r\n古屋敬士\r\nTel  08054506740\r\nMail takashi.furuya.0@gmail.com\r\n",
+          "message": "2020/03/03 13:22に\r\nアラート条件\r\n前日比1\r\n％以上\r\nに達しました。\r\n日経ダブルインバ\r\n1357 東証\r\n現在値:1,063\r\n現時刻:2020/03/03 13:22\r\n前日比:+11\r\n出来高:61,214,318\r\n始値  :1,022\r\n高値  :1,063\r\n安値  :1,015\r\n売気配:1,063\r\n買気配:1,061\r\n買残  :72,668,214\r\n前週比:-2,111,136\r\n売残  :2,301,459\r\n前週比:-494,396\r\n倍率 :+31.57",
           "code": "1570",
           "val": 1,
           "type": 2
@@ -64,11 +64,72 @@ class APIViewTest(TestCase):
         data = json.loads(response.content)
         for key in ("status", "message"):
             self.assertTrue(key in data.keys())
+        self.assertTrue(data["status"])
         # SBIAlertの確認
         sbialert = SBIAlert.objects.filter(stock=self.stock1, type=2).first()
         self.assertFalse(sbialert.is_active)
         self.assertEqual(sbialert.checked_at.date(), date.today())
         self.assertEqual(sbialert.message, postdata["message"])
+
+    def test_slack_interactive(self):
+        # url
+        url = reverse("web:api_slack_interactive")
+        self.assertEqual(url, "/nams/api/slack_interactive/")
+        # post
+        postdata = {
+            "payload": {
+                "type": "interactive_message",
+                "actions": [
+                    {
+                        "name": "current_price",
+                        "type": "button",
+                        "value": "1813"
+                    }
+                ],
+                "callback_id": "callback_id value",
+                "team": {"id": "", "domain": ""},
+                "channel": {"id": "", "name": ""},
+                "user": {"id": "", "name": ""},
+                "action_ts": "1584868490.062878",
+                "message_ts": "1584865218.006500",
+                "attachment_id": "1",
+                "token": "",
+                "is_app_unfurl": False,
+                "original_message": {},
+                "response_url": "",
+                "trigger_id": "trigger_id",
+            }
+        }
+        response = self.client.post(url, data=json.dumps(postdata), content_type="application/json")
+        # current_priceでは、現在の値を入れて返す
+        data = json.loads(response.content)
+        self.assertTrue(data["replace_original"])
+        self.assertEqual(data["response_type"], "in_channel")
+
+# {
+#     "type":"interactive_message",
+#     "actions":[
+#         {
+#             "name": "current_price",
+#             "type": "button",
+#             "value": "1813"
+#         }
+#     ],
+#     "callback_id": "callback_id value",
+#     "team": {"id": "", "domain": ""},
+#     "channel": {"id": "", "name": ""},
+#     "user": {"id": "", "name": ""},
+#     "action_ts": "1584868490.062878",
+#     "message_ts": "1584865218.006500",
+#     "attachment_id": "1",
+#     "token": "",
+#     "is_app_unfurl": False,
+#     "original_message": {}
+#     "response_url": "",
+#     "trigger_id":""
+# }
+
+
 
 
 

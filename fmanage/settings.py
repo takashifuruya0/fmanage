@@ -217,6 +217,8 @@ TRELLO_TOKEN = env("TRELLO_TOKEN")
 GOLDPOINT_ID = env("GOLDPOINT_ID")
 GOLDPOINT_PASSWORD = env("GOLDPOINT_PASSWORD")
 
+# Slack_nams
+URL_SLACK_NAMS = env("URL_SLACK_NAMS")
 
 # messages framework
 from django.contrib.messages import constants as messages
