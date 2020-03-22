@@ -1,7 +1,7 @@
 from django.views.generic import View
 from django.http import JsonResponse
 from web.forms import SBIAlertForm
-from web.functions import data_migration, selenium_sbi
+from web.functions import data_migration, mylib_selenium
 from web.models import Order
 from fmanage import tasks
 import logging

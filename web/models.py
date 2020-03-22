@@ -2,7 +2,7 @@ from django.db import models
 from datetime import date, datetime
 from django.contrib.auth.models import User
 from django.db.models import Sum, Avg
-from web.functions import asset_scraping
+from web.functions import mylib_scraping
 # from django.utils import timezone
 import logging
 logger = logging.getLogger('django')
@@ -21,11 +21,11 @@ class Stock(models.Model):
         return "({}) {}".format(self.code, self.name)
 
     def current_val(self):
-        data = asset_scraping.yf_detail(self.code)
+        data = mylib_scraping.yf_detail(self.code)
         return data['data']['val'] if data['status'] else None
 
     def save(self, *args, **kwargs):
-        data = asset_scraping.yf_detail(self.code)
+        data = mylib_scraping.yf_detail(self.code)
         if data['status']:
             self.name = data['data']['name']
             self.market = data['data']['market']
@@ -135,7 +135,7 @@ class Entry(models.Model):
             else:
                 profit += (o.num * o.val - o.commission)
         if not self.is_closed:
-            data = asset_scraping.yf_detail(self.stock.code)
+            data = mylib_scraping.yf_detail(self.stock.code)
             if data['status']:
                 profit += data['data']['val'] * self.remaining()
         return profit

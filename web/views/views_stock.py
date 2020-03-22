@@ -5,7 +5,7 @@ from django.conf import settings
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from web.forms import OrderForm, EntryForm, StockForm, SBIAlertForm
-from web.functions import asset_scraping, asset_analysis
+from web.functions import mylib_scraping, mylib_analysis
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, Stock, StockValueData, StockFinancialData, SBIAlert
@@ -28,14 +28,14 @@ class StockDetail(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        data = asset_scraping.yf_detail(self.object.code)
+        data = mylib_scraping.yf_detail(self.object.code)
         context["current_val"] = data['data']['val'] if data['status'] else None
         context['svds'] = StockValueData.objects.filter(
             stock=context['stock'], date__gte=(date.today()-relativedelta(months=6))
         ).order_by('date')
         context['sfds'] = StockFinancialData.objects.filter(stock=context['stock']).order_by('date')
-        df = asset_analysis.prepare(context['svds'])
-        context['df_trend'] = asset_analysis.get_trend(df)
+        df = mylib_analysis.prepare(context['svds'])
+        context['df_trend'] = mylib_analysis.get_trend(df)
         context['entry_form'] = EntryForm(initial={
             "user": self.request.user,
             "stock": context['stock'],
@@ -45,7 +45,7 @@ class StockDetail(LoginRequiredMixin, DetailView):
         context["sbialert_form"] = SBIAlertForm(initial={"stock": self.object})
         context["sbialerts"] = SBIAlert.objects.filter(stock=self.object, is_active=True)
         # 現在情報を取得
-        overview = asset_scraping.yf_detail(self.object.code)
+        overview = mylib_scraping.yf_detail(self.object.code)
         if overview['status']:
             context['overview'] = overview['data']
         return context

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from web.models import Stock, StockValueData
-from web.functions import asset_lib
+from web.functions import mylib_asset
 from datetime import date
 import logging
 logger = logging.getLogger('django')
@@ -18,6 +18,6 @@ class Command(BaseCommand):
         today = date.today()
         for s in stocks:
             if not StockValueData.objects.filter(stock=s, date=today).exists():
-                d = asset_lib.register_stock_value_data_alt(s.code)
+                d = mylib_asset.register_stock_value_data_alt(s.code)
                 msg = "Result of record_stock_value_data for {}: {}".format(s, d)
                 self.stdout.write(self.style.SUCCESS(msg))

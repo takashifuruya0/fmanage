@@ -9,7 +9,7 @@ from web.forms import InvestmentForm
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, StockValueData, Stock, AssetStatus
-from web.functions import asset_scraping
+from web.functions import mylib_scraping
 from django_celery_results.models import TaskResult
 # logging
 import logging

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from web.models import Stock
-from web.functions import asset_lib
+from web.functions import mylib_asset
 import logging
 logger = logging.getLogger('django')
 
@@ -15,6 +15,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         stocks = Stock.objects.filter(is_trust=False)
         for s in stocks:
-            d = asset_lib.register_stock_financial_data(s.code)
+            d = mylib_asset.register_stock_financial_data(s.code)
             msg = "Result of record_stock_financial_data for {}: {}".format(s, d)
             self.stdout.write(self.style.SUCCESS(msg))

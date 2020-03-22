@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
-from web.functions import selenium_sbi
+from web.functions import mylib_selenium
 from web.models import Stock, SBIAlert, Entry
 from datetime import date
 import json

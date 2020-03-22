@@ -10,7 +10,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db import transaction
-from web.functions import asset_scraping, asset_lib
+from web.functions import mylib_scraping, mylib_asset
 from web.models import Entry, Order, Stock, SBIAlert
 # logging
 import logging
@@ -31,10 +31,10 @@ def create_order(request):
                     logger.info(val)
                     val['user'] = User.objects.first()
                     logger.info("User: {}".format(val['user']))
-                    val['commission'] = asset_lib.get_commission(val['num']*val['val'])
+                    val['commission'] = mylib_asset.get_commission(val['num'] * val['val'])
                     # Stocksにデータがない→登録
                     if not Stock.objects.filter(code=val["code"]).exists():
-                        stockinfo = asset_scraping.yf_detail(val["code"])
+                        stockinfo = mylib_scraping.yf_detail(val["code"])
                         if stockinfo['status']:
                             stock = Stock()
                             stock.code = val["code"]
@@ -60,7 +60,7 @@ def create_order(request):
                 orders = Order.objects.filter(pk__in=pk_orders).order_by("datetime")
                 data_list = list()
                 for o in orders:
-                    res = asset_lib.order_process(o, user=o.user)
+                    res = mylib_asset.order_process(o, user=o.user)
                     if res['status']:
                         data_list.append({
                             "commission": o.commission,
@@ -129,7 +129,7 @@ class ReceiveAlert(View):
             if Stock.objects.filter(code=json_data['code']).count() == 1:
                 stock = Stock.objects.get(code=json_data['code'])
             else:
-                stockinfo = asset_scraping.yf_detail(json_data["code"])
+                stockinfo = mylib_scraping.yf_detail(json_data["code"])
                 if stockinfo['status']:
                     stock = Stock()
                     stock.code = json_data["code"]

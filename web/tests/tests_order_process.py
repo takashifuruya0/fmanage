@@ -2,7 +2,7 @@ from django.test import TestCase
 from web.models import *
 from django.contrib.auth.models import User
 from django.urls import reverse
-from web.functions import asset_lib
+from web.functions import mylib_asset
 from datetime import datetime
 import json
 import logging
@@ -63,7 +63,7 @@ class ModelTest(TestCase):
         """買い注文作成時に、同じStockのEntry(is_plan=True)があれば紐付け＆is_plan=False"""
         e = Entry.objects.create(stock=self.s, user=self.u, is_plan=True)
         self.assertEqual(Entry.objects.count(), 1)
-        result = asset_lib.order_process(order=self.bo, user=self.u)
+        result = mylib_asset.order_process(order=self.bo, user=self.u)
         self.assertTrue(result['status'])
         # 既存Entry(is_plan=True)に紐付け
         self.assertEqual(self.bo.entry, e)
@@ -94,7 +94,7 @@ class ModelTest(TestCase):
             chart=None,
         )
         self.assertEqual(Entry.objects.count(), 1)
-        result = asset_lib.order_process(order=self.bo, user=self.u)
+        result = mylib_asset.order_process(order=self.bo, user=self.u)
         self.assertTrue(result['status'])
         # 既存Entryに紐付け
         self.assertEqual(self.bo.entry, e)
@@ -110,7 +110,7 @@ class ModelTest(TestCase):
 
     def test_linking_buy_order_to_new_entry(self):
         """買い注文作成時に、同じStockのEntryがなければ新規作成して紐付け"""
-        result = asset_lib.order_process(order=self.bo, user=self.u)
+        result = mylib_asset.order_process(order=self.bo, user=self.u)
         self.assertTrue(result['status'])
         self.assertEqual(Entry.objects.count(), 1)
         # is_plan=False and is_closed=False and stock=self.s and user=self.u
@@ -128,11 +128,11 @@ class ModelTest(TestCase):
         # 事前準備
         self.bo.num = self.bo.num + 10
         self.bo.save()
-        asset_lib.order_process(order=self.bo, user=self.u)
+        mylib_asset.order_process(order=self.bo, user=self.u)
         self.assertEqual(Entry.objects.count(), 1)
         self.assertEqual(self.bo.entry.num_linked_orders(), 1)
         # order_process
-        result = asset_lib.order_process(order=self.so, user=self.u)
+        result = mylib_asset.order_process(order=self.so, user=self.u)
         self.assertTrue(result['status'])
         # is_plan=False and is_closed=True and stock=self.s and user=self.u
         entry_after = Entry.objects.get(stock=self.s, user=self.u)
@@ -156,11 +156,11 @@ class ModelTest(TestCase):
         # 事前準備
         self.bo.num = self.so.num
         self.bo.save()
-        result = asset_lib.order_process(order=self.bo, user=self.u)
+        result = mylib_asset.order_process(order=self.bo, user=self.u)
         self.assertTrue(result['status'])
         self.assertEqual(Entry.objects.count(), 1)
         # order_process
-        result = asset_lib.order_process(order=self.so, user=self.u)
+        result = mylib_asset.order_process(order=self.so, user=self.u)
         self.assertTrue(result['status'])
         # is_plan=False and is_closed=True and stock=self.s and user=self.u
         entry_after = Entry.objects.get(stock=self.s, user=self.u)
@@ -185,7 +185,7 @@ class ModelTest(TestCase):
         self.astatus.buying_power = bp
         self.astatus.save()
         # 買付余力もsum_stockも変更なし
-        result = asset_lib.order_process(order=self.bo, user=self.u)
+        result = mylib_asset.order_process(order=self.bo, user=self.u)
         self.assertFalse(result['status'])
         self.astatus = AssetStatus.objects.first()
         self.assertEqual(self.astatus.buying_power, bp)

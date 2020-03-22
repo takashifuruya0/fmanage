@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from web.functions import asset_lib
+from web.functions import mylib_asset
 import logging
 logger = logging.getLogger('django')
 
@@ -12,6 +12,6 @@ class Command(BaseCommand):
     # コマンドライン引数を指定します。(argparseモジュール https://docs.python.org/2.7/library/argparse.html)
     # コマンドが実行された際に呼ばれるメソッド
     def handle(self, *args, **options):
-        d = asset_lib.record_asset_status()
+        d = mylib_asset.record_asset_status()
         msg = "Result of record_asset_status: {}".format(d)
         self.stdout.write(self.style.SUCCESS(msg))

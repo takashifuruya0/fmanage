@@ -1,4 +1,4 @@
-from web.functions import asset_scraping
+from web.functions import mylib_scraping
 from web.models import StockFinancialData, Stock, Entry, AssetStatus, StockValueData
 from django.contrib.auth.models import User
 import requests
@@ -19,7 +19,7 @@ def register_stock(code):
     if Stock.objects.filter(code=code).exists():
         raise Exception('Already existing')
     try:
-        yf_detail = asset_scraping.yf_detail(code)
+        yf_detail = mylib_scraping.yf_detail(code)
         if yf_detail['status']:
             data = yf_detail['data']
             data.pop('financial_data')
@@ -46,7 +46,7 @@ def register_stock_value_data(code):
     counter = 0
     list_added = list()
     # main process
-    data = asset_scraping.kabuoji3(code)
+    data = mylib_scraping.kabuoji3(code)
     stock = Stock.objects.get(code=code)
     if data['status']:
         for d in data['data']:
@@ -82,11 +82,11 @@ def register_stock_financial_data(code):
     }
     try:
         # 情報取得
-        detail = asset_scraping.yf_detail(code)
-        profiles = asset_scraping.yf_profile(code, is_consolidated=True)
+        detail = mylib_scraping.yf_detail(code)
+        profiles = mylib_scraping.yf_profile(code, is_consolidated=True)
         if profiles['status'] and profiles['data'][0]['決算期'] is None:
             # 単体の情報を取得
-            profiles = asset_scraping.yf_profile(code, is_consolidated=False)
+            profiles = mylib_scraping.yf_profile(code, is_consolidated=False)
         # stock情報
         stock = Stock.objects.get(code=code)
         # 今年度を含めて３年分
@@ -363,7 +363,7 @@ def register_stock_value_data_alt(code):
     counter = 0
     list_added = list()
     # main process
-    data = asset_scraping.yf_detail(code)
+    data = mylib_scraping.yf_detail(code)
     stock = Stock.objects.get(code=code)
     if data['status']:
         today = date.today()

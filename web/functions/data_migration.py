@@ -2,7 +2,7 @@ from web.models import *
 import requests
 from datetime import datetime
 from django.contrib.auth.models import User
-from web.functions import asset_lib
+from web.functions import mylib_asset
 from django.db import transaction
 import logging
 logger = logging.getLogger('django')
@@ -65,7 +65,7 @@ def order():
                 else:
                     o = Order.objects.create(**d)
                     logger.info("Order process for {} is starting in data_migration.order().")
-                    asset_lib.order_process(o, user)
+                    mylib_asset.order_process(o, user)
                     logger.info("Order process for {} completed in data_migration.order().")
                 # entry
                 if not o.stock.is_trust and o.is_buy and not o.entry:

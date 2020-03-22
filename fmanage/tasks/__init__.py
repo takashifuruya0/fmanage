@@ -2,7 +2,7 @@
 from ..celery import app
 from asset.functions import sbi_asset, slack_asset
 from asset.models import HoldingStocks
-from web.functions import selenium_sbi
+from web.functions import mylib_selenium
 import logging
 logger = logging.getLogger('django')
 # celery -A fmanage worker -c 2 -l info
@@ -108,7 +108,7 @@ def set_sell(response_url, replyMessage, code):
 
 @app.task()
 def set_alert(stock_code, val, type):
-    SBI = selenium_sbi.SeleniumSBI()
+    SBI = mylib_selenium.SeleniumSBI()
     try:
         res = SBI.alert(stock_code=stock_code, val=val, alert_type=type)
     except Exception as e:

@@ -8,7 +8,7 @@ from web.forms import EntryForm, SBIAlertForm
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, StockValueData, SBIAlert
-from web.functions import asset_scraping, asset_analysis
+from web.functions import mylib_scraping, mylib_analysis
 # list view, pagination
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from pure_pagination.mixins import PaginationMixin
@@ -145,9 +145,9 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         od = edo - relativedelta(days=days)
         cd = edc + relativedelta(days=days) if entry.is_closed else date.today()
         svds = StockValueData.objects.filter(stock=entry.stock, date__gte=od, date__lte=cd).order_by('date')
-        df = asset_analysis.prepare(svds)
-        df_check = asset_analysis.check(df)
-        df_trend = asset_analysis.get_trend(df)
+        df = mylib_analysis.prepare(svds)
+        df_check = mylib_analysis.check(df)
+        df_trend = mylib_analysis.get_trend(df)
         # グラフ化範囲のデータ数
         svds_count = svds.count()
         # 日付とindex番号の紐付け
@@ -181,7 +181,7 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "sbialerts": sbialerts,
         }
         # 現在情報を取得
-        overview = asset_scraping.yf_detail(entry.stock.code)
+        overview = mylib_scraping.yf_detail(entry.stock.code)
         if overview['status']:
             output['overview'] = overview['data']
         else:
