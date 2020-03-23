@@ -14,4 +14,4 @@ class Command(BaseCommand):
     # コマンドが実行された際に呼ばれるメソッド
     def handle(self, *args, **options):
         res = mylib_slack.post_open_entries()
-        self.stdout.write(res)
+        self.stdout.write("".format(res))
