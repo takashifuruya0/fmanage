@@ -294,7 +294,7 @@ def mine(request):
                         )
                     else:
                         Kakeibos.objects.create(
-                            date=today,
+                            date=date(debit_date.year, debit_date.month, 1),
                             fee=line[5],
                             way="引き落とし",
                             usage=Usages.objects.get(name="クレジット（個人）"),
