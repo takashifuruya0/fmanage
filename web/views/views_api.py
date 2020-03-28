@@ -142,14 +142,15 @@ class ReceiveAlert(View):
                 else:
                     res = {"status": False, "message": "Failed to create Stock"}
                     return JsonResponse(res, safe=False)
+            # slack
             sbialerts = SBIAlert.objects.filter(
                 stock=stock, is_active=True, val=json_data['val'], type=json_data['type']
             )
             for sbialert in sbialerts:
                 text = "【({}) {}】{}{}".format(stock.code, stock.name, sbialert.val, sbialert.get_type_display())
                 mylib_slack.post_message(text)
-            # slack
             sbialerts.update(checked_at=datetime.now(), is_active=False, message=json_data['message'])
+            mylib_slack.post_open_entries()
             # res
             res = {"status": True, "message": json_data['message']}
         except Exception as e:
