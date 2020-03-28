@@ -36,13 +36,13 @@ def post_open_entries():
             title = "【{}】{}".format(e.stock.code, e.stock.name)
             text = "保有数: {}\n 現在値: {:,}".format(e.remaining(), e.stock.current_val())
             profit = e.profit()
-            if profit > 0:
+            if profit >= 0:
                 text += "\n利益: +{:,}".format(profit)
             else:
                 text += "\n損失: {:,}".format(profit)
             # color
             if e.is_plan:
-                color = "#ffff00;"
+                color = "#ffff00"
             else:
                 color = "#ff9960" if profit < 0 else "good"
             # attachment追加
