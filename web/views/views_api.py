@@ -7,6 +7,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 import json
+from pytz import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db import transaction
@@ -156,3 +157,42 @@ class ReceiveAlert(View):
             res = {"status": False, "message": str(e)}
         finally:
             return JsonResponse(res, safe=False)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class SlackInteractive(View):
+    def post(self, request, *args, **kwargs):
+        # payload受け取り
+        json_data = json.loads(request.POST["payload"])
+        logger.info(json_data)
+        try:
+            # original message の転用
+            replyMessage = json_data['original_message']
+            replyMessage["replace_original"] = True
+            replyMessage["response_type"] = "in_channel"
+            replyMessage["text"] = "Last updated at {}".format(datetime.now(timezone('Asia/Tokyo')).ctime())
+            for i in ('type', 'subtype', 'ts', 'bot_id'):
+                replyMessage.pop(i)
+            # current_price
+            if json_data["actions"][0]['name'] == "current_price":
+                entry = Entry.objects.get(pk=json_data["actions"][0]["value"])
+                current_price = entry.stock.current_val()
+                profit = entry.profit()
+                text = "保有数: {}\n現在値: {:,}".format(entry.remaining(), current_price)
+                if profit > 0:
+                    text += "\n利益: +{:,}".format(profit)
+                else:
+                    text += "\n損失: {:,}".format(profit)
+                # update
+                replyMessage['attachments'][0]["text"] = text
+                if not entry.is_plan:
+                    replyMessage['attachments'][0]['color'] = "#FF9960" if profit < 0 else "good"
+            # buy_order
+            elif json_data["actions"][0]['name'] == "buy_order":
+                pass
+        except Exception as e:
+            logger.error(e)
+            replyMessage = {"status": False, "message": str(e)}
+        finally:
+            logger.info(replyMessage)
+            return JsonResponse(replyMessage, safe=False)

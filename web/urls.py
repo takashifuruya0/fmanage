@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/create_order/', views_api.create_order, name="api_create_order"),
     path('api/get_current_vals/', views_api.GetCurrentVals.as_view(), name="api_get_current_vals"),
     path('api/receive_alert/', views_api.ReceiveAlert.as_view(), name="api_receive_alert"),
+    path('api/slack_interactive/', views_api.SlackInteractive.as_view(), name="api_slack_interactive"),
     # ajax
     path('ajax/get_order/', views_ajax.GetOrder.as_view(), name='ajax_get_order'),
     path('ajax/set_alert/', views_ajax.SetAlert.as_view(), name='ajax_set_alert'),

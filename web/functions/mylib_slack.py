@@ -60,7 +60,7 @@ def post_open_entries():
                         "text": "成行注文",
                         "type": "button",
                         "style": "primary",
-                        "value": e.stock.code,
+                        "value": e.pk,
                         "confirm": {
                             "title": "成行注文を実行します。よろしいですか？",
                             "text": "{}_{}".format(title, text),
@@ -73,7 +73,7 @@ def post_open_entries():
                         "text": "現在値取得",
                         "type": "button",
                         "style": "default",
-                        "value": e.stock.code,
+                        "value": e.pk,
                     },
                 ]
             }
