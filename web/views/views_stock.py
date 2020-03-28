@@ -44,6 +44,26 @@ class StockDetail(LoginRequiredMixin, DetailView):
         })
         context["sbialert_form"] = SBIAlertForm(initial={"stock": self.object})
         context["sbialerts"] = SBIAlert.objects.filter(stock=self.object, is_active=True)
+        # 終値グラフ
+        svds = StockValueData.objects.filter(stock=self.object).order_by('date')
+        context["svds"] = svds
+        # 日付とindex番号の紐付け
+        date_list = dict()
+        for i, svd in enumerate(svds):
+            date_list[svd.date.__str__()] = i
+        # 売買注文のグラフ化
+        svds_count = svds.count()
+        bos_detail = [None for i in range(svds_count)]
+        sos_detail = [None for i in range(svds_count)]
+        for o in self.object.order_set.all():
+            order_date = str(o.datetime.date())
+            if order_date in list(date_list.keys()):
+                if o.is_buy:
+                    bos_detail[date_list[order_date]] = o.val * 10000 if self.object.is_trust else o.val
+                else:
+                    sos_detail[date_list[order_date]] = o.val * 10000 if self.object.is_trust else o.val
+        context["bos_detail"] = bos_detail
+        context["sos_detail"] = sos_detail
         # 現在情報を取得
         overview = mylib_scraping.yf_detail(self.object.code)
         if overview['status']:
