@@ -7,7 +7,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 import json
-from pytz import timezone
+from fmanage import tasks
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db import transaction
@@ -172,7 +172,40 @@ class SlackInteractive(View):
                 res = mylib_slack.param_entry(entry)
             # buy_order
             elif json_data["actions"][0]['name'] == "buy_order":
-                pass
+                task = tasks.set_buy_nams(
+                    code=entry.stock.code, num=entry.num_plan,
+                    response_url=json_data['response_url']
+                )
+                content = {
+                    "fallback": "fallback string",
+                    "callback_id": "callback_id value",
+                    "title": "注文中...",
+                    "text": "https://www.fk-management.com/admin/django_celery_results/taskresult/{}/change/".format(task.id),
+                    "color": "#88abfe",
+                }
+                res = json_data["original_message"]
+                res["text"] = "Last updated at {}".format(datetime.now().ctime())
+                res['attachments'] = [content, ]
+                for k in ('type', 'subtype', 'ts', 'bot_id'):
+                    res.pop(k)
+            # sell_order
+            elif json_data["actions"][0]['name'] == "sell_order":
+                task = tasks.set_sell_nams(
+                    code=entry.stock.code, num=entry.remaining(),
+                    response_url=json_data['response_url']
+                )
+                content = {
+                    "fallback": "fallback string",
+                    "callback_id": "callback_id value",
+                    "title": "注文中...",
+                    "text": "https://www.fk-management.com/admin/django_celery_results/taskresult/{}/change/".format(task.id),
+                    "color": "#88abfe",
+                }
+                res = json_data["original_message"]
+                res["text"] = "Last updated at {}".format(datetime.now().ctime())
+                res['attachments'] = [content, ]
+                for k in ('type', 'subtype', 'ts', 'bot_id'):
+                    res.pop(k)
         except Exception as e:
             logger.error(e)
             res = {"status": False, "message": str(e)}

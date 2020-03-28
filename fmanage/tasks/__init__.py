@@ -2,7 +2,7 @@
 from ..celery import app
 from asset.functions import sbi_asset, slack_asset
 from asset.models import HoldingStocks
-from web.functions import mylib_selenium
+from web.functions import mylib_selenium, mylib_slack
 import logging
 logger = logging.getLogger('django')
 # celery -A fmanage worker -c 2 -l info
@@ -116,4 +116,38 @@ def set_alert(stock_code, val, type):
         res = False
     finally:
         SBI.close()
+        return res
+
+
+@app.task()
+def set_buy_nams(code, num, response_url=None):
+    SBI = mylib_selenium.SeleniumSBI()
+    try:
+        res = SBI.buy(code, num)
+        text = "成行買注文完了！"
+    except Exception as e:
+        logger.error(e)
+        res = False
+        text = "成行買注文失敗..."
+    finally:
+        SBI.close()
+        if response_url is not None:
+            mylib_slack.post_message(text, response_url)
+        return res
+
+
+@app.task()
+def set_sell_nams(code, num, response_url=None):
+    SBI = mylib_selenium.SeleniumSBI()
+    try:
+        res = SBI.sell(code, num)
+        text = "成行売注文完了！"
+    except Exception as e:
+        logger.error(e)
+        res = False
+        text = "成行売注文失敗..."
+    finally:
+        SBI.close()
+        if response_url is not None:
+            mylib_slack.post_message(text, response_url)
         return res

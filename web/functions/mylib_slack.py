@@ -10,8 +10,9 @@ import logging
 logger = logging.getLogger("django")
 
 
-def post_message(text):
-    url = settings.URL_SLACK_NAMS
+def post_message(text, url=None):
+    if url is None:
+        url = settings.URL_SLACK_NAMS
     headers = {'Content-Type': 'application/json'}
     params = {"text": text, }
     json_data = json.dumps(params)
@@ -93,7 +94,7 @@ def param_entry(e):
         "attachment_type": "default",
         "actions": [
             {
-                "name": "order",
+                "name": "{}_order".format("buy" if e.is_plan else "sell"),
                 "text": "成行{}注文".format("買" if e.is_plan else "売"),
                 "type": "button",
                 "style": "primary",
