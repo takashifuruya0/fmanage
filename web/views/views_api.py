@@ -169,15 +169,15 @@ class SlackInteractive(View):
             entry = Entry.objects.get(pk=json_data["actions"][0]["value"])
             # current_price
             if json_data["actions"][0]['name'] == "current_price":
-                replyMessage = mylib_slack.param_entry(entry)
+                res = mylib_slack.param_entry(entry)
             # buy_order
             elif json_data["actions"][0]['name'] == "buy_order":
                 pass
         except Exception as e:
             logger.error(e)
-            replyMessage = {"status": False, "message": str(e)}
+            res = {"status": False, "message": str(e)}
         finally:
-            replyMessage["replace_original"] = True
-            replyMessage["response_type"] = "in_channel"
-            logger.info(replyMessage)
-            return JsonResponse(replyMessage, safe=False)
+            res["replace_original"] = True
+            res["response_type"] = "in_channel"
+            logger.info(res)
+            return JsonResponse(res, safe=False)

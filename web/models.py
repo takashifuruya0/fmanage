@@ -72,6 +72,7 @@ class Entry(models.Model):
     is_simulated = models.BooleanField(default=False, verbose_name="Simulation")
     is_nisa = models.BooleanField(default=False, verbose_name="NISA")
     num_plan = models.IntegerField(default=0, verbose_name="予定口数")
+    is_in_order = models.BooleanField(default=False, help_text="NAMSから注文中か？", verbose_name="注文中")
 
     def __str__(self):
         return "E{:0>3}_{}".format(self.pk, self.stock)
