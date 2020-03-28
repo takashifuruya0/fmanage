@@ -13,6 +13,11 @@
 				<i class="fas fa-paw"></i> Entry Detail
 				{% include 'web/part/entry_type.html' %}
 			</h4>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12 col-md-9">
 			<h5>Overview</h5>
 			<table class="table">
 				<tr>
@@ -78,6 +83,8 @@
 					<td colspan="3">{{entry.memo |default:"-" |linebreaksbr}}</td>
 				</tr>
 			</table>
+			<hr>
+
 			<a class="btn btn-outline-info" href="{%url 'web:entry_edit' pk=entry.pk%}">
 				<i class="fas fa-edit"></i> Edit
 			</a>
@@ -88,63 +95,72 @@
 				<i class="fas fa-backward"></i> Back
 			</a>
 		</div>
+		<div class="col-12 col-md-3">
+			<h5>Current Status</h5>
+			<table class="table">
+				{% include 'web/part/finance_type.html' %}
+				{% if entry.is_closed %}
+				<tr>
+					<th>口数</th>
+					<td class="right">{{entry.num_buy |intcomma}}</td>
+				</tr>
+				<tr>
+					<th>買付平均</th>
+					<td class="right">
+						{% if entry.stock.is_trust %}
+						¥{{entry.val_buy |floatformat:4 |intcomma}}
+						{% else %}
+						¥{{entry.val_buy |floatformat:0 |intcomma}}
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<th>売付平均</th>
+					<td class="right">¥{{entry.val_sell |floatformat:0 |intcomma}}</td>
+				</tr>
+				<tr>
+					<th>利益</th>
+					<td class="right">{{entry.profit |yen |safe}}</td>
+				</tr>
+				<tr>
+					<th>利益（％）</th>
+					<td class="right"> {% widthratio entry.profit entry.total_buy 100.0 %}%</td>
+				</tr>
+				{% else %}
+				<tr>
+					<th>残口数</th>
+					<td class="right">{{entry.remaining |intcomma}}</td>
+				</tr>
+				<tr>
+					<th>買付平均</th>
+					<td class="right">
+						{% if entry.stock.is_trust %}
+						¥{{entry.val_buy |floatformat:4 |intcomma}}
+						{% else %}
+						¥{{entry.val_buy |floatformat:0 |intcomma}}
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<th>現在株価</th>
+					<td class="right">¥{{overview.val | intcomma}}</td>
+				</tr>
+				<tr>
+					<th>現在利益</th>
+					<td class="right">{{entry.profit |yen |safe}}</td>
+				</tr>
+				<tr>
+					<th>現在利益（％）</th>
+					<td class="right">{% widthratio overview.val entry.val_buy 100.0 %}%</td>
+				</tr>
+				{% endif %}
+			</table>
+		</div>
 	</div>
 
 	<hr>
 	<div class="row">
 		<div class="col-12 col-sm-5">
-			<h5>
-				Current Status
-				{%if overview.val < entry.border_loss_cut%}
-				<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Better to Loss cut</label>
-				{%elif overview.val > entry.border_profit_determination%}
-				<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good to Sell</label>
-				{%endif%}
-			</h5>
-			{% include 'web/part/finance_type.html' %}
-			<table class="table">
-				{% if entry.is_closed %}
-				<tr>
-					<th class="right">口数</th>
-					<th class="right">買付平均</th>
-					<th class="right">売付平均</th>
-					<th class="right">利益</th>
-				</tr>
-				<tr>
-					<td class="right">{{entry.num_buy |intcomma}}</td>
-					<td class="right">
-						{% if entry.stock.is_trust %}
-						¥{{entry.val_buy |floatformat:4 |intcomma}}
-						{% else %}
-						¥{{entry.val_buy |floatformat:0 |intcomma}}
-						{% endif %}
-					</td>
-					<td class="right">¥{{entry.val_sell |floatformat:0 |intcomma}} ({% widthratio entry.val_sell entry.val_buy 100.0 %}%)</td>
-					<td class="right">{{entry.profit |yen |safe}}</td>
-				</tr>
-				{% else %}
-				<tr>
-					<th class="right">残口数</th>
-					<th class="right">買付平均</th>
-					<th class="right">現在株価</th>
-					<th class="right">現在利益</th>
-				</tr>
-				<tr>
-					<td class="right">{{entry.remaining |intcomma}}</td>
-					<td class="right">
-						{% if entry.stock.is_trust %}
-						¥{{entry.val_buy |floatformat:4 |intcomma}}
-						{% else %}
-						¥{{entry.val_buy |floatformat:0 |intcomma}}
-						{% endif %}
-					</td>
-					<td class="right">¥{{overview.val | intcomma}} ({% widthratio overview.val entry.val_buy 100.0 %}%)</td>
-					<td class="right">{{entry.profit |yen |safe}}</td>
-					{% endif %}
-				</tr>
-			</table>
-
-			<hr>
 			<h5>Linked Orders</h5>
 			<form action="" method="post">
 				<table class="table">
@@ -188,7 +204,7 @@
 				<tr>
 					<td>{{sbialert.id}}</td>
 					<td>{{sbialert.created_at}}</td>
-					<td>{{sbialert.val}} {{sbialert.get_type_display}}</td>
+					<td>{{sbialert.val |intcomma}} {{sbialert.get_type_display}}</td>
 				</tr>
 				{% endfor %}
 			</table>
