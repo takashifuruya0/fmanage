@@ -166,27 +166,10 @@ class SlackInteractive(View):
         json_data = json.loads(request.POST["payload"])
         logger.info(json_data)
         try:
-            # original message の転用
-            replyMessage = json_data['original_message']
-            replyMessage["replace_original"] = True
-            replyMessage["response_type"] = "in_channel"
-            replyMessage["text"] = "Last updated at {}".format(datetime.now(timezone('Asia/Tokyo')).ctime())
-            for i in ('type', 'subtype', 'ts', 'bot_id'):
-                replyMessage.pop(i)
+            entry = Entry.objects.get(pk=json_data["actions"][0]["value"])
             # current_price
             if json_data["actions"][0]['name'] == "current_price":
-                entry = Entry.objects.get(pk=json_data["actions"][0]["value"])
-                current_price = entry.stock.current_val()
-                profit = entry.profit()
-                text = "保有数: {}\n現在値: {:,}".format(entry.remaining(), current_price)
-                if profit > 0:
-                    text += "\n利益: +{:,}".format(profit)
-                else:
-                    text += "\n損失: {:,}".format(profit)
-                # update
-                replyMessage['attachments'][0]["text"] = text
-                if not entry.is_plan:
-                    replyMessage['attachments'][0]['color'] = "#FF9960" if profit < 0 else "good"
+                replyMessage = mylib_slack.param_entry(entry)
             # buy_order
             elif json_data["actions"][0]['name'] == "buy_order":
                 pass
@@ -194,5 +177,7 @@ class SlackInteractive(View):
             logger.error(e)
             replyMessage = {"status": False, "message": str(e)}
         finally:
+            replyMessage["replace_original"] = True
+            replyMessage["response_type"] = "in_channel"
             logger.info(replyMessage)
             return JsonResponse(replyMessage, safe=False)

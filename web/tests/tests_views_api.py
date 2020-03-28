@@ -78,8 +78,39 @@ class APIViewTest(TestCase):
         self.assertEqual(sbialert.checked_at.date(), date.today())
         self.assertEqual(sbialert.message, postdata["message"])
 
-
-
+    # def test_slack_interactive(self):
+    #     # url
+    #     url = reverse("web:api_slack_interactive")
+    #     self.assertEqual(url, "/nams/api/slack_interactive/")
+    #     # post
+    #     payload = {
+    #         "type": "interactive_message",
+    #         "actions": [
+    #             {
+    #                 "name": "current_price",
+    #                 "type": "button",
+    #                 "value": "1813"
+    #             }
+    #         ],
+    #         "callback_id": "callback_id value",
+    #         "team": {"id": "", "domain": ""},
+    #         "channel": {"id": "", "name": ""},
+    #         "user": {"id": "", "name": ""},
+    #         "action_ts": "1584868490.062878",
+    #         "message_ts": "1584865218.006500",
+    #         "attachment_id": "1",
+    #         "token": "",
+    #         "is_app_unfurl": False,
+    #         "original_message": {},
+    #         "response_url": "",
+    #         "trigger_id": "trigger_id",
+    #     }
+    #     postdata = {"payload": str(payload)}
+    #     response = self.client.post(url, data=json.dumps(postdata), content_type="application/json")
+    #     # current_priceでは、現在の値を入れて返す
+    #     data = json.loads(response.content)
+    #     self.assertTrue(data["replace_original"])
+    #     self.assertEqual(data["response_type"], "in_channel")
 
 
 
