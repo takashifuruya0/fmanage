@@ -101,7 +101,7 @@ def param_entry(e):
                 "value": e.pk,
                 "confirm": {
                     "title": "成行{}注文を実行しますか？".format("買" if e.is_plan else "売"),
-                    "text": "{}: {}円/{}株".format(title, current_val, remaining),
+                    "text": "{}: {}円/{}株".format(title, current_val, e.num_plan if e.is_plan else remaining),
                     "ok_text": "Order",
                     "dismiss_text": "Cancel"
                 },
