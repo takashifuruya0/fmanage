@@ -172,14 +172,14 @@ class SlackInteractive(View):
                 res = mylib_slack.param_entry(entry)
             # buy_order
             elif json_data["actions"][0]['name'] == "buy_order":
-                task = tasks.set_buy_nams(
+                task = tasks.set_buy_nams.delay(
                     code=entry.stock.code, num=entry.num_plan,
                     response_url=json_data['response_url']
                 )
                 content = {
                     "fallback": "fallback string",
                     "callback_id": "callback_id value",
-                    "title": "注文中...",
+                    "title": "注文中...: {}".format(entry),
                     "text": "https://www.fk-management.com/admin/django_celery_results/taskresult/{}/change/".format(task.id),
                     "color": "#88abfe",
                 }
@@ -190,14 +190,14 @@ class SlackInteractive(View):
                     res.pop(k)
             # sell_order
             elif json_data["actions"][0]['name'] == "sell_order":
-                task = tasks.set_sell_nams(
+                task = tasks.set_sell_nams.delay(
                     code=entry.stock.code, num=entry.remaining(),
                     response_url=json_data['response_url']
                 )
                 content = {
                     "fallback": "fallback string",
                     "callback_id": "callback_id value",
-                    "title": "注文中...",
+                    "title": "注文中...{}".format(entry),
                     "text": "https://www.fk-management.com/admin/django_celery_results/taskresult/{}/change/".format(task.id),
                     "color": "#88abfe",
                 }

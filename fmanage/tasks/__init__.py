@@ -124,11 +124,11 @@ def set_buy_nams(code, num, response_url=None):
     SBI = mylib_selenium.SeleniumSBI()
     try:
         res = SBI.buy(code, num)
-        text = "成行買注文完了！"
+        text = "成行買注文完了！ {}/{}株".format(code, num)
     except Exception as e:
         logger.error(e)
         res = False
-        text = "成行買注文失敗..."
+        text = "成行買注文失敗... {}/{}株".format(code, num)
     finally:
         SBI.close()
         if response_url is not None:
@@ -141,11 +141,11 @@ def set_sell_nams(code, num, response_url=None):
     SBI = mylib_selenium.SeleniumSBI()
     try:
         res = SBI.sell(code, num)
-        text = "成行売注文完了！"
+        text = "成行売注文完了！ {}/{}株".format(code, num)
     except Exception as e:
         logger.error(e)
         res = False
-        text = "成行売注文失敗..."
+        text = "成行売注文失敗... {}/{}株".format(code, num)
     finally:
         SBI.close()
         if response_url is not None:
