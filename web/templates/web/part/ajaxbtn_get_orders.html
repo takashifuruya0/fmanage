@@ -37,6 +37,7 @@
     	if (d['status']==true) {
     		if (d['num_added'] > 0) {
     			window.alert("Success to get orders. "+d['num_added']+" new orders.")
+    			location.reload();
 				} else {
 					window.alert("Success to get orders. No new order was found.")
 				}

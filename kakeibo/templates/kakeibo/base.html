@@ -85,23 +85,6 @@
 
           <li class="nav-item dropdown active">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="far fa-credit-card"></i> Credit
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" href="{% url 'kakeibo:credit' %}">
-                <i class="fab fa-cc-visa"></i> Dashboard
-              </a>
-              <a class="dropdown-item" href="{% url 'kakeibo:credit_list' %}">
-                <i class="fab fa-cc-mastercard"></i> Credit List
-              </a>
-              <a class="dropdown-item" href="{% url 'kakeibo:credit_item_list' %}">
-                <i class="fab fa-cc-amex"></i> Credit Item List
-              </a>
-            </div>
-          </li>
-
-          <li class="nav-item dropdown active">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="fas fa-people-carry"></i> Shared
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
@@ -110,6 +93,26 @@
               </a>
               <a class="dropdown-item" href="{% url 'kakeibo:shared_list' %}">
                 <i class="far fa-list-alt"></i> Record List
+              </a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-paw"></i> NAMS
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="{% url 'web:main' %}">
+                <i class="fas fa-home"></i> NAMS Home
+              </a>
+              <a class="dropdown-item" href="{% url 'web:entry_list' %}">
+                <i class="fas fa-list"></i> Entry
+              </a>
+              <a class="dropdown-item" href="{% url 'web:stock_list' %}">
+                <i class="fas fa-list"></i> Stock
+              </a>
+              <a class="dropdown-item" href="{% url 'web:order_list' %}">
+                <i class="fas fa-list"></i> Order
               </a>
             </div>
           </li>
@@ -128,9 +131,6 @@
               <a class="dropdown-item" href="{% url 'asset:orders_list' %}">
                 <i class="far fa-list-alt"></i> Orders
               </a>
-              <a class="dropdown-item" href="{% url 'web:main' %}">
-                <i class="fas fa-paw"></i> NAMS
-              </a>
             </div>
           </li>
 
@@ -141,9 +141,6 @@
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" href="/knowledge/">
                 <i class="fas fa-book"></i> Knowledge
-              </a>
-              <a class="dropdown-item" href="/metabase/">
-                <i class="fab fa-google"></i> Google Data Portal
               </a>
               <a class="dropdown-item" href="/admin/">
                 <i class="fas fa-database"></i> Admin
