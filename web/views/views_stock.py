@@ -1,6 +1,7 @@
 # coding:utf-8
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, reverse
+from django.db.models import Q
 from django.conf import settings
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
@@ -96,7 +97,6 @@ class StockUpdate(LoginRequiredMixin, UpdateView):
 
 class StockList(LoginRequiredMixin, PaginationMixin, ListView):
     model = Stock
-    ordering = ['code']
     paginate_by = 20
     template_name = 'web/stock_list.html'
 
@@ -106,7 +106,14 @@ class StockList(LoginRequiredMixin, PaginationMixin, ListView):
         return res
 
     def get_queryset(self):
-        queryset = Stock.objects.all().order_by('code')
+        queryset = Stock.objects.all().order_by('is_trust', 'code')
+        if "search" in self.request.GET:
+            queryset = queryset.filter(
+                Q(code__icontains=self.request.GET['search']) |
+                Q(market__icontains=self.request.GET['search']) |
+                Q(industry__icontains=self.request.GET['search']) |
+                Q(name__icontains=self.request.GET['search'])
+            )
         return queryset
 
 
@@ -121,7 +128,9 @@ class StockCreate(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        return super().form_invalid(form)
+        # return super().form_invalid(form)
+        messages.error(self.request, form.errors)
+        return redirect(reverse("web:stock_list"))
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):

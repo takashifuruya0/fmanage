@@ -9,9 +9,18 @@
 	<div class="row">
 		<div class="col-12">
 			<h4><i class="fas fa-paw"></i> Stock List</h4>
+		</div>
+		<div class="col-5">
 			{% include 'web/modal/modal_new_stock.html' %}
 		</div>
+		<div class="col-7">
+			<form method="GET">
+        <input type="text" name="search" placeholder="search">
+        <button class="submit">Search</button>
+    	</form>
+		</div>
 	</div>
+
 	<div class="row">
 		<div class="col-12">
 			<table class="table">
@@ -21,6 +30,7 @@
 					<th>Type</th>
 					<th>Industry</th>
 					<th>Market</th>
+					<th>Num Entry</th>
 				</tr>
 				{% for stock in object_list %}
 				<tr>
@@ -37,8 +47,9 @@
 						<label class="badge badge-success">株</label>
 						{%endif%}
 					</td>
-					<td>{{stock.industry}}</td>
-					<td>{{stock.market}}</td>
+					<td>{{stock.industry |default:"-"}}</td>
+					<td>{{stock.market |default:"-"}}</td>
+					<td>{{stock.entry_set.count}}</td>
 				</tr>
 				{% endfor %}
 			</table>
