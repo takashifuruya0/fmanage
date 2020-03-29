@@ -130,6 +130,9 @@ class EntryDetail(LoginRequiredMixin, DetailView):
     model = Entry
     template_name = "web/entry_detail.html"
 
+    def get_object(self, queryset=None):
+        return Entry.objects.select_related().prefetch_related('order_set').get(pk=self.kwargs['pk'])
+
     def get_context_data(self, **kwargs):
         # 各種情報取得
         entry = self.get_object()
