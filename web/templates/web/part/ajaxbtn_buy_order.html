@@ -1,0 +1,46 @@
+<button class="btn btn-outline-warning" id="ajax_buy_order">
+  <i class="far fa-check-circle"></i> Buy Order
+</button>
+<style type="text/css">
+.hide_buy_order {
+  display: none;
+}
+.loading_buy_order {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,.5);
+  background-image: url(/document/loading.gif);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center center;
+  background-size: 150px 150px;
+}
+</style>
+<div class="loading_buy_order hide_buy_order"></div>
+
+<script type="text/javascript">
+  $('#ajax_buy_order').click(function(event){
+    $.ajax({
+      url: "{% url 'web:ajax_buy_order' %}",
+      method: "POST",
+      data: {'entry': {{entry.pk}}, },
+      timeout: 10000,
+      dataType: "json",
+      beforeSend: function(){
+				$('.loading_buy_order').removeClass('hide_buy_order');
+			}
+    })
+    .done( function(d) {
+    	$('.loading_buy_order').addClass('hide_buy_order');
+    	if (d['status']==true) {
+        window.alert("Success to execute buy order.");
+        location.reload();
+    	}else{
+				window.alert("Failed to execute buy order")
+			}
+    })
+  });
+</script>

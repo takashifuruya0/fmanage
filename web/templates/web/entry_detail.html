@@ -94,6 +94,9 @@
 			<a class="btn btn-outline-secondary" href="{%url 'web:entry_list' %}">
 				<i class="fas fa-backward"></i> Back
 			</a>
+			{%if entry.is_plan and not entry.is_in_order and entry.num_plan > 0%}
+			{% include 'web/part/ajaxbtn_buy_order.html' %}
+			{%endif%}
 		</div>
 		<div class="col-12 col-md-3">
 			<h5>Current Status</h5>

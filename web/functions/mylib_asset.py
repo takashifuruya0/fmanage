@@ -202,6 +202,7 @@ def order_process(order, user=None):
             if existing_entries.count() == 1:
                 # 既存Entry(is_plan=True)に紐付け
                 entry = existing_entries[0]
+                entry.is_in_order = False
                 order.entry = entry
             else:
                 # Entry作成
