@@ -22,31 +22,52 @@
 				</div>
 				<div class="card-body">
 					<div class="row">
-						<div class="col-12 col-md-5">
+						<div class="col-12 col-md-4">
 							<h5 class="card-title">Asset Status ({{astatus.date |date}})</h5>
-							<table class="table table-responsive">
+							<table class="table">
 								<tr>
-									<th>Total: </th>
-									<td>{{astatus.get_total |yen |safe}}</td>
-									<th>Stock: </th>
-									<td>{{astatus.sum_stock |yen |safe}}</td>
+									<th>
+										<i class="fas fa-yen-sign"></i> 総資産
+									</th>
+									<td class="right">{{astatus.get_total |yen |safe}}</td>
 								</tr>
 								<tr>
-									<th>Investment: </th>
-									<td>{{astatus.investment |yen |safe}}</td>
-									<th>Buying Power: </th>
-									<td>{{astatus.buying_power |yen |safe}}</td>
+									<th>
+										<i class="fas fa-wallet"></i> 投資額
+									</th>
+									<td class="right">{{astatus.investment |yen |safe}}</td>
 								</tr>
 								<tr>
-									<th>Gross Profit: </th>
-									<td>{{astatus.get_gp |yen |safe}} ({{astatus.get_gpr |default:"-" |intcomma}}%)</td>
-									<th>Trust: </th>
-									<td>{{astatus.sum_trust |yen |safe}}</td>
+									<th>
+										<i class="fas fa-percent"></i> 対投資損益
+									</th>
+									<td class="right">
+										{{astatus.get_gp |yen |safe}}
+										<br>({{astatus.get_gpr |default:"-" |intcomma}}%)
+									</td>
+								</tr>
+								<tr>
+									<th>
+										<i class="fas fa-hand-holding-usd"></i> 買付余力
+									</th>
+									<td class="right">{{astatus.buying_power |yen |safe}}</td>
+								</tr>
+								<tr>
+									<th>
+										<i class="fas fa-hand-holding-usd"></i> 保有株資産
+									</th>
+									<td class="right">{{astatus.sum_stock |yen |safe}}</td>
+								</tr>
+								<tr>
+									<th>
+										<i class="fas fa-hand-holding-usd"></i> 保有信託資産
+									</th>
+									<td class="right">{{astatus.sum_trust |yen |safe}}</td>
 								</tr>
 							</table>
 						</div>
 
-						<div class="col-12 col-md-7">
+						<div class="col-12 col-md-8">
 							<h5 class="card-title">Open Entry</h5>
 							<table class="table table-responsive">
 								<thead>
