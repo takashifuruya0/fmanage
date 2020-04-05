@@ -45,11 +45,17 @@ class BatchNamsTest(TestCase):
         self.assertEqual(astatus_today.nisa_power, 1000000)
         self.assertEqual(astatus_today.investment, 1000000)
         # 株を買って、Entryができたとする
+        entry = Entry.objects.create(
+            user=self.u, stock=self.s,
+            memo="test_entry",
+            border_loss_cut=1000,
+            border_profit_determination=1200,
+        )
         bo = Order.objects.create(
             user=self.u, stock=self.s, datetime=datetime.now(),
             is_nisa=False, is_buy=True, is_simulated=False,
             num=100, val=1000, commission=250,
-            entry=None, chart=None,
+            entry=entry, chart=None,
         )
         astatus_today.buying_power -= (bo.num * bo.val - bo.commission)
         astatus_today.save()
