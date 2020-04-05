@@ -18,7 +18,7 @@
 
 	<div class="row">
 		<div class="col-12 col-md-9">
-			<h5>Overview</h5>
+			<h5><i class="fas fa-info-circle"></i> Overview</h5>
 			<table class="table">
 				<tr>
 					<th>Stock</th>
@@ -85,9 +85,6 @@
 			</table>
 			<hr>
 
-			{%if entry.is_plan and not entry.is_in_order and entry.num_plan > 0%}
-			{% include 'web/part/ajaxbtn_buy_order.html' %}
-			{%endif%}
 			<a class="btn btn-outline-info" href="{%url 'web:entry_edit' pk=entry.pk%}">
 				<i class="fas fa-edit"></i> Edit
 			</a>
@@ -99,7 +96,7 @@
 			</a>
 		</div>
 		<div class="col-12 col-md-3">
-			<h5>Current Status</h5>
+			<h5><i class="fas fa-tachometer-alt"></i> Current Status</h5>
 			<table class="table">
 				{% include 'web/part/finance_type.html' %}
 				{% if entry.is_closed %}
@@ -129,6 +126,34 @@
 					<th>利益（％）</th>
 					<td class="right"> {% widthratio entry.profit entry.total_buy 100.0 %}%</td>
 				</tr>
+				{% elif entry.is_plan %}
+				<tr>
+					<th>予定口数</th>
+					<td class="right">{{entry.num_plan |intcomma}}</td>
+				</tr>
+				<tr>
+					<th>予定株価</th>
+					<td class="right"></td>
+				</tr>
+				<tr>
+					<th>現在株価</th>
+					<td class="right">¥{{overview.val | intcomma}}</td>
+				</tr>
+				{% if not entry.is_in_order and entry.num_plan > 0 %}
+				<tr>
+					<td colspan="2">
+						{% include 'web/part/ajaxbtn_buy_order.html' %}
+					</td>
+				</tr>
+				{% endif %}
+				<tr>
+					<td colspan="2">
+						<button class="btn btn-block btn-danger">
+							<i class="fas fa-power-off"></i> Deactivate
+						</button>
+					</td>
+				</tr>
+
 				{% else %}
 				<tr>
 					<th>残口数</th>
@@ -164,7 +189,7 @@
 	<hr>
 	<div class="row">
 		<div class="col-12 col-sm-5">
-			<h5>Linked Orders</h5>
+			<h5><i class="fas fa-link"></i> Linked Orders</h5>
 			<form action="" method="post">
 				<table class="table table-responsive">
 					<tr>
@@ -196,7 +221,7 @@
 			</form>
 
 			<hr>
-			<h5>Alert</h5>
+			<h5><i class="fas fa-chart-line"></i> Alert</h5>
 			<table class="table">
 				<tr>
 					<th>No</th>
@@ -214,7 +239,7 @@
 			{% include 'web/modal/modal_sbialert.html' %}
 
 			<hr>
-			<h5>Analysis</h5>
+			<h5><i class="fas fa-chart-line"></i> Analysis</h5>
 			<table class="table table-responsive">
 				<tr>
 					<th>種類</th>
