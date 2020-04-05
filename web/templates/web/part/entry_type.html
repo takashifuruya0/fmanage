@@ -1,15 +1,25 @@
 {%if entry.is_nisa%}
-<label class="badge badge-info">NISA</label>
+<label class="badge badge-info">
+  NISA
+</label>
 {%endif%}
 
 {%if entry.is_closed %}
   {%if entry.profit > 0 %}
-  <label class="badge badge-success">Closed Won</label>
+  <label class="badge badge-success">
+    <i class="fas fa-thumbs-up"></i> Closed Won
+  </label>
   {%else%}
-  <label class="badge badge-danger">Closed Lost</label>
+  <label class="badge badge-danger">
+    <i class="fas fa-thumbs-down"></i> Closed Lost
+  </label>
   {%endif%}
 {%elif not entry.is_plan%}
-<label class="badge badge-primary">Open</label>
+<label class="badge badge-primary">
+  <i class="fas fa-spa"></i> Open
+</label>
 {%else%}
-<label class="badge badge-warning">Plan</label>
+<label class="badge badge-warning">
+  <i class="fas fa-seedling"></i> Plan
+</label>
 {%endif%}

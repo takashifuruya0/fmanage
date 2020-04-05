@@ -18,12 +18,16 @@
 		<div class="col-12">
 			<div class="card">
 				<div class="card-header bg-primary text-white">
-					<h4><i class="fas fa-user"></i> {{user}}'s overview</h4>
+					<h4>
+						<i class="fas fa-user"></i> Overview ({{user}} / {{astatus.date |date}})
+					</h4>
 				</div>
 				<div class="card-body">
 					<div class="row">
 						<div class="col-12 col-md-4">
-							<h5 class="card-title">Asset Status ({{astatus.date |date}})</h5>
+							<h5 class="card-title">
+								<i class="fas fa-tachometer-alt"></i> Asset Status
+							</h5>
 							<table class="table">
 								<tr>
 									<th>
@@ -68,15 +72,16 @@
 						</div>
 
 						<div class="col-12 col-md-8">
-							<h5 class="card-title">Open Entry</h5>
+							<h5 class="card-title">
+								<i class="fas fa-spa"></i> Open Entry
+							</h5>
 							<table class="table table-responsive">
 								<thead>
 									<tr>
 										<th>No.</th>
-										<th>Stock</th>
-										<th>Open</th>
-										<th class="right">Profit</th>
-										<th class="right">Remaining</th>
+										<th>銘柄</th>
+										<th>利益</th>
+										<th>保有口位数</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -86,19 +91,60 @@
 										<a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
 									</td>
 									<td>{{entry.stock}}</td>
-									<td>{{entry.date_open |date}}</td>
-									<td class="right">{{entry.profit |yen |safe}}</td>
+									<td class="right">
+										{{entry.profit |yen |safe}}
+										({{entry.profit_pct}}%)
+									</td>
 									<td class="right">{{entry.remaining |intcomma}}</td>
 								</tr>
 								{% endfor %}
 								</tbody>
 							</table>
+
+							{% if plan_entrys %}
+							
+							<h5 class="card-title">
+								<i class="fas fa-seedling"></i> Plan Entry
+							</h5>
+							<table class="table table-responsive">
+								<thead>
+									<tr>
+										<th>No.</th>
+										<th>銘柄</th>
+										<th>予定口数</th>
+										<th>利確</th>
+										<th>損切</th>
+										<th>メモ</th>
+									</tr>
+								</thead>
+								<tbody>
+								{% for entry in plan_entrys %}
+								<tr>
+									<td>
+										<a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
+									</td>
+									<td>{{entry.stock}}</td>
+									<td class="right">{{entry.num_plan |intcomma}}</td>
+									<td class="right">
+										{{entry.border_profit_determination |yen |safe}}
+										({{entry.border_profit_determination_percent}}%)
+									</td>
+									<td class="right">
+										{{entry.border_loss_cut |yen |safe}}
+										({{entry.border_loss_cut_percent}}%)
+									</td>
+									<td>{{entry.memo |linebreaksbr}}</td>
+								</tr>
+								{% endfor %}
+								</tbody>
+							</table>
+							{% endif %}
 						</div>
 					</div>
 				</div>
 				<div class="card-footer">
 					{% include 'web/modal/modal_investment.html' %}
-					{% include 'web/part/ajaxbtn_get_orders.html' %}
+<!--					{% include 'web/part/ajaxbtn_get_orders.html' %}-->
 					<a href="https://datastudio.google.com/u/0/reporting/1pymHrwsmAF6OSbVuXseIAazF3ByPMYWq/page/cCEBB"
 						 class="btn btn-info"
 							target="_blank">
@@ -114,7 +160,9 @@
     <div class="col-12">
 	    <div class="card">
 		    <div class="card-header bg-dark text-white">
-					<h4><i class="fas fa-clipboard-list"></i> Entry</h4>
+					<h4>
+						<i class="fas fa-leaf"></i> Closed Entry
+					</h4>
 		    </div>
 		    <div class="card-body">
 			    <table class="table table-responsive">

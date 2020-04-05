@@ -24,6 +24,10 @@ class Stock(models.Model):
         data = mylib_scraping.yf_detail(self.code)
         return data['data']['val'] if data['status'] else None
 
+    def latest_val(self):
+        svd = StockValueData.objects.filter(stock=self).latest('date')
+        return svd.val_close if svd else None
+
     def save(self, *args, **kwargs):
         data = mylib_scraping.yf_detail(self.code)
         if data['status']:
@@ -154,7 +158,8 @@ class Entry(models.Model):
         """利確後の利益額"""
         if self.border_profit_determination:
             num = self.num_plan if self.is_plan else self.num_buy()
-            return (self.border_profit_determination - self.val_buy()) * num
+            val = self.stock.latest_val() if self.is_plan else self.val_buy()
+            return (self.border_profit_determination - val) * num
         else:
             return None
 
@@ -162,7 +167,8 @@ class Entry(models.Model):
         """損切後の損失額"""
         if self.border_loss_cut:
             num = self.num_plan if self.is_plan else self.num_buy()
-            return (self.border_loss_cut - self.val_buy()) * num
+            val = self.stock.latest_val() if self.is_plan else self.val_buy()
+            return (self.border_loss_cut - val) * num
         else:
             return None
 
@@ -178,7 +184,7 @@ class Entry(models.Model):
 
     def border_loss_cut_percent(self):
         """損切り損失率"""
-        current_val = self.stock.current_val()
+        current_val = self.stock.latest_val()
         if self.border_loss_cut and current_val:
             val = current_val if self.is_plan else self.val_buy()
             return round(self.border_loss_cut / val * 100, 2)
@@ -187,7 +193,7 @@ class Entry(models.Model):
 
     def border_profit_determination_percent(self):
         """利確利益率"""
-        current_val = self.stock.current_val()
+        current_val = self.stock.latest_val()
         if self.border_profit_determination and current_val:
             val = current_val if self.is_plan else self.val_buy()
             return round(self.border_profit_determination / val * 100, 2)
