@@ -31,8 +31,15 @@ def create_order(request):
                 for val in json_data.values():
                     logger.info(val)
                     val['user'] = User.objects.first()
-                    logger.info("User: {}".format(val['user']))
+                    # val['val'] = val['price']
                     val['commission'] = mylib_asset.get_commission(val['num'] * val['val'])
+                    # if val['kind'] == "現物買":
+                    #     val["is_buy"] = True
+                    # elif val['kind'] == "現物売":
+                    #     val["is_buy"] = False
+                    # else:
+                    #     raise Exception("val['kind'] was {}".format(val['kind']))
+                    logger.info("User: {}".format(val['user']))
                     # Stocksにデータがない→登録
                     if not Stock.objects.filter(code=val["code"]).exists():
                         stockinfo = mylib_scraping.yf_detail(val["code"])
@@ -44,14 +51,18 @@ def create_order(request):
                             stock.market = stockinfo['data']['market']
                             stock.is_trust = False if len(str(stock.code)) == 4 else True
                             stock.save()
-                        val['stock'] = stock
-                        smsg = "New stock was registered:{}".format(stock.code)
-                        logger.info(smsg)
+                            val['stock'] = stock
+                            smsg = "New stock was registered:{}".format(stock.code)
+                            logger.info(smsg)
+                        else:
+                            raise Exception("Failed to create stock {}".format(val['code']))
                     else:
-                        smsg = "Stock {} is found".format(stock.code)
                         val['stock'] = Stock.objects.get(code=val['code'])
+                        smsg = "Stock {} is found".format(val['code'])
                         logger.info(smsg)
                     # Order作成
+                    # for dk in ("code", "price", "order_id", "kind"):
+                    #     val.pop(dk)
                     val.pop("code")
                     o = Order.objects.create(**val)
                     pk_orders.append(o.pk)

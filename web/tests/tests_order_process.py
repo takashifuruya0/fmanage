@@ -149,7 +149,7 @@ class ModelTest(TestCase):
             self.astatus.buying_power,
             1000000 - self.bo.num * self.bo.val - self.bo.commission + self.so.num * self.so.val - self.so.commission
         )
-        self.assertEqual(self.astatus.sum_stock, (self.bo.num - self.so.num)*self.so.val)
+        self.assertEqual(self.astatus.sum_stock, (self.bo.num - self.so.num)*self.so.stock.current_val())
 
     def test_linking_sell_order_to_existing_entry_and_close(self):
         """売り注文作成時に、同じStockのEntryに紐付け。口数が一緒なのでCloseもさせる"""
@@ -191,51 +191,3 @@ class ModelTest(TestCase):
         self.assertEqual(self.astatus.buying_power, bp)
         self.assertEqual(self.astatus.sum_stock, 0)
 
-    def test_api_order_process(self):
-        """
-        GASからデータが来て、order_processが動く
-        """
-        # 事前準備
-        buying_power = AssetStatus.objects.first().buying_power
-        data = {
-          "1571_現物売": {
-            "datetime": "2018-03-06 14:14",
-            "code": 1571,
-            "is_buy": False,
-            "num": 220,
-            "val": 1738
-          },
-          "1571_現物買": {
-            "datetime": "2018-03-06 14:12",
-            "code": 1571,
-            "is_buy": True,
-            "num": 220,
-            "val": 1740
-          }
-        }
-        json_data = json.dumps(data)
-        # stock, orderがない
-        self.assertFalse(Stock.objects.filter(code=1571).exists())
-        self.assertFalse(Order.objects.filter(stock__code=1571).exists())
-        # apiを叩く
-        url = reverse("web:api_create_order")
-        response = self.client.post(url, data=json_data, content_type="application/json")
-        self.assertEqual(response.status_code, 200)
-        # StockとOrderが作成されている
-        stock = Stock.objects.get(code=1571)
-        buy_order = Order.objects.get(stock=stock, is_buy=True)
-        sell_order = Order.objects.get(stock=stock, is_buy=False)
-        # Entryが作成され、buy_order, sell_orderが紐付いている
-        entry = Entry.objects.get(stock=stock)
-        self.assertEqual(entry, buy_order.entry)
-        self.assertEqual(entry, sell_order.entry)
-        self.assertTrue(entry.is_closed)
-        self.assertFalse(entry.is_plan)
-        # AssetStatusが更新される
-        astatus_after = AssetStatus.objects.first()
-        buying_power_after = astatus_after.buying_power
-        sum_stock_after = astatus_after.sum_stock
-        val_order = data['1571_現物買']['num'] * data['1571_現物買']['val'] - data['1571_現物売']['num'] * data['1571_現物売']['val']
-        commission = buy_order.commission + sell_order.commission
-        self.assertEqual(sum_stock_after, val_order)
-        self.assertEqual(buying_power_after, buying_power - val_order - commission)

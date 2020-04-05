@@ -189,14 +189,6 @@ def order_process(order, user=None):
                 logger.error("order.val " + str(order.val))
                 logger.error("order.commision " + str(order.commission))
                 raise ValueError("buying_power < 0 !")
-            if not order.stock.is_trust:
-                astatus.sum_stock += order.num * order.val
-            else:
-                astatus.sum_trust += order.num * order.val
-            astatus.save()
-            logger.info("AssetStatus is updated")
-            logger.info(astatus)
-
             # Entry紐付け
             existing_entries = Entry.objects.filter(stock=order.stock, is_closed=False)
             if existing_entries.count() == 1:
@@ -215,12 +207,27 @@ def order_process(order, user=None):
                 order.entry = entry
             order.save()
             logger.info("{} is linked to {}".format(order, entry))
+            # Entry(is_close=False)に基づいて、sum_stock, sum_trustの更新
+            astatus.update_status()
+            astatus.save()
+            # log
+            logger.info("AssetStatus is updated")
+            logger.info(astatus)
+            # res
             res['status'] = True
             res['msg'] = "Buy Order Process was done"
         # 売り
         elif order.is_buy is False:
             entry = Entry.objects.prefetch_related('order_set').filter(is_closed=False, stock=order.stock).last()
-            # status更新
+            # entry紐付け
+            if entry.remaining() >= order.num:
+                order.entry = entry
+                order.save()
+                logger.info("{} is linked to {}".format(order, entry))
+            else:
+                logger.error("entry.remaining " + str(entry.remaining()))
+                logger.error("order.num " + str(order.num))
+                raise ValueError("entry.remaining - order.num < 0!")
             if order.is_nisa:
                 # NISA: TAX=0%
                 astatus.buying_power = astatus.buying_power + order.num * order.val
@@ -234,22 +241,13 @@ def order_process(order, user=None):
                 # 利益なし＋NISA以外: TAX=0%
                 astatus.buying_power = astatus.buying_power + order.num * order.val - order.commission
                 logger.info("TAX 0%: Has not benefit and not NISA")
-            if not order.stock.is_trust:
-                astatus.sum_stock -= order.num * order.val
-            else:
-                astatus.sum_trust -= order.num * order.val
+            # Entry(is_close=False)に基づいて、sum_stock, sum_trustの更新
+            astatus.update_status()
             astatus.save()
+            # log
             logger.info("AssetStatus is updated")
             logger.info(astatus)
-            # entry紐付け
-            if entry.remaining() >= order.num:
-                order.entry = entry
-                order.save()
-                logger.info("{} is linked to {}".format(order, entry))
-            else:
-                logger.error("entry.remaining " + str(entry.remaining()))
-                logger.error("order.num " + str(order.num))
-                raise ValueError("entry.remaining - order.num < 0!")
+            # res
             res['status'] = True
             res['msg'] = "Sell Order Process was done"
     except Exception as e:
