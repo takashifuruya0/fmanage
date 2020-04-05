@@ -261,34 +261,29 @@ def order_process(order, user=None):
 
 def record_asset_status():
     '''
-    record_asset_status
-    :desc: 最終日のレコードを取得して、日付を今日に変更して作成
-    :param: Null
-    :return: True
+    今日のAssetStatusがある場合：アップデート
+    今日のAssetStatusがない場合：前のレコードに基づいて新規作成
     '''
-    users = User.objects.all()
-    for u in users:
-        asset_status = AssetStatus.objects.filter(user=u)
-        if asset_status.exists():
-            logger.info("Started for {}".format(u.username))
-            asset_status = asset_status.latest('date')
-            asset_status.pk = None
-            asset_status.date = date.today()
-            # sum_stock / sum_trust
-            asset_status.sum_stock = 0
-            asset_status.sum_trust = 0
-            holdings = Entry.objects.select_related().filter(is_closed=False)
-            for h in holdings:
-                val_close = StockValueData.objects.filter(stock=h.stock).latest('date').val_close
-                if h.stock.is_trust:
-                    asset_status.sum_trust += (val_close/10000 * h.remaining())
-                else:
-                    asset_status.sum_stock += (val_close * h.remaining())
-            asset_status.save()
-            logger.info("Done for {}".format(u.username))
-        else:
-            logger.info("Not found for {}".format(u.username))
-    return True
+    today = date.today()
+    asset_status = AssetStatus.objects.latest('date')
+    if asset_status.date == today:
+        # 更新
+        logger.info("Updating AssetStatus {}".format(asset_status))
+        asset_status.update_status()
+        logger.info("Completed updating AssetStatus {}".format(asset_status))
+    else:
+        # 新規作成
+        logger.info("Creating AssetStatus {}".format(asset_status))
+        asset_status.pk = None
+        asset_status.date = today
+        asset_status.save()
+        logger.info("Completed creating AssetStatus {}".format(asset_status))
+    # res
+    res = {
+        "status": True,
+        "asset_status": asset_status,
+    }
+    return res
 
 
 def import_trust_0(path, stock):

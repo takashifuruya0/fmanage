@@ -13,5 +13,8 @@ class Command(BaseCommand):
     # コマンドが実行された際に呼ばれるメソッド
     def handle(self, *args, **options):
         d = mylib_asset.record_asset_status()
-        msg = "Result of record_asset_status: {}".format(d)
-        self.stdout.write(self.style.SUCCESS(msg))
+        if d['status']:
+            msg = "Result of record_asset_status: {}".format(d['asset_status'])
+            self.stdout.write(self.style.SUCCESS(msg))
+        else:
+            self.stdout.write("Failed to execute 'record_asset_status_alt'")
