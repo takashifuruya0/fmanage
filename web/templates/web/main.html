@@ -78,17 +78,19 @@
 							<table class="table table-responsive">
 								<thead>
 									<tr>
-										<th>No.</th>
+										<th></th>
 										<th>銘柄</th>
 										<th>利益</th>
-										<th>保有口位数</th>
+										<th>口数</th>
 									</tr>
 								</thead>
 								<tbody>
 								{% for entry in open_entrys %}
 								<tr>
 									<td>
-										<a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
+										<a href="{% url 'web:entry_detail' pk=entry.pk %}">
+											<i class="fas fa-info-circle"></i>
+										</a>
 									</td>
 									<td>{{entry.stock}}</td>
 									<td class="right">
@@ -109,9 +111,9 @@
 							<table class="table table-responsive">
 								<thead>
 									<tr>
-										<th>No.</th>
+										<th></th>
 										<th>銘柄</th>
-										<th>予定口数</th>
+										<th>口数</th>
 										<th>利確</th>
 										<th>損切</th>
 										<th>メモ</th>
@@ -121,7 +123,9 @@
 								{% for entry in plan_entrys %}
 								<tr>
 									<td>
-										<a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
+										<a href="{% url 'web:entry_detail' pk=entry.pk %}">
+											<i class="fas fa-info-circle"></i>
+										</a>
 									</td>
 									<td>{{entry.stock}}</td>
 									<td class="right">{{entry.num_plan |intcomma}}</td>
@@ -168,7 +172,7 @@
 			    <table class="table table-responsive">
 				    <thead>
 				      <tr>
-					      <th>No.</th>
+					      <th></th>
 					      <th>Stock</th>
 					      <th>Status</th>
 					      <th>Open</th>
@@ -181,7 +185,9 @@
 				      {% for entry in entrys %}
 				      <tr>
 					      <td>
-						      <a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
+						      <a href="{% url 'web:entry_detail' pk=entry.pk %}">
+										<i class="fas fa-info-circle"></i>
+									</a>
 					      </td>
 				        <td>{{entry.stock}}</td>
 					      <td>

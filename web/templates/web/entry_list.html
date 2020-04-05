@@ -57,7 +57,9 @@
 								<input type="checkbox" name="pk" value="{{entry.pk}}">
 							</td>
 							<td>
-								<a href="{% url 'web:entry_detail' pk=entry.pk %}">{{entry.pk}}</a>
+								<a href="{% url 'web:entry_detail' pk=entry.pk %}">
+									<i class="fas fa-info-circle"></i>
+								</a>
 							</td>
 							<td>
 <!--								<a href="{% url 'web:stock_detail' entry.stock.code %}">-->
