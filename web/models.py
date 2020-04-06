@@ -269,19 +269,38 @@ class AssetStatus(models.Model):
         return "{}_{}".format(self.date, self.user)
 
     def get_total(self):
+        """合計の算出"""
         return self.sum_other + self.sum_stock + self.sum_trust + self.buying_power
 
     def get_gp(self):
+        """粗利の算出"""
         return self.get_total() - self.investment
 
     def get_gpr(self):
+        """粗利(%)の算出"""
         return round((self.get_total() - self.investment)/self.investment * 100, 2)
 
     def update_status(self):
+        """Entryに従って、sum_stock, sum_trustの更新"""
         es = Entry.objects.filter(is_closed=False, is_plan=False)
-        self.sum_stock = sum([e.remaining()*e.stock.current_val() for e in es.filter(stock__is_trust=False)])
-        self.sum_trust = sum([e.remaining()*e.stock.current_val() for e in es.filter(stock__is_trust=True)])
-        self.save()
+        try:
+            self.sum_stock = 0
+            self.sum_trust = 0
+            for e in es:
+                current_val = e.stock.current_val()
+                val = current_val if current_val else e.stock.latest_val()
+                num = e.remaining()
+                total = val * num
+                if e.stock.is_trust:
+                    self.sum_trust += total
+                else:
+                    self.sum_stock += total
+            self.save()
+            logger.info("{}.update_status() was completed successfully".format(self))
+            return True
+        except Exception as err:
+            logger.error(err)
+            return False
 
 
 class StockFinancialData(models.Model):
