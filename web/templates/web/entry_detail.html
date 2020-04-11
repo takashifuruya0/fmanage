@@ -39,14 +39,18 @@
 				<tr>
 					<th>利確株価</th>
 					<td>
-						¥{{entry.border_profit_determination |default_if_none:"-" |intcomma }}
+						{% if entry.stock.is_trust %}
+						{{entry.border_profit_determination |yen:4 |safe}}
+						{% else %}
+						{{entry.border_profit_determination |yen |safe}}
+						{% endif %}
 						{% if entry.border_profit_determination < entry.val_sell and entry.is_closed%}
 						<label class="badge badge-success"><i class="fas fa-thumbs-up"></i> Good</label>
 						{%endif%}
 					</td>
 					<th>利確利益</th>
 					<td>
-						¥{{entry.profit_profit_determination |floatformat:0 |default_if_none:"-" |intcomma }}
+						{{entry.profit_profit_determination  |yen |safe}}
 						{% if entry.is_plan %}
 						({{ entry.border_profit_determination_percent }}%)
 						{% else %}
@@ -57,7 +61,11 @@
 				<tr>
 					<th>損切株価</th>
 					<td>
-						¥{{entry.border_loss_cut |default_if_none:"-" |intcomma}}　
+						{% if entry.stock.is_trust %}
+						{{entry.border_loss_cut |yen:4 |safe}}
+						{% else %}
+						{{entry.border_loss_cut |yen |safe}}　
+						{% endif %}　
 						{% if entry.border_loss_cut > entry.val_sell and entry.is_closed%}
 						<label class="badge badge-danger"><i class="fas fa-thumbs-down"></i> Bad</label>
 						{%endif%}
@@ -108,9 +116,9 @@
 					<th>買付平均</th>
 					<td class="right">
 						{% if entry.stock.is_trust %}
-						¥{{entry.val_buy |floatformat:4 |intcomma}}
+						{{entry.val_buy |yen:4 |safe}}
 						{% else %}
-						¥{{entry.val_buy |floatformat:0 |intcomma}}
+						{{entry.val_buy |yen |safe}}
 						{% endif %}
 					</td>
 				</tr>
@@ -133,11 +141,11 @@
 				</tr>
 				<tr>
 					<th>予定株価</th>
-					<td class="right"></td>
+					<td class="right">{{entry.val_plan |yen}}</td>
 				</tr>
 				<tr>
 					<th>現在株価</th>
-					<td class="right">¥{{overview.val | intcomma}}</td>
+					<td class="right">{{overview.val |yen}}</td>
 				</tr>
 				{% if not entry.is_in_order and entry.num_plan > 0 %}
 				<tr>

@@ -22,7 +22,7 @@ class Stock(models.Model):
 
     def current_val(self):
         data = mylib_scraping.yf_detail(self.code)
-        return data['data']['val'] if data['status'] else None
+        return data['data']['val'] if data['status'] else self.latest_val()
 
     def latest_val(self):
         svd = StockValueData.objects.filter(stock=self).latest('date')
@@ -76,6 +76,7 @@ class Entry(models.Model):
     is_simulated = models.BooleanField(default=False, verbose_name="Simulation", help_text="シミュレーション")
     is_nisa = models.BooleanField(default=False, verbose_name="NISA", help_text="NISA口座")
     num_plan = models.IntegerField(default=0, help_text="予定口数", verbose_name="予定口数")
+    val_plan = models.FloatField(blank=True, null=True, help_text="予定Entry株価", verbose_name="予定Entry株価")
     is_in_order = models.BooleanField(default=False, help_text="NAMSから注文中か？", verbose_name="注文中")
 
     def __str__(self):
@@ -122,6 +123,10 @@ class Entry(models.Model):
     def total_sell(self):
         """売付合計"""
         return self.val_sell() * self.num_sell() if self.num_sell() > 0 else None
+
+    def total_plan(self):
+        """Plan合計"""
+        return self.val_plan * self.num_plan if self.val_plan else None
 
     def num_linked_orders(self):
         """紐づくOrder数"""

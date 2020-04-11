@@ -75,7 +75,8 @@ class ModelTest(TestCase):
         # Astatusが更新される
         self.astatus = AssetStatus.objects.first()
         self.assertEqual(self.astatus.buying_power, 1000000 - self.bo.num * self.bo.val - self.bo.commission)
-        self.assertEqual(self.astatus.sum_stock, self.bo.num * self.bo.val)
+        # self.assertEqual(self.astatus.sum_stock, self.bo.num * self.bo.val)
+        self.assertEqual(self.astatus.sum_stock, self.bo.num * self.bo.stock.current_val())
 
     def test_linking_buy_order_to_existing_entry(self):
         """買い注文作成時に、同じStockのEntry(is_plan=False, is_close=False)があれば紐付け"""
@@ -106,7 +107,8 @@ class ModelTest(TestCase):
         # Astatusが更新される
         self.astatus = AssetStatus.objects.first()
         self.assertEqual(self.astatus.buying_power, 1000000 - self.bo.num * self.bo.val - self.bo.commission)
-        self.assertEqual(self.astatus.sum_stock, self.bo.num * self.bo.val)
+        # self.assertEqual(self.astatus.sum_stock, self.bo.num * self.bo.val)
+        self.assertEqual(self.astatus.sum_stock, e.remaining() * e.stock.current_val())
 
     def test_linking_buy_order_to_new_entry(self):
         """買い注文作成時に、同じStockのEntryがなければ新規作成して紐付け"""
@@ -121,7 +123,8 @@ class ModelTest(TestCase):
         # Astatusが更新される
         self.astatus = AssetStatus.objects.first()
         self.assertEqual(self.astatus.buying_power, 1000000 - self.bo.num * self.bo.val - self.bo.commission)
-        self.assertEqual(self.astatus.sum_stock, self.bo.num * self.bo.val)
+        # self.assertEqual(self.astatus.sum_stock, self.bo.num * self.bo.val)
+        self.assertEqual(self.astatus.sum_stock, self.bo.num * self.bo.stock.current_val())
 
     def test_linking_sell_order_to_existing_entry(self):
         """売り注文作成時に、同じStockのEntryに紐付け。口数が違うのでCloseしない"""

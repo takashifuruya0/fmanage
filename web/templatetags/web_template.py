@@ -14,3 +14,12 @@ def yen(val, digit=0):
         return "<font color='red'>-¥{:,}</font>".format(round(-val))
     else:
         return "<font color='red'>-¥{:,}</font>".format(round(-val, digit))
+
+
+def percent(val, digit=2):
+    if not val:
+        return "-"
+    elif val >= 0:
+        return "{}%".format(round(val, digit))
+    else:
+        return "<font color='red'>-{}%</font>".format(round(-val, digit))
