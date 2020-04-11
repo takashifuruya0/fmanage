@@ -8,7 +8,7 @@ class EntryForm(forms.ModelForm):
     ModelForm を継承して作れば、HTMLで表示したいフィールドを
     指定するだけで HTML フォームを作ってくれる。
     """
-    is_plan = forms.BooleanField(initial=True, required=False)
+    is_plan = forms.BooleanField(initial=True, required=False, label="EntryPlan")
 
     class Meta:
         model = Entry

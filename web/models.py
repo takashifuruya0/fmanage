@@ -71,7 +71,7 @@ class Entry(models.Model):
     border_profit_determination = models.FloatField(blank=True, null=True, verbose_name="利確価格")
     reason_win_loss = models.ForeignKey(ReasonWinLoss, on_delete=models.CASCADE, blank=True, null=True, verbose_name="理由")
     memo = models.TextField(blank=True, null=True, verbose_name="メモ")
-    is_plan = models.BooleanField(default=False, verbose_name="Plan", help_text="Entry予定")
+    is_plan = models.BooleanField(default=False, verbose_name="EntryPlan", help_text="EntryPlanかどうか")
     is_closed = models.BooleanField(default=False, verbose_name="Closed", help_text="終了したEntryかどうか")
     is_simulated = models.BooleanField(default=False, verbose_name="Simulation", help_text="シミュレーション")
     is_nisa = models.BooleanField(default=False, verbose_name="NISA", help_text="NISA口座")
