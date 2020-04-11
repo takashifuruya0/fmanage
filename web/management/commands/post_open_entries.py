@@ -13,5 +13,5 @@ class Command(BaseCommand):
     # コマンドライン引数を指定します。(argparseモジュール https://docs.python.org/2.7/library/argparse.html)
     # コマンドが実行された際に呼ばれるメソッド
     def handle(self, *args, **options):
-        res = mylib_slack.post_open_entries()
+        res = mylib_slack.post_open_entries(is_excluding_plan=False)
         self.stdout.write("".format(res))
