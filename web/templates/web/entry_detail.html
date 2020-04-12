@@ -57,11 +57,7 @@
 					<th>利確利益</th>
 					<td>
 						{{entry.profit_profit_determination  |yen |safe}}
-						{% if entry.is_plan %}
-						({{ entry.border_profit_determination_percent }}%)
-						{% else %}
-						({% widthratio entry.profit_profit_determination entry.total_buy 100.0 %}%)
-						{% endif %}
+						({{entry.border_profit_determination_percent |pct |safe}})
 					</td>
 				</tr>
 				<tr>
@@ -79,11 +75,7 @@
 					<th>損切損失</th>
 					<td>
 						{{entry.profit_loss_cut |yen |safe}}
-						{% if entry.is_plan %}
-						({{ entry.border_loss_cut_percent }}%)
-						{% else %}
-						({% widthratio entry.profit_loss_cut entry.total_buy 100.0 %}%)
-						{% endif %}
+						({{entry.border_loss_cut_percent |pct |safe}})
 					</td>
 				</tr>
 				<tr>

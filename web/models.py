@@ -176,7 +176,7 @@ class Entry(models.Model):
 
     def profit_pct(self):
         """利益率"""
-        return round(100 + self.profit() * 100 / self.val_buy() / self.num_buy(), 1) if self.order_set.exists() else 0
+        return round(self.profit() * 100 / self.val_buy() / self.num_buy(), 1) if self.order_set.exists() else 0
 
     def profit_profit_determination(self):
         """利確後の利益額"""
@@ -211,7 +211,7 @@ class Entry(models.Model):
         current_val = self.stock.latest_val()
         if self.border_loss_cut and current_val:
             val = current_val if self.is_plan else self.val_buy()
-            return round(self.border_loss_cut / val * 100, 2)
+            return round(self.border_loss_cut / val * 100 - 100, 2)
         else:
             return None
 
@@ -220,7 +220,7 @@ class Entry(models.Model):
         current_val = self.stock.latest_val()
         if self.border_profit_determination and current_val:
             val = current_val if self.is_plan else self.val_buy()
-            return round(self.border_profit_determination / val * 100, 2)
+            return round(self.border_profit_determination / val * 100 - 100, 2)
         else:
             return None
 

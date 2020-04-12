@@ -95,7 +95,7 @@
 									<td>{{entry.stock}}</td>
 									<td class="right">
 										{{entry.profit |yen |safe}}
-										({{entry.profit_pct}}%)
+										({{entry.profit_pct |pct |safe}})
 									</td>
 									<td class="right">{{entry.remaining |intcomma}}</td>
 								</tr>
@@ -131,11 +131,11 @@
 									<td class="right">{{entry.num_plan |intcomma}}</td>
 									<td class="right">
 										{{entry.border_profit_determination |yen |safe}}
-										({{entry.border_profit_determination_percent}}%)
+										({{entry.border_profit_determination_percent |pct |safe}})
 									</td>
 									<td class="right">
 										{{entry.border_loss_cut |yen |safe}}
-										({{entry.border_loss_cut_percent}}%)
+										({{entry.border_loss_cut_percent |pct |safe}})
 									</td>
 									<td>{{entry.memo |linebreaksbr}}</td>
 								</tr>

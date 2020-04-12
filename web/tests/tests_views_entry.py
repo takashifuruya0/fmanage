@@ -57,6 +57,7 @@ class ModelTest(TestCase):
             'memo': "A",
             "is_plan": True,
             "num_plan": 0,
+            "entry_type": "中期",
         }
         response = self.client.post(url, data=data)
         self.e = Entry.objects.get(pk=self.e.pk)
@@ -80,6 +81,7 @@ class ModelTest(TestCase):
             'memo': "A",
             "is_plan": True,
             "num_plan": 0,
+            "entry_type": "中期",
         }
         response = self.client.post(url, data=data)
         self.e = Entry.objects.last()

@@ -16,7 +16,8 @@ def yen(val, digit=0):
         return "<font color='red'>-¥{:,}</font>".format(round(-val, digit))
 
 
-def percent(val, digit=2):
+@register.filter
+def pct(val, digit=2):
     if not val:
         return "-"
     elif val >= 0:
