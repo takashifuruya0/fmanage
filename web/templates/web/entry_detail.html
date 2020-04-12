@@ -34,7 +34,7 @@
 					<th>Entry Type</th>
 					<td>{{entry.entry_type}}</td>
 					<th>Status</th>
-					<td>{{entry.status}}</td>
+					<td>{{entry.status |default:"-"}}</td>
 				</tr>
 				<tr>
 					<th>Open Date</th>

@@ -151,7 +151,7 @@ def entrystatus():
         {
             "status": "②急騰",
             "definition": "短期間で売り抜ける",
-            "min_profit_percent": None,
+            "min_profit_percent": 5,
             "max_holding_period": 13,
             "is_within_week": False,
             "is_within_holding_period": True,
@@ -167,7 +167,7 @@ def entrystatus():
         {
             "status": "④上昇トレンド乗り",
             "definition": "トレンドに乗ったことを確認し、利益を上げる。最低限の利益は得たいので、下げたら売ってしまうも良し",
-            "min_profit_percent": 0.05,
+            "min_profit_percent": 5,
             "max_holding_period": 60,
             "is_within_week": False,
             "is_within_holding_period": True,
@@ -175,7 +175,7 @@ def entrystatus():
         {
             "status": "⑤判断中（含み損）",
             "definition": "含み損が出ているが、上昇チャンスに期待し耐えている状態。損切りライン超えと長期化は避ける",
-            "min_profit_percent": None,
+            "min_profit_percent": -10,
             "max_holding_period": 90,
             "is_within_week": False,
             "is_within_holding_period": True,
@@ -191,11 +191,16 @@ def entrystatus():
         {
             "status": "⑦天井探り",
             "definition": "足切りラインを10 % から徐々に上げていきながら、逆指値を設定",
-            "min_profit_percent": 0.10,
+            "min_profit_percent": 10,
             "max_holding_period": 90,
             "is_within_week": False,
             "is_within_holding_period": False,
         },
     ]
-    for d in data:
-        EntryStatus.objects.create(**d)
+    try:
+        for d in data:
+            EntryStatus.objects.create(**d)
+        return True
+    except Exception as e:
+        logger.warning(e)
+        return False
