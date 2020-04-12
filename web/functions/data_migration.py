@@ -136,3 +136,66 @@ def astatus():
         #     AssetStatus.objects.get(date=date.today()).update_status()
     return astatus_list
 
+
+
+def entrystatus():
+    data = [
+        {
+            "status": "①swing",
+            "definition": "",
+            "min_profit_percent": None,
+            "max_holding_period": 5,
+            "is_within_week": True,
+            "is_within_holding_period": True,
+        },
+        {
+            "status": "②急騰",
+            "definition": "短期間で売り抜ける",
+            "min_profit_percent": None,
+            "max_holding_period": 13,
+            "is_within_week": False,
+            "is_within_holding_period": True,
+        },
+        {
+            "status": "③売り逃げ判断",
+            "definition": "今後大きな利益が出るかを見極め。利益が出ている間に売り逃げる手も有り",
+            "min_profit_percent": None,
+            "max_holding_period": 30,
+            "is_within_week": False,
+            "is_within_holding_period": True,
+        },
+        {
+            "status": "④上昇トレンド乗り",
+            "definition": "トレンドに乗ったことを確認し、利益を上げる。最低限の利益は得たいので、下げたら売ってしまうも良し",
+            "min_profit_percent": 0.05,
+            "max_holding_period": 60,
+            "is_within_week": False,
+            "is_within_holding_period": True,
+        },
+        {
+            "status": "⑤判断中（含み損）",
+            "definition": "含み損が出ているが、上昇チャンスに期待し耐えている状態。損切りライン超えと長期化は避ける",
+            "min_profit_percent": None,
+            "max_holding_period": 90,
+            "is_within_week": False,
+            "is_within_holding_period": True,
+        },
+        {
+            "status": "⑥判断中（含み益）",
+            "definition": "一度下がったが含み益が出始めた状態。天井探りができそうな勢いを持つ以外は、長期化を避ける",
+            "min_profit_percent": None,
+            "max_holding_period": 90,
+            "is_within_week": False,
+            "is_within_holding_period": True,
+        },
+        {
+            "status": "⑦天井探り",
+            "definition": "足切りラインを10 % から徐々に上げていきながら、逆指値を設定",
+            "min_profit_percent": 0.10,
+            "max_holding_period": 90,
+            "is_within_week": False,
+            "is_within_holding_period": False,
+        },
+    ]
+    for d in data:
+        EntryStatus.objects.create(**d)

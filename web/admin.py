@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Stock, StockFinancialData, AssetStatus
 from .models import StockValueData, Order, Entry, ReasonWinLoss
-from .models import SBIAlert
+from .models import SBIAlert, EntryStatus
 
 
 # Register your models here.
@@ -93,6 +93,13 @@ class SBIAlertAdmin(admin.ModelAdmin):
     ]
 
 
+class EntryStatusAdmin(admin.ModelAdmin):
+    list_display = [
+        "status", "min_profit_percent", "max_holding_period",
+        "is_within_week", "is_within_holding_period",
+    ]
+
+
 admin.site.register(Stock, StockAdmin)
 admin.site.register(AssetStatus, AssetStatusAdmin)
 admin.site.register(Order, OrderAdmin)
@@ -101,3 +108,4 @@ admin.site.register(Entry, EntryAdmin)
 admin.site.register(StockFinancialData, StockFinancialDataAdmin)
 admin.site.register(ReasonWinLoss, ReasonWinLossAdmin)
 admin.site.register(SBIAlert, SBIAlertAdmin)
+admin.site.register(EntryStatus, EntryStatusAdmin)

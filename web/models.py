@@ -63,7 +63,24 @@ class ReasonWinLoss(models.Model):
         return "{}{}".format(header, self.reason)
 
 
+class EntryStatus(models.Model):
+    objects = None
+    status = models.CharField(max_length=20)
+    definition = models.CharField(max_length=100)
+    min_profit_percent = models.FloatField(help_text="足切り利益率", blank=True, null=True)
+    max_holding_period = models.IntegerField(help_text="最大保有期間", blank=True, null=True)
+    is_within_week = models.BooleanField(help_text="週跨ぎしないEntry")
+    is_within_holding_period = models.BooleanField(default=True, help_text="保有期間超えを許容しない")
+
+    def __str__(self):
+        return self.status
+
+
 class Entry(models.Model):
+    CHOICES_ENTRY_TYPE = (
+        ("短期", "短期"), ("中期", "中期"), ("長期", "長期"),
+    )
+
     objects = None
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="ユーザ")
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="銘柄")
@@ -78,6 +95,8 @@ class Entry(models.Model):
     num_plan = models.IntegerField(default=0, help_text="予定口数", verbose_name="予定口数")
     val_plan = models.FloatField(blank=True, null=True, help_text="予定Entry株価", verbose_name="予定Entry株価")
     is_in_order = models.BooleanField(default=False, help_text="NAMSから注文中か？", verbose_name="注文中")
+    entry_type = models.CharField(choices=CHOICES_ENTRY_TYPE, max_length=10, verbose_name="Entry種別", default="中期")
+    status = models.ForeignKey(EntryStatus, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return "E{:0>3}_{}".format(self.pk, self.stock)

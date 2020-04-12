@@ -22,6 +22,8 @@ class EntryForm(forms.ModelForm):
             'reason_win_loss',
             'memo',
             "is_plan",
+            "entry_type",
+            "status",
         ]
 
     def __init__(self, *args, **kwargs):

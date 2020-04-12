@@ -31,6 +31,12 @@
 					<td>{{entry.stock.market |default:"-"}} / {{entry.stock.industry |default:"-"}} </td>
 				</tr>
 				<tr>
+					<th>Entry Type</th>
+					<td>{{entry.entry_type}}</td>
+					<th>Status</th>
+					<td>{{entry.status}}</td>
+				</tr>
+				<tr>
 					<th>Open Date</th>
 					<td>{{entry.date_open |default_if_none:"-"}}</td>
 					<th>Close Date</th>
@@ -81,12 +87,6 @@
 					</td>
 				</tr>
 				<tr>
-					<th>予定口数</th>
-					<td>{{entry.num_plan |intcomma |default:"-"}}</td>
-					<th>Reason</th>
-					<td>{{entry.reason_win_loss |default_if_none:"-"}}</td>
-				</tr>
-				<tr>
 					<th>Memo</th>
 					<td colspan="3">{{entry.memo |default:"-" |linebreaksbr}}</td>
 				</tr>
@@ -104,7 +104,11 @@
 			</a>
 		</div>
 		<div class="col-12 col-md-3">
+			{% if entry.is_closed %}
+			<h5><i class="fas fa-tachometer-alt"></i> Result</h5>
+			{% else %}
 			<h5><i class="fas fa-tachometer-alt"></i> Current Status</h5>
+			{% endif %}
 			<table class="table">
 				{% include 'web/part/finance_type.html' %}
 				{% if entry.is_closed %}
@@ -133,6 +137,10 @@
 				<tr>
 					<th>利益（％）</th>
 					<td class="right"> {% widthratio entry.profit entry.total_buy 100.0 %}%</td>
+				</tr>
+				<tr>
+					<th>Reason</th>
+					<td>{{entry.reason_win_loss |default_if_none:"-"}}</td>
 				</tr>
 				{% elif entry.is_plan %}
 				<tr>
