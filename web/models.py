@@ -3,7 +3,7 @@ from datetime import date, datetime
 from django.contrib.auth.models import User
 from django.db.models import Sum, Avg
 from web.functions import mylib_scraping
-# from django.utils import timezone
+from django.utils import timezone
 import logging
 logger = logging.getLogger('django')
 
@@ -223,6 +223,14 @@ class Entry(models.Model):
             return round(self.border_profit_determination / val * 100 - 100, 2)
         else:
             return None
+
+    def holding_period(self):
+        """保有期間。Planの場合はNoneを返す"""
+        if self.is_plan:
+            return None
+        else:
+            days = ((self.date_close() if self.is_closed else datetime.now(timezone.utc)) - self.date_open()).days
+            return days
 
     def save(self, *args, **kwargs):
         if self.order_set.exists():
