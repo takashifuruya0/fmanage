@@ -131,6 +131,10 @@
 					<td class="right"> {% widthratio entry.profit entry.total_buy 100.0 %}%</td>
 				</tr>
 				<tr>
+					<th>保有期間</th>
+					<td class="right">{{entry.holding_period}}日間</td>
+				</tr>
+				<tr>
 					<th>Reason</th>
 					<td>{{entry.reason_win_loss |default_if_none:"-"}}</td>
 				</tr>
@@ -188,6 +192,10 @@
 				<tr>
 					<th>現在利益（％）</th>
 					<td class="right">{% widthratio overview.val entry.val_buy 100.0 %}%</td>
+				</tr>
+				<tr>
+					<th>保有期間</th>
+					<td class="right">{{entry.holding_period |intcomma}}日間</td>
 				</tr>
 				{% endif %}
 			</table>
