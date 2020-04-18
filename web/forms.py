@@ -31,12 +31,19 @@ class EntryForm(forms.ModelForm):
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
         instance = kwargs.get("instance")
-        if not instance.is_plan:
-            self.fields['stock'].disabled = True
-            self.fields['is_plan'].disabled = True
-        if instance.entry_type:
-            self.fields['status'].queryset = EntryStatus.objects.filter(entry_type=instance.entry_type)
-            self.fields['entry_type'].disabled = True
+        if instance:
+            if not instance.is_closed:
+                self.fields.pop("reason_win_loss")
+                self.fields.pop("is_plan")
+            elif not instance.is_plan:
+                self.fields['stock'].disabled = True
+                self.fields['is_plan'].disabled = True
+            if instance.entry_type:
+                self.fields['status'].queryset = EntryStatus.objects.filter(entry_type=instance.entry_type)
+                self.fields['entry_type'].disabled = True
+        else:
+            for d in ("reason_win_loss", "status",):
+                self.fields.pop(d)
 
 
 class OrderForm(forms.ModelForm):
