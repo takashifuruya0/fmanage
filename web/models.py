@@ -7,6 +7,10 @@ from django.utils import timezone
 import logging
 logger = logging.getLogger('django')
 
+CHOICES_ENTRY_TYPE = (
+    ("短期", "短期"), ("中期", "中期"), ("長期", "長期"),
+)
+
 
 class Stock(models.Model):
     objects = None
@@ -66,6 +70,10 @@ class ReasonWinLoss(models.Model):
 class EntryStatus(models.Model):
     objects = None
     status = models.CharField(max_length=20)
+    entry_type = models.CharField(
+        choices=CHOICES_ENTRY_TYPE, max_length=10, verbose_name="Entry種別",
+        null=True, blank=True
+    )
     definition = models.CharField(max_length=100)
     min_profit_percent = models.FloatField(help_text="足切り利益率", blank=True, null=True)
     max_holding_period = models.IntegerField(help_text="最大保有期間", blank=True, null=True)
@@ -77,10 +85,6 @@ class EntryStatus(models.Model):
 
 
 class Entry(models.Model):
-    CHOICES_ENTRY_TYPE = (
-        ("短期", "短期"), ("中期", "中期"), ("長期", "長期"),
-    )
-
     objects = None
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="ユーザ")
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="銘柄")
@@ -230,7 +234,7 @@ class Entry(models.Model):
             return None
         else:
             days = ((self.date_close() if self.is_closed else datetime.now(timezone.utc)) - self.date_open()).days
-            return days
+            return days + 1
 
     def save(self, *args, **kwargs):
         if self.order_set.exists():

@@ -1,5 +1,5 @@
 from django import forms
-from web.models import Entry, Order, Stock, SBIAlert
+from web.models import Entry, Order, Stock, SBIAlert, EntryStatus
 
 
 class EntryForm(forms.ModelForm):
@@ -9,12 +9,16 @@ class EntryForm(forms.ModelForm):
     指定するだけで HTML フォームを作ってくれる。
     """
     is_plan = forms.BooleanField(initial=True, required=False, label="EntryPlan")
+    status = forms.ModelChoiceField(
+        queryset=EntryStatus.objects.all(), label='ステータス'
+    )
 
     class Meta:
         model = Entry
         fields = [
             "user",
             "stock",
+            "entry_type",
             "border_profit_determination",
             'border_loss_cut',
             "num_plan",
@@ -22,7 +26,6 @@ class EntryForm(forms.ModelForm):
             'reason_win_loss',
             'memo',
             "is_plan",
-            "entry_type",
             "status",
         ]
 
