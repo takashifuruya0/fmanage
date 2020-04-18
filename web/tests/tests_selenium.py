@@ -19,5 +19,5 @@ class SeleniumTest(TestCase):
         self.driver.close()
 
     def test_start_selenium(self):
-        self.driver.get("https://www.yahoo.co.jp/")
+        self.driver.get("https://dot-blog.jp/news/django-readonly-disabled-field/")
         self.assertIsNotNone(self.driver.title)
