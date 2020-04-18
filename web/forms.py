@@ -9,14 +9,10 @@ class EntryForm(forms.ModelForm):
     指定するだけで HTML フォームを作ってくれる。
     """
     is_plan = forms.BooleanField(initial=True, required=False, label="EntryPlan")
-    status = forms.ModelChoiceField(
-        queryset=EntryStatus.objects.all(), label='ステータス'
-    )
 
     class Meta:
         model = Entry
         fields = [
-            "user",
             "stock",
             "entry_type",
             "border_profit_determination",
@@ -27,12 +23,20 @@ class EntryForm(forms.ModelForm):
             'memo',
             "is_plan",
             "status",
+            "user",
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+        instance = kwargs.get("instance")
+        if not instance.is_plan:
+            self.fields['stock'].disabled = True
+            self.fields['is_plan'].disabled = True
+        if instance.entry_type:
+            self.fields['status'].queryset = EntryStatus.objects.filter(entry_type=instance.entry_type)
+            self.fields['entry_type'].disabled = True
 
 
 class OrderForm(forms.ModelForm):
