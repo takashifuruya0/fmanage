@@ -11,7 +11,7 @@
 		<div class="col-12">
 			<h4>
 				<i class="fas fa-paw"></i> Entry Detail
-				{% include 'web/part/entry_type.html' %}
+				{% include 'web/part/entry_close_status.html' %}
 			</h4>
 		</div>
 	</div>
@@ -32,7 +32,7 @@
 				</tr>
 				<tr>
 					<th>Entry Type</th>
-					<td>{{entry.entry_type}}</td>
+					<td>{%include 'web/part/entry_type.html'%}</td>
 					<th>Status</th>
 					<td>{{entry.status |default:"-"}}</td>
 				</tr>
@@ -88,9 +88,11 @@
 			<a class="btn btn-outline-info" href="{%url 'web:entry_edit' pk=entry.pk%}">
 				<i class="fas fa-edit"></i> Edit
 			</a>
+			{% if entry.is_plan %}
 			<a class="btn btn-outline-danger" href="{%url 'web:entry_delete' pk=entry.pk%}">
 				<i class="fas fa-trash-alt"></i> Delete
 			</a>
+			{% endif %}
 			<a class="btn btn-outline-secondary" href="{%url 'web:entry_list' %}">
 				<i class="fas fa-backward"></i> Back
 			</a>
@@ -128,7 +130,8 @@
 				</tr>
 				<tr>
 					<th>利益（％）</th>
-					<td class="right"> {% widthratio entry.profit entry.total_buy 100.0 %}%</td>
+<!--					<td class="right"> {% widthratio entry.profit entry.total_buy 100.0 %}%</td>-->
+					<td class="right"> {{entry.profit_pct |pct |safe}}</td>
 				</tr>
 				<tr>
 					<th>保有期間</th>

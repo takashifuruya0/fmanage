@@ -1,25 +1,14 @@
-{%if entry.is_nisa%}
+{% if entry.entry_type == '長期' %}
+<label class="badge badge-primary">
+   <i class="fas fa-chevron-circle-right"></i> 長期
+</label>
+{% elif entry.entry_type == '中期' %}
 <label class="badge badge-info">
-  NISA
+  <i class="fas fa-dot-circle"></i> 中期
+</label>
+{% elif entry.entry_type == '短期' %}
+<label class="badge badge-danger">
+  <i class="fas fa-exclamation-circle"></i> 短期
 </label>
 {%endif%}
 
-{%if entry.is_closed %}
-  {%if entry.profit > 0 %}
-  <label class="badge badge-success">
-    <i class="fas fa-thumbs-up"></i> Closed Won
-  </label>
-  {%else%}
-  <label class="badge badge-danger">
-    <i class="fas fa-thumbs-down"></i> Closed Lost
-  </label>
-  {%endif%}
-{%elif not entry.is_plan%}
-<label class="badge badge-primary">
-  <i class="fas fa-spa"></i> Open
-</label>
-{%else%}
-<label class="badge badge-warning">
-  <i class="fas fa-seedling"></i> Plan
-</label>
-{%endif%}

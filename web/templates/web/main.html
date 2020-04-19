@@ -80,8 +80,10 @@
 									<tr>
 										<th></th>
 										<th>銘柄</th>
+										<th>タイプ</th>
 										<th>利益</th>
 										<th>口数</th>
+										<th>保有期間</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -92,12 +94,14 @@
 											<i class="fas fa-info-circle"></i>
 										</a>
 									</td>
-									<td>{{entry.stock}}</td>
+									<td>{{entry.stock |truncatechars:30}}</td>
+									<td>{%include 'web/part/entry_type.html'%}/{{entry.status |default:'-'}}</td>
 									<td class="right">
 										{{entry.profit |yen |safe}}
-										({{entry.profit_pct |pct |safe}})
+										<br>({{entry.profit_pct |pct |safe}})
 									</td>
 									<td class="right">{{entry.remaining |intcomma}}</td>
+									<td class="right">{{entry.holding_period |intcomma}}日</td>
 								</tr>
 								{% endfor %}
 								</tbody>
@@ -113,6 +117,7 @@
 									<tr>
 										<th></th>
 										<th>銘柄</th>
+										<th>タイプ</th>
 										<th>口数</th>
 										<th>利確</th>
 										<th>損切</th>
@@ -127,15 +132,16 @@
 											<i class="fas fa-info-circle"></i>
 										</a>
 									</td>
-									<td>{{entry.stock}}</td>
+									<td>{{entry.stock |truncatechars:30}}</td>
+									<td>{%include 'web/part/entry_type.html'%}</td>
 									<td class="right">{{entry.num_plan |intcomma}}</td>
 									<td class="right">
 										{{entry.border_profit_determination |yen |safe}}
-										({{entry.border_profit_determination_percent |pct |safe}})
+										<br>({{entry.border_profit_determination_percent |pct |safe}})
 									</td>
 									<td class="right">
 										{{entry.border_loss_cut |yen |safe}}
-										({{entry.border_loss_cut_percent |pct |safe}})
+										<br>({{entry.border_loss_cut_percent |pct |safe}})
 									</td>
 									<td>{{entry.memo |linebreaksbr}}</td>
 								</tr>
@@ -192,7 +198,7 @@
 				        <td>{{entry.stock}}</td>
 					      <td>
 						      <h5>
-						      {% include 'web/part/entry_type.html' %}
+						      {% include 'web/part/entry_close_status.html' %}
 						      </h5>
 					      </td>
 					      <td>{{entry.date_open |default_if_none:"-"}}</td>

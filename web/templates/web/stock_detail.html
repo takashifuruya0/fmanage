@@ -44,7 +44,11 @@
 				</tr>
 				<tr>
 					<th>Current Val</th>
-					<td>¥ {{current_val |default:"-" |intcomma}}</td>
+					<td>{{current_val |yen}}</td>
+				</tr>
+				<tr>
+					<th>Latest Val</th>
+					<td>{{stock.latest_val |yen}} ({{stock.latest_val_date}})</td>
 				</tr>
 			</table>
 		</div>
@@ -53,6 +57,7 @@
 			<table class="table">
 				<tr>
 					<th>No</th>
+					<th>Type</th>
 					<th>Status</th>
 					<th>Open</th>
 					<th>Close</th>
@@ -68,9 +73,12 @@
 					<td>
 						{% include 'web/part/entry_type.html' %}
 					</td>
+					<td>
+						{% include 'web/part/entry_close_status.html' %}
+					</td>
 					<td>{{entry.date_open |date}}</td>
 					<td>{{entry.date_close |date}}</td>
-					<td>{{entry.profit |yen |safe}}</td>
+					<td class="right">{{entry.profit |yen |safe}}</td>
 				</tr>
 				{% endfor %}
 			</table>

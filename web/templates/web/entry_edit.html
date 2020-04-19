@@ -31,6 +31,7 @@
 				<tr>
 					<th>買付口数</th>
 					<th>買付平均</th>
+					<th>現在株価</th>
 					<th>売付口数</th>
 					<th>売付平均</th>
 				</tr>
@@ -38,23 +39,30 @@
 					<td>{{entry.num_buy |intcomma}}</td>
 					<td>
 						{% if entry.stock.is_trust %}
-						¥{{entry.val_buy |floatformat:4 |intcomma}}
+						{{entry.val_buy |yen:4}}
 						{% else %}
-						¥{{entry.val_buy |intcomma}}
+						{{entry.val_buy |yen}}
 						{% endif %}
 					</td>
+					<td>{{entry.stock.current_val |yen:4}}</td>
 					<td>{{entry.num_sell |intcomma}}</td>
-					<td>¥{{entry.val_sell |intcomma}}</td>
+					<td>
+						{% if entry.stock.is_trust %}
+						{{entry.val_sell |yen:4}}
+						{% else %}
+						{{entry.val_sell |yen}}
+						{% endif %}
+					</td>
 				</tr>
 			</table>
 			<hr>
 			<h5>
 				Entry Overview
-				{% include 'web/part/entry_type.html' %}
+				{% include 'web/part/entry_close_status.html' %}
 			</h5>
 			<table class="table">
 				<tr>
-					<th>Stock</th>
+					<th>銘柄</th>
 					<td>{{entry.stock}}</td>
 				</tr>
 				<tr>
@@ -66,12 +74,16 @@
 					<td>{{entry.date_close |default_if_none:"-"}}</td>
 				</tr>
 				<tr>
-					<th>Remaining</th>
+					<th>保有口数</th>
 					<td>{{entry.remaining |intcomma}}</td>
 				</tr>
 				<tr>
-					<th>Profit</th>
+					<th>利益</th>
 					<td>{{entry.profit |yen |safe}}</td>
+				</tr>
+				<tr>
+					<th>保有期間</th>
+					<td>{{entry.holding_period}}日</td>
 				</tr>
 			</table>
 		</div>
