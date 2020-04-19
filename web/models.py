@@ -32,6 +32,10 @@ class Stock(models.Model):
         svd = StockValueData.objects.filter(stock=self).latest('date')
         return svd.val_close if svd else None
 
+    def latest_val_date(self):
+        svd = StockValueData.objects.filter(stock=self).latest('date')
+        return svd.date if svd else None
+
     def save(self, *args, **kwargs):
         data = mylib_scraping.yf_detail(self.code)
         if data['status']:
