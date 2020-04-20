@@ -24,7 +24,9 @@ def post_open_entries(is_excluding_plan=True):
     url = settings.URL_SLACK_NAMS
     headers = {'Content-Type': 'application/json'}
     # entries
-    entries = Entry.objects.filter(is_closed=False, stock__is_trust=False).exclude(is_plan=is_excluding_plan)
+    entries = Entry.objects.filter(is_closed=False, stock__is_trust=False)
+    if is_excluding_plan:
+        entries.exclude(is_plan=True)
     for e in entries:
         try:
             json_data = json.dumps(param_entry(e))
