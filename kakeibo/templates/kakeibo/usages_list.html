@@ -37,6 +37,10 @@
             <!--{% endfor %}-->
         <!--</tbody>-->
     <!--</table>-->
+    <form method="GET">
+      <input type="text" name="search" placeholder="search">
+      <button class="submit">Search</button>
+    </form>
     <div class="row">
         {% for usage in object_list %}
         {% with res=usage.get_kakeibos_2 %}

@@ -152,6 +152,10 @@ class UsageList(PaginationMixin, ListView):
 
     def get_queryset(self):
         queryset = Usages.objects.all()  # Default: Model.objects.all()
+        if "search" in self.request.GET:
+            queryset = queryset.filter(
+                Q(name__icontains=self.request.GET['search'])
+            )
         return queryset
 
     def post(self, request, *args, **kwargs):
