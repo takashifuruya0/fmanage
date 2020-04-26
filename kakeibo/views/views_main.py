@@ -102,7 +102,7 @@ def dashboard(request):
                         )
                     else:
                         Kakeibos.objects.create(
-                            date=today,
+                            date=debit_date,
                             fee=line[5],
                             way="引き落とし",
                             usage=Usages.objects.get(name="クレジット（個人）"),
