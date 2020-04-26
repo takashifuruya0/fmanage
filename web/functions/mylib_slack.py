@@ -62,8 +62,8 @@ def param_entry(e):
         "text": "https://www.fk-management.com{}".format(reverse('web:entry_detail', kwargs={'pk': e.pk})),
         "fields": [
             {
-                "title": "Open Date",
-                "value": str(date_open) if date_open else "Not Yet",
+                "title": "予定株価" if e.is_plan else "Open Date",
+                "value": "¥{:,}".format(e.val_plan) if e.is_plan else str(date_open),
                 "short": True,
             },
             {
@@ -72,7 +72,7 @@ def param_entry(e):
                 "short": True,
             },
             {
-                "title": "現在価格",
+                "title": "現在株価",
                 "value": "¥{:,}".format(current_val),
                 "short": True,
             },
