@@ -19,24 +19,6 @@
     </div>
     <hr>
 
-    <!--<table class="table table-light table-hover table-sm table-bordered table-responsive-md">-->
-        <!--<thead>-->
-            <!--<tr>-->
-                <!--<th class="right">ID</th>-->
-                <!--<th class="lett">Name</th>-->
-                <!--<th class="left">Is expense</th>-->
-            <!--</tr>-->
-        <!--</thead>-->
-        <!--<tbody>-->
-            <!--{% for usage in object_list %}-->
-            <!--<tr>-->
-                <!--<td class="right"><a href="{% url 'kakeibo:usage_detail' pk=usage.pk %}">{{usage.pk}}</a></td>-->
-                <!--<td class="left">{{usage.name}}</td>-->
-                <!--<td class="left">{{usage.is_expense}}</td>-->
-            <!--</tr>-->
-            <!--{% endfor %}-->
-        <!--</tbody>-->
-    <!--</table>-->
     <form method="GET">
       <input type="text" name="search" placeholder="search">
       <button class="submit">Search</button>
@@ -47,7 +29,7 @@
         <div class="col-sm-6 col-md-4 col-lg-3">
             <div class="card">
                 <div class="card-header">
-                    <strong>{{usage.name}}</strong>
+                    <strong>{{usage.icon |default:"" |safe}} {{usage.name}}</strong>
                 </div>
                 <div class="card-body">
                     <table class="table table-light table-sm table-hover">

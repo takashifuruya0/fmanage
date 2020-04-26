@@ -12,9 +12,9 @@ class KakeiboForm(forms.ModelForm):
     choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "支出（Suica）", "引き落とし", "収入", "振替", "その他"])
     way = forms.TypedChoiceField(choices=choices)
     way.widget.attrs['onchange'] = 'fill_resource()'
-    tag_copy_to_shared = forms.BooleanField(required=False)
+    tag_copy_to_shared = forms.BooleanField(required=False, label="共通へコピー")
     usage = forms.ModelChoiceField(
-        queryset=Usages.objects.filter(is_active=True).order_by('is_expense'),
+        queryset=Usages.objects.filter(is_active=True).order_by('is_expense', "pk"),
         required=False
     )
 
@@ -22,7 +22,7 @@ class KakeiboForm(forms.ModelForm):
         model = Kakeibos
         fields = [
             'date', 'fee', 'way', 'usage', 'move_from', 'move_to', 'memo',
-            'event', "tag_copy_to_shared", "is_active"
+            'event', "tag_copy_to_shared", 
         ]
 
     def __init__(self, *args, **kwargs):
