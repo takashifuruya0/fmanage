@@ -79,6 +79,7 @@ class Usages(BaseModel):
     memo = models.CharField(max_length=50, blank=True, null=True)
     color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+    icon = models.CharField(max_length=50, null=True, blank=True, help_text="FontAwesomeのHTMLタグ")
 
     def get_kakeibos_2(self):
         today = date.today()
@@ -199,14 +200,18 @@ class Usages(BaseModel):
             .annotate(sum=Sum('fee'), avg=Avg('fee'), count=Count('fee'))
         return shift
 
+    def __str__(self):
+        return self.name
+
 
 class Resources(BaseModel):
     # objects = None
     initial_val = models.IntegerField(null=False, blank=False)
     color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
-    is_saving = models.BooleanField(default=False)
-    is_visible = models.BooleanField(default=True)
-    is_active = models.BooleanField(default=True)
+    is_saving = models.BooleanField(default=False, help_text="投資を除く貯金用口座")
+    is_visible = models.BooleanField(default=True, help_text="DataStudioで可視化")
+    is_active = models.BooleanField(default=True, help_text="Active")
+    is_investment = models.BooleanField(default=False, help_text="投資用口座")
 
     def current_val(self):
         if self.name == "投資口座":
@@ -486,3 +491,17 @@ class Budget(models.Model):
 
     def total(self):
         return self.takashi + self.hoko
+
+
+class Target(models.Model):
+    CHOICES_TYPE = (
+        ("総資産目標", "総資産目標"), ("投資目標", "投資目標"),
+    )
+    objects = None
+    date = models.DateField()
+    val = models.IntegerField()
+    type = models.CharField(choices=CHOICES_TYPE, max_length=20)
+    memo = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return "{}年{}月_{}".format(self.date.year, self.date.month, self.type)

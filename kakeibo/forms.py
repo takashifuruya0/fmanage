@@ -22,7 +22,7 @@ class KakeiboForm(forms.ModelForm):
         model = Kakeibos
         fields = [
             'date', 'fee', 'way', 'usage', 'move_from', 'move_to', 'memo',
-            'event', "tag_copy_to_shared", 
+            'event', "tag_copy_to_shared",
         ]
 
     def __init__(self, *args, **kwargs):
