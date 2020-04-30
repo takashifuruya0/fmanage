@@ -152,17 +152,16 @@ def yf_detail(code):
                 dd.text.replace(",", "").replace("\n", "").replace("(連) ", "").replace("(単) ", "")
                 for dd in chartfinance.findAll('strong')
             ]
-            # hloct
+            # current val and hloct
             detail = soup.find('div', {"class": "innerDate"})
             strongs = detail.findAll('strong')
+            val = stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", "")
+            data['val'] = float(strongs[0].text.replace(',', '')) if val == "---" else val
             data['val_close'] = data['val']
             data['val_open'] = float(strongs[1].text.replace(',', ''))
             data['val_high'] = float(strongs[2].text.replace(',', ''))
             data['val_low'] = float(strongs[3].text.replace(',', ''))
             data['turnover'] = float(strongs[4].text.replace(',', ''))
-            # current val
-            val = stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", "")
-            data['val'] = data['val_close'] if val == "---" else float(val)
             # タイトルの取得
             dts = chartfinance.findAll('dt')
             keys = list()
