@@ -1,6 +1,58 @@
-<button class="btn btn-block btn-warning" id="ajax_buy_order">
+<!--<button class="btn btn-block btn-warning" id="ajax_buy_order">-->
+<!--  <i class="far fa-check-circle"></i> Buy Order-->
+<!--</button>-->
+{% load humanize %}
+{% load web_template %}
+
+<button class="btn btn-block btn-warning" data-toggle="modal" data-target="#confirm_buy_order">
   <i class="far fa-check-circle"></i> Buy Order
 </button>
+<!--modal-->
+<div class="modal fade" id="confirm_buy_order" tabindex="-1" role="dialog" aria-labelledby="confirm_buy_order" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title" id="new_record_Label">
+          <i class="far fa-check-circle"></i> Buy Order
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        本当に注文しますか？
+        <table class="table">
+          <tr>
+            <th>銘柄</th>
+            <td>{{entry.stock.name}}</td>
+          </tr>
+          <tr>
+            <th>予定口数</th>
+            <td>{{entry.num_plan |intcomma}}</td>
+          </tr>
+          <tr>
+            <th>予定株価</th>
+            <td>{{entry.val_plan |yen}}</td>
+          </tr>
+          <tr>
+            <th>現在株価</th>
+            <td>{{entry.stock.current_val |yen}}</td>
+          </tr>
+          <tr>
+            <th>メモ</th>
+            <td>{{entry.memo |linebreaksbr}}</td>
+          </tr>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button id="ajax_buy_order" class="btn btn-primary" value="confirm_buy_order">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style type="text/css">
 .hide_buy_order {
   display: none;
