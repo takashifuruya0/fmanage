@@ -31,10 +31,42 @@ class ModelTest(TestCase):
             entry=None,
             chart=None,
         )
+        self.so = Order.objects.create(
+            user=self.u,
+            stock=self.s,
+            datetime=datetime.now(),
+            is_nisa=False,
+            is_buy=False,
+            is_simulated=False,
+            num=100,
+            val=1000,
+            commission=250,
+            entry=None,
+            chart=None,
+        )
         self.r = ReasonWinLoss.objects.create(reason="OK", is_win=True)
         self.e = Entry.objects.create(user=self.u, stock=self.s, is_plan=True, memo="TEST")
 
     def test_entry_detail(self):
+        # 有効なPlan
+        response = self.client.get(reverse('web:entry_detail', kwargs={"pk": self.e.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('web/entry_detail.html')
+        # 無効なPlan
+        self.e.is_closed = True
+        self.e.save()
+        response = self.client.get(reverse('web:entry_detail', kwargs={"pk": self.e.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('web/entry_detail.html')
+        # 取引中
+        self.o.entry = self.e
+        self.o.save()
+        response = self.client.get(reverse('web:entry_detail', kwargs={"pk": self.e.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('web/entry_detail.html')
+        # 取引終了
+        self.so.entry = self.e
+        self.so.save()
         response = self.client.get(reverse('web:entry_detail', kwargs={"pk": self.e.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed('web/entry_detail.html')

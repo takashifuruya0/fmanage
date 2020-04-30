@@ -5,7 +5,11 @@
 {%endif%}
 
 {%if entry.is_closed %}
-  {%if entry.profit > 0 %}
+  {%if entry.is_plan %}
+  <label class="badge badge-secondary">
+    <i class="fas fa-cannabis"></i> Inactive Plan
+  </label>
+  {%elif entry.profit > 0 %}
   <label class="badge badge-success">
     <i class="fas fa-thumbs-up"></i> Closed Won
   </label>
