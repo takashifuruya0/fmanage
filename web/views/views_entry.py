@@ -139,7 +139,7 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         orders_unlinked = Order.objects.filter(entry=None, stock=entry.stock).order_by('datetime')
         orders_linked = entry.order_set.all().order_by('datetime')
         edo = entry.date_open().date() if orders_linked.exists() else date.today()
-        edc = entry.date_close().date() if entry.is_closed else date.today()
+        edc = entry.date_close().date() if entry.is_closed and not entry.is_plan else date.today()
         # sbialert
         sbialerts = SBIAlert.objects.filter(stock=entry.stock, is_active=True)
         sbialert_form = SBIAlertForm(initial={"stock": entry.stock})
