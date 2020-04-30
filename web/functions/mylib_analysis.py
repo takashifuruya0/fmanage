@@ -91,6 +91,8 @@ def get_trend(df):
     except Exception as e:
         logger.error("get_trend was failed")
         logger.error(e)
+        logger.error(ma_25)
+        logger.error(ma_75)
         res = {
             "is_upper_25": None,
             "period_25": None,
