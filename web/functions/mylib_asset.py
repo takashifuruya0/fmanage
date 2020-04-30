@@ -184,6 +184,8 @@ def order_process(order, user=None):
             astatus.buying_power = astatus.buying_power - order.num * order.val - order.commission
             # 買付余力以上は買えません
             if astatus.buying_power < 0:
+                logger.error("====== buying_power < 0 ! =====")
+                logger.error("order {}".format(order))
                 logger.error("buying_power " + str(astatus.buying_power))
                 logger.error("order.num " + str(order.num))
                 logger.error("order.val " + str(order.val))
@@ -225,6 +227,9 @@ def order_process(order, user=None):
                 order.save()
                 logger.info("{} is linked to {}".format(order, entry))
             else:
+                logger.error("===== entry.remaining - order.num < 0! =====")
+                logger.error("order {}".format(order))
+                logger.error("entry {}".format(entry))
                 logger.error("entry.remaining " + str(entry.remaining()))
                 logger.error("order.num " + str(order.num))
                 raise ValueError("entry.remaining - order.num < 0!")
