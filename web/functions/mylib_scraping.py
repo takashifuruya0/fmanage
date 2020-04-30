@@ -156,7 +156,7 @@ def yf_detail(code):
             detail = soup.find('div', {"class": "innerDate"})
             strongs = detail.findAll('strong')
             val = stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", "")
-            data['val'] = float(strongs[0].text.replace(',', '')) if val == "---" else val
+            data['val'] = float(strongs[0].text.replace(',', '')) if val == "---" else float(val)
             data['val_close'] = data['val']
             data['val_open'] = float(strongs[1].text.replace(',', ''))
             data['val_high'] = float(strongs[2].text.replace(',', ''))
