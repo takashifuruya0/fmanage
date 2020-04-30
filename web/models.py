@@ -257,7 +257,7 @@ class Entry(models.Model):
                 raise Exception('date_open should be earlier than date_close')
         else:
             self.is_plan = True
-            self.is_closed = False
+            # self.is_closed = False
         super().save(*args, **kwargs)
 
 
