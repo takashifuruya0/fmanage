@@ -56,12 +56,12 @@ class EntryList(LoginRequiredMixin, PaginationMixin, ListView):
 
     def get_queryset(self):
         queryset = Entry.objects.prefetch_related('order_set').select_related().filter(user=self.request.user).order_by('-pk')
-        if self.request.GET.get("is_closed", False):
-            queryset = queryset.filter(is_closed=True)
-        elif self.request.GET.get("is_open", False):
-            queryset = queryset.filter(is_closed=False)
-        elif self.request.GET.get("is_plan", False):
-            queryset = queryset.filter(is_plan=True)
+        if "is_closed" in self.request.GET:
+            is_closed = True if self.request.GET['is_closed'] == "true" else False
+            queryset = queryset.filter(is_closed=is_closed)
+        if "is_plan" in self.request.GET:
+            is_plan = True if self.request.GET['is_plan'] == "true" else False
+            queryset = queryset.filter(is_plan=is_plan)
         return queryset
 
     @transaction.atomic
