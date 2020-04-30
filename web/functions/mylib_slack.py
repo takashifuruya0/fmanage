@@ -26,7 +26,7 @@ def post_open_entries(is_excluding_plan=True):
     # entries
     entries = Entry.objects.filter(is_closed=False, stock__is_trust=False)
     if is_excluding_plan:
-        entries.exclude(is_plan=True)
+        entries = entries.exclude(is_plan=True)
     for e in entries:
         try:
             json_data = json.dumps(param_entry(e))
