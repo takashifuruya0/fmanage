@@ -1,5 +1,6 @@
 from django.views.generic import View
 from django.http import JsonResponse
+from django.contrib import messages
 from web.forms import SBIAlertForm, Entry
 from web.functions import data_migration, mylib_selenium
 from web.models import Order
@@ -81,4 +82,53 @@ class BuyOrder(View):
             return JsonResponse(result, safe=False)
 
 
+@method_decorator(csrf_exempt, name="dispatch")
+class ActivateEntry(View):
+    def post(self, request, *args, **kwargs):
+        result = {
+            "status": False,
+            "msg": None
+        }
+        try:
+            logger.info("===Activate Entry===")
+            logger.info(request.POST)
+            entry_id = request.POST.get("entry", None)
+            entry = Entry.objects.get(pk=entry_id)
+            if not entry.is_plan:
+                raise Exception('The entry is not plan')
+            entry.is_closed = False
+            entry.save()
+            result["status"] = True
+            result["msg"] = "SUCEESS"
+            messages.success(request, "Entry {} は有効化されました".format(entry))
+        except Exception as e:
+            result["msg"] = str(e)
+            logger.error(e)
+        finally:
+            return JsonResponse(result, safe=False)
 
+
+@method_decorator(csrf_exempt, name="dispatch")
+class DeactivateEntry(View):
+    def post(self, request, *args, **kwargs):
+        result = {
+            "status": False,
+            "msg": None
+        }
+        try:
+            logger.info("===Deactivate Entry===")
+            logger.info(request.POST)
+            entry_id = request.POST.get("entry", None)
+            entry = Entry.objects.get(pk=entry_id)
+            if not entry.is_plan:
+                raise Exception('The entry is not plan')
+            entry.is_closed = True
+            entry.save()
+            result["status"] = True
+            result["msg"] = "SUCEESS"
+            messages.success(request, "Entry {} は無効化されました".format(entry))
+        except Exception as e:
+            result["msg"] = str(e)
+            logger.error(e)
+        finally:
+            return JsonResponse(result, safe=False)

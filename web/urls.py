@@ -35,6 +35,8 @@ urlpatterns = [
     path('ajax/get_order/', views_ajax.GetOrder.as_view(), name='ajax_get_order'),
     path('ajax/set_alert/', views_ajax.SetAlert.as_view(), name='ajax_set_alert'),
     path('ajax/buy_order/', views_ajax.BuyOrder.as_view(), name='ajax_buy_order'),
+    path('ajax/activate_entry/', views_ajax.ActivateEntry.as_view(), name='ajax_activate_entry'),
+    path('ajax/deactivate_entry/', views_ajax.DeactivateEntry.as_view(), name='ajax_deactivate_entry'),
 
 ]
 

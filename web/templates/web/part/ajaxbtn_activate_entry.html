@@ -1,0 +1,45 @@
+<button class="btn btn-block btn-primary" id="ajax_activate_entry">
+  <i class="fas fa-toggle-on"></i> Activate
+</button>
+<style type="text/css">
+.hide_activate_entry {
+  display: none;
+}
+.loading_activate_entry {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,.5);
+  background-image: url(/document/loading.gif);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center center;
+  background-size: 150px 150px;
+}
+</style>
+<div class="loading_activate_entry hide_activate_entry"></div>
+
+<script type="text/javascript">
+  $('#ajax_activate_entry').click(function(event){
+    $.ajax({
+      url: "{% url 'web:ajax_activate_entry' %}",
+      method: "POST",
+      data: {'entry': {{entry.pk}}, },
+      timeout: 10000,
+      dataType: "json",
+      beforeSend: function(){
+				$('.loading_activate_entry').removeClass('hide_activate_entry');
+			}
+    })
+    .done( function(d) {
+    	$('.loading_activate_entry').addClass('hide_activate_entry');
+    	if (d['status']==true) {
+        location.reload();
+    	}else{
+				window.alert("Activation was failed")
+			}
+    })
+  });
+</script>

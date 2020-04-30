@@ -24,16 +24,16 @@ class ViewsAjaxTest(TestCase):
         )
         self.e = Entry.objects.create(user=self.u, stock=self.s, is_plan=True, memo="TEST")
 
-    def test_activate_entry(self):
+    def test_deactivate_entry(self):
         """
-        EntryをActivate
+        EntryをDeactivate
         """
         # EntryPlanが1件
         self.assertEqual(1, Entry.objects.filter(is_plan=True, is_closed=False).count())
         self.assertEqual(0, Entry.objects.filter(is_plan=True, is_closed=True).count())
         # URL
-        url = reverse("web:ajax_activate_entry")
-        self.assertEqual(url, "/nams/ajax/activate_entry/")
+        url = reverse("web:ajax_deactivate_entry")
+        self.assertEqual(url, "/nams/ajax/deactivate_entry/")
         # POST
         data = {
             "entry": self.e.pk,  # entryオブジェクト. formではPKが入る
@@ -47,9 +47,9 @@ class ViewsAjaxTest(TestCase):
         self.assertEqual(0, Entry.objects.filter(is_plan=True, is_closed=False).count())
         self.assertEqual(1, Entry.objects.filter(is_plan=True, is_closed=True).count())
 
-    def test_deactivate_entry(self):
+    def test_activate_entry(self):
         """
-        EntryをDeactivate
+        EntryをActivate
         """
         # EntryInactivePlanが1件
         self.e.is_closed = True
@@ -57,8 +57,8 @@ class ViewsAjaxTest(TestCase):
         self.assertEqual(0, Entry.objects.filter(is_plan=True, is_closed=False).count())
         self.assertEqual(1, Entry.objects.filter(is_plan=True, is_closed=True).count())
         # URL
-        url = reverse("web:ajax_deactivate_entry")
-        self.assertEqual(url, "/nams/ajax/deactivate_entry/")
+        url = reverse("web:ajax_activate_entry")
+        self.assertEqual(url, "/nams/ajax/activate_entry/")
         # POST
         data = {
             "entry": self.e.pk,  # entryオブジェクト. formではPKが入る

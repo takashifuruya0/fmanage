@@ -163,13 +163,9 @@
 				<tr>
 					<td colspan="2">
 						{% if entry.is_closed %}
-						<button class="btn btn-block btn-primary">
-							<i class="fas fa-toggle-on"></i> Activate
-						</button>
+						{% include 'web/part/ajaxbtn_activate_entry.html' %}
 						{% else %}
-						<button class="btn btn-block btn-danger">
-							<i class="fas fa-toggle-off"></i> Deactivate
-						</button>
+						{% include 'web/part/ajaxbtn_deactivate_entry.html' %}
 						{% endif %}
 					</td>
 				</tr>

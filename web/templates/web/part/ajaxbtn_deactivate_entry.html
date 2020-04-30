@@ -1,0 +1,45 @@
+<button class="btn btn-block btn-danger" id="ajax_deactivate_entry">
+  <i class="fas fa-toggle-off"></i> Deactivate
+</button>
+<style type="text/css">
+.hide_deactivate_entry {
+  display: none;
+}
+.loading_deactivate_entry {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,.5);
+  background-image: url(/document/loading.gif);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center center;
+  background-size: 150px 150px;
+}
+</style>
+<div class="loading_deactivate_entry hide_deactivate_entry"></div>
+
+<script type="text/javascript">
+  $('#ajax_deactivate_entry').click(function(event){
+    $.ajax({
+      url: "{% url 'web:ajax_deactivate_entry' %}",
+      method: "POST",
+      data: {'entry': {{entry.pk}}, },
+      timeout: 10000,
+      dataType: "json",
+      beforeSend: function(){
+				$('.loading_deactivate_entry').removeClass('hide_deactivate_entry');
+			}
+    })
+    .done( function(d) {
+    	$('.loading_deactivate_entry').addClass('hide_deactivate_entry');
+    	if (d['status']==true) {
+        location.reload();
+    	}else{
+				window.alert("Deactivation was failed")
+			}
+    })
+  });
+</script>
