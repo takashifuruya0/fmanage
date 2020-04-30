@@ -49,20 +49,20 @@ def prepare(svds):
 def get_trend(df):
     try:
         df_reverse = df.sort_values('date', ascending=False)
+        logger.info("len(df_reverse) {}".format(len(df_reverse)))
         ma_25 = df_reverse['ma_25']
         ma_75 = df_reverse['ma_75']
         res = dict()
-        trend_period_25 = 1
-        trend_period_75 = 1
         # 25
-        if ma_25.iloc[0] > ma_25.iloc[1]:
+        trend_period_25 = 1
+        if len(ma_25) > 2 and ma_25.iloc[0] > ma_25.iloc[1]:
             res['is_upper_25'] = True
             for i in range(2, len(df_reverse)):
                 if ma_25.iloc[i-1] > ma_25.iloc[i]:
                     trend_period_25 += 1
                 else:
                     break
-        elif ma_25.iloc[0] < ma_25.iloc[1]:
+        elif len(ma_25) > 2 and ma_25.iloc[0] < ma_25.iloc[1]:
             res['is_upper_25'] = False
             for i in range(2, len(df_reverse)):
                 if ma_25.iloc[i-1] < ma_25.iloc[i]:
@@ -70,14 +70,15 @@ def get_trend(df):
                 else:
                     break
         # 75
-        if ma_75.iloc[0] > ma_75.iloc[1]:
+        trend_period_75 = 1
+        if len(ma_75) > 2 and ma_75.iloc[0] > ma_75.iloc[1]:
             res['is_upper_75'] = True
             for i in range(2, len(df_reverse)):
                 if ma_75.iloc[i-1] > ma_75.iloc[i]:
                     trend_period_75 += 1
                 else:
                     break
-        elif ma_75.iloc[0] < ma_75.iloc[1]:
+        elif len(ma_75) > 2 and ma_75.iloc[0] < ma_75.iloc[1]:
             res['is_upper_75'] = False
             for i in range(2, len(df_reverse)):
                 if ma_75.iloc[i-1] < ma_75.iloc[i]:
@@ -91,8 +92,9 @@ def get_trend(df):
     except Exception as e:
         logger.error("get_trend was failed")
         logger.error(e)
-        logger.error(ma_25)
-        logger.error(ma_75)
+        logger.error("ma_25: {}".format(ma_25))
+        logger.error("ma_75: {}".format(ma_75))
+        logger.error("df_reverse {}".format(df_reverse))
         res = {
             "is_upper_25": None,
             "period_25": None,
