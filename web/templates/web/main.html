@@ -47,7 +47,7 @@
 									</th>
 									<td class="right">
 										{{astatus.get_gp |yen |safe}}
-										<br>({{astatus.get_gpr |default:"-" |intcomma}}%)
+										<br>({{astatus.get_gpr |pct |safe}})
 									</td>
 								</tr>
 								<tr>
@@ -83,7 +83,7 @@
 										<th>タイプ</th>
 										<th>利益</th>
 										<th>口数</th>
-										<th>保有期間</th>
+										<th>期間</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -95,7 +95,10 @@
 										</a>
 									</td>
 									<td>{{entry.stock |truncatechars:30}}</td>
-									<td>{%include 'web/part/entry_type.html'%}/{{entry.status |default:'-'}}</td>
+									<td>
+										{%include 'web/part/entry_type.html'%}
+										<br>{{entry.status |default:'-'}}
+									</td>
 									<td class="right">
 										{{entry.profit |yen |safe}}
 										<br>({{entry.profit_pct |pct |safe}})
