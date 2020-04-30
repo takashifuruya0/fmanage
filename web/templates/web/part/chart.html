@@ -31,13 +31,21 @@ if (window.innerWidth > 768) {
 var myChart = new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: [{%for svd in svds %}"{{svd.date}}",{%endfor%}],
+    labels: [
+      {%for svd in svds %}"{{svd.date}}",{%endfor%}
+      {% if entry and not entry.is_closed %}
+      "today"
+      {% endif %}
+    ],
     datasets: [
         {
             type: "line",
             label: 'Buy',
             data: [
                 {% for bo in bos_detail %}"{{bo}}",{%endfor%}
+                {% if entry and not entry.is_closed %}
+                "None"
+                {% endif %}
             ],
             backgroundColor: "red",
             borderColor: "red",
@@ -49,6 +57,9 @@ var myChart = new Chart(ctx, {
             label: 'Sell',
             data: [
                 {% for so in sos_detail %}"{{so}}",{%endfor%}
+                {% if entry and not entry.is_closed %}
+                "None"
+                {% endif %}
             ],
             backgroundColor: "blue",
             borderColor: "blue",
@@ -60,6 +71,9 @@ var myChart = new Chart(ctx, {
             label: '終値',
             data: [
                 {%for svd in svds%}{{svd.val_close}},{%endfor%}
+                {% if entry and not entry.is_closed %}
+                {{entry.stock.current_val}} // OpenEntry
+                {% endif %}
             ],
             backgroundColor: "rgba(0, 0, 0, 0.4)",
             borderColor: "rgba(0, 0, 0, 0.4)",
@@ -71,6 +85,9 @@ var myChart = new Chart(ctx, {
             label: '出来高',
             data: [
                 {%for svd in svds%}{{svd.turnover}},{%endfor%}
+                {% if entry and not entry.is_closed %}
+                0
+                {% endif %}
             ],
             backgroundColor: "rgba(255,153,0, 0.4)",
             yAxisID: "y-axis-2",
