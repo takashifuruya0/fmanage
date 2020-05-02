@@ -2,6 +2,8 @@ from django.contrib import admin
 from .models import Stock, StockFinancialData, AssetStatus
 from .models import StockValueData, Order, Entry, ReasonWinLoss
 from .models import SBIAlert, EntryStatus
+from .functions import mylib_asset
+from django.contrib import messages
 
 
 # Register your models here.
@@ -32,6 +34,7 @@ class OrderAdmin(admin.ModelAdmin):
         "stock__name", "stock__code", "stock__industry", "stock__market",
     ]
     search_fields = ['stock__name']
+    actions = ["do_order_process", ]
 
     def chart_image(self, row):
         if row.chart:
@@ -39,6 +42,15 @@ class OrderAdmin(admin.ModelAdmin):
         else:
             return None
 
+    def do_order_process(self, request, queryset):
+        for o in queryset.order_by('datetime'):
+            res = mylib_asset.order_process(o, o.user)
+            if res['status']:
+                messages.success(request, "Done")
+            else:
+                messages.error(request, "error")
+
+    do_order_process.short_description = "OrderProcessの実行"
     chart_image.allow_tags = True
 
 

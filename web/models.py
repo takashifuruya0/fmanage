@@ -270,7 +270,7 @@ class Order(models.Model):
     is_buy = models.BooleanField()
     is_simulated = models.BooleanField(default=False)
     num = models.IntegerField()
-    val = models.FloatField()
+    val = models.FloatField(help_text="株価/投資信託単価")
     commission = models.IntegerField()
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, null=True, blank=True)
     chart = models.ImageField(upload_to='images/', null=True, blank=True)
