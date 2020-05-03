@@ -9,7 +9,14 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-12">
-			<h4><i class="fas fa-paw"></i> Stock Detail</h4>
+			<h4>
+				<i class="fas fa-paw"></i> Stock Detail
+				{%if stock.is_trust%}
+				<label class="badge badge-info">投資信託</label>
+				{%else%}
+				<label class="badge badge-success">株</label>
+				{%endif%}
+			</h4>
 		</div>
 	</div>
 	<div class="row">
@@ -25,16 +32,6 @@
 					<td>{{stock.name}}</td>
 				</tr>
 				<tr>
-					<th>Type</th>
-					<td>
-						{%if stock.is_trust%}
-						<label class="badge badge-info">投資信託</label>
-						{%else%}
-						<label class="badge badge-success">株</label>
-						{%endif%}
-					</td>
-				</tr>
-				<tr>
 					<th>Market</th>
 					<td>{{stock.market |default:"-"}}</td>
 				</tr>
@@ -42,17 +39,45 @@
 					<th>Industry</th>
 					<td>{{stock.industry |default:"-"}}</td>
 				</tr>
+				{% if not stock.is_trust and not stock.industry == 'ETF' %}
 				<tr>
-					<th>Current Val</th>
-					<td>{{current_val |yen}}</td>
+					<th>特色</th>
+					<td>{{stock.feature}}</td>
 				</tr>
 				<tr>
-					<th>Latest Val</th>
-					<td>{{stock.latest_val |yen}} ({{stock.latest_val_date}})</td>
+					<th>連結事業</th>
+					<td>{{stock.consolidated_business}}</td>
 				</tr>
+				<tr>
+					<th>決算</th>
+					<td>{{stock.settlement_date}}</td>
+				</tr>
+				<tr>
+					<th>単元株数</th>
+					<td>{{stock.unit}}</td>
+				</tr>
+				{% endif %}
 			</table>
 		</div>
 		<div class="col-12 col-sm-6">
+			<h5>Current Status</h5>
+			<table class="table">
+				<tr>
+					<th>Current Val</th>
+					<th>Latest Val</th>
+				</tr>
+				<tr>
+					<td>
+						{%if stock.is_trust%} {{current_val |yen:4}}
+						{%else%}{{current_val |yen}}{%endif%}
+					</td>
+					<td>
+						{%if stock.is_trust%}{{stock.latest_val |yen:4}}
+						{%else%}{{stock.latest_val |yen}}{%endif%}
+						({{stock.latest_val_date}})
+					</td>
+				</tr>
+			</table>
 			<h5>Entry</h5>
 			<table class="table">
 				<tr>

@@ -20,6 +20,10 @@ class Stock(models.Model):
     market = models.CharField(max_length=30, blank=True, null=True)
     industry = models.CharField(max_length=30, blank=True, null=True)
     fkmanage_id = models.IntegerField(null=True, blank=True, default=None)
+    feature = models.CharField(max_length=100, blank=True, null=True, verbose_name="特色")
+    consolidated_business = models.CharField(max_length=100, blank=True, null=True, verbose_name="連結事業")
+    settlement_date = models.CharField(max_length=10, blank=True, null=True, verbose_name="決算月")
+    unit = models.CharField(max_length=10, blank=True, null=True, verbose_name="単元株数")
 
     def __str__(self):
         return "({}) {}".format(self.code, self.name)
@@ -43,6 +47,12 @@ class Stock(models.Model):
             self.market = data['data']['market']
             self.industry = data['data']['industry']
             self.is_trust = False if len(str(self.code)) == 4 else True
+        profile = mylib_scraping.yf_profile(self.code)
+        if profile['status']:
+            self.feature = profile['data']["特色"]
+            self.consolidated_business = profile['data']["連結事業"]
+            self.settlement_date = profile['data']["決算"]
+            self.unit = profile['data']["単元株数"]
         return super().save(*args, **kwargs)
 
 

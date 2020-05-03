@@ -220,3 +220,35 @@ def yf_detail(code):
         res['msg'] = e
         res['status'] = False
     return res
+
+
+def yf_profile(code):
+    """会社の特色や事業情報を取得"""
+    base_url = "https://stocks.finance.yahoo.co.jp/stocks/profile/"
+    res = {
+        "msg": None,
+        "status": None,
+        "data": None,
+    }
+    headers = {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
+    }
+    ret = requests.get(base_url, params={"code": str(code), }, headers=headers)
+    try:
+        soup = BeautifulSoup(ret.content, "lxml")
+        table = soup.find("table", {'class': "boardFinCom marB6"})
+        if not table:
+            raise Exception("{}と一致する銘柄は見つかりませんでした".format(code))
+        ths = table.find_all('th')
+        tds = table.find_all('td')
+        res['data'] = {
+            th.text: td.text
+            for th, td in zip(ths, tds)
+        }
+        res['status'] = True
+        res['msg'] = "Success"
+    except Exception as e:
+        logger.error(e)
+        res['msg'] = e
+        res['status'] = False
+    return res
