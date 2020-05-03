@@ -83,10 +83,10 @@ def register_stock_financial_data(code):
     try:
         # 情報取得
         detail = mylib_scraping.yf_detail(code)
-        profiles = mylib_scraping.yf_profile(code, is_consolidated=True)
+        profiles = mylib_scraping.yf_settlement(code, is_consolidated=True)
         if profiles['status'] and profiles['data'][0]['決算期'] is None:
             # 単体の情報を取得
-            profiles = mylib_scraping.yf_profile(code, is_consolidated=False)
+            profiles = mylib_scraping.yf_settlement(code, is_consolidated=False)
         # stock情報
         stock = Stock.objects.get(code=code)
         # 今年度を含めて３年分

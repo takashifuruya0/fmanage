@@ -17,6 +17,7 @@ data形式
 
 
 def kabuoji3(code):
+    """kabuoji3からHLOCTを取得"""
     base_url = "https://kabuoji3.com/stock/" + str(code) + "/"
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
@@ -51,7 +52,8 @@ def kabuoji3(code):
     return res
 
 
-def yf_profile(code, is_consolidated=True):
+def yf_settlement(code, is_consolidated=True):
+    """銘柄の決算情報を取得"""
     if is_consolidated:
         # 連結
         url = "https://profile.yahoo.co.jp/consolidate/{}".format(code)
@@ -118,6 +120,7 @@ def yf_profile(code, is_consolidated=True):
 
 
 def yf_detail(code):
+    """銘柄詳細を取得"""
     base_url = "https://stocks.finance.yahoo.co.jp/stocks/detail/"
     res = {
         "msg": None,

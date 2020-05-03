@@ -126,6 +126,7 @@ class StockCreate(LoginRequiredMixin, CreateView):
         return reverse("web:stock_detail", kwargs={"stock_code": self.object.code})
 
     def form_valid(self, form):
+        """kabuoji3からStockValueDataを取得"""
         res = super().form_valid(form)
         mylib_asset.register_stock_value_data_kabuoji3(self.object.code)
         return res
