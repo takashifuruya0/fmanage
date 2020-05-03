@@ -399,3 +399,42 @@ def register_stock_value_data_alt(code):
         "list": list_added,
     }
     return result
+
+
+def register_stock_value_data_kabuoji3(code):
+    '''
+    record_stock_value_data_kabuoji3
+    :desc: kabuoji3からHLOCTを取得し、StockValueDataに格納
+    :param code: 銘柄コード
+    :return: StockValueDataの追加数等
+    '''
+    # for result
+    counter = 0
+    list_added = list()
+    # main process
+    data = mylib_scraping.kabuoji3(code)
+    stock = Stock.objects.get(code=code)
+    if data['status']:
+        for d in data['data']:
+            d[0] = datetime.strptime(d[0], "%Y-%m-%d").date()
+            if StockValueData.objects.filter(stock=stock, date=d[0]).__len__() == 0:
+                counter += 1
+                s = StockValueData.objects.create(
+                    stock=stock, date=d[0],
+                    val_open=d[1],
+                    val_high=d[2],
+                    val_low=d[3],
+                    val_close=d[4],
+                    turnover=d[5],
+                )
+                list_added.append(s.date.__str__())
+                logger.info('StockValueData of {} is created'.format(stock))
+    result = {
+        "counter": counter,
+        "stock": {
+            "name": stock.name,
+            "code": stock.code,
+        },
+        "list": list_added,
+    }
+    return result

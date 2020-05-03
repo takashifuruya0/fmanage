@@ -10,6 +10,7 @@ from web.functions import mylib_scraping, mylib_analysis
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, Stock, StockValueData, StockFinancialData, SBIAlert
+from web.functions import mylib_asset
 # list view, pagination
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from pure_pagination.mixins import PaginationMixin
@@ -125,7 +126,9 @@ class StockCreate(LoginRequiredMixin, CreateView):
         return reverse("web:stock_detail", kwargs={"stock_code": self.object.code})
 
     def form_valid(self, form):
-        return super().form_valid(form)
+        res = super().form_valid(form)
+        mylib_asset.register_stock_value_data_kabuoji3(self.object.code)
+        return res
 
     def form_invalid(self, form):
         # return super().form_invalid(form)
@@ -136,8 +139,8 @@ class StockCreate(LoginRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         try:
             with transaction.atomic():
-                pass
                 # SVD, SFDの取得
+                pass
         except Exception as e:
             logger.error(e)
             messages.error(request, e)
