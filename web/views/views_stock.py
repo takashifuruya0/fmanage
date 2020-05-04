@@ -37,6 +37,7 @@ class StockDetail(LoginRequiredMixin, DetailView):
         ).order_by('date')
         context['sfds'] = StockFinancialData.objects.filter(stock=context['stock']).order_by('date')
         df = mylib_analysis.prepare(context['svds'])
+        context['df_check'] = mylib_analysis.check(df)
         context['df_trend'] = mylib_analysis.get_trend(df)
         context['entry_form'] = EntryForm(initial={
             "user": self.request.user,

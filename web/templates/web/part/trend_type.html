@@ -1,3 +1,15 @@
+{%if df_trend.is_upper_5%}
+<span class="badge badge-success">
+  5日 <i class="fas fa-level-up-alt"></i>
+  <span class="badge badge-light">{{df_trend.period_5}}日継続中</span>
+</span>
+{%else%}
+<span class="badge badge-danger">
+  5日 <i class="fas fa-level-down-alt"></i>
+  <span class="badge badge-light">{{df_trend.period_5}}日継続中</span>
+</span>
+{%endif%}
+
 {%if df_trend.is_upper_25%}
 <span class="badge badge-success">
   25日 <i class="fas fa-level-up-alt"></i>

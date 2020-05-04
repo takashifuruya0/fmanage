@@ -134,21 +134,77 @@
 
 	<hr>
 	<div class="row">
-		<div class="col-12 col-sm-12">
-			<div class="card">
-				<div class="card-header">
-					<h5>Chart {% include 'web/part/trend_type.html' %}</h5>
-				</div>
-				<div class="card-body">
-					<p class="card-title">{{svds.first.date}} ~ {{svds.last.date}}</p>
-					<div class="candlestick-1day"></div>
-					<p class="card-title">終値</p>
-					<canvas id="analysis" width="300" height="150"></canvas>
-				</div>
-				<div class="card-footer">
+		<div class="col-12 col-sm-8">
+			<h5>
+				<i class="fas fa-chart-line"></i> Chart
+			</h5>
+			<p class="card-title">{{svds.first.date}} ~ {{svds.last.date}}</p>
+			<div class="candlestick-1day"></div>
+			<p class="card-title">終値</p>
+			<canvas id="analysis" width="300" height="150"></canvas>
+		</div>
 
-				</div>
-			</div>
+		<div class="col-12 col-sm-4">
+			<h5>
+				<i class="fas fa-chart-line"></i> Analysis
+			</h5>
+			{% include 'web/part/trend_type.html' %}
+			<table class="table table-responsive-sm">
+				<tr>
+					<th>日付</th>
+					<th>タイプ</th>
+					<th>終値前日比</th>
+					<th>出来高前日比</th>
+					<th>5日</th>
+					<th>25日</th>
+					<th>75日</th>
+				</tr>
+				{% for d in df_check %}
+				<tr>
+					<td>{{d.df.date |naturalday}}</td>
+					<td>
+						<label class="badge badge-{%if c.is_bottom%}success{%else%}danger{%endif%}">
+							{{d.type}}
+						</label>
+					</td>
+					<td>{{d.df.val_close_diff_pct |pct |safe}}</td>
+					<td>{{d.df.turnover_diff_pct |pct |safe}}</td>
+					<td>
+						{% if d.df.is_upper_5 %}
+						<label class="badge badge-success">
+							<i class="fas fa-level-up-alt"></i>
+						</label>
+						{% else %}
+						<label class="badge badge-danger">
+							<i class="fas fa-level-down-alt"></i>
+						</label>
+						{% endif %}
+					</td>
+					<td>
+						{% if d.df.is_upper_25 %}
+						<label class="badge badge-success">
+							<i class="fas fa-level-up-alt"></i>
+						</label>
+						{% else %}
+						<label class="badge badge-danger">
+							<i class="fas fa-level-down-alt"></i>
+						</label>
+						{% endif %}
+					</td>
+					<td>
+						{% if d.df.is_upper_75 %}
+						<label class="badge badge-success">
+							<i class="fas fa-level-up-alt"></i>
+						</label>
+						{% else %}
+						<label class="badge badge-danger">
+							<i class="fas fa-level-down-alt"></i>
+						</label>
+						{% endif %}
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
 		</div>
 <!--		<div class="col-12 col-sm-4">-->
 <!--			<div class="card">-->
