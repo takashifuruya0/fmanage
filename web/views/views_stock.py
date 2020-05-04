@@ -113,6 +113,8 @@ class StockList(LoginRequiredMixin, PaginationMixin, ListView):
                 Q(code__icontains=self.request.GET['search']) |
                 Q(market__icontains=self.request.GET['search']) |
                 Q(industry__icontains=self.request.GET['search']) |
+                Q(feature__icontains=self.request.GET['search']) |
+                Q(consolidated_business__icontains=self.request.GET['search']) |
                 Q(name__icontains=self.request.GET['search'])
             )
         return queryset
