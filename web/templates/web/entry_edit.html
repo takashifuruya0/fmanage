@@ -8,11 +8,16 @@
 {% block body %}
 <div class="container-fluid">
 	<div class="row">
+		<div class="col-12">
+			<h4>
+				<i class="fas fa-paw"></i>Entry Edit
+			</h4>
+		</div>
+	</div>
+
+	<div class="row">
 		<div class="col-12 col-sm-6">
 			<form method="post" action="">
-				<h4>
-					<i class="fas fa-paw"></i>Entry Edit
-				</h4>
 				<table class="table table-responsive">
 					{{form}}
 				</table>
@@ -25,37 +30,8 @@
 				</a>
 			</form>
 		</div>
+
 		<div class="col-12 col-sm-6">
-			<h5>Order Overview</h5>
-			<table class="table">
-				<tr>
-					<th>買付口数</th>
-					<th>買付平均</th>
-					<th>現在株価</th>
-					<th>売付口数</th>
-					<th>売付平均</th>
-				</tr>
-				<tr>
-					<td>{{entry.num_buy |intcomma}}</td>
-					<td>
-						{% if entry.stock.is_trust %}
-						{{entry.val_buy |yen:4}}
-						{% else %}
-						{{entry.val_buy |yen}}
-						{% endif %}
-					</td>
-					<td>{{entry.stock.current_val |yen:4}}</td>
-					<td>{{entry.num_sell |intcomma}}</td>
-					<td>
-						{% if entry.stock.is_trust %}
-						{{entry.val_sell |yen:4}}
-						{% else %}
-						{{entry.val_sell |yen}}
-						{% endif %}
-					</td>
-				</tr>
-			</table>
-			<hr>
 			<h5>
 				Entry Overview
 				{% include 'web/part/entry_close_status.html' %}
@@ -65,6 +41,24 @@
 					<th>銘柄</th>
 					<td>{{entry.stock}}</td>
 				</tr>
+				<tr>
+					<th>現在株価</th>
+					<td>{{entry.stock.current_val |yen}}</td>
+				</tr>
+				{% if entry.is_plan %}
+				<tr>
+					<th>特色</th>
+					<td>{{entry.stock.feature}}</td>
+				</tr>
+				<tr>
+					<th>連結事業</th>
+					<td>{{entry.stock.consolidated_business}}</td>
+				</tr>
+				<tr>
+					<th>決算</th>
+					<td>{{entry.stock.settlement_date}}</td>
+				</tr>
+				{% else %}
 				<tr>
 					<th>Open Date</th>
 					<td>{{entry.date_open |default_if_none:"-"}}</td>
@@ -78,15 +72,83 @@
 					<td>{{entry.remaining |intcomma}}</td>
 				</tr>
 				<tr>
-					<th>利益</th>
-					<td>{{entry.profit |yen |safe}}</td>
-				</tr>
-				<tr>
 					<th>保有期間</th>
 					<td>{{entry.holding_period}}日</td>
 				</tr>
+				<tr>
+					<th>利益</th>
+					<td>
+						{{entry.profit |yen |safe}}
+						({{entry.profit_pct |pct |safe}})
+					</td>
+				</tr>
+				{% endif %}
 			</table>
+
+			{% if not entry.is_plan %}
+			<hr>
+			<h5>Order Overview</h5>
+			<table class="table">
+				<tr>
+					<th>買付/売付口数</th>
+					<th>買付/売付平均</th>
+				</tr>
+				<tr>
+					<td>
+						{{entry.num_buy |intcomma}} / {{entry.num_sell |intcomma}}
+					</td>
+					<td>
+						{% if entry.stock.is_trust %}
+						{{entry.val_buy |yen:4}} / {{entry.val_sell |yen:4}}
+						{% else %}
+						{{entry.val_buy |yen}} / {{entry.val_sell |yen}}
+						{% endif %}
+					</td>
+				</tr>
+			</table>
+
+			<hr>
+			<h5>Graph</h5>
+			<div>
+				<div class="candlestick-1day"></div>
+				<canvas id="analysis" width="300" height="150"></canvas>
+				{% include 'web/part/chart.html' %}
+			</div>
+			{% endif %}
 		</div>
 	</div>
 </div>
+
+<script src="/document/js/candlestick.js"></script>
+<script>
+	window.onload = function() {
+		var trades = [
+			{% for o in orders_linked %}
+			{
+				date: "{{o.datetime|date:"Y-m-d"}}",
+				type: "{%if o.is_buy%}buy{%else%}sell{%endif%}",
+				price: {%if o.stock.is_trust%}100{{o.val}}{%else%}{{o.val}}{%endif%},
+				quantity: {{o.num}},
+			},
+      {% endfor %}
+    ];
+    var data = [
+      {% for svd in svds %}
+      {
+        Date: "{{svd.date|date:"Y-m-d"}}",
+        High: {{svd.val_high}},
+        Low: {{svd.val_low}},
+        Open: {{svd.val_open}},
+        Close: {{svd.val_close}},
+        Volume: {{svd.turnover}},
+      },
+      {% endfor %}
+    ];
+		displayCandlestick(data, "1day", trades);
+		// 画面をリサイズした時に発火する
+		$(window).on("resize", function() {
+			displayCandlestick(data, "1day", trades);
+		});
+	}
+</script>
 {% endblock %}

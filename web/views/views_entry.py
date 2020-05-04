@@ -26,8 +26,39 @@ class EntryUpdate(LoginRequiredMixin, UpdateView):
         return reverse("web:entry_detail", kwargs={"pk": self.object.pk})
 
     def get_context_data(self, **kwargs):
+        # 各種情報取得
+        entry = self.get_object()
+        edo = entry.date_open().date() if not entry.is_plan else date.today()
+        edc = entry.date_close().date() if entry.is_closed and not entry.is_plan else date.today()
+        # days日のマージンでグラフ化範囲を指定
+        days = 60
+        od = edo - relativedelta(days=days)
+        cd = edc + relativedelta(days=days) if entry.is_closed else date.today()
+        svds = StockValueData.objects.filter(stock=entry.stock, date__gte=od, date__lte=cd).order_by('date')
+        # グラフ化範囲のデータ数
+        svds_count = svds.count()
+        # 日付とindex番号の紐付け
+        date_list = dict()
+        for i, svd in enumerate(svds):
+            date_list[svd.date.__str__()] = i
+        # 売買注文のグラフ化
+        bos_detail = [None for i in range(svds_count)]
+        sos_detail = [None for i in range(svds_count)]
+        for o in entry.order_set.all():
+            order_date = str(o.datetime.date())
+            if order_date in list(date_list.keys()):
+                if o.is_buy:
+                    bos_detail[date_list[order_date]] = o.val * 10000 if entry.stock.is_trust else o.val
+                else:
+                    sos_detail[date_list[order_date]] = o.val * 10000 if entry.stock.is_trust else o.val
         output = {
-            "entry": self.get_object(),
+            "user": self.request.user,
+            "entry": entry,
+            "svds": svds,
+            "bos_detail": bos_detail,
+            "sos_detail": sos_detail,
+            "od": od,
+            "cd": cd,
             "form": self.get_form()
         }
         return output
