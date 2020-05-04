@@ -9,7 +9,7 @@ from web.forms import InvestmentForm
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, StockValueData, Stock, AssetStatus
-from web.functions import mylib_scraping
+from web.functions import mylib_scraping, mylib_asset
 from django_celery_results.models import TaskResult
 # logging
 import logging
@@ -26,6 +26,7 @@ class Main(LoginRequiredMixin, TemplateView):
         plan_entrys = Entry.objects.filter(user=self.request.user, is_plan=True, is_closed=False).order_by('-pk')
         astatus_list = AssetStatus.objects.filter(user=self.request.user)
         astatus = astatus_list.latest('date') if astatus_list.exists() else None
+        checks = mylib_asset.analyse_all(days=15)
         output = {
             "user": self.request.user,
             "entrys": entrys,
@@ -33,6 +34,7 @@ class Main(LoginRequiredMixin, TemplateView):
             "plan_entrys": plan_entrys,
             "astatus": astatus,
             "investment_form": InvestmentForm(),
+            "checks": checks,
         }
         if self.request.user.is_superuser:
             tasks = TaskResult.objects.all()

@@ -1,4 +1,4 @@
-from web.functions import mylib_scraping
+from web.functions import mylib_scraping, mylib_analysis
 from web.models import StockFinancialData, Stock, Entry, AssetStatus, StockValueData
 from django.contrib.auth.models import User
 import requests
@@ -6,6 +6,7 @@ from io import BytesIO
 import csv
 from django.core import files
 from datetime import date, datetime
+from dateutil.relativedelta import relativedelta
 import logging
 logger = logging.getLogger('django')
 
@@ -438,3 +439,20 @@ def register_stock_value_data_kabuoji3(code):
         "list": list_added,
     }
     return result
+
+
+def analyse_all(days=14):
+    stocks = Stock.objects.all()
+    od = date.today() - relativedelta(days=days)
+    cd = date.today()
+    check = list()
+    for s in stocks:
+        svds = StockValueData.objects.filter(stock=s, date__gte=od, date__lte=cd).order_by('date')
+        if svds.exists():
+            df = mylib_analysis.prepare(svds)
+            # df_trend = mylib_analysis.get_trend(df)
+            df_check = mylib_analysis.check(df)
+            check += df_check
+    check_sorted = sorted(check, key=lambda x: x['date'])
+    check_sorted.reverse()
+    return check_sorted

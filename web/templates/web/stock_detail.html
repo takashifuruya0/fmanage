@@ -134,7 +134,7 @@
 
 	<hr>
 	<div class="row">
-		<div class="col-12 col-sm-8">
+		<div class="col-12 col-sm-12">
 			<div class="card">
 				<div class="card-header">
 					<h5>Chart {% include 'web/part/trend_type.html' %}</h5>
@@ -150,46 +150,46 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-12 col-sm-4">
-			<div class="card">
-				<div class="card-header">
-					<h5>Finance {% include 'web/part/finance_type.html' %}</h5>
-				</div>
-				<div class="card-body">
-					{%with sfd=sfds.last%}
-					<table class="table table-responsive-sm">
-						<tr>
-							<th>ROE</th>
-							<td>{{sfd.roe}}</td>
-						</tr>
-						<tr>
-							<th>ROA</th>
-							<td>{{sfd.roa}}</td>
-						</tr>
-						<tr>
-							<th>EPS</th>
-							<td>{{sfd.eps_f}}</td>
-						</tr>
-						<tr>
-							<th>PER</th>
-							<td>{{sfd.per_f}}</td>
-						</tr>
-						<tr>
-							<th>時価総額</th>
-							<td>{{sfd.market_value |intcomma}}</td>
-						</tr>
-						<tr>
-							<th>自己資本比率</th>
-							<td>{{sfd.equity_ratio}}%</td>
-						</tr>
-					</table>
-					{%endwith%}
-				</div>
-				<div class="card-footer">
+<!--		<div class="col-12 col-sm-4">-->
+<!--			<div class="card">-->
+<!--				<div class="card-header">-->
+<!--					<h5>Finance {% include 'web/part/finance_type.html' %}</h5>-->
+<!--				</div>-->
+<!--				<div class="card-body">-->
+<!--					{%with sfd=sfds.last%}-->
+<!--					<table class="table table-responsive-sm">-->
+<!--						<tr>-->
+<!--							<th>ROE</th>-->
+<!--							<td>{{sfd.roe}}</td>-->
+<!--						</tr>-->
+<!--						<tr>-->
+<!--							<th>ROA</th>-->
+<!--							<td>{{sfd.roa}}</td>-->
+<!--						</tr>-->
+<!--						<tr>-->
+<!--							<th>EPS</th>-->
+<!--							<td>{{sfd.eps_f}}</td>-->
+<!--						</tr>-->
+<!--						<tr>-->
+<!--							<th>PER</th>-->
+<!--							<td>{{sfd.per_f}}</td>-->
+<!--						</tr>-->
+<!--						<tr>-->
+<!--							<th>時価総額</th>-->
+<!--							<td>{{sfd.market_value |intcomma}}</td>-->
+<!--						</tr>-->
+<!--						<tr>-->
+<!--							<th>自己資本比率</th>-->
+<!--							<td>{{sfd.equity_ratio}}%</td>-->
+<!--						</tr>-->
+<!--					</table>-->
+<!--					{%endwith%}-->
+<!--				</div>-->
+<!--				<div class="card-footer">-->
 
-				</div>
-			</div>
-		</div>
+<!--				</div>-->
+<!--			</div>-->
+<!--		</div>-->
 	</div>
 </div>
 {% include 'web/part/chart.html' %}

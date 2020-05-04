@@ -5,6 +5,7 @@ logger = logging.getLogger('django')
 
 def prepare(svds):
     df = read_frame(svds)
+    df['code'] = svds.first().stock.code if svds.exists() else None
     # 終値前日比, 出来高前日比
     df['val_close_diff'] = -(df['val_close'].shift() - df['val_close'])
     df['val_close_diff_pct'] = round(
@@ -36,8 +37,6 @@ def prepare(svds):
     # trend
     df['is_upper_5'] = False
     df['is_upper_5'] = df['is_upper_5'].where(df['ma_5'].diff() < 0, True)
-    df['is_upper_75'] = False
-    df['is_upper_75'] = df['is_upper_75'].where(df['ma_75'].diff() < 0, True)
     df['is_upper_25'] = False
     df['is_upper_25'] = df['is_upper_25'].where(df['ma_25'].diff() < 0, True)
     df['is_upper_75'] = False
@@ -50,9 +49,26 @@ def get_trend(df):
     try:
         df_reverse = df.sort_values('date', ascending=False)
         logger.info("len(df_reverse) {}".format(len(df_reverse)))
+        ma_5 = df_reverse['ma_5']
         ma_25 = df_reverse['ma_25']
         ma_75 = df_reverse['ma_75']
         res = dict()
+        # 5
+        trend_period_5 = 1
+        if len(ma_5) > 2 and ma_5.iloc[0] > ma_5.iloc[1]:
+            res['is_upper_5'] = True
+            for i in range(2, len(df_reverse)):
+                if ma_5.iloc[i - 1] > ma_5.iloc[i]:
+                    trend_period_5 += 1
+                else:
+                    break
+        elif len(ma_5) > 2 and ma_5.iloc[0] < ma_5.iloc[1]:
+            res['is_upper_5'] = False
+            for i in range(2, len(df_reverse)):
+                if ma_5.iloc[i - 1] < ma_5.iloc[i]:
+                    trend_period_5 += 1
+                else:
+                    break
         # 25
         trend_period_25 = 1
         if len(ma_25) > 2 and ma_25.iloc[0] > ma_25.iloc[1]:
@@ -86,16 +102,20 @@ def get_trend(df):
                 else:
                     break
         # res
+        res['period_5'] = trend_period_5
         res['period_25'] = trend_period_25
         res['period_75'] = trend_period_75
 
     except Exception as e:
         logger.error("get_trend was failed")
         logger.error(e)
+        logger.error("ma_5: {}".format(ma_5))
         logger.error("ma_25: {}".format(ma_25))
         logger.error("ma_75: {}".format(ma_75))
         logger.error("df_reverse {}".format(df_reverse))
         res = {
+            "is_upper_5": None,
+            "period_5": None,
             "is_upper_25": None,
             "period_25": None,
             "is_upper_75": None,
@@ -109,9 +129,6 @@ def check(df):
     try:
         trend = get_trend(df)
         df_reverse = df.sort_values('date', ascending=False)
-        # data = {key: list() for key in (
-        #     "たくり線_底", "包線_天井", "包線_底", "はらみ線_底", "上げ三法_底", "三手大陰線_底"
-        # )}
         data = list()
         for i in range(len(df_reverse)-3):
             # たくり線
@@ -127,6 +144,7 @@ def check(df):
                     "type": "たくり線",
                     "is_bottom": True,
                     "df": df_reverse.iloc[i],
+                    "date": df_reverse.iloc[i].date,
                 })
                 logger.info("{}: {}".format(df_reverse.iloc[i]['date'], msg))
             # 包線:　当日の線[i]が、前日の線[i+1]を包みこむ
@@ -143,6 +161,7 @@ def check(df):
                         "type": "包線（陰→陽＠上昇）",
                         "is_bottom": False,
                         "df": df_reverse.iloc[i],
+                        "date": df_reverse.iloc[i].date,
                     })
                 elif not trend['is_upper_25'] and trend['period_25'] > 2:
                     # 下落傾向→底
@@ -153,6 +172,7 @@ def check(df):
                         "type": "包線（陰→陽＠下降）",
                         "is_bottom": True,
                         "df": df_reverse.iloc[i],
+                        "date": df_reverse.iloc[i].date,
                     })
             elif df_reverse.iloc[i+1]['is_positive'] and not df_reverse.iloc[i]['is_positive'] \
                     and df_reverse.iloc[i+1]['val_close'] < df_reverse.iloc[i]['val_open'] \
@@ -167,6 +187,7 @@ def check(df):
                         "type": "包線（陽→陰＠上昇）",
                         "is_bottom": False,
                         "df": df_reverse.iloc[i],
+                        "date": df_reverse.iloc[i].date,
                     })
                 elif not trend['is_upper_25'] and trend['period_25'] > 2:
                     # 下落傾向→底
@@ -177,6 +198,7 @@ def check(df):
                         "type": "包線（陽→陰＠下降）",
                         "is_bottom": True,
                         "df": df_reverse.iloc[i],
+                        "date": df_reverse.iloc[i].date,
                     })
             # 2. はらみ線
             if not df_reverse.iloc[i+1]['is_positive'] \
@@ -192,6 +214,7 @@ def check(df):
                     "type": "はらみ線（陰→陽＠上昇）",
                     "is_bottom": True,
                     "df": df_reverse.iloc[i],
+                    "date": df_reverse.iloc[i].date,
                 })
             elif not df_reverse.iloc[i+1]['is_positive'] \
                     and not df_reverse.iloc[i]['is_positive'] \
@@ -206,6 +229,7 @@ def check(df):
                     "type": "はらみ線（陰→陰＠上昇）",
                     "is_bottom": True,
                     "df": df_reverse.iloc[i],
+                    "date": df_reverse.iloc[i].date,
                 })
             elif df_reverse.iloc[i+1]['is_positive'] \
                     and df_reverse.iloc[i]['is_positive'] \
@@ -220,6 +244,7 @@ def check(df):
                     "type": "はらみ線",
                     "is_bottom": True,
                     "df": df_reverse.iloc[i],
+                    "date": df_reverse.iloc[i].date,
                 })
             elif df_reverse.iloc[i+1]['is_positive'] \
                     and not df_reverse.iloc[i]['is_positive'] \
@@ -234,6 +259,7 @@ def check(df):
                     "type": "はらみ線",
                     "is_bottom": True,
                     "df": df_reverse.iloc[i],
+                    "date": df_reverse.iloc[i].date,
                 })
             # 3. 上げ三法: 1本目の安値を割り込まない, 4本目が1本目の終値を超える
             if not df_reverse.iloc[i+3]['is_positive'] and not df_reverse.iloc[i+2]['is_positive'] \
@@ -248,6 +274,7 @@ def check(df):
                     "type": "上げ三法",
                     "is_bottom": True,
                     "df": df_reverse.iloc[i],
+                    "date": df_reverse.iloc[i].date,
                 })
             # 4. 三空叩き込み
             if not df_reverse.iloc[i+3]['is_positive'] and not df_reverse.iloc[i+2]['is_positive'] \
@@ -261,6 +288,7 @@ def check(df):
                     "type": "三空叩き込み",
                     "is_bottom": True,
                     "df": df_reverse.iloc[i],
+                    "date": df_reverse.iloc[i].date,
                 })
             # 5. 三手大陰線
             if not df_reverse.iloc[i+2]['is_positive'] \
@@ -275,6 +303,7 @@ def check(df):
                     "type": "三手大陰線",
                     "is_bottom": True,
                     "df": df_reverse.iloc[i],
+                    "date": df_reverse.iloc[i].date,
                 })
     except Exception as e:
         logger.error(e)
