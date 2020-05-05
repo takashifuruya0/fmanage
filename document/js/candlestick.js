@@ -110,6 +110,10 @@ function displayCandlestick(data, candleType, trades) {
             .datum(techan.indicator.sma().period(25)(data))
             .call(sma);
     svg.append("g")
+            .attr("class", "sma ma75")
+            .datum(techan.indicator.sma().period(75)(data))
+            .call(sma);
+    svg.append("g")
             .attr("class", "sma close")
             .datum(data)
             .call(close);

@@ -17,7 +17,7 @@
 	</div>
 
 	<div class="row">
-		<div class="col-12 col-md-9">
+		<div class="col-12 col-md-8">
 			<h5><i class="fas fa-info-circle"></i> Overview</h5>
 			<table class="table table-responsive-sm">
 				<tr>
@@ -97,50 +97,11 @@
 				<i class="fas fa-backward"></i> Back
 			</a>
 		</div>
-		<div class="col-12 col-md-3">
-			{% if entry.is_closed and not entry.is_plan%}
-			<h5><i class="fas fa-tachometer-alt"></i> Result</h5>
-			{% else %}
-			<h5><i class="fas fa-tachometer-alt"></i> Current Status</h5>
-			{% endif %}
+
+		<div class="col-12 col-md-4">
+			{% if entry.is_plan %}
+			<h5><i class="fas fa-seedling"></i> Plan</h5>
 			<table class="table table-responsive-xs">
-				{% include 'web/part/finance_type.html' %}
-				{% if entry.is_closed and not entry.is_plan%}
-				<tr>
-					<th>口数</th>
-					<td class="right">{{entry.num_buy |intcomma}}</td>
-				</tr>
-				<tr>
-					<th>買付平均</th>
-					<td class="right">
-						{% if entry.stock.is_trust %}
-						{{entry.val_buy |yen:4 |safe}}
-						{% else %}
-						{{entry.val_buy |yen |safe}}
-						{% endif %}
-					</td>
-				</tr>
-				<tr>
-					<th>売付平均</th>
-					<td class="right">¥{{entry.val_sell |floatformat:0 |intcomma}}</td>
-				</tr>
-				<tr>
-					<th>利益</th>
-					<td class="right">{{entry.profit |yen |safe}}</td>
-				</tr>
-				<tr>
-					<th>利益（％）</th>
-					<td class="right"> {{entry.profit_pct |pct |safe}}</td>
-				</tr>
-				<tr>
-					<th>保有期間</th>
-					<td class="right">{{entry.holding_period}}日間</td>
-				</tr>
-				<tr>
-					<th>Reason</th>
-					<td>{{entry.reason_win_loss |default_if_none:"-"}}</td>
-				</tr>
-				{% elif entry.is_plan %}
 				<tr>
 					<th>予定口数</th>
 					<td class="right">{{entry.num_plan |intcomma}}</td>
@@ -153,6 +114,107 @@
 					<th>現在株価</th>
 					<td class="right">{{overview.val |yen}}</td>
 				</tr>
+			</table>
+
+			{% elif not entry.is_closed and not entry.is_plan %}
+			<h5>Open Status</h5>
+			<table class="table table-responsive-xs">
+				<tr>
+					<th>買付口数/残口数</th>
+					<td class="right">
+						{{entry.num_buy |intcomma}} / {{entry.remaining |intcomma}}
+					</td>
+				</tr>
+				<tr>
+					<th>買付平均/現在株価</th>
+					<td class="right">
+						{% if entry.stock.is_trust %}
+						{{entry.val_buy |yen:4}} / {{overview.val | yen}}
+						{% else %}
+						{{entry.val_buy |yen}} / {{overview.val | yen}}
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<th>現在利益</th>
+					<td class="right">
+						{{entry.profit |yen |safe}} / {{entry.profit_pct |pct |safe}}
+					</td>
+				</tr>
+				<tr>
+					<th>保有期間</th>
+					<td class="right">{{entry.holding_period |intcomma}}日間</td>
+				</tr>
+			</table>
+
+			{% elif entry.is_closed and not entry.is_plan%}
+			<h5><i class="fas fa-tachometer-alt"></i> Result</h5>
+			<table class="table table-responsive-xs">
+				<tr>
+					<th>口数</th>
+					<td class="right">{{entry.num_buy |intcomma}}</td>
+				</tr>
+				<tr>
+					<th>買付/売付平均</th>
+					<td class="right">
+						{% if entry.stock.is_trust %}
+						{{entry.val_buy |yen:4 |safe}} / {{entry.val_sell |yen:4 |safe}}
+						{% else %}
+						{{entry.val_buy |yen |safe}} / {{entry.val_sell |yen |safe}}
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<th>利益</th>
+					<td class="right">
+						{{entry.profit |yen |safe}} / {{entry.profit_pct |pct |safe}}
+					</td>
+				</tr>
+				<tr>
+					<th>保有期間</th>
+					<td class="right">{{entry.holding_period |intcomma}}日間</td>
+				</tr>
+				<tr>
+					<th>Reason</th>
+					<td class="right">{{entry.reason_win_loss |default_if_none:"-"}}</td>
+				</tr>
+			</table>
+			{% endif %}
+
+			{% if not entry.is_closed %}
+			<h5><i class="fas fa-tachometer-alt"></i> Current Status</h5>
+			<table class="table table-responsive-xs">
+				<tr>
+					<th>出来高前日比</th>
+					<td class="right">
+						{{df_latest.turnover_diff_pct |pct |safe}}
+					</td>
+				</tr>
+				<tr>
+					<th>終値前日比</th>
+					<td class="right">
+						{{df_latest.val_close_diff_pct |pct}}
+					</td>
+				</tr>
+				<tr>
+					<th>5日移動平均/乖離率</th>
+					<td class="right">
+						{{df_latest.ma_5 |yen}} / {{df_latest.diff_ma_5_pct |pct_100 |safe}}
+					</td>
+				</tr>
+				<tr>
+					<th>25日移動平均/乖離率</th>
+					<td class="right">
+						{{df_latest.ma_25 |yen}} / {{df_latest.diff_ma_25_pct |pct_100 |safe}}
+					</td>
+				</tr>
+				<tr>
+					<th>75日移動平均/乖離率</th>
+					<td class="right">
+						{{df_latest.ma_75 |yen}} / {{df_latest.diff_ma_75_pct |pct_100 |safe}}
+					</td>
+				</tr>
+
 				{% if not entry.is_closed and not entry.is_in_order and entry.num_plan > 0 %}
 				<tr>
 					<td colspan="2">
@@ -160,6 +222,8 @@
 					</td>
 				</tr>
 				{% endif %}
+
+				{% if entry.is_plan %}
 				<tr>
 					<td colspan="2">
 						{% if entry.is_closed %}
@@ -169,40 +233,10 @@
 						{% endif %}
 					</td>
 				</tr>
-
-				{% else %}
-				<tr>
-					<th>残口数</th>
-					<td class="right">{{entry.remaining |intcomma}}</td>
-				</tr>
-				<tr>
-					<th>買付平均</th>
-					<td class="right">
-						{% if entry.stock.is_trust %}
-						¥{{entry.val_buy |floatformat:4 |intcomma}}
-						{% else %}
-						¥{{entry.val_buy |floatformat:0 |intcomma}}
-						{% endif %}
-					</td>
-				</tr>
-				<tr>
-					<th>現在株価</th>
-					<td class="right">¥{{overview.val | intcomma}}</td>
-				</tr>
-				<tr>
-					<th>現在利益</th>
-					<td class="right">{{entry.profit |yen |safe}}</td>
-				</tr>
-				<tr>
-					<th>現在利益（％）</th>
-					<td class="right">{% widthratio overview.val entry.val_buy 100.0 %}%</td>
-				</tr>
-				<tr>
-					<th>保有期間</th>
-					<td class="right">{{entry.holding_period |intcomma}}日間</td>
-				</tr>
 				{% endif %}
+
 			</table>
+			{% endif %}
 		</div>
 	</div>
 
@@ -241,7 +275,7 @@
 			</form>
 
 			<hr>
-			<h5><i class="fas fa-chart-line"></i> Alert</h5>
+			<h5><i class="far fa-bell"></i> Alert</h5>
 			<table class="table">
 				<tr>
 					<th>No</th>

@@ -30,6 +30,12 @@ def prepare(svds):
     df['ma_diff5_25_pct'] = df.ma_diff5_25 / df.ma_75
     df['ma_diff25_75'] = df.ma_25 - df.ma_75
     df['ma_diff25_75_pct'] = df.ma_diff25_75 / df.ma_75
+    df['diff_ma_5'] = df.val_close - df.ma_5
+    df['diff_ma_5_pct'] = df['diff_ma_5'] / df.val_close
+    df['diff_ma_25'] = df.val_close - df.ma_25
+    df['diff_ma_25_pct'] = df['diff_ma_25'] / df.val_close
+    df['diff_ma_75'] = df.val_close - df.ma_75
+    df['diff_ma_75_pct'] = df['diff_ma_75'] / df.val_close
     # ボリンジャーバンド（25日）
     df["sigma_25"] = df.val_close.rolling(window=25).std()
     df["ma_25p2sigma"] = df.ma_25 + 2 * df.sigma_25

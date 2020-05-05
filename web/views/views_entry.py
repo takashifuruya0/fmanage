@@ -208,7 +208,7 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "sos_detail": sos_detail,
             "od": od,
             "cd": cd,
-            "df": df,
+            "df_latest": df.iloc[-1],
             "df_check": df_check,
             "df_trend": df_trend,
             "sbialert_form": sbialert_form,

@@ -40,7 +40,10 @@ path.volume {
   stroke: #0000cd;
   stroke-dasharray: 3;
 }
-
+.ma75 path.line {
+  stroke: #cd0000;
+  stroke-dasharray: 3;
+}
 .close path.line {
   stroke: #0000ff;
   stroke-dasharray: 2;

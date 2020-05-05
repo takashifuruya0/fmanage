@@ -24,3 +24,13 @@ def pct(val, digit=2):
         return "{}%".format(round(val, digit))
     else:
         return "<font color='red'>-{}%</font>".format(round(-val, digit))
+
+
+@register.filter
+def pct_100(val, digit=2):
+    if not val:
+        return "-"
+    elif val >= 0:
+        return "{}%".format(round(val*100, digit))
+    else:
+        return "<font color='red'>-{}%</font>".format(round(-val*100, digit))

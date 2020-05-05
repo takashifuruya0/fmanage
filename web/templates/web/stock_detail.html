@@ -21,7 +21,7 @@
 	</div>
 	<div class="row">
 		<div class="col-12 col-sm-6">
-			<h5>Overview</h5>
+			<h5><i class="fas fa-info-circle"></i> Overview</h5>
 			<table class="table table-responsive-sm">
 				<tr>
 					<th>銘柄</th>
@@ -56,25 +56,46 @@
 			</table>
 		</div>
 		<div class="col-12 col-sm-6">
-			<h5>Current Status</h5>
+			<h5><i class="fas fa-tachometer-alt"></i> Current Status</h5>
 			<table class="table table-responsive-sm">
 				<tr>
-					<th>Current Val</th>
-					<th>Latest Val</th>
+					<th>終値⇛現在値</th>
+					<th>終値前日比</th>
+					<th>出来高前日比</th>
 				</tr>
 				<tr>
 					<td>
-						{%if stock.is_trust%} {{current_val |yen:4}}
+						{{df_latest.val_close |yen}} ({{df_latest.date}})
+						<br>
+						⇛ {%if stock.is_trust%} {{current_val |yen:4}}
 						{%else%}{{current_val |yen}}{%endif%}
+
 					</td>
 					<td>
-						{%if stock.is_trust%}{{stock.latest_val |yen:4}}
-						{%else%}{{stock.latest_val |yen}}{%endif%}
-						({{stock.latest_val_date}})
+						{{df_latest.val_close_diff_pct |pct}}
+					</td>
+					<td>
+						{{df_latest.turnover_diff_pct |pct |safe}}
+					</td>
+				</tr>
+				<tr>
+					<th>5日移動平均/乖離率</th>
+					<th>25日移動平均/乖離率</th>
+					<th>75日移動平均/乖離率</th>
+				</tr>
+				<tr>
+					<td>
+						{{df_latest.ma_5 |yen}} / {{df_latest.diff_ma_5_pct |pct_100 |safe}}
+					</td>
+					<td>
+						{{df_latest.ma_25 |yen}} / {{df_latest.diff_ma_25_pct |pct_100 |safe}}
+					</td>
+					<td>
+						{{df_latest.ma_75 |yen}} / {{df_latest.diff_ma_75_pct |pct_100 |safe}}
 					</td>
 				</tr>
 			</table>
-			<h5>Entry</h5>
+			<h5><i class="far fa-list-alt"></i> Entry</h5>
 			<table class="table table-responsive-sm">
 				<tr>
 					<th>No</th>
@@ -103,8 +124,8 @@
 				</tr>
 				{% endfor %}
 			</table>
-			<hr>
-			<h5>Alert</h5>
+
+			<h5><i class="far fa-bell"></i> Alert</h5>
 			<table class="table table-responsive-sm">
 				<tr>
 					<th>No</th>
