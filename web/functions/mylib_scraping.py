@@ -161,10 +161,10 @@ def yf_detail(code):
             val = stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", "")
             data['val'] = float(strongs[0].text.replace(',', '')) if val == "---" else float(val)
             data['val_close'] = data['val']
-            data['val_open'] = float(strongs[1].text.replace(',', ''))
-            data['val_high'] = float(strongs[2].text.replace(',', ''))
-            data['val_low'] = float(strongs[3].text.replace(',', ''))
-            data['turnover'] = float(strongs[4].text.replace(',', ''))
+            data['val_open'] = None if val == "---" else float(strongs[1].text.replace(',', ''))
+            data['val_high'] = None if val == "---" else float(strongs[2].text.replace(',', ''))
+            data['val_low'] = None if val == "---" else float(strongs[3].text.replace(',', ''))
+            data['turnover'] = None if val == "---" else float(strongs[4].text.replace(',', ''))
             # タイトルの取得
             dts = chartfinance.findAll('dt')
             keys = list()
