@@ -215,6 +215,7 @@
 					</td>
 				</tr>
 
+				{% if entry.is_plan %}
 				{% if not entry.is_closed and not entry.is_in_order and entry.num_plan > 0 %}
 				<tr>
 					<td colspan="2">
@@ -222,8 +223,6 @@
 					</td>
 				</tr>
 				{% endif %}
-
-				{% if entry.is_plan %}
 				<tr>
 					<td colspan="2">
 						{% if entry.is_closed %}
