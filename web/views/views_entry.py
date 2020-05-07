@@ -218,12 +218,19 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         overview = mylib_scraping.yf_detail(entry.stock.code)
         if overview['status']:
             output['overview'] = overview['data']
+            # svdが当日のものがあるかチェック
+            output["is_svd_updated"] = True if svds.latest('date').date == date.today() else False
         else:
+            svd_latest = StockValueData.objects.filter(stock=entry.stock).latest('date')
             output['overview'] = {
-                "val": StockValueData.objects.filter(stock=entry.stock).latest('date').val_close
+                "val": svd_latest.val_close,
+                "val_high": svd_latest.val_high,
+                "val_low": svd_latest.val_low,
+                "val_open": svd_latest.val_open,
+                "val_close": svd_latest.val_close,
+                "turnover": svd_latest.turnover,
             }
-        # svdが当日のものがあるかチェック
-        output["is_svd_updated"] = True if svds.latest('date').date == date.today() else False
+            output["is_svd_updated"] = True
         return output
 
     @transaction.atomic

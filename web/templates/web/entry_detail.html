@@ -362,7 +362,7 @@
         Volume: {{svd.turnover}},
       },
       {% endfor %}
-      {% if not entry.is_closed and not entry.stock.is_trust  and not is_svd_updated %}
+      {% if not entry.is_closed and not entry.stock.is_trust and not is_svd_updated %}
       {
       	Date: "{{cd |date:"Y-m-d"}}",
       	High: {{overview.val_high}},
