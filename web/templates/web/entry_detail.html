@@ -362,6 +362,16 @@
         Volume: {{svd.turnover}},
       },
       {% endfor %}
+      {% if not entry.is_closed and not entry.stock.is_trust  and not is_svd_updated %}
+      {
+      	Date: "{{cd |date:"Y-m-d"}}",
+      	High: {{overview.val_high}},
+      	Low: {{overview.val_low}},
+      	Open: {{overview.val_open}},
+      	Close: {{overview.val_close}},
+      	Volume: {{overview.turnover}},
+      },
+      {% endif %}
     ];
 		displayCandlestick(data, "1day", trades);
 		// 画面をリサイズした時に発火する

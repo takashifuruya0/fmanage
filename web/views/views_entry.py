@@ -222,6 +222,8 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             output['overview'] = {
                 "val": StockValueData.objects.filter(stock=entry.stock).latest('date').val_close
             }
+        # svdが当日のものがあるかチェック
+        output["is_svd_updated"] = True if svds.latest('date').date == date.today() else False
         return output
 
     @transaction.atomic

@@ -31,14 +31,7 @@ def create_order(request):
                 for val in json_data.values():
                     logger.info(val)
                     val['user'] = User.objects.first()
-                    # val['val'] = val['price']
                     val['commission'] = mylib_asset.get_commission(val['num'] * val['val'])
-                    # if val['kind'] == "現物買":
-                    #     val["is_buy"] = True
-                    # elif val['kind'] == "現物売":
-                    #     val["is_buy"] = False
-                    # else:
-                    #     raise Exception("val['kind'] was {}".format(val['kind']))
                     logger.info("User: {}".format(val['user']))
                     # Stocksにデータがない→登録
                     if not Stock.objects.filter(code=val["code"]).exists():
@@ -61,8 +54,6 @@ def create_order(request):
                         smsg = "Stock {} is found".format(val['code'])
                         logger.info(smsg)
                     # Order作成
-                    # for dk in ("code", "price", "order_id", "kind"):
-                    #     val.pop(dk)
                     val.pop("code")
                     o = Order.objects.create(**val)
                     pk_orders.append(o.pk)
