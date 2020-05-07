@@ -164,7 +164,7 @@ def yf_detail(code):
             data['val_open'] = None if val == "---" else float(strongs[1].text.replace(',', ''))
             data['val_high'] = None if val == "---" else float(strongs[2].text.replace(',', ''))
             data['val_low'] = None if val == "---" else float(strongs[3].text.replace(',', ''))
-            data['turnover'] = None if val == "---" else float(strongs[4].text.replace(',', ''))
+            data['turnover'] = None if strongs[4].text.replace(',', '') == "---" else float(strongs[4].text.replace(',', ''))
             # タイトルの取得
             dts = chartfinance.findAll('dt')
             keys = list()
@@ -188,8 +188,6 @@ def yf_detail(code):
             res['status'] = True
         else:
             # 投資信託
-            # data['val'] = float(soup.find('span', {'class': "_3BGK5SVf"}).text.replace(",", ""))/10000
-            # data['balance'] = float(d.find('span', {"class": "_3BGK5SVf"}).text.replace(',', ''))*1000000
             data['name'] = soup.find('span', {'class': "cj4y2d7f"}).text
             data['industry'] = "投資信託"
             d = soup.find('span', {"class": "_284RTWj9"})
@@ -216,6 +214,8 @@ def yf_detail(code):
             res['msg'] = "Success"
             res['status'] = True
     except Exception as e:
+        logger.error("スクレイピング失敗＠{}".format(code))
+        logger.error("data: {}".format(data))
         logger.error(e)
         res['msg'] = e
         res['status'] = False
@@ -238,7 +238,11 @@ def yf_profile(code):
         soup = BeautifulSoup(ret.content, "lxml")
         table = soup.find("table", {'class': "boardFinCom marB6"})
         if not table:
-            raise Exception("{}と一致する銘柄は見つかりませんでした".format(code))
+            msg = "{}と一致する銘柄は見つかりませんでした".format(code)
+            logger.info(msg)
+            res['msg'] = msg
+            res['status'] = False
+            return res
         ths = table.find_all('th')
         tds = table.find_all('td')
         res['data'] = {
