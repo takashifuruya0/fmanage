@@ -84,6 +84,7 @@ class YearMonthForm(ActionForm):
 class TargetAdmin(admin.ModelAdmin):
     list_display = ["id", "date", "val", "type", "memo"]
     list_editable = ["date", "val", "type", "memo"]
+    list_filter = ["date", "type"]
     actions = ['copy_next_month', 'copy_next_year', ]
 
     # action_form = YearMonthForm
