@@ -4,7 +4,7 @@ from django.shortcuts import redirect, reverse
 from django.conf import settings
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from web.forms import EntryForm, SBIAlertForm
+from web.forms import EntryForm, SBIAlertForm, OrderForm
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, StockValueData, SBIAlert
@@ -231,6 +231,18 @@ class EntryDetail(LoginRequiredMixin, DetailView):
                 "turnover": svd_latest.turnover,
             }
             output["is_svd_updated"] = True
+        # OrderFormを追加
+        output['order_form'] = OrderForm(
+            initial={
+                "user": self.request.user,
+                "is_nisa": entry.stock.is_trust,
+                "is_buy": True,
+                "entry": entry,
+                "commission": 0 if entry.stock.is_trust else None,
+                "stock": entry.stock,
+            }
+        )
+        # res
         return output
 
     @transaction.atomic

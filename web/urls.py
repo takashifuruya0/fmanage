@@ -19,6 +19,7 @@ urlpatterns = [
     path('entry/<int:pk>/delete/', views_entry.EntryDelete.as_view(), name='entry_delete'),
     # order
     path('order/', views_order.OrderList.as_view(), name="order_list"),
+    path('order/create', views_order.OrderCreate.as_view(), name='order_create'),
     path('order/<int:order_id>/', views_order.OrderDetail.as_view(), name='order_detail'),
     path('order/<int:order_id>/edit/', views_order.OrderUpdate.as_view(), name='order_edit'),
     # stock

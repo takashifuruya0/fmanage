@@ -2,16 +2,13 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, reverse
-from django.template.response import TemplateResponse
-from django.conf import settings
-from datetime import date
-from dateutil.relativedelta import relativedelta
 from web.forms import OrderForm
+from web.functions import mylib_asset
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order
 # list view, pagination
-from django.views.generic import ListView, DetailView, UpdateView
+from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from pure_pagination.mixins import PaginationMixin
 from django.utils.decorators import method_decorator
 # logging
@@ -72,3 +69,33 @@ class OrderList(PaginationMixin, ListView):
             messages.error(request, e)
         finally:
             return self.get(request, *args, **kwargs)
+
+
+class OrderCreate(LoginRequiredMixin, CreateView):
+    model = Order
+    form_class = OrderForm
+
+    def get_success_url(self):
+        return reverse("web:order_detail", kwargs={"order_id": self.object.pk})
+
+    def form_valid(self, form):
+        res = super().form_valid(form)
+        mylib_asset.order_process(order=self.object, user=self.request.user)
+        return res
+
+    def form_invalid(self, form):
+        # return super().form_invalid(form)
+        messages.error(self.request, form.errors)
+        return redirect(reverse("web:stock_list"))
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                # SVD, SFDの取得
+                pass
+        except Exception as e:
+            logger.error(e)
+            messages.error(request, e)
+        finally:
+            return super().post(self, request, *args, **kwargs)

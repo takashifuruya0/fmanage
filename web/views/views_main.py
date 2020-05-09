@@ -2,12 +2,8 @@
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.conf import settings
-from datetime import date
-from dateutil.relativedelta import relativedelta
 from web.forms import InvestmentForm
 from django.contrib import messages
-from django.db import transaction
 from web.models import Entry, Order, StockValueData, Stock, AssetStatus
 from web.functions import mylib_scraping, mylib_asset
 from django_celery_results.models import TaskResult

@@ -46,9 +46,12 @@ class EntryForm(forms.ModelForm):
 
 
 class OrderForm(forms.ModelForm):
+    is_buy = forms.BooleanField(label="買い注文")
+    is_nisa = forms.BooleanField(label="NISA")
+
     class Meta:
         model = Order
-        fields = '__all__'
+        exclude = ("is_simulated", "fkmanage_id", "chart")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -107,26 +110,3 @@ class SBIAlertForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
-
-
-class TrustOrderForm(forms.ModelForm):
-    is_buy = forms.BooleanField(label="買い注文")
-    is_nisa = forms.BooleanField(label="NISA")
-
-    class Meta:
-        model = Order
-        exclude = ("is_simulated", "fkmanage_id", "chart")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs['class'] = 'form-control'
-        self.fields['entry'].queryset = Entry.objects.filter(stock__is_trust=True)
-        self.fields['stock'].queryset = Stock.objects.filter(is_trust=True)
-        self.fields['datetime'].widget.attrs['readonly'] = 'readonly'
-
-    def get_entry(self):
-        if self.initial:
-            return Entry.objects.filter(stock=self.initial['stock'])
-        else:
-            return Entry.objects.filter(stock__is_trust=True)

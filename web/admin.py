@@ -25,13 +25,13 @@ class AssetStatusAdmin(admin.ModelAdmin):
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
-        "pk", "is_simulated", "is_buy", "is_nisa",
+        "pk", "is_buy", "is_nisa",
         "user", "datetime", "entry", "stock",
         "num", "val", "commission",
-        "chart", "chart_image", "fkmanage_id",
+        "chart", "fkmanage_id",
     ]
     list_filter = [
-        "user", "datetime", "is_simulated", "is_buy", "stock__is_trust",
+        "user", "datetime", "is_buy", "stock__is_trust",
         "stock__name", "stock__code", "stock__industry", "stock__market",
     ]
     search_fields = ['stock__name']
