@@ -42,8 +42,14 @@
 					<td>{{entry.stock}}</td>
 				</tr>
 				<tr>
-					<th>現在株価</th>
-					<td>{{entry.stock.current_val |yen}}</td>
+					<th>現在株価
+					<td>
+					{% if entry.stock.is_trust %}
+					{{entry.stock.current_val |yen:4}}
+					{% else %}
+					{{entry.stock.current_val |yen}}
+					{% endif %}
+					</td>
 				</tr>
 				{% if entry.is_plan %}
 				<tr>

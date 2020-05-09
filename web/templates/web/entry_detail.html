@@ -129,7 +129,7 @@
 					<th>買付平均/現在株価</th>
 					<td class="right">
 						{% if entry.stock.is_trust %}
-						{{entry.val_buy |yen:4}} / {{overview.val | yen}}
+						{{entry.val_buy |yen:4}} / {{overview.val | yen:4}}
 						{% else %}
 						{{entry.val_buy |yen}} / {{overview.val | yen}}
 						{% endif %}
