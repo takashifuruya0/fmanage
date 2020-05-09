@@ -1,5 +1,6 @@
 from django import forms
-from web.models import Entry, Order, Stock, SBIAlert, EntryStatus
+from web.models import Entry, Order, Stock, SBIAlert, EntryStatus, StockValueData
+from datetime import date
 
 
 class EntryForm(forms.ModelForm):
@@ -56,12 +57,15 @@ class OrderForm(forms.ModelForm):
         self.fields['entry'].queryset = self.get_entry()
 
     def get_entry(self):
-        return Entry.objects.filter(stock=self.initial['stock'])
+        if self.initial:
+            return Entry.objects.filter(stock=self.initial['stock'])
+        else:
+            return Entry.objects.filter(is_closed=False)
 
 
 class InvestmentForm(forms.Form):
     value = forms.IntegerField(required=True)
-    is_investment = forms.BooleanField(required=False)
+    is_investment = forms.BooleanField(required=False, label="増資")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -103,3 +107,26 @@ class SBIAlertForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+
+class TrustOrderForm(forms.ModelForm):
+    is_buy = forms.BooleanField(label="買い注文")
+    is_nisa = forms.BooleanField(label="NISA")
+
+    class Meta:
+        model = Order
+        exclude = ("is_simulated", "fkmanage_id", "chart")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+        self.fields['entry'].queryset = Entry.objects.filter(stock__is_trust=True)
+        self.fields['stock'].queryset = Stock.objects.filter(is_trust=True)
+        self.fields['datetime'].widget.attrs['readonly'] = 'readonly'
+
+    def get_entry(self):
+        if self.initial:
+            return Entry.objects.filter(stock=self.initial['stock'])
+        else:
+            return Entry.objects.filter(stock__is_trust=True)

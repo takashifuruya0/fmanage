@@ -3,6 +3,7 @@ from .models import Stock, StockFinancialData, AssetStatus
 from .models import StockValueData, Order, Entry, ReasonWinLoss
 from .models import SBIAlert, EntryStatus
 from .functions import mylib_asset
+from .forms import OrderForm
 from django.contrib import messages
 
 
@@ -35,6 +36,7 @@ class OrderAdmin(admin.ModelAdmin):
     ]
     search_fields = ['stock__name']
     actions = ["do_order_process", ]
+    form = OrderForm
 
     def chart_image(self, row):
         if row.chart:

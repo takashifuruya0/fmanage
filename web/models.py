@@ -128,7 +128,11 @@ class Entry(models.Model):
     status = models.ForeignKey(EntryStatus, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
-        return "E{:0>3}_{}".format(self.pk, self.stock)
+        if self.is_plan:
+            head = 'I' if self.is_closed else 'P'
+        else:
+            head = 'C' if self.is_closed else 'O'
+        return "{}{:0>3}_{}".format(head, self.pk, self.stock)
 
     def val_order(self, is_buy):
         """取引株価"""
