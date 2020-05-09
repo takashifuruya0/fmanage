@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{% load web_template %}
 {% block title %}
     Stock List
 {% endblock %}
@@ -25,21 +26,22 @@
 		<div class="col-12">
 			<table class="table table-responsive-sm">
 				<tr>
-					<th>Code</th>
+<!--					<th>Code</th>-->
 					<th>Name</th>
 					<th>Type</th>
 					<th>Industry</th>
 					<th>Market</th>
 					<th>Feature</th>
+					<th>乖離率(5/25/75)</th>
 				</tr>
 				{% for stock in object_list %}
 				<tr>
 					<td>
 						<a href="{%url 'web:stock_detail' stock_code=stock.code%}">
-							{{stock.code}}
+							{{stock}}
 						</a>
 					</td>
-					<td>{{stock.name}}</td>
+<!--					<td>{{stock.name}}</td>-->
 					<td>
 						{%if stock.is_trust%}
 						<label class="badge badge-info">投資信託</label>
@@ -49,7 +51,12 @@
 					</td>
 					<td>{{stock.industry |default:"-"}}</td>
 					<td>{{stock.market |default:"-"}}</td>
-					<td>{{stock.feature |default:"-" |truncatechars:20}}</td>
+					<td>{{stock.feature |default:"-" }}</td>
+					<td>
+						{{stock.analysis.diff_ma_5_pct |pct |safe}}
+						/ {{stock.analysis.diff_ma_25_pct |pct |safe}}
+						/ {{stock.analysis.diff_ma_75_pct |pct |safe}}
+					</td>
 				</tr>
 				{% endfor %}
 			</table>

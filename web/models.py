@@ -2,7 +2,7 @@ from django.db import models
 from datetime import date, datetime
 from django.contrib.auth.models import User
 from django.db.models import Sum, Avg
-from web.functions import mylib_scraping
+from web.functions import mylib_scraping, mylib_analysis
 from django.utils import timezone
 import logging
 logger = logging.getLogger('django')
@@ -39,6 +39,11 @@ class Stock(models.Model):
     def latest_val_date(self):
         svd = StockValueData.objects.filter(stock=self).latest('date')
         return svd.date if svd else None
+
+    def analysis(self):
+        svds = StockValueData.objects.filter(stock=self).order_by('-date')[:10]
+        analysis = mylib_analysis.prepare(svds)
+        return analysis.iloc[0]
 
     def save(self, *args, **kwargs):
         data = mylib_scraping.yf_detail(self.code)
