@@ -28,7 +28,8 @@ class Event(models.Model):
     objects = None
     date = models.DateField()
     name = models.CharField(max_length=30)
-    memo = models.CharField(max_length=100, blank=True, null=True)
+    memo = models.CharField(max_length=100, blank=True, null=True, verbose_name="メモ")
+    detail = models.TextField(blank=True, null=True, default=None, verbose_name="詳細")
     is_active = models.BooleanField(default=True)
     sum_plan = models.IntegerField(default=0)
 
@@ -51,7 +52,7 @@ class Event(models.Model):
         return self.sum_actual() - self.sum_plan
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        res = super().save(*args, **kwargs)
         if self.count_actual() == 0:
             Kakeibos.objects.create(
                 event=self,
@@ -62,6 +63,7 @@ class Event(models.Model):
                 usage=Usages.objects.get(name="その他"),
                 is_active=False
             )
+        return res
 
 
 class Colors(models.Model):

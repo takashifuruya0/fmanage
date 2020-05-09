@@ -69,7 +69,7 @@ class UsualRecordAdmin(admin.ModelAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'name', 'memo', "is_active"]
+    list_display = ['id', 'date', 'name', 'memo', 'detail', "is_active"]
 
 
 class BudgetAdmin(admin.ModelAdmin):

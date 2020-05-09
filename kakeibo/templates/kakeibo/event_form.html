@@ -12,30 +12,7 @@
 
     <form method="post">
         <table class="table table-light table-hover table-sm table-bordered table-responsive-md">
-            <tr>
-                <th>id</th>
-                <td>{{object.pk}}</td>
-            </tr>
-            <tr>
-                <th>Date</th>
-                <td>{{form.date}}</td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{form.name}}</td>
-            </tr>
-            <tr>
-                <th>Sum (Plan)</th>
-                <td>{{form.sum_plan}}</td>
-            </tr>
-            <tr>
-                <th>Memo</th>
-                <td>{{form.memo}}</td>
-            </tr>
-            <tr>
-                <th>Active</th>
-                <td>{{form.is_active}}</td>
-            </tr>
+            {{form}}
         </table>
         <div class="row">
             <div class="col-sm-6">

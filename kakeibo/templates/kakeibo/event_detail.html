@@ -34,6 +34,10 @@
             <td>{{object.memo |default:''}}</td>
         </tr>
         <tr>
+            <th>Detail</th>
+            <td>{{object.detail |default:'' |linebreaksbr}}</td>
+        </tr>
+        <tr>
             <th>Sum (Actual)</th>
             <td>¥ {{object.sum_actual |intcomma}}</td>
         </tr>
