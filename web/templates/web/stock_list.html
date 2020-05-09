@@ -32,7 +32,10 @@
 					<th>Industry</th>
 					<th>Market</th>
 					<th>Feature</th>
-					<th>乖離率(5/25/75)</th>
+					<th>5日乖離率</th>
+					<th>25日乖離率</th>
+					<th>終値前日比</th>
+					<th>出来高前日比</th>
 				</tr>
 				{% for stock in object_list %}
 				<tr>
@@ -52,11 +55,24 @@
 					<td>{{stock.industry |default:"-"}}</td>
 					<td>{{stock.market |default:"-"}}</td>
 					<td>{{stock.feature |default:"-" }}</td>
+					{% with stock.analysis as analysis %}
+					{% if stock.analysis.date %}
 					<td>
-						{{stock.analysis.diff_ma_5_pct |pct |safe}}
-						/ {{stock.analysis.diff_ma_25_pct |pct |safe}}
-						/ {{stock.analysis.diff_ma_75_pct |pct |safe}}
+						{{analysis.diff_ma_5_pct |pct_100 |safe}}
 					</td>
+					<td>
+						{{analysis.diff_ma_25_pct |pct_100 |safe}}
+					</td>
+					<td>
+						{{analysis.val_close_diff_pct |pct |safe}}
+					</td>
+					<td>
+						{{analysis.turnover_diff_pct |pct |safe}}
+					</td>
+					{% else %}
+					<td></td><td></td><td></td><td></td>
+					{% endif %}
+					{% endwith %}
 				</tr>
 				{% endfor %}
 			</table>

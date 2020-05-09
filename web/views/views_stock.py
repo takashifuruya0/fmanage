@@ -35,11 +35,12 @@ class StockDetail(LoginRequiredMixin, DetailView):
         context['svds'] = StockValueData.objects.filter(
             stock=context['stock'], date__gte=(date.today()-relativedelta(months=6))
         ).order_by('date')
+        if context['svds'].count() > 0:
+            df = mylib_analysis.prepare(context['svds'])
+            context['df_latest'] = df.iloc[-1]
+            context['df_check'] = mylib_analysis.check(df)
+            context['df_trend'] = mylib_analysis.get_trend(df)
         context['sfds'] = StockFinancialData.objects.filter(stock=context['stock']).order_by('date')
-        df = mylib_analysis.prepare(context['svds'])
-        context['df_latest'] = df.iloc[-1]
-        context['df_check'] = mylib_analysis.check(df)
-        context['df_trend'] = mylib_analysis.get_trend(df)
         context['entry_form'] = EntryForm(initial={
             "user": self.request.user,
             "stock": context['stock'],
@@ -48,15 +49,12 @@ class StockDetail(LoginRequiredMixin, DetailView):
         })
         context["sbialert_form"] = SBIAlertForm(initial={"stock": self.object})
         context["sbialerts"] = SBIAlert.objects.filter(stock=self.object, is_active=True)
-        # 終値グラフ
-        svds = StockValueData.objects.filter(stock=self.object).order_by('date')
-        context["svds"] = svds
         # 日付とindex番号の紐付け
         date_list = dict()
-        for i, svd in enumerate(svds):
+        for i, svd in enumerate(context['svds']):
             date_list[svd.date.__str__()] = i
         # 売買注文のグラフ化
-        svds_count = svds.count()
+        svds_count = context['svds'].count()
         bos_detail = [None for i in range(svds_count)]
         sos_detail = [None for i in range(svds_count)]
         for o in self.object.order_set.all():

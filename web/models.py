@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import date, datetime
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.db.models import Sum, Avg
 from web.functions import mylib_scraping, mylib_analysis
@@ -40,10 +41,15 @@ class Stock(models.Model):
         svd = StockValueData.objects.filter(stock=self).latest('date')
         return svd.date if svd else None
 
-    def analysis(self):
-        svds = StockValueData.objects.filter(stock=self).order_by('-date')[:10]
-        analysis = mylib_analysis.prepare(svds)
-        return analysis.iloc[0]
+    def analysis(self, days=30):
+        print(self)
+        target_date = date.today() - relativedelta(days=days)
+        svds = StockValueData.objects.filter(stock=self, date__gte=target_date).order_by('date')
+        if svds.count() > 1:
+            analysis = mylib_analysis.prepare(svds)
+            return analysis.iloc[-1]
+        else:
+            return None
 
     def save(self, *args, **kwargs):
         data = mylib_scraping.yf_detail(self.code)
