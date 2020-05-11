@@ -208,7 +208,7 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "sos_detail": sos_detail,
             "od": od,
             "cd": cd,
-            "df_latest": df.iloc[-1],
+            "df_latest": df.iloc[-1] if svds.count() > 0 else None,
             "df_check": df_check,
             "df_trend": df_trend,
             "sbialert_form": sbialert_form,
@@ -219,7 +219,7 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         if overview['status']:
             output['overview'] = overview['data']
             # svdが当日のものがあるかチェック
-            output["is_svd_updated"] = True if svds.latest('date').date == date.today() else False
+            output["is_svd_updated"] = True if svds.exists() and svds.latest('date').date == date.today() else False
         else:
             svd_latest = StockValueData.objects.filter(stock=entry.stock).latest('date')
             output['overview'] = {

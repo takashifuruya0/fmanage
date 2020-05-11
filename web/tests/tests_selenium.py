@@ -6,14 +6,16 @@ from selenium.webdriver.chrome.options import Options
 
 class SeleniumTest(TestCase):
     def setUp(self) -> None:
-        options = Options()
-        options.add_argument('--headless')
-        if settings.ENVIRONMENT == "metabase":
+        if settings.ENVIRONMENT == 'metabase':
+            # linux
+            options = Options()
             options.binary_location = '/usr/bin/google-chrome'
-            path = '/usr/bin/chromedriver'
-        else:
-            path = '/usr/local/bin/chromedriver'
-        self.driver = webdriver.Chrome(path, chrome_options=options)
+            options.add_argument('--headless')
+            options.add_argument('--window-size=1280,1024')
+            self.driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=options)
+        elif settings.ENVIRONMENT == 'develop':
+            # mac
+            self.driver = webdriver.Chrome('/usr/local/bin/chromedriver')
 
     def tearDown(self) -> None:
         self.driver.close()
