@@ -85,7 +85,6 @@
 			</table>
 			<hr>
 
-			{% include 'web/modal/modal_new_order.html' %}
 			<a class="btn btn-outline-info" href="{%url 'web:entry_edit' pk=entry.pk%}">
 				<i class="fas fa-edit"></i> Edit
 			</a>
@@ -97,6 +96,9 @@
 			<a class="btn btn-outline-secondary" href="{%url 'web:entry_list' %}">
 				<i class="fas fa-backward"></i> Back
 			</a>
+			{% if entry.stock.is_trust %}
+			{% include 'web/modal/modal_new_order.html' %}
+			{% endif %}
 		</div>
 
 		<div class="col-12 col-md-4">
@@ -244,6 +246,7 @@
 	<div class="row">
 		<div class="col-12 col-sm-5">
 			<h5><i class="fas fa-link"></i> Linked Orders</h5>
+
 			<form action="" method="post">
 				<table class="table table-responsive-sm">
 					<tr>
@@ -273,6 +276,7 @@
 				{% include 'web/modal/modal_link_orders.html' %}
 				{% csrf_token %}
 			</form>
+
 
 			<hr>
 			<h5><i class="far fa-bell"></i> Alert</h5>
