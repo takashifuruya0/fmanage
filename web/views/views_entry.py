@@ -198,6 +198,38 @@ class EntryDetail(LoginRequiredMixin, DetailView):
                     bos_detail[date_list[order_date]] = o.val*10000 if entry.stock.is_trust else o.val
                 else:
                     sos_detail[date_list[order_date]] = o.val*10000 if entry.stock.is_trust else o.val
+        # graphの判定
+        t = date.today()
+        if (svds.count() > 0 and svds.latest('date').date == t) or t.isoweekday() > 5:
+            is_add_graph = False
+        else:
+            is_add_graph = True
+        # 現在情報を取得
+        overview_res = mylib_scraping.yf_detail(entry.stock.code)
+        if overview_res['status']:
+            overview = overview_res['data']
+        else:
+            svd_latest = StockValueData.objects.filter(stock=entry.stock).latest('date')
+            overview = {
+                "val": svd_latest.val_close,
+                "val_high": svd_latest.val_high,
+                "val_low": svd_latest.val_low,
+                "val_open": svd_latest.val_open,
+                "val_close": svd_latest.val_close,
+                "turnover": svd_latest.turnover,
+            }
+        # OrderFormを追加
+        order_form = OrderForm(
+            initial={
+                "user": self.request.user,
+                "is_nisa": entry.stock.is_trust,
+                "is_buy": True,
+                "entry": entry,
+                "commission": 0 if entry.stock.is_trust else None,
+                "stock": entry.stock,
+            }
+        )
+        # output
         output = {
             "user": self.request.user,
             "entry": entry,
@@ -213,35 +245,10 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "df_trend": df_trend,
             "sbialert_form": sbialert_form,
             "sbialerts": sbialerts,
+            "is_add_graph": is_add_graph,
+            "overview": overview,
+            "order_form": order_form,
         }
-        # 現在情報を取得
-        overview = mylib_scraping.yf_detail(entry.stock.code)
-        if overview['status']:
-            output['overview'] = overview['data']
-            # svdが当日のものがあるかチェック
-            output["is_svd_updated"] = True if svds.exists() and svds.latest('date').date == date.today() else False
-        else:
-            svd_latest = StockValueData.objects.filter(stock=entry.stock).latest('date')
-            output['overview'] = {
-                "val": svd_latest.val_close,
-                "val_high": svd_latest.val_high,
-                "val_low": svd_latest.val_low,
-                "val_open": svd_latest.val_open,
-                "val_close": svd_latest.val_close,
-                "turnover": svd_latest.turnover,
-            }
-            output["is_svd_updated"] = True
-        # OrderFormを追加
-        output['order_form'] = OrderForm(
-            initial={
-                "user": self.request.user,
-                "is_nisa": entry.stock.is_trust,
-                "is_buy": True,
-                "entry": entry,
-                "commission": 0 if entry.stock.is_trust else None,
-                "stock": entry.stock,
-            }
-        )
         # res
         return output
 

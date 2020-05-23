@@ -33,7 +33,7 @@ var myChart = new Chart(ctx, {
   data: {
     labels: [
       {%for svd in svds %}"{{svd.date}}",{%endfor%}
-      {% if entry and not entry.is_closed %}
+      {% if entry and not entry.is_closed and is_add_graph %}
       "today"
       {% endif %}
     ],
@@ -43,7 +43,7 @@ var myChart = new Chart(ctx, {
             label: 'Buy',
             data: [
                 {% for bo in bos_detail %}"{{bo}}",{%endfor%}
-                {% if entry and not entry.is_closed %}
+                {% if entry and not entry.is_closed and is_add_graph %}
                 "None"
                 {% endif %}
             ],
@@ -57,7 +57,7 @@ var myChart = new Chart(ctx, {
             label: 'Sell',
             data: [
                 {% for so in sos_detail %}"{{so}}",{%endfor%}
-                {% if entry and not entry.is_closed %}
+                {% if entry and not entry.is_closed and is_add_graph %}
                 "None"
                 {% endif %}
             ],
@@ -71,7 +71,7 @@ var myChart = new Chart(ctx, {
             label: '終値',
             data: [
                 {%for svd in svds%}{{svd.val_close}},{%endfor%}
-                {% if entry and not entry.is_closed %}
+                {% if entry and not entry.is_closed and is_add_graph%}
                 {{overview.val_close}} // OpenEntry
                 {% endif %}
             ],
@@ -85,7 +85,7 @@ var myChart = new Chart(ctx, {
             label: '出来高',
             data: [
                 {%for svd in svds%}{{svd.turnover}},{%endfor%}
-                {% if entry and not entry.is_closed %}
+                {% if entry and not entry.is_closed and is_add_graph %}
                 {{overview.turnover}}
                 {% endif %}
             ],
