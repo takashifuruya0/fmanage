@@ -37,8 +37,13 @@ class EntryForm(forms.ModelForm):
                 self.fields.pop("reason_win_loss")
                 self.fields.pop("is_plan")
                 self.fields['stock'].disabled = True
+            if instance.is_plan:
+                self.fields.pop("reason_win_loss")
+                self.fields.pop("is_plan")
             if instance.entry_type:
-                self.fields['status'].queryset = EntryStatus.objects.filter(entry_type=instance.entry_type)
+                self.fields['status'].queryset = EntryStatus.objects.filter(
+                    entry_type=instance.entry_type, is_for_plan=instance.is_plan
+                ).order_by('status')
                 self.fields['entry_type'].disabled = True
         else:
             for d in ("reason_win_loss", "status",):

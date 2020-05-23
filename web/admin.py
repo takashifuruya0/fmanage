@@ -64,7 +64,7 @@ class StockValueDataAdmin(admin.ModelAdmin):
 
 class EntryAdmin(admin.ModelAdmin):
     list_display = [
-        'pk', 'stock',
+        'pk', 'created_at', 'updated_at', 'stock',
         'is_closed', 'is_simulated', "is_plan",
         "remaining", "profit",
         'reason_win_loss', 'memo', "num_linked_orders",
@@ -110,7 +110,10 @@ class SBIAlertAdmin(admin.ModelAdmin):
 class EntryStatusAdmin(admin.ModelAdmin):
     list_display = [
         "status", "min_profit_percent", "max_holding_period",
-        "is_within_week", "is_within_holding_period",
+        "is_within_week", "is_within_holding_period", "is_for_plan",
+    ]
+    list_editable = [
+        "is_within_week", "is_within_holding_period", "is_for_plan",
     ]
 
 

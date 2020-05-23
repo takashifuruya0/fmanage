@@ -104,6 +104,7 @@ class EntryStatus(models.Model):
     max_holding_period = models.IntegerField(help_text="最大保有期間", blank=True, null=True)
     is_within_week = models.BooleanField(help_text="週跨ぎしないEntry")
     is_within_holding_period = models.BooleanField(default=True, help_text="保有期間超えを許容しない")
+    is_for_plan = models.BooleanField(default=False, help_text="Plan向けステータス")
 
     def __str__(self):
         return self.status
@@ -111,6 +112,8 @@ class EntryStatus(models.Model):
 
 class Entry(models.Model):
     objects = None
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="作成日時")
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name="更新日時")
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="ユーザ")
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name="銘柄")
     border_loss_cut = models.FloatField(blank=True, null=True, verbose_name="損切価格")
