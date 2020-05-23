@@ -288,6 +288,10 @@ class Entry(models.Model):
             # self.is_closed = False
         super().save(*args, **kwargs)
 
+    def profit_per_days(self):
+        """利益/保有期間"""
+        return self.profit() / self.holding_period()
+
 
 class Order(models.Model):
     objects = None
