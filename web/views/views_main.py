@@ -23,6 +23,17 @@ class Main(LoginRequiredMixin, TemplateView):
         astatus_list = AssetStatus.objects.filter(user=self.request.user)
         astatus = astatus_list.latest('date') if astatus_list.exists() else None
         checks = mylib_asset.analyse_all(days=15)
+        # Current Total
+        if astatus:
+            total = astatus.buying_power
+            es = Entry.objects.filter(is_closed=False, is_plan=False)
+            for e in es:
+                current_val = e.stock.current_val()
+                val = current_val if current_val else e.stock.latest_val()
+                num = e.remaining()
+                total += val * num
+            diff = total - astatus.get_total()
+        # output
         output = {
             "user": self.request.user,
             "entrys": entrys,
@@ -31,6 +42,8 @@ class Main(LoginRequiredMixin, TemplateView):
             "astatus": astatus,
             "investment_form": InvestmentForm(),
             "checks": checks,
+            "total": total if astatus else None,
+            "diff": diff if astatus else None,
         }
         if self.request.user.is_superuser:
             tasks = TaskResult.objects.all()

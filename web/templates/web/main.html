@@ -27,6 +27,9 @@
 						<div class="col-12 col-md-4">
 							<h5 class="card-title">
 								<i class="fas fa-tachometer-alt"></i> Asset Status
+								<label class="badge badge-{%if total > astatus.get_total%}success{%else%}danger{%endif%}">
+									{{total |yen |safe}} / 前日比{{diff |yen |safe}}
+								</label>
 							</h5>
 							<table class="table table-responsive-sm">
 								<tr>
@@ -150,6 +153,7 @@
 										<th>口数</th>
 										<th>予定株価</th>
 										<th>現在株価</th>
+										<th>更新日</th>
 										<th>メモ</th>
 									</tr>
 								</thead>
@@ -166,6 +170,7 @@
 									<td class="right">{{entry.num_plan |intcomma}}</td>
 									<td class="right">{{entry.val_plan |yen |safe}}</td>
 									<td class="right">{{entry.stock.current_val |yen |safe}}</td>
+									<td>{{entry.updated_at}}</td>
 									<td>{{entry.memo |linebreaksbr}}</td>
 								</tr>
 								{% endfor %}
