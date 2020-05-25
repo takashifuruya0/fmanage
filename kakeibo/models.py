@@ -5,7 +5,8 @@ from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Avg, Count
 from django.utils.timezone import now
 # asset
-from asset.models import AssetStatus
+# from asset.models import AssetStatus
+from web.models import AssetStatus
 
 # Create your models here.
 # ==============================
@@ -217,7 +218,7 @@ class Resources(BaseModel):
 
     def current_val(self):
         if self.name == "投資口座":
-            return AssetStatus.objects.latest('date').total
+            return AssetStatus.objects.latest('date').get_total()
         else:
             move_tos = Kakeibos.objects.filter(move_to=self)
             move_froms = Kakeibos.objects.filter(move_from=self)
