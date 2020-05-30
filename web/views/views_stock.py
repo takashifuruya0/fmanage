@@ -46,6 +46,7 @@ class StockDetail(LoginRequiredMixin, DetailView):
             "stock": context['stock'],
             "border_loss_cut": round(context["current_val"]*0.9),
             "border_profit_determination": round(context["current_val"]*1.1),
+            "val_plan": round(context["current_val"]),
         })
         context["sbialert_form"] = SBIAlertForm(initial={"stock": self.object})
         context["sbialerts"] = SBIAlert.objects.filter(stock=self.object, is_active=True)

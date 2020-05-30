@@ -46,8 +46,8 @@ class EntryForm(forms.ModelForm):
                 ).order_by('status')
                 self.fields['entry_type'].disabled = True
         else:
-            for d in ("reason_win_loss", "status",):
-                self.fields.pop(d)
+            self.fields['status'].queryset = EntryStatus.objects.filter(is_for_plan=True).order_by('status')
+            self.fields.pop("reason_win_loss")
 
 
 class OrderForm(forms.ModelForm):
