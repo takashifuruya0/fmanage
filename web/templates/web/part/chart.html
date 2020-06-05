@@ -86,7 +86,7 @@ var myChart = new Chart(ctx, {
             data: [
                 {%for svd in svds%}{{svd.turnover}},{%endfor%}
                 {% if entry and not entry.is_closed and is_add_graph %}
-                {{overview.turnover}}
+                {{overview.turnover |default:0}}
                 {% endif %}
             ],
             backgroundColor: "rgba(255,153,0, 0.4)",

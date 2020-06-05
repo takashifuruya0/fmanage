@@ -388,7 +388,7 @@
       	Low: {{overview.val_low}},
       	Open: {{overview.val_open}},
       	Close: {{overview.val_close}},
-      	Volume: {{overview.turnover}},
+      	Volume: {{overview.turnover |default:0}},
       },
       {% endif %}
     ];
