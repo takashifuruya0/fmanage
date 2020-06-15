@@ -171,7 +171,7 @@
 									<td class="right">{{entry.val_plan |yen |safe}}</td>
 									<td class="right">{{entry.stock.current_val |yen |safe}}</td>
 									<td>{{entry.updated_at}}</td>
-									<td>{{entry.memo |linebreaksbr}}</td>
+									<td>{{entry.memo |truncatechars:300 |linebreaksbr}}</td>
 								</tr>
 								{% endfor %}
 								</tbody>
