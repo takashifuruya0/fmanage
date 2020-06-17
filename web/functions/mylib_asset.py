@@ -362,6 +362,7 @@ def register_stock_value_data_alt(code):
     # for result
     counter = 0
     list_added = list()
+    list_updated = list()
     # main process
     data = mylib_scraping.yf_detail(code)
     stock = Stock.objects.get(code=code)
@@ -390,14 +391,36 @@ def register_stock_value_data_alt(code):
                     turnover=data['data']['turnover'],
                 )
             list_added.append(s.date.__str__())
-            logger.info('StockValueData of {} are updated'.format(stock))
+            logger.info('StockValueData of {} is created'.format(stock))
+        elif StockValueData.objects.filter(stock=stock, date=today).__len__() == 1:
+            counter += 1
+            s = StockValueData.objects.filter(stock=stock, date=today)
+            if stock.is_trust:
+                s.update(
+                    val_open=data['data']['val'] * 10000,
+                    val_high=data['data']['val'] * 10000,
+                    val_low=data['data']['val'] * 10000,
+                    val_close=data['data']['val'] * 10000,
+                    turnover=data['data']['balance']
+                )
+            else:
+                s.update(
+                    val_open=data['data']['val_open'],
+                    val_high=data['data']['val_high'],
+                    val_low=data['data']['val_low'],
+                    val_close=data['data']['val_close'],
+                    turnover=data['data']['turnover'],
+                )
+            list_updated.append(s.first().date.__str__())
+            logger.info('StockValueData of {} is updated'.format(stock))
     result = {
         "counter": counter,
         "stock": {
             "name": stock.name,
             "code": stock.code,
         },
-        "list": list_added,
+        "list_added": list_added,
+        "list_updated": list_updated,
     }
     return result
 

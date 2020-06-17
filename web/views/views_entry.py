@@ -8,7 +8,7 @@ from web.forms import EntryForm, SBIAlertForm, OrderForm
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, StockValueData, SBIAlert
-from web.functions import mylib_scraping, mylib_analysis
+from web.functions import mylib_scraping, mylib_analysis, mylib_asset
 # list view, pagination
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from pure_pagination.mixins import PaginationMixin

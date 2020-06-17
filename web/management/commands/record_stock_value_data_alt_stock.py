@@ -15,9 +15,9 @@ class Command(BaseCommand):
     # コマンドが実行された際に呼ばれるメソッド
     def handle(self, *args, **options):
         stocks = Stock.objects.filter(is_trust=False)
-        today = date.today()
+        # today = date.today()
         for s in stocks:
-            if not StockValueData.objects.filter(stock=s, date=today).exists():
-                d = mylib_asset.register_stock_value_data_alt(s.code)
-                msg = "Result of record_stock_value_data for {}: {}".format(s, d)
-                self.stdout.write(self.style.SUCCESS(msg))
+            # if not StockValueData.objects.filter(stock=s, date=today).exists():
+            d = mylib_asset.register_stock_value_data_alt(s.code)
+            msg = "Result of record_stock_value_data for {}: {}".format(s, d)
+            self.stdout.write(self.style.SUCCESS(msg))
