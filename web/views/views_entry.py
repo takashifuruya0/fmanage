@@ -201,6 +201,8 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         # graphの判定
         t = date.today()
         if (svds.count() > 0 and svds.latest('date').date == t) or t.isoweekday() > 5:
+            if t.isoweekday() <= 5:
+                mylib_asset.register_stock_value_data_alt(entry.stock.code)
             is_add_graph = False
         else:
             is_add_graph = True
