@@ -203,6 +203,7 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         if (svds.count() > 0 and svds.latest('date').date == t) or t.isoweekday() > 5:
             if t.isoweekday() <= 5:
                 mylib_asset.register_stock_value_data_alt(entry.stock.code)
+                svds = StockValueData.objects.filter(stock=entry.stock, date__gte=od, date__lte=cd).order_by('date')
             is_add_graph = False
         else:
             is_add_graph = True
