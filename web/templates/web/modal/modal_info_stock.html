@@ -1,9 +1,13 @@
 {% load humanize %}
 {% load web_template %}
 <!--button-->
-  <span data-toggle="modal" data-target="#new_stock">
-    {{entry.stock}} <i class="fas fa-external-link-alt"></i>
-  </span>
+<span data-toggle="modal" data-target="#new_stock">
+  {{entry.stock}}
+</span>
+<a href="{%url 'web:stock_detail' stock_code=entry.stock.code %}">
+  <i class="fas fa-external-link-alt"></i>
+</a>
+
 <!-- Modal new_stock-->
 <div class="modal fade" id="new_stock" tabindex="-1" role="dialog" aria-labelledby="new_stock" aria-hidden="true">
   <div class="modal-dialog" role="document">
