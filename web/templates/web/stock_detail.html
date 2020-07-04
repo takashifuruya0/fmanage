@@ -52,6 +52,14 @@
 					<th>単元株数</th>
 					<td>{{stock.unit}}</td>
 				</tr>
+				<tr>
+					<th>配当金</th>
+					<td>{{stock.dividend}}</td>
+				</tr>
+				<tr>
+					<th>配当利回り</th>
+					<td>{{stock.dividend_yield |pct}}</td>
+				</tr>
 				{% endif %}
 			</table>
 		</div>

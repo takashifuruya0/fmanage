@@ -9,7 +9,11 @@ from django.contrib import messages
 
 # Register your models here.
 class StockAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'is_trust', 'code', 'name', 'market', 'industry', "fkmanage_id"]
+    list_display = [
+        'pk', 'is_trust', 'code', 'name', 'market', 'industry',
+        "dividend", "dividend_yield", "fkmanage_id",
+        "created_at", "updated_at",
+    ]
     list_filter = ['market', 'industry', ]
     search_fields = ['is_trust', 'code', 'name', ]
 

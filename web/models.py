@@ -15,6 +15,8 @@ CHOICES_ENTRY_TYPE = (
 
 class Stock(models.Model):
     objects = None
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="作成日時")
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name="更新日時")
     code = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=40)
     is_trust = models.BooleanField()
@@ -25,6 +27,8 @@ class Stock(models.Model):
     consolidated_business = models.CharField(max_length=100, blank=True, null=True, verbose_name="連結事業")
     settlement_date = models.CharField(max_length=10, blank=True, null=True, verbose_name="決算月")
     unit = models.CharField(max_length=10, blank=True, null=True, verbose_name="単元株数")
+    dividend = models.IntegerField(blank=True, null=True, verbose_name="配当金")
+    dividend_yield = models.FloatField(blank=True, null=True, verbose_name="配当利回り")
 
     def __str__(self):
         return "({}) {}".format(self.code, self.name)
@@ -57,6 +61,10 @@ class Stock(models.Model):
             self.name = data['data']['name']
             self.market = data['data']['market']
             self.industry = data['data']['industry']
+            if not data['data']['industry'] == "ETF":
+                dividend = data['data']['financial_data']['1株配当（会社予想）']
+                self.dividend = dividend if dividend is None else int(float(dividend))
+                self.dividend_yield = data['data']['financial_data']['配当利回り（会社予想）']
             self.is_trust = False if len(str(self.code)) == 4 else True
         profile = mylib_scraping.yf_profile(self.code)
         if profile['status']:
