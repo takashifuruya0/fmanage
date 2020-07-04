@@ -1,0 +1,124 @@
+{% load humanize %}
+{% load web_template %}
+
+{% if sfds %}
+<h5><i class="fas fa-money-check-alt"></i> Stock Financial Data</h5>
+<table class="table table-responsive-sm">
+  <tr>
+    <th></th>
+    <th>日付</th>
+    <th class="right">営業利益</th>
+    <th class="right">売上高</th>
+    <th class="right">ROE</th>
+    <th class="right">ROA</th>
+  </tr>
+  {% for sfd in sfds %}
+  <tr>
+    <td class="right">
+      <span data-toggle="modal" data-target="#sfd_{{sfd.id}}"><i class="fas fa-external-link-alt"></i></span>
+    </td>
+    <td class="right">{{sfd.date}}</td>
+    <td class="right" class="right">{{sfd.operating_income |yen |safe}}</td>
+    <td class="right" class="right">{{sfd.sales |yen |safe}}</td>
+    <td class="right" class="right">{{sfd.roe}}</td>
+    <td class="right" class="right">{{sfd.roa}}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<!-- Modal new_stock-->
+{% for sfd in sfds %}
+<div class="modal fade" id="sfd_{{sfd.id}}" tabindex="-1" role="dialog" aria-labelledby="sfd_{{sfd.id}}" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="new_stock_Label">
+          <i class="fas fa-info-circle"></i> {{sfd.date}}
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-responsive-sm">
+          <tr>
+            <th>有利子負債</th>
+            <td class="right">{{sfd.interest_bearing_debt |yen |safe}}</td>
+          </tr>
+          <tr>
+            <th>ROA</th>
+            <td class="right">{{sfd.roa}}</td>
+          </tr>
+          <tr>
+            <th>ROE</th>
+            <td class="right">{{sfd.roe}}</td>
+          </tr>
+          <tr>
+            <th>売上高</th>
+            <td class="right">{{sfd.sales |yen |safe}}</td>
+          </tr>
+          <tr>
+            <th>総資産</th>
+            <td class="right">{{sfd.assets |yen |safe}}</td>
+          </tr>
+          <tr>
+            <th>EPS</th>
+            <td class="right">{{sfd.eps}}</td>
+          </tr>
+          <tr>
+            <th>当期利益</th>
+            <td class="right">{{sfd.net_income |yen |safe}}</td>
+          </tr>
+          <tr>
+            <th>BPS</th>
+            <td class="right">{{sfd.bps}}</td>
+          </tr>
+          <tr>
+            <th>総資産経常利益率</th>
+            <td class="right">{{sfd.roa_2}}</td>
+          </tr>
+          <tr>
+            <th>営業利益</th>
+            <td class="right">{{sfd.operating_income |yen |safe}}</td>
+          </tr>
+          <tr>
+            <th>自己資本比率</th>
+            <td class="right">{{sfd.equity_ratio}}</td>
+          </tr>
+          <tr>
+            <th>資本金</th>
+            <td class="right">{{sfd.capital |yen |safe}}</td>
+          </tr>
+          <tr>
+            <th>形状利益</th>
+            <td class="right">{{sfd.recurring_profit |yen |safe}}</td>
+          </tr>
+          <tr>
+            <th>自己資本</th>
+            <td class="right">{{sfd.equity |yen |safe}}</td>
+          </tr>
+          <tr>
+            <th>PBR</th>
+            <td class="right">{{sfd.pbr_f}}</td>
+          </tr>
+          <tr>
+            <th>PER</th>
+            <td class="right">{{sfd.per_f}}</td>
+          </tr>
+          <tr>
+            <th>EPS（会社予想）</th>
+            <td class="right">{{sfd.eps_f}}</td>
+          </tr>
+          <tr>
+            <th>時価総額</th>
+            <td class="right">{{sfd.market_value |yen |safe}}</td>
+          </tr>
+
+
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}

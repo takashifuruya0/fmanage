@@ -50,6 +50,7 @@ class StockDetail(LoginRequiredMixin, DetailView):
         })
         context["sbialert_form"] = SBIAlertForm(initial={"stock": self.object})
         context["sbialerts"] = SBIAlert.objects.filter(stock=self.object, is_active=True)
+        context['sfds'] = self.object.stockfinancialdata_set.all().order_by('-date')
         # 日付とindex番号の紐付け
         date_list = dict()
         for i, svd in enumerate(context['svds']):

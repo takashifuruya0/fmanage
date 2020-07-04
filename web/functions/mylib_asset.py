@@ -7,6 +7,7 @@ import csv
 from django.core import files
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
+from pprint import pprint
 import logging
 logger = logging.getLogger('django')
 
@@ -128,8 +129,9 @@ def register_stock_financial_data(code):
         # status=Trueに設定
         result['status'] = True
     except Exception as e:
-        print(e)
+        logger.error("register_stock_financial_date for {} was failed".formtat(code))
         logger.error(e)
+        pprint(profiles)
         # status=Falseに設定
         result['status'] = False
     finally:

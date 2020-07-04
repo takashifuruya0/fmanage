@@ -133,6 +133,7 @@
 				{% endfor %}
 			</table>
 
+			{% if sbialerts %}
 			<h5><i class="far fa-bell"></i> Alert</h5>
 			<table class="table table-responsive-sm">
 				<tr>
@@ -148,6 +149,9 @@
 				</tr>
 				{% endfor %}
 			</table>
+			{% endif %}
+
+			{% include 'web/modal/modal_info_sfds.html' %}
 		</div>
 	</div>
 
