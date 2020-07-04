@@ -17,4 +17,7 @@ class Command(BaseCommand):
         for s in stocks:
             d = mylib_asset.register_stock_financial_data(s.code)
             msg = "Result of record_stock_financial_data for {}: {}".format(s, d)
-            self.stdout.write(self.style.SUCCESS(msg))
+            if d['status']:
+                self.stdout.write(self.style.SUCCESS(msg))
+            else:
+                self.stdout.write(self.style.ERROR(msg))
