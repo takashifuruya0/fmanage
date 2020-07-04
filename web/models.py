@@ -61,11 +61,15 @@ class Stock(models.Model):
             self.name = data['data']['name']
             self.market = data['data']['market']
             self.industry = data['data']['industry']
-            if not data['data']['industry'] == "ETF":
+            self.is_trust = False if len(str(self.code)) == 4 else True
+            if data['data']['industry'] == "REIT":
+                dividend = data['data']['financial_data']['予想分配金']
+                self.dividend = dividend if dividend is None else int(float(dividend))
+                self.dividend_yield = data['data']['financial_data']['分配金利回り']
+            elif not data['data']['industry'] == "ETF" and not self.is_trust:
                 dividend = data['data']['financial_data']['1株配当（会社予想）']
                 self.dividend = dividend if dividend is None else int(float(dividend))
                 self.dividend_yield = data['data']['financial_data']['配当利回り（会社予想）']
-            self.is_trust = False if len(str(self.code)) == 4 else True
         profile = mylib_scraping.yf_profile(self.code)
         if profile['status']:
             self.feature = profile['data']["特色"]
