@@ -1,15 +1,12 @@
 {% load humanize %}
 {% load web_template %}
 <!--button-->
-<span data-toggle="modal" data-target="#new_stock">
-  {{entry.stock}}
-</span>
-<a href="{%url 'web:stock_detail' stock_code=entry.stock.code %}">
-  <i class="fas fa-external-link-alt"></i>
-</a>
+<button type="button" class="btn btn-block btn-outline-primary" data-toggle="modal" data-target="#stock_info">
+  <i class="fas fa-external-link-alt"></i> Stock Info
+</button>
 
 <!-- Modal new_stock-->
-<div class="modal fade" id="new_stock" tabindex="-1" role="dialog" aria-labelledby="new_stock" aria-hidden="true">
+<div class="modal fade" id="stock_info" tabindex="-1" role="dialog" aria-labelledby="stock_info" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">

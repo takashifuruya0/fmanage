@@ -29,10 +29,9 @@
 				<tr>
 					<th>Stock</th>
 					<td>
-<!--						<a href="{%url 'web:stock_detail' stock_code=entry.stock.code%}">-->
-<!--							{{entry.stock}}-->
-<!--						</a>-->
-						{%include 'web/modal/modal_info_stock.html' %}
+						<a href="{%url 'web:stock_detail' stock_code=entry.stock.code %}">
+							{{entry.stock}}
+						</a>
 					</td>
 					<th>Market / Industry</th>
 					<td>{{entry.stock.market |default:"-"}} / {{entry.stock.industry |default:"-"}} </td>
@@ -90,6 +89,9 @@
 					<td colspan="3">{{entry.memo |default:"-" |linebreaksbr}}</td>
 				</tr>
 			</table>
+			<hr>
+
+			{%include 'web/modal/modal_info_stock.html' %}
 			<hr>
 
 			<a class="btn btn-outline-info" href="{%url 'web:entry_edit' pk=entry.pk%}">
