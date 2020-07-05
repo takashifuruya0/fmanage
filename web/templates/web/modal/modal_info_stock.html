@@ -21,41 +21,64 @@
         <table class="table table-responsive-sm">
           <tr>
             <th>市場</th>
+          </tr>
+          <tr>
             <td>{{entry.stock.market |default:"-"}}</td>
           </tr>
           <tr>
             <th>産業</th>
+          </tr>
+          <tr>
             <td>{{entry.stock.industry |default:"-"}}</td>
           </tr>
           {% if not entry.stock.is_trust and not entry.stock.industry == 'ETF' %}
           <tr>
             <th>特色</th>
+          </tr>
+          <tr>
             <td>{{entry.stock.feature}}</td>
           </tr>
           <tr>
             <th>連結事業</th>
+          </tr>
+          <tr>
             <td>{{entry.stock.consolidated_business}}</td>
           </tr>
           <tr>
             <th>決算</th>
+          </tr>
+          <tr>
             <td>{{entry.stock.settlement_date}}</td>
           </tr>
           <tr>
             <th>単元株数</th>
+          </tr>
+          <tr>
             <td>{{entry.stock.unit}}</td>
           </tr>
           <tr>
             <th>配当金</th>
-            <td>{{entry.stock.dividend}}</td>
+          </tr>
+          <tr>
+            <td>{{entry.stock.dividend |yen}}</td>
           </tr>
           <tr>
             <th>配当利回り</th>
+          </tr>
+          <tr>
             <td>{{entry.stock.dividend_yield |pct}}</td>
+          </tr>
+          <tr>
+            <th>最終更新日</th>
+          </tr>
+          <tr>
+            <td>{{entry.stock.updated_at }}</td>
           </tr>
           {% endif %}
         </table>
       </div>
       <div class="modal-footer">
+
         <a href="{%url 'web:stock_detail' stock_code=entry.stock.code%}" class="btn btn-info">
           Stock Detail <i class="fas fa-arrow-circle-right"></i>
         </a>
