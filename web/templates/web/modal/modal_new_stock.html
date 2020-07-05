@@ -7,7 +7,9 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="new_stock_Label">New stock</h5>
+        <h5 class="modal-title" id="new_stock_Label">
+          <i class="fas fa-plus"></i> New stock
+        </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -31,11 +33,19 @@
               <td id="ajax_response_industry"></td>
             </tr>
           </table>
+          <p id="ajax_response_msg" style="color: green"></p>
+          <p id="ajax_response_msg_error" style="color: red"></p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-info"    id="stock_ajax"  >Check</button>
-          <button type="button" class="btn btn-primary" id="stock_submit">Register</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            <i class="fas fa-times"></i> Close
+          </button>
+          <button type="button" class="btn btn-info"    id="stock_ajax"  >
+            <i class="fas fa-check"></i> Check
+          </button>
+          <button type="button" class="btn btn-primary" id="stock_submit">
+            <i class="fas fa-plus"></i> Register
+          </button>
         </div>
       </form>
     </div>
@@ -51,16 +61,39 @@
     console.log(form.serializeArray())
 
     $.ajax({
-      url: "{% url 'asset:ajax' %}",
-      method: form.prop("method"),
+      url: "{% url 'web:ajax_get_stock_info' %}",
+      method: "GET",
       data: form.serialize(),
       timeout: 10000,
       dataType: "json",
+      beforeSend: function(){
+        $('#ajax_response_name').text("");
+        $('#ajax_response_industry').text("");
+        $('#ajax_response_market').text("");
+        $('#ajax_response_msg').text("");
+        $('#ajax_response_msg_error').text("");
+      }
     })
     .done( function(d) {
-      $('#ajax_response_name').text(d.name);
-      $('#ajax_response_industry').text(d.industry);
-      $('#ajax_response_market').text(d.market);
+      if (d.status == true) {
+        $('#ajax_response_name').text(d.data.name);
+        $('#ajax_response_industry').text(d.data.industry);
+        $('#ajax_response_market').text(d.data.market);
+        $('#ajax_response_msg').text(d.msg);
+        if (d.is_registered == true) {
+          $('#ajax_response_msg_error').text(
+            "(" + d.data.code + ") " + d.data.name + "は登録済みです"
+          );
+          $('#stock_submit').prop("disabled", true);
+        } else {
+          $('#stock_submit').prop("disabled", false);
+        }
+      } else {
+        $('#ajax_response_msg_error').text(d.msg);
+      }
+    })
+    .fail( function(d) {
+      $('#ajax_response_msg_error').text("Ajax was failed");
     })
   });
 </script>

@@ -2,8 +2,8 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.contrib import messages
 from web.forms import SBIAlertForm, Entry
-from web.functions import data_migration, mylib_selenium
-from web.models import Order
+from web.functions import data_migration, mylib_selenium, mylib_scraping
+from web.models import Order, Stock
 from fmanage import tasks
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -130,5 +130,30 @@ class DeactivateEntry(View):
         except Exception as e:
             result["msg"] = str(e)
             logger.error(e)
+        finally:
+            return JsonResponse(result, safe=False)
+
+
+class GetStockInfo(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            result = {
+                "msg": "",
+                "status": True,
+                "data": {},
+                "is_registered": True,
+            }
+            code = request.GET['code']
+            d = mylib_scraping.yf_detail(code)
+            if d['status']:
+                result['msg'] = 'Scraping for code: {} was completed successfully'.format(code)
+                result['data'] = d['data']
+                result['is_registered'] = Stock.objects.filter(code=code).exists()
+            else:
+                raise Exception('Scraping for code: {} was failed'.format(code))
+        except Exception as e:
+            logger.error(e)
+            result["msg"] = e.args
+            result["status"] = False
         finally:
             return JsonResponse(result, safe=False)
