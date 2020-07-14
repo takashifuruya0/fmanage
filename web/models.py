@@ -437,3 +437,33 @@ class SBIAlert(models.Model):
     def save(self, *args, **kwargs):
         self.is_active = False if self.checked_at else True
         return super().save(*args, **kwargs)
+
+
+class StockAnalysisData(models.Model):
+    objects = None
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="作成日時")
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name="更新日時")
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    val_close_diff = models.FloatField(verbose_name="終値前日比")
+    val_close_diff_pct = models.FloatField(verbose_name="終値前日比率")
+    turnover_diff = models.FloatField(verbose_name="出来高前日比")
+    turnover_diff_pct = models.FloatField(verbose_name="出来高前日比率")
+    val_line = models.FloatField(verbose_name="線長")
+    is_positive = models.BooleanField(verbose_name="陽線")
+    lower_mustache = models.FloatField(verbose_name="下ヒゲ")
+    upper_mustache = models.FloatField(verbose_name="上ヒゲ")
+    ma05 = models.FloatField(verbose_name="移動平均（5日）")
+    ma25 = models.FloatField(verbose_name="移動平均（25日）")
+    ma75 = models.FloatField(verbose_name="移動平均（75日）")
+    ma05_diff = models.FloatField(verbose_name="移動平均乖離（5日）")
+    ma25_diff = models.FloatField(verbose_name="移動平均乖離（25日）")
+    ma75_diff = models.FloatField(verbose_name="移動平均乖離（75日）")
+    ma05_diff_pct = models.FloatField(verbose_name="移動平均乖離率（5日）")
+    ma25_diff_pct = models.FloatField(verbose_name="移動平均乖離率（25日）")
+    ma75_diff_pct = models.FloatField(verbose_name="移動平均乖離率（75日）")
+    sigma_25 = models.FloatField(verbose_name="ボリンジャーバンド（25日）")
+    ma_25p2sigma = models.FloatField(verbose_name="ボリンジャーバンド上線（25日）")
+    ma_25m2sigma = models.FloatField(verbose_name="ボリンジャーバンド下線（25日）")
+    is_upper05 = models.BooleanField(verbose_name="上昇傾向（5日）")
+    is_upper25 = models.BooleanField(verbose_name="上昇傾向（25日）")
+    is_upper75 = models.BooleanField(verbose_name="上昇傾向（75日）")
