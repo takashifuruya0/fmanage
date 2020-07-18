@@ -87,7 +87,7 @@
 					<th>利益</th>
 					<td>
 						{{entry.profit |yen |safe}}
-						({{entry.profit_pct |pct |safe}})
+						({{entry.profit_pct |pct_100 |safe}})
 					</td>
 				</tr>
 				{% endif %}

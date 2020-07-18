@@ -224,7 +224,8 @@ class Entry(models.Model):
 
     def profit_pct(self):
         """利益率"""
-        return round(self.profit() * 100 / self.val_buy() / self.num_buy(), 1) if self.order_set.exists() else 0
+        # return round(self.profit() * 100 / self.val_buy() / self.num_buy(), 1) if self.order_set.exists() else 0
+        return self.profit() / self.val_buy() / self.num_buy() if self.order_set.exists() else 0
 
     def profit_profit_determination(self):
         """利確後の利益額"""

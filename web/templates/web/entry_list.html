@@ -78,7 +78,7 @@
 							<td>{{entry.date_open |default:"-"}}</td>
 							<td>{{entry.date_close |default:"-"}}</td>
 							<td class="right">{{entry.profit |yen |safe}}</td>
-							<td class="right">{{entry.profit_pct |pct |safe}}</td>
+							<td class="right">{{entry.profit_pct |pct_100 |safe}}</td>
 						</tr>
 						{% endfor %}
 					</tbody>
