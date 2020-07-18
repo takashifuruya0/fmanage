@@ -1,9 +1,9 @@
-from django.test import TestCase
-from web.models import *
-from django.contrib.auth.models import User
-from web.functions import data_migration
-from django.db.models import Count
-# Create your tests here.
+# from django.test import TestCase
+# from web.models import *
+# from django.contrib.auth.models import User
+# from web.functions import data_migration
+# from django.db.models import Count
+## Create your tests here.
 
 
 # class BatchTest(TestCase):

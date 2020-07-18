@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Stock, StockFinancialData, AssetStatus
 from .models import StockValueData, Order, Entry, ReasonWinLoss
-from .models import SBIAlert, EntryStatus
+from .models import SBIAlert, EntryStatus, StockAnalysisData
 from .functions import mylib_asset
 from .forms import OrderForm
 from django.contrib import messages
@@ -121,6 +121,14 @@ class EntryStatusAdmin(admin.ModelAdmin):
     ]
 
 
+class StockAnalysisDataAdmin(admin.ModelAdmin):
+    list_display = [
+        "stock", "date", "created_at", "updated_at",
+        "val_close_dy_pct", "turnover_dy_pct",
+
+    ]
+
+
 admin.site.register(Stock, StockAdmin)
 admin.site.register(AssetStatus, AssetStatusAdmin)
 admin.site.register(Order, OrderAdmin)
@@ -130,3 +138,4 @@ admin.site.register(StockFinancialData, StockFinancialDataAdmin)
 admin.site.register(ReasonWinLoss, ReasonWinLossAdmin)
 admin.site.register(SBIAlert, SBIAlertAdmin)
 admin.site.register(EntryStatus, EntryStatusAdmin)
+admin.site.register(StockAnalysisData, StockAnalysisDataAdmin)
