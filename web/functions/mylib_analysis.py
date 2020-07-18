@@ -8,11 +8,9 @@ def prepare(svds):
     df['code'] = svds.first().stock.code if svds.exists() else None
     # 終値前日比, 出来高前日比
     df['val_close_diff'] = -(df['val_close'].shift() - df['val_close'])
-    df['val_close_diff_pct'] = round(
-        -(df['val_close'].shift() - df['val_close']) / df['val_close'].shift(), 1)
+    df['val_close_diff_pct'] = df['val_close_diff'] / df['val_close'].shift()
     df['turnover_diff'] = -(df['turnover'].shift() - df['turnover'])
-    df['turnover_diff_pct'] = round(
-        -(df['turnover'].shift() - df['turnover']) / df['turnover'].shift(), 1)
+    df['turnover_diff_pct'] = df['turnover_diff'] / df['turnover'].shift()
     # 終値-始値
     df['val_close_open'] = df['val_close'] - df['val_open']
     df['val_line'] = abs(df['val_close_open'])
