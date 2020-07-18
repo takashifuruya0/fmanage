@@ -472,10 +472,27 @@ class StockAnalysisData(models.Model):
     is_upper25 = models.BooleanField(verbose_name="上昇傾向（25日）", help_text="前日移動平均値より上（25日）")
     is_upper75 = models.BooleanField(verbose_name="上昇傾向（75日）", help_text="前日移動平均値より上（75日）")
     # check
-    is_takuri = models.BooleanField(verbose_name="たくり線", help_text="長い下ヒゲ陰線")
-    is_tsutsumi = models.BooleanField(verbose_name="包線", help_text="前日ローソクを包み込む、大きいローソク")
-    is_harami = models.BooleanField(verbose_name="はらみ線", help_text="前日ローソクに包まれる、小さいローソク")
-    is_age_sanpo = models.BooleanField(verbose_name="上げ三法", help_text="大陽線後→3本のローソクが収まる→最初の陽線終値をブレイク")
-    is_sage_sanpo = models.BooleanField(verbose_name="下げ三法", help_text="大陰線後→3本のローソクが収まる→最初の陰線終値を割り込み")
-    is_sanku_tatakikomi = models.BooleanField(verbose_name="三空叩き込み", help_text="3日連続の窓開き下落")
-    is_sante_daiinsen = models.BooleanField(verbose_name="三手大陰線", help_text="3日連続の大陰線")
+    is_takuri = models.BooleanField(
+        verbose_name="たくり線", help_text="長い下ヒゲ陰線", default=False
+    )
+    is_tsutsumi = models.BooleanField(
+        verbose_name="包線", help_text="前日ローソクを包み込む、大きいローソク", default=False
+    )
+    is_harami = models.BooleanField(
+        verbose_name="はらみ線", help_text="前日ローソクに包まれる、小さいローソク", default=False
+    )
+    is_age_sanpo = models.BooleanField(
+        verbose_name="上げ三法", help_text="大陽線後→3本のローソクが収まる→最初の陽線終値をブレイク", default=False
+    )
+    is_sage_sanpo = models.BooleanField(
+        verbose_name="下げ三法", help_text="大陰線後→3本のローソクが収まる→最初の陰線終値を割り込み", default=False
+    )
+    is_sanku_tatakikomi = models.BooleanField(
+        verbose_name="三空叩き込み", help_text="3日連続の窓開き下落", default=False
+    )
+    is_sante_daiinsen = models.BooleanField(
+        verbose_name="三手大陰線", help_text="3日連続の大陰線", default=False
+    )
+
+    def __str__(self):
+        return "SAD_{}_{}".format(self.date, self.stock)

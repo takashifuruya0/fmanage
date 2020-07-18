@@ -10,6 +10,7 @@ from web.functions import mylib_scraping, mylib_analysis
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, Stock, StockValueData, StockFinancialData, SBIAlert
+from web.models import StockAnalysisData
 from web.functions import mylib_asset
 # list view, pagination
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
@@ -48,6 +49,7 @@ class StockDetail(LoginRequiredMixin, DetailView):
             "border_profit_determination": round(context["current_val"]*1.1),
             "val_plan": round(context["current_val"]),
         })
+        context["sads"] = StockAnalysisData.objects.filter(stock=context["stock"]).order_by('date')
         context["sbialert_form"] = SBIAlertForm(initial={"stock": self.object})
         context["sbialerts"] = SBIAlert.objects.filter(stock=self.object, is_active=True)
         context['sfds'] = self.object.stockfinancialdata_set.all().order_by('-date')

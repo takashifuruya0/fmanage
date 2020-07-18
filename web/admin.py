@@ -124,9 +124,17 @@ class EntryStatusAdmin(admin.ModelAdmin):
 class StockAnalysisDataAdmin(admin.ModelAdmin):
     list_display = [
         "stock", "date", "created_at", "updated_at",
-        "val_close_dy_pct", "turnover_dy_pct",
-
+        "val_close_dy_pct_100", "turnover_dy_pct_100",
     ]
+
+    def val_close_dy_pct_100(self, row):
+        return "{}%".format(round(row.val_close_dy_pct * 100, 2))
+
+    def turnover_dy_pct_100(self, row):
+        return "{}%".format(round(row.turnover_dy_pct * 100, 2))
+
+    val_close_dy_pct_100.short_description = "終値前日比（%）"
+    turnover_dy_pct_100.short_description = "出来高前日比（%）"
 
 
 admin.site.register(Stock, StockAdmin)
