@@ -89,8 +89,8 @@
             <th>出来高</th>
             <td class="right">
               {{df_recent.turnover | intcomma}}<br>
-              <span {%if 0 > df_recent.turnover_diff_percent %}style="color:red;"{%endif%}>
-                ({{df_recent.turnover_diff_percent | intcomma}}%)
+              <span {%if 0 > df_recent.turnover_dy_percent %}style="color:red;"{%endif%}>
+                ({{df_recent.turnover_dy_percent | intcomma}}%)
               </span>
             </td>
           </tr>
@@ -190,8 +190,8 @@
                 ¥ {{r.val_end_diff| intcomma}} ({{r.val_end_diff_percent}}%)
               </td>
               <td class="right">{{r.turnover| intcomma}}</td>
-              <td class="right" {%if 0 > r.turnover_diff%}style="color:red;"{%endif%}>
-                {{r.turnover_diff| intcomma}} ({{r.turnover_diff_percent}}%)
+              <td class="right" {%if 0 > r.turnover_dy%}style="color:red;"{%endif%}>
+                {{r.turnover_dy| intcomma}} ({{r.turnover_dy_percent}}%)
               </td>
               <td class="right">{{r.upper_mustache | intcomma}}</td>
               <td class="right">{{r.lower_mustache | intcomma}}</td>
@@ -286,7 +286,7 @@ var myChart = new Chart(ctx, {
             type: "bar",
             label: '出来高',
             data: [
-                {%for i, s in df_ascending.dropna.iterrows%}{{s.turnover_diff}},{%endfor%}
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.turnover_dy}},{%endfor%}
             ],
             backgroundColor: "rgba(255,153,0, 0.4)",
             yAxisID: "y-axis-2",
@@ -384,7 +384,7 @@ var myChart = new Chart(ctx, {
             type: "line",
             label: '5日移動平均線',
             data: [
-                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_5}},{%endfor%}
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma05}},{%endfor%}
             ],
             backgroundColor: "rgba(255,3,150, 0.4)",
             borderColor: "rgba(255,3,150, 0.4)",
@@ -394,7 +394,7 @@ var myChart = new Chart(ctx, {
             type: "line",
             label: '25日移動平均線',
             data: [
-                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25}},{%endfor%}
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma25}},{%endfor%}
             ],
             backgroundColor: "rgba(155,3,250, 0.4)",
             borderColor: "rgba(155,3,250, 0.4)",
@@ -404,7 +404,7 @@ var myChart = new Chart(ctx, {
             type: "line",
             label: '75日移動平均線',
             data: [
-                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_75}},{%endfor%}
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma75}},{%endfor%}
             ],
 
             backgroundColor: "rgba(5,253,150, 0.4)",
@@ -415,7 +415,7 @@ var myChart = new Chart(ctx, {
             type: "line",
             label: '+2σ',
             data: [
-                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25p2sigma}},{%endfor%}
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma25_p2sigma}},{%endfor%}
             ],
             borderColor: "rgba(205,3,150, 0.1)",
             fill: false,
@@ -426,7 +426,7 @@ var myChart = new Chart(ctx, {
             type: "line",
             label: '-2σ',
             data: [
-                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma_25m2sigma}},{%endfor%}
+                {%for i, s in df_ascending.dropna.iterrows%}{{s.ma25_m2sigma}},{%endfor%}
             ],
             borderColor: "rgba(205,3,150, 0.1)",
             fill: false,

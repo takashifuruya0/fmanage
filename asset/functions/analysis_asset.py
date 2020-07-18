@@ -7,8 +7,8 @@ def analyse_stock_data(df_ascending):
     # 終値前日比, 出来高前日比
     df_ascending['val_end_diff'] = -(df_ascending['val_end'].shift() - df_ascending['val_end'])
     df_ascending['val_end_diff_percent'] = round(-(df_ascending['val_end'].shift() - df_ascending['val_end']) / df_ascending['val_end'].shift() * 100, 1)
-    df_ascending['turnover_diff'] = -(df_ascending['turnover'].shift() - df_ascending['turnover'])
-    df_ascending['turnover_diff_percent'] = round(-(df_ascending['turnover'].shift() - df_ascending['turnover']) / df_ascending['turnover'].shift() * 100, 1)
+    df_ascending['turnover_dy'] = -(df_ascending['turnover'].shift() - df_ascending['turnover'])
+    df_ascending['turnover_dy_percent'] = round(-(df_ascending['turnover'].shift() - df_ascending['turnover']) / df_ascending['turnover'].shift() * 100, 1)
     # 終値-始値
     df_ascending['val_end-start'] = df_ascending['val_end'] - df_ascending['val_start']
     # 陽線/陰線
@@ -19,14 +19,14 @@ def analyse_stock_data(df_ascending):
     # 上ひげ
     df_ascending['upper_mustache'] = (df_ascending['val_high'] - df_ascending['val_end']).where(df_ascending['is_positive'], df_ascending['val_high'] - df_ascending['val_start'])
     # 移動平均
-    df_ascending['ma_5'] = df_ascending.val_end.rolling(window=5, min_periods=1).mean()
-    df_ascending['ma_25'] = df_ascending.val_end.rolling(window=25, min_periods=1).mean()
-    df_ascending['ma_75'] = df_ascending.val_end.rolling(window=75, min_periods=1).mean()
-    df_ascending['ma_diff'] = df_ascending.ma_25 - df_ascending.ma_75
+    df_ascending['ma05'] = df_ascending.val_end.rolling(window=5, min_periods=1).mean()
+    df_ascending['ma25'] = df_ascending.val_end.rolling(window=25, min_periods=1).mean()
+    df_ascending['ma75'] = df_ascending.val_end.rolling(window=75, min_periods=1).mean()
+    df_ascending['ma_diff'] = df_ascending.ma25 - df_ascending.ma75
     # ボリンジャーバンド（25日）
-    df_ascending["sigma_25"] = df_ascending.val_end.rolling(window=25).std()
-    df_ascending["ma_25p2sigma"] = df_ascending.ma_25 + 2 * df_ascending.sigma_25
-    df_ascending["ma_25m2sigma"] = df_ascending.ma_25 - 2 * df_ascending.sigma_25
+    df_ascending["sigma25"] = df_ascending.val_end.rolling(window=25).std()
+    df_ascending["ma25_p2sigma"] = df_ascending.ma25 + 2 * df_ascending.sigma25
+    df_ascending["ma25_m2sigma"] = df_ascending.ma25 - 2 * df_ascending.sigma25
 
     return df_ascending
 
@@ -44,13 +44,13 @@ def get_cross(df_ascending):
         for i in range(1, len(df)):
             if df.iloc[i - 1]['ma_diff'] < 0 and df.iloc[i]['ma_diff'] > 0:
                 logger.info("{}:GOLDEN CROSS".format(df.iloc[i]["date"]))
-                cross['golden'].append(df.iloc[i]['ma_25'])
+                cross['golden'].append(df.iloc[i]['ma25'])
                 cross['dead'].append(None)
                 cross['recent_golden'] = df.iloc[i]["date"]
             elif df.iloc[i - 1]['ma_diff'] > 0 and df.iloc[i]['ma_diff'] < 0:
                 logger.info("{}:DEAD CROSS".format(df.iloc[i]["date"]))
                 cross['golden'].append(None)
-                cross['dead'].append(df.iloc[i]['ma_25'])
+                cross['dead'].append(df.iloc[i]['ma25'])
                 cross['recent_dead'] = df.iloc[i]["date"]
             else:
                 cross['golden'].append(None)
@@ -277,38 +277,38 @@ def check_mark(df_ascending):
 def get_trend(df_ascending):
     try:
         df_ascending_reverse = df_ascending.sort_values('date', ascending=False)
-        ma_25 = df_ascending_reverse['ma_25']
-        ma_75 = df_ascending_reverse['ma_75']
+        ma25 = df_ascending_reverse['ma25']
+        ma75 = df_ascending_reverse['ma75']
         res = dict()
         trend_period_25 = 1
         trend_period_75 = 1
 
-        if ma_25.iloc[0] > ma_25.iloc[1]:
+        if ma25.iloc[0] > ma25.iloc[1]:
             res['is_upper_25'] = True
             for i in range(2, len(df_ascending_reverse)):
-                if ma_25.iloc[i-1] > ma_25.iloc[i]:
+                if ma25.iloc[i-1] > ma25.iloc[i]:
                     trend_period_25 += 1
                 else:
                     break
-        elif ma_25.iloc[0] <= ma_25.iloc[1]:
+        elif ma25.iloc[0] <= ma25.iloc[1]:
             res['is_upper_25'] = False
             for i in range(2, len(df_ascending_reverse)):
-                if ma_25.iloc[i-1] < ma_25.iloc[i]:
+                if ma25.iloc[i-1] < ma25.iloc[i]:
                     trend_period_25 += 1
                 else:
                     break
 
-        if ma_75.iloc[0] > ma_75.iloc[1]:
+        if ma75.iloc[0] > ma75.iloc[1]:
             res['is_upper_75'] = True
             for i in range(2, len(df_ascending_reverse)):
-                if ma_75.iloc[i-1] > ma_75.iloc[i]:
+                if ma75.iloc[i-1] > ma75.iloc[i]:
                     trend_period_75 += 1
                 else:
                     break
-        elif ma_75.iloc[0] <= ma_75.iloc[1]:
+        elif ma75.iloc[0] <= ma75.iloc[1]:
             res['is_upper_75'] = False
             for i in range(2, len(df_ascending_reverse)):
-                if ma_75.iloc[i-1] < ma_75.iloc[i]:
+                if ma75.iloc[i-1] < ma75.iloc[i]:
                     trend_period_75 += 1
                 else:
                     break

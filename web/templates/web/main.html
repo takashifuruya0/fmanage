@@ -207,8 +207,8 @@
 											{{c.type}}
 										</label>
 									</td>
-									<td>{{c.df.val_close_diff_pct |pct_100 |safe}}</td>
-									<td>{{c.df.turnover_diff_pct |pct_100 |safe}}</td>
+									<td>{{c.df.val_close_dy_pct |pct_100 |safe}}</td>
+									<td>{{c.df.turnover_dy_pct |pct_100 |safe}}</td>
 									<td>
 										{% if c.df.is_upper_5 %}
 										<label class="badge badge-success">

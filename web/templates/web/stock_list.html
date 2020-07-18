@@ -58,16 +58,16 @@
 					{% with stock.analysis as analysis %}
 					{% if stock.analysis.date %}
 					<td>
-						{{analysis.diff_ma_5_pct |pct_100 |safe}}
+						{{analysis.ma05_diff_pct |pct_100 |safe}}
 					</td>
 					<td>
-						{{analysis.diff_ma_25_pct |pct_100 |safe}}
+						{{analysis.ma25_diff_pct |pct_100 |safe}}
 					</td>
 					<td>
-						{{analysis.val_close_diff_pct |pct_100 |safe}}
+						{{analysis.val_close_dy_pct |pct_100 |safe}}
 					</td>
 					<td>
-						{{analysis.turnover_diff_pct |pct_100 |safe}}
+						{{analysis.turnover_dy_pct |pct_100 |safe}}
 					</td>
 					{% else %}
 					<td></td><td></td><td></td><td></td>

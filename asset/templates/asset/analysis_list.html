@@ -90,8 +90,8 @@
                 <th>出来高 (前日比)</th>
                 <td class="right">
                   {{stock.turnover | intcomma}}<br>
-                  <span {%if 0 > stock.turnover_diff_percent %}style="color:red;"{%endif%}>
-                    ({{stock.turnover_diff_percent | intcomma}}%)
+                  <span {%if 0 > stock.turnover_dy_percent %}style="color:red;"{%endif%}>
+                    ({{stock.turnover_dy_percent | intcomma}}%)
                   </span>
                 </td>
               </tr>

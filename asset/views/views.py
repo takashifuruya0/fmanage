@@ -245,7 +245,7 @@ def analysis_list(request):
                 "val_end": df_latest.val_end,
                 "val_end_diff_percent": float(df_latest.val_end_diff_percent),
                 "turnover": df_latest.turnover,
-                "turnover_diff_percent": float(df_latest.turnover_diff_percent),
+                "turnover_dy_percent": float(df_latest.turnover_dy_percent),
                 "mark": mark,
                 "trend": trend,
                 "market": stock.market,

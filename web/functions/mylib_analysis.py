@@ -7,10 +7,10 @@ def prepare(svds):
     df = read_frame(svds)
     df['code'] = svds.first().stock.code if svds.exists() else None
     # 終値前日比, 出来高前日比
-    df['val_close_diff'] = -(df['val_close'].shift() - df['val_close'])
-    df['val_close_diff_pct'] = df['val_close_diff'] / df['val_close'].shift()
-    df['turnover_diff'] = -(df['turnover'].shift() - df['turnover'])
-    df['turnover_diff_pct'] = df['turnover_diff'] / df['turnover'].shift()
+    df['val_close_dy'] = -(df['val_close'].shift() - df['val_close'])
+    df['val_close_dy_pct'] = df['val_close_dy'] / df['val_close'].shift()
+    df['turnover_dy'] = -(df['turnover'].shift() - df['turnover'])
+    df['turnover_dy_pct'] = df['turnover_dy'] / df['turnover'].shift()
     # 終値-始値
     df['val_close_open'] = df['val_close'] - df['val_open']
     df['val_line'] = abs(df['val_close_open'])
@@ -22,30 +22,30 @@ def prepare(svds):
     df['lower_mustache'] = (df['val_open'] - df['val_low']).where(df['is_positive'], df['val_close'] - df['val_low'])
     df['upper_mustache'] = (df['val_high'] - df['val_close']).where(df['is_positive'], df['val_high'] - df['val_open'])
     # 移動平均
-    df['ma_5'] = df.val_close.rolling(window=5, min_periods=1).mean()
-    df['ma_25'] = df.val_close.rolling(window=25, min_periods=1).mean()
-    df['ma_75'] = df.val_close.rolling(window=75, min_periods=1).mean()
-    df['ma_diff5_25'] = df.ma_5 - df.ma_25
-    df['ma_diff5_25_pct'] = df.ma_diff5_25 / df.ma_75
-    df['ma_diff25_75'] = df.ma_25 - df.ma_75
-    df['ma_diff25_75_pct'] = df.ma_diff25_75 / df.ma_75
-    df['diff_ma_5'] = df.val_close - df.ma_5
-    df['diff_ma_5_pct'] = df['diff_ma_5'] / df.val_close
-    df['diff_ma_25'] = df.val_close - df.ma_25
-    df['diff_ma_25_pct'] = df['diff_ma_25'] / df.val_close
-    df['diff_ma_75'] = df.val_close - df.ma_75
-    df['diff_ma_75_pct'] = df['diff_ma_75'] / df.val_close
+    df['ma05'] = df.val_close.rolling(window=5, min_periods=1).mean()
+    df['ma25'] = df.val_close.rolling(window=25, min_periods=1).mean()
+    df['ma75'] = df.val_close.rolling(window=75, min_periods=1).mean()
+    df['ma_diff5_25'] = df.ma05 - df.ma25
+    df['ma_diff5_25_pct'] = df.ma_diff5_25 / df.ma75
+    df['ma_diff25_75'] = df.ma25 - df.ma75
+    df['ma_diff25_75_pct'] = df.ma_diff25_75 / df.ma75
+    df['ma05_diff'] = df.val_close - df.ma05
+    df['ma05_diff_pct'] = df['ma05_diff'] / df.val_close
+    df['ma25_diff'] = df.val_close - df.ma25
+    df['ma25_diff_pct'] = df['ma25_diff'] / df.val_close
+    df['ma75_diff'] = df.val_close - df.ma75
+    df['ma75_diff_pct'] = df['ma75_diff'] / df.val_close
     # ボリンジャーバンド（25日）
-    df["sigma_25"] = df.val_close.rolling(window=25).std()
-    df["ma_25p2sigma"] = df.ma_25 + 2 * df.sigma_25
-    df["ma_25m2sigma"] = df.ma_25 - 2 * df.sigma_25
+    df["sigma25"] = df.val_close.rolling(window=25).std()
+    df["ma25_p2sigma"] = df.ma25 + 2 * df.sigma25
+    df["ma25_m2sigma"] = df.ma25 - 2 * df.sigma25
     # trend
     df['is_upper_5'] = False
-    df['is_upper_5'] = df['is_upper_5'].where(df['ma_5'].diff() < 0, True)
+    df['is_upper_5'] = df['is_upper_5'].where(df['ma05'].diff() < 0, True)
     df['is_upper_25'] = False
-    df['is_upper_25'] = df['is_upper_25'].where(df['ma_25'].diff() < 0, True)
+    df['is_upper_25'] = df['is_upper_25'].where(df['ma25'].diff() < 0, True)
     df['is_upper_75'] = False
-    df['is_upper_75'] = df['is_upper_75'].where(df['ma_75'].diff() < 0, True)
+    df['is_upper_75'] = df['is_upper_75'].where(df['ma75'].diff() < 0, True)
     # return
     return df
 
@@ -54,55 +54,55 @@ def get_trend(df):
     try:
         df_reverse = df.sort_values('date', ascending=False)
         logger.info("len(df_reverse) {}".format(len(df_reverse)))
-        ma_5 = df_reverse['ma_5']
-        ma_25 = df_reverse['ma_25']
-        ma_75 = df_reverse['ma_75']
+        ma05 = df_reverse['ma05']
+        ma25 = df_reverse['ma25']
+        ma75 = df_reverse['ma75']
         res = dict()
         # 5
         trend_period_5 = 1
-        if len(ma_5) > 2 and ma_5.iloc[0] > ma_5.iloc[1]:
+        if len(ma05) > 2 and ma05.iloc[0] > ma05.iloc[1]:
             res['is_upper_5'] = True
             for i in range(2, len(df_reverse)):
-                if ma_5.iloc[i - 1] > ma_5.iloc[i]:
+                if ma05.iloc[i - 1] > ma05.iloc[i]:
                     trend_period_5 += 1
                 else:
                     break
-        elif len(ma_5) > 2 and ma_5.iloc[0] < ma_5.iloc[1]:
+        elif len(ma05) > 2 and ma05.iloc[0] < ma05.iloc[1]:
             res['is_upper_5'] = False
             for i in range(2, len(df_reverse)):
-                if ma_5.iloc[i - 1] < ma_5.iloc[i]:
+                if ma05.iloc[i - 1] < ma05.iloc[i]:
                     trend_period_5 += 1
                 else:
                     break
         # 25
         trend_period_25 = 1
-        if len(ma_25) > 2 and ma_25.iloc[0] > ma_25.iloc[1]:
+        if len(ma25) > 2 and ma25.iloc[0] > ma25.iloc[1]:
             res['is_upper_25'] = True
             for i in range(2, len(df_reverse)):
-                if ma_25.iloc[i-1] > ma_25.iloc[i]:
+                if ma25.iloc[i-1] > ma25.iloc[i]:
                     trend_period_25 += 1
                 else:
                     break
-        elif len(ma_25) > 2 and ma_25.iloc[0] < ma_25.iloc[1]:
+        elif len(ma25) > 2 and ma25.iloc[0] < ma25.iloc[1]:
             res['is_upper_25'] = False
             for i in range(2, len(df_reverse)):
-                if ma_25.iloc[i-1] < ma_25.iloc[i]:
+                if ma25.iloc[i-1] < ma25.iloc[i]:
                     trend_period_25 += 1
                 else:
                     break
         # 75
         trend_period_75 = 1
-        if len(ma_75) > 2 and ma_75.iloc[0] > ma_75.iloc[1]:
+        if len(ma75) > 2 and ma75.iloc[0] > ma75.iloc[1]:
             res['is_upper_75'] = True
             for i in range(2, len(df_reverse)):
-                if ma_75.iloc[i-1] > ma_75.iloc[i]:
+                if ma75.iloc[i-1] > ma75.iloc[i]:
                     trend_period_75 += 1
                 else:
                     break
-        elif len(ma_75) > 2 and ma_75.iloc[0] < ma_75.iloc[1]:
+        elif len(ma75) > 2 and ma75.iloc[0] < ma75.iloc[1]:
             res['is_upper_75'] = False
             for i in range(2, len(df_reverse)):
-                if ma_75.iloc[i-1] < ma_75.iloc[i]:
+                if ma75.iloc[i-1] < ma75.iloc[i]:
                     trend_period_75 += 1
                 else:
                     break
@@ -114,9 +114,9 @@ def get_trend(df):
     except Exception as e:
         logger.error("get_trend was failed")
         logger.error(e)
-        logger.error("ma_5: {}".format(ma_5))
-        logger.error("ma_25: {}".format(ma_25))
-        logger.error("ma_75: {}".format(ma_75))
+        logger.error("ma05: {}".format(ma05))
+        logger.error("ma25: {}".format(ma25))
+        logger.error("ma75: {}".format(ma75))
         logger.error("df_reverse {}".format(df_reverse))
         res = {
             "is_upper_5": None,

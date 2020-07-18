@@ -207,31 +207,31 @@
 				<tr>
 					<th>出来高前日比</th>
 					<td class="right">
-						{{df_latest.turnover_diff_pct |pct_100 |safe}}
+						{{df_latest.turnover_dy_pct |pct_100 |safe}}
 					</td>
 				</tr>
 				<tr>
 					<th>終値前日比</th>
 					<td class="right">
-						{{df_latest.val_close_diff_pct |pct_100 |safe}}
+						{{df_latest.val_close_dy_pct |pct_100 |safe}}
 					</td>
 				</tr>
 				<tr>
 					<th>5日移動平均/乖離率</th>
 					<td class="right">
-						{{df_latest.ma_5 |yen}} / {{df_latest.diff_ma_5_pct |pct_100 |safe}}
+						{{df_latest.ma05 |yen}} / {{df_latest.ma05_diff_pct |pct_100 |safe}}
 					</td>
 				</tr>
 				<tr>
 					<th>25日移動平均/乖離率</th>
 					<td class="right">
-						{{df_latest.ma_25 |yen}} / {{df_latest.diff_ma_25_pct |pct_100 |safe}}
+						{{df_latest.ma25 |yen}} / {{df_latest.ma25_diff_pct |pct_100 |safe}}
 					</td>
 				</tr>
 				<tr>
 					<th>75日移動平均/乖離率</th>
 					<td class="right">
-						{{df_latest.ma_75 |yen}} / {{df_latest.diff_ma_75_pct |pct_100 |safe}}
+						{{df_latest.ma75 |yen}} / {{df_latest.ma75_diff_pct |pct_100 |safe}}
 					</td>
 				</tr>
 
