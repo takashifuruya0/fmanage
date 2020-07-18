@@ -1,4 +1,4 @@
-{%if df_trend.is_upper_5%}
+{%if df_trend.is_upper05%}
 <span class="badge badge-success">
   5日 <i class="fas fa-level-up-alt"></i>
   <span class="badge badge-light">{{df_trend.period_5}}日継続中</span>
@@ -10,7 +10,7 @@
 </span>
 {%endif%}
 
-{%if df_trend.is_upper_25%}
+{%if df_trend.is_upper25%}
 <span class="badge badge-success">
   25日 <i class="fas fa-level-up-alt"></i>
   <span class="badge badge-light">{{df_trend.period_25}}日継続中</span>
@@ -22,7 +22,7 @@
 </span>
 {%endif%}
 
-{%if df_trend.is_upper_75%}
+{%if df_trend.is_upper75%}
 <span class="badge badge-success">
   75日 <i class="fas fa-level-up-alt"></i>
   <span class="badge badge-light">{{df_trend.period_75}}日継続中</span>

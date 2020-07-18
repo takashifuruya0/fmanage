@@ -100,7 +100,7 @@
         <table class="table table-light table-hover table-sm">
           <tr>
             <td colspan="2">
-                {%if trend.is_upper_25%}
+                {%if trend.is_upper25%}
                 <span class="badge badge-success">
                   25日トレンド <i class="fas fa-level-up-alt"></i> <span class="badge badge-light">{{trend.period_25}}日継続中</span>
                 </span>
@@ -109,7 +109,7 @@
                    25日トレンド <i class="fas fa-level-down-alt"></i> <span class="badge badge-light">{{trend.period_25}}日継続中</span>
                 </span>
                 {%endif%}
-                {%if trend.is_upper_75%}
+                {%if trend.is_upper75%}
                 <span class="badge badge-success">
                   75日トレンド <i class="fas fa-level-up-alt"></i> <span class="badge badge-light">{{trend.period_75}}日継続中</span>
                 </span>

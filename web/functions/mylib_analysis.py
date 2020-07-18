@@ -12,12 +12,11 @@ def prepare(svds):
     df['turnover_dy'] = -(df['turnover'].shift() - df['turnover'])
     df['turnover_dy_pct'] = df['turnover_dy'] / df['turnover'].shift()
     # 終値-始値
-    df['val_close_open'] = df['val_close'] - df['val_open']
-    df['val_line'] = abs(df['val_close_open'])
+    df['val_line'] = abs(df['val_close'] - df['val_open'])
     df['val_line_pct'] = (df['val_line'] / (df["val_high"] - df["val_low"])).where(df["val_line"] > 0, None)
     # 陽線/陰線
     df['is_positive'] = False
-    df['is_positive'] = df['is_positive'].where(df['val_close_open'] < 0, True)
+    df['is_positive'] = df['is_positive'].where(df['val_close'] < df['val_open'], True)
     # 下ひげ/上ひげ
     df['lower_mustache'] = (df['val_open'] - df['val_low']).where(df['is_positive'], df['val_close'] - df['val_low'])
     df['upper_mustache'] = (df['val_high'] - df['val_close']).where(df['is_positive'], df['val_high'] - df['val_open'])
@@ -40,12 +39,12 @@ def prepare(svds):
     df["ma25_p2sigma"] = df.ma25 + 2 * df.sigma25
     df["ma25_m2sigma"] = df.ma25 - 2 * df.sigma25
     # trend
-    df['is_upper_5'] = False
-    df['is_upper_5'] = df['is_upper_5'].where(df['ma05'].diff() < 0, True)
-    df['is_upper_25'] = False
-    df['is_upper_25'] = df['is_upper_25'].where(df['ma25'].diff() < 0, True)
-    df['is_upper_75'] = False
-    df['is_upper_75'] = df['is_upper_75'].where(df['ma75'].diff() < 0, True)
+    df['is_upper05'] = False
+    df['is_upper05'] = df['is_upper05'].where(df['ma05'].diff() < 0, True)
+    df['is_upper25'] = False
+    df['is_upper25'] = df['is_upper25'].where(df['ma25'].diff() < 0, True)
+    df['is_upper75'] = False
+    df['is_upper75'] = df['is_upper75'].where(df['ma75'].diff() < 0, True)
     # return
     return df
 
@@ -61,14 +60,14 @@ def get_trend(df):
         # 5
         trend_period_5 = 1
         if len(ma05) > 2 and ma05.iloc[0] > ma05.iloc[1]:
-            res['is_upper_5'] = True
+            res['is_upper05'] = True
             for i in range(2, len(df_reverse)):
                 if ma05.iloc[i - 1] > ma05.iloc[i]:
                     trend_period_5 += 1
                 else:
                     break
         elif len(ma05) > 2 and ma05.iloc[0] < ma05.iloc[1]:
-            res['is_upper_5'] = False
+            res['is_upper05'] = False
             for i in range(2, len(df_reverse)):
                 if ma05.iloc[i - 1] < ma05.iloc[i]:
                     trend_period_5 += 1
@@ -77,14 +76,14 @@ def get_trend(df):
         # 25
         trend_period_25 = 1
         if len(ma25) > 2 and ma25.iloc[0] > ma25.iloc[1]:
-            res['is_upper_25'] = True
+            res['is_upper25'] = True
             for i in range(2, len(df_reverse)):
                 if ma25.iloc[i-1] > ma25.iloc[i]:
                     trend_period_25 += 1
                 else:
                     break
         elif len(ma25) > 2 and ma25.iloc[0] < ma25.iloc[1]:
-            res['is_upper_25'] = False
+            res['is_upper25'] = False
             for i in range(2, len(df_reverse)):
                 if ma25.iloc[i-1] < ma25.iloc[i]:
                     trend_period_25 += 1
@@ -93,14 +92,14 @@ def get_trend(df):
         # 75
         trend_period_75 = 1
         if len(ma75) > 2 and ma75.iloc[0] > ma75.iloc[1]:
-            res['is_upper_75'] = True
+            res['is_upper75'] = True
             for i in range(2, len(df_reverse)):
                 if ma75.iloc[i-1] > ma75.iloc[i]:
                     trend_period_75 += 1
                 else:
                     break
         elif len(ma75) > 2 and ma75.iloc[0] < ma75.iloc[1]:
-            res['is_upper_75'] = False
+            res['is_upper75'] = False
             for i in range(2, len(df_reverse)):
                 if ma75.iloc[i-1] < ma75.iloc[i]:
                     trend_period_75 += 1
@@ -119,11 +118,11 @@ def get_trend(df):
         logger.error("ma75: {}".format(ma75))
         logger.error("df_reverse {}".format(df_reverse))
         res = {
-            "is_upper_5": None,
+            "is_upper05": None,
             "period_5": None,
-            "is_upper_25": None,
+            "is_upper25": None,
             "period_25": None,
-            "is_upper_75": None,
+            "is_upper75": None,
             "period_75": None,
         }
     finally:
@@ -139,10 +138,10 @@ def check(df):
             # たくり線
             if df_reverse.iloc[i]['lower_mustache'] > 2 * df_reverse.iloc[i]['upper_mustache'] \
                     and df_reverse.iloc[i]['lower_mustache'] > 2 * df_reverse.iloc[i]['val_line'] \
-                    and not trend['is_upper_25'] and trend['period_25'] > 2:
+                    and not trend['is_upper25'] and trend['period_25'] > 2:
                 msg = "たくり線：底" \
                       + "（ヒゲ：" + str(df_reverse.iloc[i]['lower_mustache']) \
-                      + " / 線：" + str(abs(df_reverse.iloc[i]['val_close_open'])) \
+                      + " / 線：" + str(df_reverse.iloc[i]['val_line']) \
                       + "）"
                 # data["たくり線_底"].append(df_reverse.iloc[i])
                 data.append({
@@ -157,7 +156,7 @@ def check(df):
                     and df_reverse.iloc[i+1]['val_close'] > df_reverse.iloc[i]['val_open'] \
                     and df_reverse.iloc[i+1]['val_open'] < df_reverse.iloc[i]['val_close']:
                 # 陰線→陽線
-                if trend['is_upper_25'] and trend['period_25'] > 2:
+                if trend['is_upper25'] and trend['period_25'] > 2:
                     # 上昇傾向→天井
                     msg = "包み陽線：天井（" + str(df_reverse.iloc[i+1]['val_line']) + "→" + str(df_reverse.iloc[i]['val_line']) + "）"
                     logger.info(msg)
@@ -168,7 +167,7 @@ def check(df):
                         "df": df_reverse.iloc[i],
                         "date": df_reverse.iloc[i].date,
                     })
-                elif not trend['is_upper_25'] and trend['period_25'] > 2:
+                elif not trend['is_upper25'] and trend['period_25'] > 2:
                     # 下落傾向→底
                     msg = "包み陽線：底（" + str(df_reverse.iloc[i+1]['val_line']) + "→" + str(df_reverse.iloc[i]['val_line']) + "）"
                     logger.info(msg)
@@ -183,7 +182,7 @@ def check(df):
                     and df_reverse.iloc[i+1]['val_close'] < df_reverse.iloc[i]['val_open'] \
                     and df_reverse.iloc[i+1]['val_open'] > df_reverse.iloc[i]['val_close']:
                 # 陽線→陰線
-                if trend['is_upper_25'] and trend['period_25'] > 2:
+                if trend['is_upper25'] and trend['period_25'] > 2:
                     # 上昇傾向→天井
                     msg = "包み陰線：天井（" + str(df_reverse.iloc[i+1]['val_line']) + "→" + str(df_reverse.iloc[i]['val_line']) + "）"
                     logger.info(msg)
@@ -194,7 +193,7 @@ def check(df):
                         "df": df_reverse.iloc[i],
                         "date": df_reverse.iloc[i].date,
                     })
-                elif not trend['is_upper_25'] and trend['period_25'] > 2:
+                elif not trend['is_upper25'] and trend['period_25'] > 2:
                     # 下落傾向→底
                     msg = "包み陰線：底（" + str(df_reverse.iloc[i+1]['val_line']) + "→" + str(df_reverse.iloc[i]['val_line']) + "）"
                     logger.info(msg)
@@ -210,7 +209,7 @@ def check(df):
                     and df_reverse.iloc[i]['is_positive'] \
                     and df_reverse.iloc[i+1]['val_close'] < df_reverse.iloc[i]['val_open'] \
                     and df_reverse.iloc[i+1]['val_open'] > df_reverse.iloc[i]['val_close'] \
-                    and trend['is_upper_25'] and trend['period_25'] > 2:
+                    and trend['is_upper25'] and trend['period_25'] > 2:
                 # 陰の陽はらみ
                 msg = "陰の陽はらみ：底（" + str(df_reverse.iloc[i+1]['val_line']) + "→" + str(df_reverse.iloc[i]['val_line']) + "）"
                 # data['はらみ線_底'].append(df_reverse.iloc[i])
@@ -225,7 +224,7 @@ def check(df):
                     and not df_reverse.iloc[i]['is_positive'] \
                     and df_reverse.iloc[i+1]['val_open'] < df_reverse.iloc[i]['val_open'] \
                     and df_reverse.iloc[i+1]['val_close'] > df_reverse.iloc[i]['val_close'] \
-                    and trend['is_upper_25'] and trend['period_25'] > 2:
+                    and trend['is_upper25'] and trend['period_25'] > 2:
                 # 陰の陰はらみ
                 msg = "陰の陰はらみ：底（" + str(df_reverse.iloc[i+1]['val_line']) + "→" + str(df_reverse.iloc[i]['val_line']) + "）"
                 # data['はらみ線_底'].append(df_reverse.iloc[i])
@@ -240,7 +239,7 @@ def check(df):
                     and df_reverse.iloc[i]['is_positive'] \
                     and df_reverse.iloc[i+1]['val_open'] < df_reverse.iloc[i]['val_open'] \
                     and df_reverse.iloc[i+1]['val_close'] > df_reverse.iloc[i]['val_close'] \
-                    and not trend['is_upper_25'] and trend['period_25'] > 2:
+                    and not trend['is_upper25'] and trend['period_25'] > 2:
                 # 陽の陽はらみ
                 msg = "陽の陽はらみ：底（" + str(df_reverse.iloc[i+1]['val_line']) + "→" + str(df_reverse.iloc[i]['val_line']) + "）"
                 # data['はらみ線_底'].append(df_reverse.iloc[i])
@@ -255,7 +254,7 @@ def check(df):
                     and not df_reverse.iloc[i]['is_positive'] \
                     and df_reverse.iloc[i+1]['val_open'] < df_reverse.iloc[i]['val_close'] \
                     and df_reverse.iloc[i+1]['val_close'] > df_reverse.iloc[i]['val_open'] \
-                    and not trend['is_upper_25'] and trend['period_25'] > 2:
+                    and not trend['is_upper25'] and trend['period_25'] > 2:
                 # 陽の陰はらみ
                 msg = "陰の陰はらみ：底（" + str(df_reverse.iloc[i+1]['val_line']) + "→" + str(df_reverse.iloc[i]['val_line']) + "）"
                 # data['はらみ線_底'].append(df_reverse.iloc[i])
@@ -299,9 +298,9 @@ def check(df):
             if not df_reverse.iloc[i+2]['is_positive'] \
                     and not df_reverse.iloc[i+1]['is_positive'] \
                     and not df_reverse.iloc[i]['is_positive'] \
-                    and -df_reverse.iloc[i+2]['val_close_open'] / df_reverse.iloc[i+2]['val_close'] > 0.05 \
-                    and -df_reverse.iloc[i+1]['val_close_open'] / df_reverse.iloc[i+1]['val_close'] > 0.05 \
-                    and -df_reverse.iloc[i]['val_close_open'] / df_reverse.iloc[i]['val_close'] > 0.05:
+                    and df_reverse.iloc[i+2]['val_line'] / df_reverse.iloc[i+2]['val_close'] > 0.05 \
+                    and df_reverse.iloc[i+1]['val_line'] / df_reverse.iloc[i+1]['val_close'] > 0.05 \
+                    and df_reverse.iloc[i]['val_line'] / df_reverse.iloc[i]['val_close'] > 0.05:
                 logger.info("三手大陰線：◯")
                 # data['三手大陰線_底'].append(df_reverse.iloc[i])
                 data.append({

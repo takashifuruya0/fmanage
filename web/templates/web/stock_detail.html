@@ -203,7 +203,7 @@
 					<td>{{d.df.val_close_dy_pct |pct_100 |safe}}</td>
 					<td>{{d.df.turnover_dy_pct |pct_100 |safe}}</td>
 					<td>
-						{% if d.df.is_upper_5 %}
+						{% if d.df.is_upper05 %}
 						<label class="badge badge-success">
 							<i class="fas fa-level-up-alt"></i>
 						</label>
@@ -214,7 +214,7 @@
 						{% endif %}
 					</td>
 					<td>
-						{% if d.df.is_upper_25 %}
+						{% if d.df.is_upper25 %}
 						<label class="badge badge-success">
 							<i class="fas fa-level-up-alt"></i>
 						</label>
@@ -225,7 +225,7 @@
 						{% endif %}
 					</td>
 					<td>
-						{% if d.df.is_upper_75 %}
+						{% if d.df.is_upper75 %}
 						<label class="badge badge-success">
 							<i class="fas fa-level-up-alt"></i>
 						</label>

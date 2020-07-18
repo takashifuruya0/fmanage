@@ -32,7 +32,7 @@
           <div class="card-header">
             <strong>{{stock.name}}</strong><br>
             <!--トレンド-->
-            {%if stock.trend.is_upper_25%}
+            {%if stock.trend.is_upper25%}
             <span class="badge badge-success">
               25D <i class="fas fa-level-up-alt"></i> <span class="badge badge-light">{{stock.trend.period_25}}day</span>
             </span>
@@ -41,7 +41,7 @@
                25D <i class="fas fa-level-down-alt"></i> <span class="badge badge-light">{{stock.trend.period_25}}day</span>
             </span>
             {%endif%}
-            {%if stock.trend.is_upper_75%}
+            {%if stock.trend.is_upper75%}
             <span class="badge badge-success">
               75D <i class="fas fa-level-up-alt"></i> <span class="badge badge-light">{{stock.trend.period_75}}day</span>
             </span>

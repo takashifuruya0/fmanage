@@ -144,7 +144,7 @@ def check_mark(df_ascending):
 
         # 0. たくり線・勢力線// 前日にカラカサか下影陰線→◯。3日前~2日前で陰線だったら◎
         if df_ascending_reverse.iloc[0]['lower_mustache'] > 2*df_ascending_reverse.iloc[0]['upper_mustache'] \
-                and not trend['is_upper_25'] and trend['period_25'] > 2:
+                and not trend['is_upper25'] and trend['period_25'] > 2:
             msg = "たくり線：底" \
                   + "（ヒゲ：" + str(df_ascending_reverse.iloc[0]['lower_mustache']) \
                   + " / 線：" + str(abs(df_ascending_reverse.iloc[0]['val_end-start'])) \
@@ -160,12 +160,12 @@ def check_mark(df_ascending):
                 and df_ascending_reverse.iloc[1]['val_end'] > df_ascending_reverse.iloc[0]['val_start'] \
                 and df_ascending_reverse.iloc[1]['val_start'] < df_ascending_reverse.iloc[0]['val_end']:
             # 陰線→陽線
-            if trend['is_upper_25'] and trend['period_25'] > 2:
+            if trend['is_upper25'] and trend['period_25'] > 2:
                 # 上昇傾向→天井
                 msg = "包み陽線：天井（" + str(bar1) + "→" + str(bar0) + "）"
                 mark.append(msg)
                 logger.info(msg)
-            elif not trend['is_upper_25'] and trend['period_25'] > 2:
+            elif not trend['is_upper25'] and trend['period_25'] > 2:
                 # 下落傾向→底
                 msg = "包み陽線：底（" + str(bar1) + "→" + str(bar0) + "）"
                 mark.append(msg)
@@ -177,12 +177,12 @@ def check_mark(df_ascending):
                 and df_ascending_reverse.iloc[1]['val_end'] < df_ascending_reverse.iloc[0]['val_start'] \
                 and df_ascending_reverse.iloc[1]['val_start'] > df_ascending_reverse.iloc[0]['val_end']:
             # 陽線→陰線
-            if trend['is_upper_25'] and trend['period_25'] > 2:
+            if trend['is_upper25'] and trend['period_25'] > 2:
                 # 上昇傾向→天井
                 msg = "包み陰線：天井（" + str(bar1) + "→" + str(bar0) + "）"
                 mark.append(msg)
                 logger.info(msg)
-            elif not trend['is_upper_25'] and trend['period_25'] > 2:
+            elif not trend['is_upper25'] and trend['period_25'] > 2:
                 # 下落傾向→底
                 msg = "包み陰線：底（" + str(bar1) + "→" + str(bar0) + "）"
                 mark.append(msg)
@@ -198,7 +198,7 @@ def check_mark(df_ascending):
                 and df_ascending_reverse.iloc[0]['is_positive'] \
                 and df_ascending_reverse.iloc[1]['val_end'] < df_ascending_reverse.iloc[0]['val_start'] \
                 and df_ascending_reverse.iloc[1]['val_start'] > df_ascending_reverse.iloc[0]['val_end'] \
-                and trend['is_upper_25'] and trend['period_25'] > 2:
+                and trend['is_upper25'] and trend['period_25'] > 2:
             # 陰の陽はらみ
             msg = "陰の陽はらみ：底（" + str(bar1) + "→" + str(bar0) + "）"
             mark.append(msg)
@@ -207,7 +207,7 @@ def check_mark(df_ascending):
                 and not df_ascending_reverse.iloc[0]['is_positive'] \
                 and df_ascending_reverse.iloc[1]['val_start'] < df_ascending_reverse.iloc[0]['val_start'] \
                 and df_ascending_reverse.iloc[1]['val_end'] > df_ascending_reverse.iloc[0]['val_end']\
-                and trend['is_upper_25'] and trend['period_25'] > 2:
+                and trend['is_upper25'] and trend['period_25'] > 2:
             # 陰の陰はらみ
             msg = "陰の陰はらみ：底（" + str(bar1) + "→" + str(bar0) + "）"
             mark.append(msg)
@@ -216,7 +216,7 @@ def check_mark(df_ascending):
                 and df_ascending_reverse.iloc[0]['is_positive'] \
                 and df_ascending_reverse.iloc[1]['val_start'] < df_ascending_reverse.iloc[0]['val_start'] \
                 and df_ascending_reverse.iloc[1]['val_end'] > df_ascending_reverse.iloc[0]['val_end'] \
-                and not trend['is_upper_25'] and trend['period_25'] > 2:
+                and not trend['is_upper25'] and trend['period_25'] > 2:
             # 陽の陽はらみ
             msg = "陽の陽はらみ：底（" + str(bar1) + "→" + str(bar0) + "）"
             mark.append(msg)
@@ -225,7 +225,7 @@ def check_mark(df_ascending):
                 and not df_ascending_reverse.iloc[0]['is_positive'] \
                 and df_ascending_reverse.iloc[1]['val_start'] < df_ascending_reverse.iloc[0]['val_end'] \
                 and df_ascending_reverse.iloc[1]['val_end'] > df_ascending_reverse.iloc[0]['val_start'] \
-                and not trend['is_upper_25'] and trend['period_25'] > 2:
+                and not trend['is_upper25'] and trend['period_25'] > 2:
             # 陽の陰はらみ
             msg = "陰の陰はらみ：底（" + str(bar1) + "→" + str(bar0) + "）"
             mark.append(msg)
@@ -284,14 +284,14 @@ def get_trend(df_ascending):
         trend_period_75 = 1
 
         if ma25.iloc[0] > ma25.iloc[1]:
-            res['is_upper_25'] = True
+            res['is_upper25'] = True
             for i in range(2, len(df_ascending_reverse)):
                 if ma25.iloc[i-1] > ma25.iloc[i]:
                     trend_period_25 += 1
                 else:
                     break
         elif ma25.iloc[0] <= ma25.iloc[1]:
-            res['is_upper_25'] = False
+            res['is_upper25'] = False
             for i in range(2, len(df_ascending_reverse)):
                 if ma25.iloc[i-1] < ma25.iloc[i]:
                     trend_period_25 += 1
@@ -299,14 +299,14 @@ def get_trend(df_ascending):
                     break
 
         if ma75.iloc[0] > ma75.iloc[1]:
-            res['is_upper_75'] = True
+            res['is_upper75'] = True
             for i in range(2, len(df_ascending_reverse)):
                 if ma75.iloc[i-1] > ma75.iloc[i]:
                     trend_period_75 += 1
                 else:
                     break
         elif ma75.iloc[0] <= ma75.iloc[1]:
-            res['is_upper_75'] = False
+            res['is_upper75'] = False
             for i in range(2, len(df_ascending_reverse)):
                 if ma75.iloc[i-1] < ma75.iloc[i]:
                     trend_period_75 += 1
@@ -320,9 +320,9 @@ def get_trend(df_ascending):
         logger.error("get_trend was failed")
         logger.error(e)
         res = {
-            "is_upper_25": None,
+            "is_upper25": None,
             "period_25": None,
-            "is_upper_75": None,
+            "is_upper75": None,
             "period_75": None,
         }
     finally:
