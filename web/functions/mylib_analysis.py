@@ -13,7 +13,7 @@ def prepare(svds):
     df['turnover_dy_pct'] = df['turnover_dy'] / df['turnover'].shift()
     # 終値-始値
     df['val_line'] = abs(df['val_close'] - df['val_open'])
-    df['val_line_pct'] = (df['val_line'] / (df["val_high"] - df["val_low"])).where(df["val_line"] > 0, None)
+    df['val_line_pct'] = (df['val_line'] / (df["val_high"] - df["val_low"])).where(df["val_line"] > 0, 0)
     # 陽線/陰線
     df['is_positive'] = False
     df['is_positive'] = df['is_positive'].where(df['val_close'] < df['val_open'], True)
@@ -24,10 +24,10 @@ def prepare(svds):
     df['ma05'] = df.val_close.rolling(window=5, min_periods=1).mean()
     df['ma25'] = df.val_close.rolling(window=25, min_periods=1).mean()
     df['ma75'] = df.val_close.rolling(window=75, min_periods=1).mean()
-    df['ma_diff5_25'] = df.ma05 - df.ma25
-    df['ma_diff5_25_pct'] = df.ma_diff5_25 / df.ma75
-    df['ma_diff25_75'] = df.ma25 - df.ma75
-    df['ma_diff25_75_pct'] = df.ma_diff25_75 / df.ma75
+    # df['ma_diff5_25'] = df.ma05 - df.ma25
+    # df['ma_diff5_25_pct'] = df.ma_diff5_25 / df.ma75
+    # df['ma_diff25_75'] = df.ma25 - df.ma75
+    # df['ma_diff25_75_pct'] = df.ma_diff25_75 / df.ma75
     df['ma05_diff'] = df.val_close - df.ma05
     df['ma05_diff_pct'] = df['ma05_diff'] / df.val_close
     df['ma25_diff'] = df.val_close - df.ma25
@@ -162,7 +162,8 @@ def check(df):
                     logger.info(msg)
                     # data['包線_天井'].append(df_reverse.iloc[i])
                     data.append({
-                        "type": "包線（陰→陽＠上昇）",
+                        # "type": "包線（陰→陽＠上昇）",
+                        "type": "包線",
                         "is_bottom": False,
                         "df": df_reverse.iloc[i],
                         "date": df_reverse.iloc[i].date,
@@ -173,7 +174,8 @@ def check(df):
                     logger.info(msg)
                     # data['包線_底'].append(df_reverse.iloc[i])
                     data.append({
-                        "type": "包線（陰→陽＠下降）",
+                        # "type": "包線（陰→陽＠下降）",
+                        "type": "包線",
                         "is_bottom": True,
                         "df": df_reverse.iloc[i],
                         "date": df_reverse.iloc[i].date,
@@ -188,7 +190,8 @@ def check(df):
                     logger.info(msg)
                     # data['包線_天井'].append(df_reverse.iloc[i])
                     data.append({
-                        "type": "包線（陽→陰＠上昇）",
+                        # "type": "包線（陽→陰＠上昇）",
+                        "type": "包線",
                         "is_bottom": False,
                         "df": df_reverse.iloc[i],
                         "date": df_reverse.iloc[i].date,
@@ -199,7 +202,8 @@ def check(df):
                     logger.info(msg)
                     # data['包線_底'].append(df_reverse.iloc[i])
                     data.append({
-                        "type": "包線（陽→陰＠下降）",
+                        # "type": "包線（陽→陰＠下降）",
+                        "type": "包線",
                         "is_bottom": True,
                         "df": df_reverse.iloc[i],
                         "date": df_reverse.iloc[i].date,
@@ -215,7 +219,8 @@ def check(df):
                 # data['はらみ線_底'].append(df_reverse.iloc[i])
                 logger.info(msg)
                 data.append({
-                    "type": "はらみ線（陰→陽＠上昇）",
+                    # "type": "はらみ線（陰→陽＠上昇）",
+                    "type": "はらみ線",
                     "is_bottom": True,
                     "df": df_reverse.iloc[i],
                     "date": df_reverse.iloc[i].date,
@@ -230,7 +235,8 @@ def check(df):
                 # data['はらみ線_底'].append(df_reverse.iloc[i])
                 logger.info(msg)
                 data.append({
-                    "type": "はらみ線（陰→陰＠上昇）",
+                    # "type": "はらみ線（陰→陰＠上昇）",
+                    "type": "はらみ線",
                     "is_bottom": True,
                     "df": df_reverse.iloc[i],
                     "date": df_reverse.iloc[i].date,
@@ -266,12 +272,20 @@ def check(df):
                     "date": df_reverse.iloc[i].date,
                 })
             # 3. 上げ三法: 1本目の安値を割り込まない, 4本目が1本目の終値を超える
-            if not df_reverse.iloc[i+3]['is_positive'] and not df_reverse.iloc[i+2]['is_positive'] \
-                    and not df_reverse.iloc[i+1]['is_positive'] and df_reverse.iloc[i]['is_positive'] \
-                    and df_reverse.iloc[i+3]['val_open'] > df_reverse.iloc[i+2]['val_open'] \
-                    and df_reverse.iloc[i+3]['val_open'] > df_reverse.iloc[i+1]['val_open'] \
-                    and df_reverse.iloc[i+1]['val_close'] < df_reverse.iloc[i]['val_open'] \
-                    and df_reverse.iloc[i+3]['val_open'] < df_reverse.iloc[i]['val_close']:
+            if df_reverse.iloc[i+4]["is_positive"] \
+                    and not df_reverse.iloc[i+3]['is_positive'] \
+                    and not df_reverse.iloc[i+2]['is_positive'] \
+                    and not df_reverse.iloc[i+1]['is_positive'] \
+                    and df_reverse.iloc[i]['is_positive'] \
+                    and df_reverse.iloc[i]['val_close'] \
+                    > df_reverse.iloc[i+4]['val_close'] \
+                    > df_reverse.iloc[i+3]['val_open'] \
+                    > df_reverse.iloc[i+2]['val_open'] \
+                    > df_reverse.iloc[i+1]['val_open'] \
+                    and df_reverse.iloc[i+4]['val_open'] \
+                    < df_reverse.iloc[i+1]['val_close'] \
+                    < df_reverse.iloc[i+2]['val_close'] \
+                    < df_reverse.iloc[i+3]['val_close']:
                 logger.info("上げ三法：◯")
                 # data['上げ三法_底'].append(df_reverse.iloc[i])
                 data.append({
@@ -306,6 +320,29 @@ def check(df):
                 data.append({
                     "type": "三手大陰線",
                     "is_bottom": True,
+                    "df": df_reverse.iloc[i],
+                    "date": df_reverse.iloc[i].date,
+                })
+            # 6. 下げ三法: 1本目の高値を割り込まない, 4本目が1本目の終値を下回る
+            if not df_reverse.iloc[i + 4]["is_positive"] \
+                    and df_reverse.iloc[i + 3]['is_positive'] \
+                    and df_reverse.iloc[i + 2]['is_positive'] \
+                    and df_reverse.iloc[i + 1]['is_positive'] \
+                    and not df_reverse.iloc[i]['is_positive'] \
+                    and df_reverse.iloc[i]['val_close'] \
+                    < df_reverse.iloc[i + 4]['val_close'] \
+                    < df_reverse.iloc[i + 3]['val_open'] \
+                    < df_reverse.iloc[i + 2]['val_open'] \
+                    < df_reverse.iloc[i + 1]['val_open'] \
+                    and df_reverse.iloc[i + 4]['val_open'] \
+                    > df_reverse.iloc[i + 1]['val_close'] \
+                    > df_reverse.iloc[i + 2]['val_close'] \
+                    > df_reverse.iloc[i + 3]['val_close']:
+                logger.info("下げ三法：◯")
+                # data['上げ三法_底'].append(df_reverse.iloc[i])
+                data.append({
+                    "type": "下げ三法",
+                    "is_bottom": False,
                     "df": df_reverse.iloc[i],
                     "date": df_reverse.iloc[i].date,
                 })

@@ -1,5 +1,6 @@
 from web.functions import mylib_scraping, mylib_analysis
 from web.models import StockFinancialData, Stock, Entry, AssetStatus, StockValueData
+from web.models import StockAnalysisData
 from django.contrib.auth.models import User
 import requests
 from io import BytesIO
@@ -481,3 +482,83 @@ def analyse_all(days=14):
     check_sorted = sorted(check, key=lambda x: x['date'])
     check_sorted.reverse()
     return check_sorted
+
+
+def register_stock_analysis_data(code, is_updating=False):
+    # stockの取得
+    try:
+        stock = Stock.objects.get(code=code)
+    except Exception as e:
+        msg = "Stock code {} is not found".format(code)
+        logger.error(msg)
+        res = {
+            "status": False,
+            "msg": msg,
+            "sads": None,
+            # "sads_updated": None,
+        }
+        return res
+    # svdを取得し、dataframe化
+    svds = StockValueData.objects.filter(stock=stock).order_by('date')
+    df = mylib_analysis.prepare(svds)
+    check = mylib_analysis.check(df)
+    cc = {c['df'].date: [] for c in check}
+    for c in check:
+        cc[c['df'].date].append(c["type"])
+    # 登録用リスト
+    sads_list = list()
+    sads_updated_list = list()
+    # 除外するキー一覧
+    exclude_keys = (
+        "id", "stock", "code", "val_high", "val_low", "val_open", "val_close", "turnover"
+    )
+    # dataframeでループ
+    for d in df.iterrows():
+        # 既存
+        if StockAnalysisData.objects.filter(date=d[1]['date'], stock=stock).exists():
+            # is_updating=Trueの場合、更新する
+            if is_updating:
+                data_dict = d[1].to_dict()
+                for k in exclude_keys:
+                    data_dict.pop(k)
+                data_dict['stock'] = stock
+                target = StockAnalysisData.objects.filter(date=data_dict['date'], stock=stock)
+                target.update(**data_dict)
+                sads_updated_list.append(target)
+                # logger.info("StockAnalysisData of {} was updated successfully.".format(sads_updated))
+            else:
+                continue
+        # 新規：bulk作成
+        else:
+            data_dict = d[1].to_dict()
+            for k in exclude_keys:
+                data_dict.pop(k)
+            data_dict['stock'] = stock
+            sad = StockAnalysisData(**data_dict)
+            # check
+            if data_dict['date'] in cc.keys():
+                if "たくり線" in cc[data_dict['date']]:
+                    sad.is_takuri = True
+                if "はらみ線" in cc[data_dict['date']]:
+                    sad.is_harami = True
+                if "包線" in cc[data_dict['date']]:
+                    sad.is_tsutsumi = True
+                if "三空叩き込み" in cc[data_dict['date']]:
+                    sad.is_sanku_tatakikomi = True
+                if "三手大陰線" in cc[data_dict['date']]:
+                    sad.is_sante_daiinsen = True
+                if "上げ三法" in cc[data_dict['date']]:
+                    sad.is_age_sanpo = True
+            sads_list.append(sad)
+    # bulkで登録
+    sads = StockAnalysisData.objects.bulk_create(sads_list)
+    # sads_updated = StockAnalysisData.objects.bulk_update(sads_updated_list)
+    msg = "StockAnalysisData of Stock code {} were created successfully".format(code)
+    logger.info(msg)
+    res = {
+        "status": True,
+        "msg": msg,
+        "sads": sads,
+        # "sads_updates": sads_updated_list
+    }
+    return res
