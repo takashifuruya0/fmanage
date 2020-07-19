@@ -194,8 +194,12 @@
 				</tr>
 				{% for sad in sads %}
 				<tr>
-					<td>{{sad.id}}</td>
-					<td>{{sad.date}}</td>
+					<td>
+						<a href="https://www.fk-management.com/admin/web/stockanalysisdata/{{sad.id}}/change/">
+							<i class="fas fa-info-circle"></i>
+						</a>
+					</td>
+					<td>{{sad.date |naturalday}}</td>
 					<td>{{sad.val_close_dy_pct |pct_100 |safe}}</td>
 					<td>{{sad.turnover_dy_pct |pct_100 |safe}}</td>
 					<td>
@@ -234,6 +238,7 @@
 				</tr>
 				{% endfor %}
 			</table>
+			<hr>
 			{% endif %}
 			{% include 'web/part/trend_type.html' %}
 			<table class="table table-responsive">

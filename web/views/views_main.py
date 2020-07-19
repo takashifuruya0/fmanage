@@ -4,7 +4,7 @@ from django.views.generic import TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from web.forms import InvestmentForm
 from django.contrib import messages
-from web.models import Entry, Order, StockValueData, Stock, AssetStatus
+from web.models import Entry, Order, StockValueData, Stock, AssetStatus, StockAnalysisData
 from web.functions import mylib_scraping, mylib_asset
 from django_celery_results.models import TaskResult
 # logging
@@ -33,6 +33,8 @@ class Main(LoginRequiredMixin, TemplateView):
                 num = e.remaining()
                 total += val * num
             diff = total - astatus.get_total()
+        # SAD
+        # sads = StockAnalysisData.objects.filter()
         # output
         output = {
             "user": self.request.user,

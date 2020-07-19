@@ -49,7 +49,7 @@ class StockDetail(LoginRequiredMixin, DetailView):
             "border_profit_determination": round(context["current_val"]*1.1),
             "val_plan": round(context["current_val"]),
         })
-        context["sads"] = StockAnalysisData.objects.filter(stock=context["stock"]).order_by('date')
+        context["sads"] = StockAnalysisData.objects.filter(stock=context["stock"]).order_by('-date')[0:5]
         context["sbialert_form"] = SBIAlertForm(initial={"stock": self.object})
         context["sbialerts"] = SBIAlert.objects.filter(stock=self.object, is_active=True)
         context['sfds'] = self.object.stockfinancialdata_set.all().order_by('-date')
