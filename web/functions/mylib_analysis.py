@@ -134,8 +134,9 @@ def check(df):
         trend = get_trend(df)
         df_reverse = df.sort_values('date', ascending=False)
         data = list()
-        for i in range(len(df_reverse)-3):
+        for i in range(len(df_reverse)-4):
             # たくり線
+            check_name = "たくり線"
             if df_reverse.iloc[i]['lower_mustache'] > 2 * df_reverse.iloc[i]['upper_mustache'] \
                     and df_reverse.iloc[i]['lower_mustache'] > 2 * df_reverse.iloc[i]['val_line'] \
                     and not trend['is_upper25'] and trend['period_25'] > 2:
@@ -152,6 +153,7 @@ def check(df):
                 })
                 logger.info("{}: {}".format(df_reverse.iloc[i]['date'], msg))
             # 包線:　当日の線[i]が、前日の線[i+1]を包みこむ
+            check_name = "包線"
             if not df_reverse.iloc[i+1]['is_positive'] and df_reverse.iloc[i]['is_positive'] \
                     and df_reverse.iloc[i+1]['val_close'] > df_reverse.iloc[i]['val_open'] \
                     and df_reverse.iloc[i+1]['val_open'] < df_reverse.iloc[i]['val_close']:
@@ -209,6 +211,7 @@ def check(df):
                         "date": df_reverse.iloc[i].date,
                     })
             # 2. はらみ線
+            check_name = "はらみ線"
             if not df_reverse.iloc[i+1]['is_positive'] \
                     and df_reverse.iloc[i]['is_positive'] \
                     and df_reverse.iloc[i+1]['val_close'] < df_reverse.iloc[i]['val_open'] \
@@ -272,6 +275,7 @@ def check(df):
                     "date": df_reverse.iloc[i].date,
                 })
             # 3. 上げ三法: 1本目の安値を割り込まない, 4本目が1本目の終値を超える
+            check_name = "上げ三法"
             if df_reverse.iloc[i+4]["is_positive"] \
                     and not df_reverse.iloc[i+3]['is_positive'] \
                     and not df_reverse.iloc[i+2]['is_positive'] \
@@ -295,6 +299,7 @@ def check(df):
                     "date": df_reverse.iloc[i].date,
                 })
             # 4. 三空叩き込み
+            check_name = "三空叩き込み"
             if not df_reverse.iloc[i+3]['is_positive'] and not df_reverse.iloc[i+2]['is_positive'] \
                     and not df_reverse.iloc[i+1]['is_positive'] and not df_reverse.iloc[i]['is_positive'] \
                     and df_reverse.iloc[i+3]['val_open'] < df_reverse.iloc[i+2]['val_close'] \
@@ -309,6 +314,7 @@ def check(df):
                     "date": df_reverse.iloc[i].date,
                 })
             # 5. 三手大陰線
+            check_name = "三手大陰線"
             if not df_reverse.iloc[i+2]['is_positive'] \
                     and not df_reverse.iloc[i+1]['is_positive'] \
                     and not df_reverse.iloc[i]['is_positive'] \
@@ -324,6 +330,7 @@ def check(df):
                     "date": df_reverse.iloc[i].date,
                 })
             # 6. 下げ三法: 1本目の高値を割り込まない, 4本目が1本目の終値を下回る
+            check_name = "下げ三法"
             if not df_reverse.iloc[i + 4]["is_positive"] \
                     and df_reverse.iloc[i + 3]['is_positive'] \
                     and df_reverse.iloc[i + 2]['is_positive'] \
@@ -347,7 +354,7 @@ def check(df):
                     "date": df_reverse.iloc[i].date,
                 })
     except Exception as e:
-        logger.error(e)
+        logger.error("({}) {}: {}".format(i, check_name, e))
     finally:
         return data
 
