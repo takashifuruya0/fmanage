@@ -11,6 +11,7 @@ for(var i=0; i<kouho.length; i++){
     }else if(kouho[i].text=="ゆうちょ"){
         var yucho = kouho[i].value
     }
+}
 for (var i=0; i<kouho_usage.length; i++){
     if(kouho_usage[i].text=="その他"){
         var sonota = kouho_usage[i].value;
@@ -18,7 +19,7 @@ for (var i=0; i<kouho_usage.length; i++){
         var sonota_income = kouho_usage[i].value;
     }
 }
-};
+
 // メソッド
 var fill_resource = function(){
     // 場合分け
