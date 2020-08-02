@@ -158,7 +158,6 @@
           <h4>イベント</h4>
         </div>
         <div class="card-body">
-<!--          <canvas id="bar_resources" width="320" height="360"></canvas>-->
           <table class="table table-light table-hover table-sm">
             <thead>
               <tr>
@@ -171,7 +170,7 @@
             </thead>
             <tbody class="">
               {%for event in events%}
-              <tr>
+              <tr {%if not event.is_active%}style="background-color: #707070;"{%endif%}>
                 <td>
                   <a href="{%url 'kakeibo:event_detail' pk=event.pk%}">
                     {{event.pk}}
@@ -186,6 +185,11 @@
               {% endfor %}
             </tbody>
           </table>
+        </div>
+        <div class="card-footer">
+          <a class="btn btn-info" href="{%url 'kakeibo:event_list'%}">
+            <i class="fas fa-list"></i> Event List
+          </a>
         </div>
       </div>
     </div>

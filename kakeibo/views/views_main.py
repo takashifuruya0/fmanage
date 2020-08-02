@@ -159,7 +159,7 @@ def dashboard(request):
     # usage
     current_usage = kakeibos_expense.values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
     # event
-    events = Event.objects.filter(date__year=today.year, is_active=True)
+    events = Event.objects.filter(date__year=today.year).order_by("-is_active", "-date")
 
     # 収入・支出・総資産
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
