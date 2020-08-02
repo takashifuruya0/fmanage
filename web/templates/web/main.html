@@ -27,7 +27,7 @@
 						<div class="col-12 col-md-4">
 							<h5 class="card-title">
 								<i class="fas fa-tachometer-alt"></i> Asset Status
-								<label class="badge badge-{%if diff>0%}success{%else%}danger{%endif%}">
+								<label class="badge badge-{%if diff > 0 %}success{%else%}danger{%endif%}">
 									{{total |yen |safe}} / 前日比{{diff |yen_no_color |safe}}
 								</label>
 							</h5>
@@ -230,13 +230,16 @@
 										{% endif %}
 									</td>
 									<td>
-										{%if sad.is_harami%}はらみ線、{%endif%}
-										{%if sad.is_tsutsumi%}包線、{%endif%}
-										{%if sad.is_takuri%}たくり線、{%endif%}
-										{%if sad.is_age_sanpo%}上げ三法、{%endif%}
-										{%if sad.is_sage_sanpo%}下げ三法、{%endif%}
-										{%if sad.is_sanku_tatakikomi%}三空叩き込み、{%endif%}
-										{%if sad.is_sante_daiinsen%}三手大陰線、{%endif%}
+										{% if sad.val_close_dy_pct >= 0.05 %}終値：前日比5%以上<br>{%endif%}
+										{% if sad.val_close_dy_pct <= -0.05 %}終値：前日比5%以下<br>{%endif%}
+										{% if sad.turnover_dy_pct >= 1 %}出来高：前日比100%以上<br>{%endif%}
+										{%if sad.is_harami%}はらみ線<br>{%endif%}
+										{%if sad.is_tsutsumi%}包線<br>{%endif%}
+										{%if sad.is_takuri%}たくり線<br>{%endif%}
+										{%if sad.is_age_sanpo%}上げ三法<br>{%endif%}
+										{%if sad.is_sage_sanpo%}下げ三法<br>{%endif%}
+										{%if sad.is_sanku_tatakikomi%}三空叩き込み<br>{%endif%}
+										{%if sad.is_sante_daiinsen%}三手大陰線<br>{%endif%}
 									</td>
 								</tr>
 								{% endfor %}
