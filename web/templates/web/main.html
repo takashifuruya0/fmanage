@@ -27,7 +27,7 @@
 						<div class="col-12 col-md-4">
 							<h5 class="card-title">
 								<i class="fas fa-tachometer-alt"></i> Asset Status
-								<label class="badge badge-{%if total > astatus.get_total%}success{%else%}danger{%endif%}">
+								<label class="badge badge-{%if diff>0%}success{%else%}danger{%endif%}">
 									{{total |yen |safe}} / 前日比{{diff |yen_no_color |safe}}
 								</label>
 							</h5>
