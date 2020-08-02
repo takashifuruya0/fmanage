@@ -46,8 +46,10 @@ class Main(LoginRequiredMixin, TemplateView):
         sads = StockAnalysisData.objects.filter(date__gte=target_date).filter(
             Q(val_close_dy_pct__gt=0.05, turnover_dy_pct__gt=1)
             | Q(val_close_dy_pct__lt=-0.05, turnover_dy_pct__gt=1)
-            | Q(is_takuri=True) | Q(is_harami=True) | Q(is_tsutsumi=True) | Q(is_sanku_tatakikomi=True)
-            | Q(is_age_sanpo=True) | Q(is_sage_sanpo=True) | Q(is_sante_daiinsen=True)
+            | Q(is_takuri=True)
+            # | Q(is_harami=True) | Q(is_tsutsumi=True)
+            | Q(is_sanku_tatakikomi=True) | Q(is_age_sanpo=True)
+            | Q(is_sage_sanpo=True) | Q(is_sante_daiinsen=True)
         ).order_by('-date')
         # output
         output = {
