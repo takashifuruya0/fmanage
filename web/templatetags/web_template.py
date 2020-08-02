@@ -17,6 +17,20 @@ def yen(val, digit=0):
 
 
 @register.filter
+def yen_no_color(val, digit=0):
+    if not val:
+        return "-"
+    elif val >= 0 and digit == 0:
+        return "¥{:,}".format(round(val))
+    elif val >= 0 and digit > 0:
+        return "¥{:,}".format(round(val, digit))
+    elif val < 0 and digit == 0:
+        return "-¥{:,}".format(round(-val))
+    else:
+        return "-¥{:,}".format(round(-val, digit))
+
+
+@register.filter
 def pct(val, digit=2):
     if not val:
         return "-"

@@ -2,8 +2,11 @@
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from web.forms import InvestmentForm
 from django.contrib import messages
+from dateutil import relativedelta
+from datetime import date
 from web.models import Entry, Order, StockValueData, Stock, AssetStatus, StockAnalysisData
 from web.functions import mylib_scraping, mylib_asset
 from django_celery_results.models import TaskResult
@@ -22,7 +25,7 @@ class Main(LoginRequiredMixin, TemplateView):
         plan_entrys = Entry.objects.filter(user=self.request.user, is_plan=True, is_closed=False).order_by('-pk')
         astatus_list = AssetStatus.objects.filter(user=self.request.user)
         astatus = astatus_list.latest('date') if astatus_list.exists() else None
-        checks = mylib_asset.analyse_all(days=15)
+        # checks = mylib_asset.analyse_all(days=15)
         # Current Total
         if astatus:
             total = astatus.buying_power
@@ -32,9 +35,20 @@ class Main(LoginRequiredMixin, TemplateView):
                 val = current_val if current_val else e.stock.latest_val()
                 num = e.remaining()
                 total += val * num
-            diff = total - astatus.get_total()
+            try:
+                previous_total = AssetStatus.objects.filter(date__lt=astatus.date).latest('date').get_total()
+                diff = total - previous_total
+            except Exception as e:
+                logger.warning("Previous total is not existed")
+                diff = 0
         # SAD
-        # sads = StockAnalysisData.objects.filter()
+        target_date = date.today() - relativedelta.relativedelta(days=7)
+        sads = StockAnalysisData.objects.filter(date__gte=target_date).filter(
+            Q(val_close_dy_pct__gt=0.05, turnover_dy_pct__gt=1)
+            | Q(val_close_dy_pct__lt=-0.05, turnover_dy_pct__gt=1)
+            | Q(is_takuri=True) | Q(is_harami=True) | Q(is_tsutsumi=True) | Q(is_sanku_tatakikomi=True)
+            | Q(is_age_sanpo=True) | Q(is_sage_sanpo=True) | Q(is_sante_daiinsen=True)
+        ).order_by('-date')
         # output
         output = {
             "user": self.request.user,
@@ -43,9 +57,10 @@ class Main(LoginRequiredMixin, TemplateView):
             "plan_entrys": plan_entrys,
             "astatus": astatus,
             "investment_form": InvestmentForm(),
-            "checks": checks,
+            # "checks": checks,
             "total": total if astatus else None,
             "diff": diff if astatus else None,
+            "sads": sads,
         }
         if self.request.user.is_superuser:
             tasks = TaskResult.objects.all()
