@@ -158,6 +158,8 @@ def dashboard(request):
     current_resource = Resources.objects.all()
     # usage
     current_usage = kakeibos_expense.values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
+    # event
+    events = Event.objects.filter(date__year=today.year, is_active=True)
 
     # 収入・支出・総資産
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
@@ -226,6 +228,8 @@ def dashboard(request):
         "shared_form": shared_form,
         "username": request.user.username,
         "usual_records": usual_records,
+        # events
+        "events": events,
     }
     logger.info("output: " + str(output))
     return TemplateResponse(request, 'kakeibo/dashboard.html', output)

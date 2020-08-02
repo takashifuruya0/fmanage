@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{% load web_template %}
 {% block title %}
     Dashboard
 {% endblock %}
@@ -69,32 +70,32 @@
   </div>
   <hr>
   <div class="row">
-    <div class="col-sm-12 col-md-6 col-lg-3">
-      <div class="card">
-        <div class="card-header">
-          <h4>収支</h4>
-        </div>
-        <div class="card-body">
-          <canvas id="pie_way"></canvas>
-          <table class="table table-light table-hover table-sm">
-            <thead>
-              <tr>
-                <th>Key</th>
-                <th class="right">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for cw in current_way %}
-              <tr>
-                <td>{{cw.way}}</td>
-                <td class="right">¥{{cw.sum | intcomma}}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+<!--    <div class="col-sm-12 col-md-6 col-lg-3">-->
+<!--      <div class="card">-->
+<!--        <div class="card-header">-->
+<!--          <h4>収支</h4>-->
+<!--        </div>-->
+<!--        <div class="card-body">-->
+<!--          <canvas id="pie_way"></canvas>-->
+<!--          <table class="table table-light table-hover table-sm">-->
+<!--            <thead>-->
+<!--              <tr>-->
+<!--                <th>Key</th>-->
+<!--                <th class="right">Value</th>-->
+<!--              </tr>-->
+<!--            </thead>-->
+<!--            <tbody>-->
+<!--              {% for cw in current_way %}-->
+<!--              <tr>-->
+<!--                <td>{{cw.way}}</td>-->
+<!--                <td class="right">¥{{cw.sum | intcomma}}</td>-->
+<!--              </tr>-->
+<!--              {% endfor %}-->
+<!--            </tbody>-->
+<!--          </table>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
 
     <div class="col-sm-12 col-md-6 col-lg-3">
       <div class="card">
@@ -151,27 +152,36 @@
       </div>
     </div>
 
-    <div class="col-sm-12 col-md-6 col-lg-3">
+    <div class="col-sm-12 col-md-6 col-lg-6">
       <div class="card">
         <div class="card-header">
-          <h4>先月比</h4>
+          <h4>イベント</h4>
         </div>
         <div class="card-body">
-          <canvas id="bar_resources" width="320" height="360"></canvas>
+<!--          <canvas id="bar_resources" width="320" height="360"></canvas>-->
           <table class="table table-light table-hover table-sm">
             <thead>
               <tr>
-                <th>Key</th>
-                <th class="right">今月</th>
-                <th class="right">先月</th>
+                <th>No</th>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Memo</th>
+                <th class="right">Plan/Actual</th>
               </tr>
             </thead>
             <tbody class="">
-              {%for r in resources_chart%}
+              {%for event in events%}
               <tr>
-                <td>{{r.name}}</td>
-                <td class="right">¥{{r.this_month | intcomma}}</td>
-                <td class="right">¥{{r.last_month | intcomma}}</td>
+                <td>
+                  <a href="{%url 'kakeibo:event_detail' pk=event.pk%}">
+                    {{event.pk}}
+                  </a>
+                </td>
+                <td>{{event.date}}</td>
+                <td>{{event.name}}</td>
+                <td>{{event.meme}}</td>
+                <td class="right">{{event.sum_plan |yen}}/{{event.sum_actual |yen}}</td>
+<!--                <td class="right">{{event.sum_actual |yen}}</td>-->
               </tr>
               {% endfor %}
             </tbody>
@@ -179,6 +189,35 @@
         </div>
       </div>
     </div>
+
+<!--    <div class="col-sm-12 col-md-6 col-lg-3">-->
+<!--      <div class="card">-->
+<!--        <div class="card-header">-->
+<!--          <h4>先月比</h4>-->
+<!--        </div>-->
+<!--        <div class="card-body">-->
+<!--          <canvas id="bar_resources" width="320" height="360"></canvas>-->
+<!--          <table class="table table-light table-hover table-sm">-->
+<!--            <thead>-->
+<!--              <tr>-->
+<!--                <th>Key</th>-->
+<!--                <th class="right">今月</th>-->
+<!--                <th class="right">先月</th>-->
+<!--              </tr>-->
+<!--            </thead>-->
+<!--            <tbody class="">-->
+<!--              {%for r in resources_chart%}-->
+<!--              <tr>-->
+<!--                <td>{{r.name}}</td>-->
+<!--                <td class="right">¥{{r.this_month | intcomma}}</td>-->
+<!--                <td class="right">¥{{r.last_month | intcomma}}</td>-->
+<!--              </tr>-->
+<!--              {% endfor %}-->
+<!--            </tbody>-->
+<!--          </table>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
   <hr>
 
