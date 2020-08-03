@@ -158,17 +158,22 @@
           <h4>イベント</h4>
         </div>
         <div class="card-body">
-          <table class="table table-light table-hover table-sm">
+          <h4>
+            <span class="badge badge-{%if event_sum_plan > event_sum_actual %}success{%else%}danger{%endif%}">
+              計画：{{event_sum_plan |yen}} / 実績：{{event_sum_actual |yen}}
+            </span>
+          </h4>
+          <table class="table table-light table-hover table-responsive-sm">
             <thead>
               <tr>
                 <th>No</th>
                 <th>Date</th>
                 <th>Name</th>
-                <th>Memo</th>
-                <th class="right">Plan/Actual</th>
+                <th class="right">Plan</th>
+                <th class="right">Actual</th>
               </tr>
             </thead>
-            <tbody class="">
+            <tbody>
               {%for event in events%}
               <tr {%if not event.is_active%}style="background-color: #707070;"{%endif%}>
                 <td>
@@ -178,15 +183,17 @@
                 </td>
                 <td>{{event.date}}</td>
                 <td>{{event.name}}</td>
-                <td>{{event.meme}}</td>
-                <td class="right">{{event.sum_plan |yen}}/{{event.sum_actual |yen}}</td>
-<!--                <td class="right">{{event.sum_actual |yen}}</td>-->
+                <td class="right">{{event.sum_plan |yen}}</td>
+                <td class="right">{{event.sum_actual |yen}}</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
         <div class="card-footer">
+          <a class="btn btn-primary" href="{%url 'kakeibo:event_list'%}">
+            <i class="fas fa-plus"></i> Create Event
+          </a>
           <a class="btn btn-info" href="{%url 'kakeibo:event_list'%}">
             <i class="fas fa-list"></i> Event List
           </a>

@@ -160,6 +160,10 @@ def dashboard(request):
     current_usage = kakeibos_expense.values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
     # event
     events = Event.objects.filter(date__year=today.year).order_by("-is_active", "-date")
+    event_sum_plan = events.aggregate(sum=Sum('sum_plan'))['sum']
+    event_sum_actual = 0
+    for event in events:
+        event_sum_actual += event.sum_actual()
 
     # 収入・支出・総資産
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
@@ -230,6 +234,8 @@ def dashboard(request):
         "usual_records": usual_records,
         # events
         "events": events,
+        "event_sum_actual": event_sum_actual,
+        "event_sum_plan": event_sum_plan,
     }
     logger.info("output: " + str(output))
     return TemplateResponse(request, 'kakeibo/dashboard.html', output)
