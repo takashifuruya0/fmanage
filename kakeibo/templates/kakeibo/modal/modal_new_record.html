@@ -10,7 +10,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form method="post" action="">
+      <form method="post" action="{%url 'kakeibo:kakeibo_create' %}">
         <div class="modal-body">
           {% csrf_token %}
           <table>
@@ -21,6 +21,7 @@
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <button type="submit" class="btn btn-primary" name="post_type" value="new_record">Register</button>
         </div>
+        <input type="hidden" name="source_path" value="{{request.get_full_path}}">
       </form>
     </div>
   </div>

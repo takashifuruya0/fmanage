@@ -69,12 +69,6 @@ class ViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def test_form_kakeibo(self):
-        url = reverse("kakeibo:form")
-        response = self.client.get(url)
-        self.assertEqual(response.context_data, {'url': settings.URL_FORM})
-        self.assertEqual(response.status_code, 200)
-
     def test_kakeibo_list(self):
         url = reverse("kakeibo:kakeibo_list")
         response = self.client.get(url)

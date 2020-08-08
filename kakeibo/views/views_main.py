@@ -29,54 +29,8 @@ def dashboard(request):
     today = date.today()
     # POSTの場合
     if request.method == "POST":
-        # new_record
-        if request.POST['post_type'] == "new_record":
-            try:
-                with atomic():
-                    form = KakeiboForm(request.POST)
-                    form.is_valid()
-                    form.save()
-                    # msg
-                    smsg = "New record was registered"
-                    # shared
-                    if form.cleaned_data['tag_copy_to_shared']:
-                        data = {
-                            'date': form.cleaned_data['date'],
-                            'fee': form.cleaned_data['fee'],
-                            'usage': form.cleaned_data['usage'],
-                            'paid_by': "敬士",
-                            'memo': form.cleaned_data['memo'],
-                        }
-                        SharedKakeibos.objects.create(**data)
-                        smsg += " and copied to Shared Kakeibo"
-                    messages.success(request, smsg)
-                    logger.info(smsg)
-            except Exception as e:
-                emsg = e
-                logger.error(emsg)
-                messages.error(request, emsg)
-                set_rollback(True)
-            finally:
-                return redirect('kakeibo:dashboard')
-        # new_record
-        elif request.POST['post_type'] == "new_record_shared":
-            try:
-                form = SharedKakeiboForm(request.POST)
-                form.is_valid()
-                form.save()
-                # msg
-                smsg = "New record was registered"
-                messages.success(request, smsg)
-                logger.info(smsg)
-            except Exception as e:
-                emsg = e
-                logger.error(emsg)
-                messages.error(request, emsg)
-                set_rollback(True)
-            finally:
-                return redirect('kakeibo:dashboard')
         # read_csv
-        elif request.POST['post_type'] == "read_csv":
+        if request.POST['post_type'] == "read_csv":
             try:
                 debit_date = datetime.strptime(request.POST['debit_date'], "%Y-%m-%d").date()
                 logger.info("Debit Date: {}/{}".format(debit_date.year, debit_date.month))
@@ -242,43 +196,12 @@ def dashboard(request):
 
 
 @login_required
-def form_kakeibo(request):
-    url = settings.URL_FORM
-    # return redirect(url)
-    output = {"url": url}
-    return TemplateResponse(request, 'kakeibo/form.html', output)
-
-
-@login_required
-def form_shared(request):
-    url = settings.URL_SHAREDFORM
-    # return redirect(url)
-    output = {"url": url}
-    return TemplateResponse(request, 'kakeibo/form.html', output)
-
-
-@login_required
 @time_measure
 def mine(request):
     today = date.today()
     # POSTの場合
     if request.method == "POST":
-        if request.POST['post_type'] == "new_record":
-            try:
-                form = KakeiboForm(request.POST)
-                form.is_valid()
-                form.save()
-                # msg
-                smsg = "New record was registered"
-                messages.success(request, smsg)
-                logger.info(smsg)
-            except Exception as e:
-                emsg = e
-                logger.error(emsg)
-                messages.error(request, emsg)
-            finally:
-                return redirect('kakeibo:mine')
-        elif request.POST['post_type'] == "read_csv":
+        if request.POST['post_type'] == "read_csv":
             try:
                 debit_date = datetime.strptime(request.POST['debit_date'], "%Y-%m-%d").date()
                 logger.info("Debit Date: {}/{}".format(debit_date.year, debit_date.month))
@@ -384,7 +307,6 @@ def mine(request):
 
     # 年間の収入・支出
     inouts_grouped_by_months = process_kakeibo.inouts_grouped_by_months()
-    usages_grouped_by_months = process_kakeibo.usages_grouped_by_months()
 
     # output
     output = {
