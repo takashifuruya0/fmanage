@@ -15,20 +15,17 @@
         <i class="fas fa-chart-area"></i> {{today.year}}年{{today.month}}月
       </h1>
     </div>
-    <div class="col-md-2 col-sm-4 col-4">
-      <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#new_record">
-        <i class="fas fa-user-circle"></i> New Kakeibo
-      </button>
+    <div class="col-md-2 col-sm-12 col-12">
+      <!-- Modal new-record -->
+      {% include 'kakeibo/modal/modal_new_record.html' %}
     </div>
-    <div class="col-md-2 col-sm-4 col-4">
-      <button type="button" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#read_csv">
-        <i class="far fa-file-excel"></i> Credit CSV
-      </button>
+    <div class="col-md-2 col-sm-6 col-6">
+      <!-- Modal read_csv -->
+      {% include 'kakeibo/modal/modal_read_csv.html' %}
     </div>
-    <div class="col-md-2 col-sm-4 col-4">
-      <button type="button" class="btn btn-outline-success btn-block" data-toggle="modal" data-target="#usual_record">
-        <i class="fas fa-clone"></i> Usual_record
-      </button>
+    <div class="col-md-2 col-sm-6 col-6">
+      <!-- Modal usual-record -->
+      {% include 'kakeibo/modal/modal_usual_record.html' %}
     </div>
   </div>
   <hr>
@@ -160,44 +157,12 @@
         </div>
         <div class="card-footer">
           {% include 'kakeibo/modal/modal_new_event.html' %}
-<!--          <a class="btn btn-primary" href="{%url 'kakeibo:event_list'%}">-->
-<!--            <i class="fas fa-plus"></i> Create Event-->
-<!--          </a>-->
           <a class="btn btn-info" href="{%url 'kakeibo:event_list'%}">
             <i class="fas fa-list"></i> Event List
           </a>
         </div>
       </div>
     </div>
-
-<!--    <div class="col-sm-12 col-md-6 col-lg-3">-->
-<!--      <div class="card">-->
-<!--        <div class="card-header">-->
-<!--          <h4>先月比</h4>-->
-<!--        </div>-->
-<!--        <div class="card-body">-->
-<!--          <canvas id="bar_resources" width="320" height="360"></canvas>-->
-<!--          <table class="table table-light table-hover table-sm">-->
-<!--            <thead>-->
-<!--              <tr>-->
-<!--                <th>Key</th>-->
-<!--                <th class="right">今月</th>-->
-<!--                <th class="right">先月</th>-->
-<!--              </tr>-->
-<!--            </thead>-->
-<!--            <tbody class="">-->
-<!--              {%for r in resources_chart%}-->
-<!--              <tr>-->
-<!--                <td>{{r.name}}</td>-->
-<!--                <td class="right">¥{{r.this_month | intcomma}}</td>-->
-<!--                <td class="right">¥{{r.last_month | intcomma}}</td>-->
-<!--              </tr>-->
-<!--              {% endfor %}-->
-<!--            </tbody>-->
-<!--          </table>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
   </div>
   <hr>
 
@@ -321,18 +286,6 @@
   <hr>
 
 </div>
-
-<!--============================================================ -->
-                          <!--MODAL-->
-<!--============================================================ -->
-<!-- Modal new-record -->
-{% include 'kakeibo/modal/modal_new_record.html' %}
-<!-- Modal new-record-shared -->
-{% include 'kakeibo/modal/modal_new_record_shared.html' %}
-<!-- Modal read_csv -->
-{% include 'kakeibo/modal/modal_read_csv.html' %}
-<!-- Modal usual-record -->
-{% include 'kakeibo/modal/modal_usual_record.html' %}
 
 <!--============================================================ -->
                           <!--SCRIPT-->

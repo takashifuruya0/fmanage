@@ -16,9 +16,7 @@
     </div>
 
     <div class="col-md-2 col-sm-4 col-6">
-      <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#new_record">
-        <i class="far fa-plus-square"></i> New record
-      </button>
+      {% include 'kakeibo/modal/modal_new_record.html' %}
     </div>
 
     <div class="col-md-2 col-sm-4 col-6">
@@ -28,9 +26,7 @@
     </div>
 
     <div class="col-md-2 col-sm-4 col-12">
-      <button type="button" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#read_csv">
-        <i class="far fa-file-excel"></i> Credit CSV
-      </button>
+      {% include 'kakeibo/modal/modal_read_csv.html' %}
     </div>
   </div>
 
@@ -239,12 +235,6 @@
 </div>
 
 
-<!--============================================================ -->
-                          <!--MODAL-->
-<!--============================================================ -->
-<!-- Modal new-record -->
-{% include 'kakeibo/modal/modal_new_record.html' %}
-
 <!-- Modal year_month -->
 <div class="modal fade" id="year_month" tabindex="-1" role="dialog" aria-labelledby="year_month" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -271,8 +261,7 @@
   </div>
 </div>
 
-<!-- Modal read_csv -->
-{% include 'kakeibo/modal/modal_read_csv.html' %}
+
 
 
 <!--============================================================ -->
