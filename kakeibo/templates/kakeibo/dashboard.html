@@ -10,27 +10,22 @@
 <div class="container-fluid">
   <hr>
   <div class="row">
-    <div class="col-md-4 col-sm-12 col-12">
+    <div class="col-md-6 col-sm-12 col-12">
       <h1>
         <i class="fas fa-chart-area"></i> {{today.year}}年{{today.month}}月
       </h1>
     </div>
-    <div class="col-md-2 col-sm-4 col-6">
+    <div class="col-md-2 col-sm-4 col-4">
       <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#new_record">
         <i class="fas fa-user-circle"></i> New Kakeibo
       </button>
     </div>
-    <div class="col-md-2 col-sm-4 col-6">
-      <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#new_record_shared">
-        <i class="fas fa-people-carry"></i> New Shared
-      </button>
-    </div>
-    <div class="col-md-2 col-sm-4 col-6">
+    <div class="col-md-2 col-sm-4 col-4">
       <button type="button" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#read_csv">
         <i class="far fa-file-excel"></i> Credit CSV
       </button>
     </div>
-    <div class="col-md-2 col-sm-4 col-6">
+    <div class="col-md-2 col-sm-4 col-4">
       <button type="button" class="btn btn-outline-success btn-block" data-toggle="modal" data-target="#usual_record">
         <i class="fas fa-clone"></i> Usual_record
       </button>
@@ -70,33 +65,6 @@
   </div>
   <hr>
   <div class="row">
-<!--    <div class="col-sm-12 col-md-6 col-lg-3">-->
-<!--      <div class="card">-->
-<!--        <div class="card-header">-->
-<!--          <h4>収支</h4>-->
-<!--        </div>-->
-<!--        <div class="card-body">-->
-<!--          <canvas id="pie_way"></canvas>-->
-<!--          <table class="table table-light table-hover table-sm">-->
-<!--            <thead>-->
-<!--              <tr>-->
-<!--                <th>Key</th>-->
-<!--                <th class="right">Value</th>-->
-<!--              </tr>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-<!--              {% for cw in current_way %}-->
-<!--              <tr>-->
-<!--                <td>{{cw.way}}</td>-->
-<!--                <td class="right">¥{{cw.sum | intcomma}}</td>-->
-<!--              </tr>-->
-<!--              {% endfor %}-->
-<!--            </tbody>-->
-<!--          </table>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-
     <div class="col-sm-12 col-md-6 col-lg-3">
       <div class="card">
         <div class="card-header">
@@ -410,46 +378,6 @@
   });
 </script>
 
-<!-- pie_way -->
-<script>
-  var ctx = document.getElementById('pie_way').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: [{% for cw in current_way %}"{{cw.way}}",{%endfor%}],
-      datasets: [{
-        label: "alice",
-        data: [{% for cw in current_way %}{{cw.sum}},{%endfor%}],
-        backgroundColor: [
-          "#2ecc71",
-          "#3498db",
-          "#95a5a6",
-          "#9b59b6",
-          "#f1c40f",
-          "#e74c3c",
-          "#34495e",
-          "#bee95e",
-
-          "#2ecc71",
-          "#3498db",
-          "#95a5a6",
-          "#9b59b6",
-          "#f1c40f",
-          "#e74c3c",
-          "#34495e",
-          "#bee95e",
-         ]
-      }]
-    },
-    options: {
-      <!--responsive: true,-->
-      legend: {
-        position: "right",
-        display: false
-      }
-    }
-  });
-</script>
 
 <!-- pie_resource -->
 <script>
@@ -537,50 +465,6 @@
         position: "right"
       }
     }
-  });
-</script>
-
-<!-- bar_resources -->
-<script>
-  var ctx = document.getElementById('bar_resources').getContext('2d');
-  ctx.canvas.width = 100
-  ctx.canvas.height = 100
-  var options = {
-    scales: {
-      yAxes: [{
-        stacked: true
-      }]
-    },
-    legend: {
-      display: false
-    }
-  }
-  var colors = [
-    "rgba(250,153,0,0.4)",
-    "rgba(0,153,253,0.4)",
-    "rgba(153,250,0,0.4)",
-    "rgba(153,0,253, 0.4)",
-    "rgba(253,0,150,0.4)",
-    "rgba(0,253,150,0.4)",
-    "rgba(0,253,250,0.4)",
-    "rgba(253,0,250,0.4)",
-    "rgba(253,250,0,0.4)",
-  ]
-  var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ["今月", "先月"],
-      datasets: [
-        {%for r in resources_chart%}
-        {
-          label: "{{r.name}}",
-          data: [{{r.this_month}}, {{r.last_month}}],
-          backgroundColor: colors[{{ forloop.counter0 }}]
-        },
-        {% endfor %}
-      ],
-    },
-    options: options
   });
 </script>
 

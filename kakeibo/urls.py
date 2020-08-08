@@ -56,6 +56,9 @@ urlpatterns = [
     path("shared/detail/<int:pk>/delete", views_delete.SharedDelete.as_view(), name="shared_delete"),
     # link_kakeibo_and_credit
     url(r'^link$', views.link_kakeibo_and_credit, name='link_kakeibo_and_credit'),
+    # Process
+    path("read_csv", views.ReadCSVView.as_view(), name="read_csv"),
+    path("usual_record", views.UsualRecordView.as_view(), name="usual_record"),
 
     # test
     url(r'^test$', views.test, name='test'),

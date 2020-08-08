@@ -2,6 +2,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
+from django.views.generic import View
 from django.conf import settings
 from django.contrib import messages
 # csv
@@ -26,86 +27,15 @@ from kakeibo.functions import process_kakeibo
 @time_measure
 def dashboard(request):
     today = date.today()
-    # POSTの場合
-    if request.method == "POST":
-        # read_csv
-        if request.POST['post_type'] == "read_csv":
-            try:
-                debit_date = datetime.strptime(request.POST['debit_date'], "%Y-%m-%d").date()
-                logger.info("Debit Date: {}/{}".format(debit_date.year, debit_date.month))
-                form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
-                csv_file = csv.reader(form_data)
-                logger.info(next(csv_file))
-                for line in csv_file:
-                    # CreditItemの指定or作成
-                    cis = CreditItems.objects.filter(name=line[1])
-                    if cis.exists():
-                        ci = cis[0]
-                    else:
-                        ci = CreditItems.objects.create(name=line[1], date=today)
-                    # 最下行以外を登録
-                    d = line[0].split("/")
-                    if len(d) == 3:
-                        Credits.objects.create(
-                            credit_item=ci,
-                            date=date(int(d[0]), int(d[1]), int(d[2])),
-                            fee=line[5],
-                            debit_date=date(debit_date.year, debit_date.month, 1),
-                            memo=line[6]
-                        )
-                    else:
-                        Kakeibos.objects.create(
-                            date=debit_date,
-                            fee=line[5],
-                            way="引き落とし",
-                            usage=Usages.objects.get(name="クレジット（個人）"),
-                            move_from=Resources.objects.get(name="ゆうちょ"),
-                            memo="SFC {}/{}".format(debit_date.year, debit_date.month),
-                        )
-                        smsg = "Total {} / ".format(line[5])
-                process_kakeibo.link_credit_kakeibo()
-                smsg = smsg + "Credit records were created"
-                messages.success(request, smsg)
-                logger.info(smsg)
-            except Exception as e:
-                emsg = e
-                logger.error(emsg)
-                messages.error(request, emsg)
-            finally:
-                return redirect('kakeibo:dashboard')
-        elif request.POST['post_type'] == "usual_record":
-            try:
-                ur = UsualRecord.objects.get(id=request.POST['usual_id'])
-                data = {
-                    "fee": ur.fee,
-                    "way": ur.way,
-                    "usage": ur.usage,
-                    "move_to": ur.move_to,
-                    "move_from": ur.move_from,
-                    "memo": ur.memo,
-                    "date": today,
-                }
-                Kakeibos.objects.create(**data)
-                messages.success(request, "{} {} was created".format(ur.memo, ur.fee_yen()))
-            except Exception as e:
-                logger.error(e)
-                messages.error(request, "{}".format(e))
-            finally:
-                return redirect('kakeibo:dashboard')
-
     # Form
     kakeibo_form = KakeiboForm(initial={'date': today})
     shared_form = SharedKakeiboForm(initial={'date': today})
     event_form = EventForm(initial={'date': today})
     usual_records = UsualRecord.objects.all()
-
     # kakeibo
     kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
     kakeibos_out = kakeibos.filter(way__in=("支出（現金）", "引き落とし"))
     kakeibos_expense = kakeibos.filter(way__in=("支出（クレジット）", "支出（現金）", "引き落とし"))
-
-    # way
-    current_way = kakeibos_expense.values('way').annotate(sum=Sum('fee')).order_by("-sum")
     # resource
     current_resource = Resources.objects.all()
     # usage
@@ -116,28 +46,14 @@ def dashboard(request):
     event_sum_actual = 0
     for event in events:
         event_sum_actual += event.sum_actual()
-
     # 収入・支出・総資産
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
     expense = mylib.cal_sum_or_0(kakeibos_out)
     total = sum([r.current_val() for r in current_resource])
     # status, progress_bar
     pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
-
-    # resource: 先月との比較
-    resources_chart = list()
-    for rs in current_resource:
-        val = rs.current_val()
-        move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to=rs))
-        move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from=rs))
-        val2 = val - move_to + move_from
-        if val is not 0:
-            tmp = {"name": rs.name, "this_month": val, "last_month": val2}
-            resources_chart.append(tmp)
-
     # shared
     seisan = mylib.seisan(today.year, today.month)
-
     # 赤字→精算あり
     if seisan['status'] == "赤字":
         status_shared = "danger"
@@ -145,12 +61,10 @@ def dashboard(request):
     else:
         status_shared = "primary"
         pb_shared = {"in": 100, "out": int(seisan['payment']['sum'] / seisan['budget']['sum'] * 100)}
-
     # shared_grouped_by_usage
     shared_grouped_by_usage = SharedKakeibos.objects\
         .filter(date__month=today.month, date__year=today.year)\
         .values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
-
     # chart.js
     data = {
         "現金精算": [0, seisan['seisan'], 0, 0],
@@ -168,10 +82,8 @@ def dashboard(request):
         "income": income,
         "expense": expense,
         "total": total,
-        "current_way": current_way,
         "current_usage": current_usage,
         "current_resource": current_resource,
-        "resources_chart": resources_chart,
         # shared
         "seisan": seisan,
         "shared_grouped_by_usage": shared_grouped_by_usage,
@@ -198,101 +110,43 @@ def dashboard(request):
 @time_measure
 def mine(request):
     today = date.today()
-    # POSTの場合
-    if request.method == "POST":
-        if request.POST['post_type'] == "read_csv":
-            try:
-                debit_date = datetime.strptime(request.POST['debit_date'], "%Y-%m-%d").date()
-                logger.info("Debit Date: {}/{}".format(debit_date.year, debit_date.month))
-                form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
-                csv_file = csv.reader(form_data)
-                logger.info(next(csv_file))
-                for line in csv_file:
-                    # CreditItemの指定or作成
-                    cis = CreditItems.objects.filter(name=line[1])
-                    if cis.exists():
-                        ci = cis[0]
-                    else:
-                        ci = CreditItems.objects.create(name=line[1], date=today)
-                    # 最下行以外を登録
-                    d = line[0].split("/")
-                    if len(d) == 3:
-                        Credits.objects.create(
-                            credit_item=ci,
-                            date=date(int(d[0]), int(d[1]), int(d[2])),
-                            fee=line[5],
-                            debit_date=date(debit_date.year, debit_date.month, 1),
-                            memo=line[6]
-                        )
-                    else:
-                        Kakeibos.objects.create(
-                            date=date(debit_date.year, debit_date.month, 1),
-                            fee=line[5],
-                            way="引き落とし",
-                            usage=Usages.objects.get(name="クレジット（個人）"),
-                            move_from=Resources.objects.get(name="ゆうちょ"),
-                            memo="SFC {}/{}".format(debit_date.year, debit_date.month),
-                        )
-                        smsg = "Total {} / ".format(line[5])
-                process_kakeibo.link_credit_kakeibo()
-                smsg = smsg + "Credit records were created"
-                messages.success(request, smsg)
-                logger.info(smsg)
-            except Exception as e:
-                emsg = e
-                logger.error(emsg)
-                messages.error(request, emsg)
-            finally:
-                return redirect('kakeibo:dashboard')
-
     # Form
     kakeibo_form = KakeiboForm(initial={'date': today})
     # 貯金扱いの口座
     saving_account = [r.name for r in Resources.objects.filter(is_saving=True)]
     # check year and month from GET parameter
     year, month = process_kakeibo.yearmonth(request)
-
     kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
     kakeibos_out = kakeibos.filter(way__in=("支出（現金）", "引き落とし"))
     kakeibos_expense = kakeibos.filter(way__in=("支出（クレジット）", "支出（現金）", "引き落とし"))
-
     income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
     expense = mylib.cal_sum_or_0(kakeibos_out)
-
     # status, progress_bar
     pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
-
     # way
     current_way = kakeibos_expense.values('way').annotate(sum=Sum('fee')).order_by("-sum")
     # resource
     current_resource = Resources.objects.all()
     # usage
     current_usage = kakeibos_expense.values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
-
     # saved
     rs_saved = current_resource.filter(name__in=saving_account)
     move_to = mylib.cal_sum_or_0(kakeibos.filter(move_to__in=rs_saved))
     move_from = mylib.cal_sum_or_0(kakeibos.filter(move_from__in=rs_saved))
     saved = move_to - move_from
-
     # usage
     usages_chart = kakeibos_out.values('usage__name').annotate(sum=Sum('fee')).order_by("sum").reverse()
-
     # resources_year
     resources_year_chart, months_chart = process_kakeibo.resources_year_rev(12)
-
     # kakeibo-usage
     usage_list = [u.name for u in Usages.objects.filter(is_expense=True)]
     kakeibo_usage = process_kakeibo.usage_kakeibo_table(usage_list)
-
     # Consolidated_usages: dict --> [(name, val),(name, val),(name, val),...]
     consolidated_usages_chart = sorted(process_kakeibo.consolidated_usages().items(), key=lambda x: -x[1])
     cash_usages_chart = sorted(process_kakeibo.cash_usages().items(), key=lambda x: -x[1])
-
     # total
     total = sum([r.current_val() for r in current_resource])
     total_saved = sum(rs.current_val() for rs in rs_saved)
-
     # 1年間での推移
     saved_one_year_ago = 0
     for ryc in resources_year_chart:
@@ -303,10 +157,8 @@ def mine(request):
         "total":  total - sum([i['val'][0] for i in resources_year_chart]),
         "total_saved": total_saved - saved_one_year_ago
     }
-
     # 年間の収入・支出
     inouts_grouped_by_months = process_kakeibo.inouts_grouped_by_months()
-
     # output
     output = {
         "today": {"year": year, "month": month},
@@ -385,7 +237,6 @@ def shared(request):
     inout_shared = seisan["inout"]
     rb_name = seisan['status']
     move = seisan['seisan']
-
     # 赤字→精算あり
     if rb_name == "赤字":
         status_shared = "danger"
@@ -393,10 +244,8 @@ def shared(request):
     else:
         status_shared = "primary"
         pb_shared = {"in": 100, "out": int(expense_shared['all'] / budget_shared['all'] * 100)}
-
     # shared_grouped_by_usage
     shared_usages = shared.values('usage__name').annotate(Sum('fee'))
-
     # chart.js
     data = {
         "現金精算": [0, seisan['seisan'], 0, 0],
@@ -406,17 +255,13 @@ def shared(request):
     }
     labels = ["朋子予算", "朋子支払", "敬士予算", "敬士支払"]
     bar_eom = {"data": data, "labels": labels}
-
     # 年間
     usage_list = ["家賃", "食費", "日常消耗品", "ガス", "電気", "水道", "交際費", "その他"]
     data_year = process_kakeibo.usage_shared_table(usage_list)
-
     # who paid ?
     who_paid = shared.values('usage__name', 'paid_by').annotate(Sum('fee'))
-
     # shared_form
     shared_form = SharedKakeiboForm(initial={'date': date.today()})
-
     # output
     output = {
         "today": {"year": year, "month": month},
@@ -604,6 +449,79 @@ def link_kakeibo_and_credit(request):
             "credit": credit,
         }
         return TemplateResponse(request, 'kakeibo/link_kakeibo_and_credit.html', output)
+
+
+class ReadCSVView(View):
+
+    def post(self, request, *args, **kwargs):
+        try:
+            today = date.today()
+            debit_date = datetime.strptime(request.POST['debit_date'], "%Y-%m-%d").date()
+            logger.info("Debit Date: {}/{}".format(debit_date.year, debit_date.month))
+            form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
+            csv_file = csv.reader(form_data)
+            logger.info(next(csv_file))
+            for line in csv_file:
+                # CreditItemの指定or作成
+                cis = CreditItems.objects.filter(name=line[1])
+                if cis.exists():
+                    ci = cis[0]
+                else:
+                    ci = CreditItems.objects.create(name=line[1], date=today)
+                # 最下行以外を登録
+                d = line[0].split("/")
+                if len(d) == 3:
+                    Credits.objects.create(
+                        credit_item=ci,
+                        date=date(int(d[0]), int(d[1]), int(d[2])),
+                        fee=line[5],
+                        debit_date=date(debit_date.year, debit_date.month, 1),
+                        memo=line[6]
+                    )
+                else:
+                    Kakeibos.objects.create(
+                        date=date(debit_date.year, debit_date.month, 1),
+                        fee=line[5],
+                        way="引き落とし",
+                        usage=Usages.objects.get(name="クレジット（個人）"),
+                        move_from=Resources.objects.get(name="ゆうちょ"),
+                        memo="SFC {}/{}".format(debit_date.year, debit_date.month),
+                    )
+                    smsg = "Total {} / ".format(line[5])
+            process_kakeibo.link_credit_kakeibo()
+            smsg = smsg + "Credit records were created"
+            messages.success(request, smsg)
+            logger.info(smsg)
+        except Exception as e:
+            emsg = e
+            logger.error(emsg)
+            messages.error(request, emsg)
+        finally:
+            return redirect('kakeibo:dashboard')
+
+
+class UsualRecordView(View):
+
+    def post(self, request, *args, **kwargs):
+        try:
+            today = date.today()
+            ur = UsualRecord.objects.get(id=request.POST['usual_id'])
+            data = {
+                "fee": ur.fee,
+                "way": ur.way,
+                "usage": ur.usage,
+                "move_to": ur.move_to,
+                "move_from": ur.move_from,
+                "memo": ur.memo,
+                "date": today,
+            }
+            Kakeibos.objects.create(**data)
+            messages.success(request, "{} {} was created".format(ur.memo, ur.fee_yen()))
+        except Exception as e:
+            logger.error(e)
+            messages.error(request, "UsualRecord: {}".format(e))
+        finally:
+            return redirect('kakeibo:dashboard')
 
 
 @time_measure
