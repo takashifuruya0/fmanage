@@ -27,12 +27,12 @@ class BaseModel(models.Model):
 # ==============================
 class Event(models.Model):
     objects = None
-    date = models.DateField()
-    name = models.CharField(max_length=30)
+    date = models.DateField(verbose_name="日付")
+    name = models.CharField(max_length=30, verbose_name="イベント名")
     memo = models.CharField(max_length=100, blank=True, null=True, verbose_name="メモ")
     detail = models.TextField(blank=True, null=True, default=None, verbose_name="詳細")
     is_active = models.BooleanField(default=True)
-    sum_plan = models.IntegerField(default=0)
+    sum_plan = models.IntegerField(default=0, verbose_name="計画値")
 
     def __str__(self):
         return "{}_{}".format(self.date, self.name)

@@ -1,0 +1,35 @@
+<!--============================================================ -->
+                          <!--MODAL-->
+<!--============================================================ -->
+<button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#new_event">
+  <i class="far fa-plus-square"></i> New Event
+</button>
+
+<!-- Modal new-event -->
+<div class="modal fade" id="new_event" tabindex="-1" role="dialog" aria-labelledby="new_event" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="new_event_Label">
+          <i class="far fa-plus-square"></i> New Event
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="post" action="{% url 'kakeibo:event_create' %}">
+        <div class="modal-body">
+          {% csrf_token %}
+          <table>
+            {{ event_form }}
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" name="post_type" value="new_record">Register</button>
+        </div>
+        <input type="hidden" name="source_path" value="{{request.get_full_path}}">
+      </form>
+    </div>
+  </div>
+</div>

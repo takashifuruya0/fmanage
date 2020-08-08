@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
 from kakeibo.models import Kakeibos, Usages, Resources, SharedKakeibos, Credits, CreditItems, Budget
+from kakeibo.models import Event
 from asset.models import AssetStatus
 from datetime import date
 import logging
@@ -18,9 +19,11 @@ class ViewTest(TestCase):
         self.today = date.today()
         today = self.today
         usage = Usages.objects.create(name="usage", date=today, is_expense=True)
+        usage_other = Usages.objects.create(name="その他", date=today, is_expense=True)
         resource = Resources.objects.create(name="resource", date=today, initial_val=10000)
         kakeibo = Kakeibos.objects.create(fee=100, usage=usage, way="支出（現金）", date=today, move_from=resource)
         shared = SharedKakeibos.objects.create(fee=100, usage=usage, paid_by="敬士", date=today, is_settled=False)
+        event = Event.objects.create(name="テストイベント", memo="テストメモ", sum_plan=10000, is_active=True, date=today)
         citem = CreditItems.objects.create(
             name="citem",
             usage=usage,
@@ -124,6 +127,17 @@ class ViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_event_list(self):
+        url = reverse("kakeibo:event_list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_detail(self):
+        pk = Event.objects.last().pk
+        url = reverse("kakeibo:event_detail", kwargs={"pk": pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
     def test_update_kakeibo(self):
         pk = Kakeibos.objects.last().pk
         url = reverse("kakeibo:kakeibo_update", kwargs={"pk": pk})
@@ -131,10 +145,10 @@ class ViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_update_kakeibo_save(self):
-        kdict = Kakeibos.objects.last().__dict__
+        kdict = Kakeibos.objects.first().__dict__
         url = reverse("kakeibo:kakeibo_update", kwargs={"pk": kdict['id']})
         response = self.client.post(url, {
-            "date": date(2019,1,1),
+            "date": date(2019, 1, 1),
             "fee": kdict['fee'] + 200,
             "way": kdict['way'],
             "usage": kdict['usage_id'],
@@ -201,3 +215,36 @@ class ViewTest(TestCase):
         self.assertNotEqual(credit_item_updated.name, kdict['name'])
         # 修正していない要素
         self.assertEqual(credit_item_updated.usage.pk, kdict['usage_id'])
+
+    def test_update_event_save(self):
+        kdict = Event.objects.last().__dict__
+        url = reverse("kakeibo:event_update", kwargs={"pk": kdict['id']})
+        response = self.client.post(url, {
+            "date": date(2019, 1, 1),
+            "name": kdict['name'],
+            "memo": kdict['memo'],
+            "detail": "OK",
+            "sum_plan": kdict['sum_plan'],
+            "is_active": True,
+        })
+        event_updated = Event.objects.get(pk=kdict['id'])
+        # redirect
+        self.assertRedirects(response, reverse("kakeibo:event_detail", kwargs={"pk": kdict['id']}))
+        # 修正した要素
+        self.assertEqual(event_updated.detail, "OK")
+        # 修正していない要素
+        self.assertEqual(event_updated.memo, kdict['memo'])
+
+    def test_create_event(self):
+        url = reverse("kakeibo:event_create")
+        response = self.client.post(url, {
+            "date": date(2019, 1, 1),
+            "name": "t",
+            "memo": "t",
+            "detail": "t",
+            "sum_plan": 10000,
+            "is_active": True,
+        })
+        event_created = Event.objects.last()
+        # redirect
+        self.assertRedirects(response, reverse("kakeibo:event_detail", kwargs={"pk": event_created.pk}))

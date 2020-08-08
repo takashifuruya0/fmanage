@@ -8,14 +8,12 @@
 <div class="container">
     <hr>
     <div class="row">
-        <div class="col-sm-10">
-            <h1><i class="far fa-calendar-check"></i> イベント一覧</h1>
-        </div>
-        <div class="col-sm-2">
-          <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#new_event">
-            <i class="far fa-plus-square"></i> New Event
-          </button>
-        </div>
+      <div class="col-sm-10">
+        <h1><i class="far fa-calendar-check"></i> イベント一覧</h1>
+      </div>
+      <div class="col-sm-2">
+        {% include 'kakeibo/modal/modal_new_event.html' %}
+      </div>
     </div>
     <hr>
 
@@ -37,7 +35,7 @@
                 </tr>
                 <tr>
                   <th>概要</th>
-                  <td class="right">{{event.memo}}</td>
+                  <td class="right">{{event.memo |default:'-'}}</td>
                 </tr>
                 <tr>
                   <th>計画</th>
@@ -63,36 +61,7 @@
 {% include 'kakeibo/part/pagination.html' %}
 </div>
 
-<!--============================================================ -->
-                          <!--MODAL-->
-<!--============================================================ -->
-<!-- Modal new-usage -->
-<div class="modal fade" id="new_event" tabindex="-1" role="dialog" aria-labelledby="new_event" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="new_event_Label">
-          <i class="far fa-plus-square"></i> New Event
-        </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form method="post" action="">
-        <div class="modal-body">
-          {% csrf_token %}
-          <table>
-            {{ form }}
-          </table>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" name="post_type" value="new_record">Register</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+
 
 
 {% endblock %}

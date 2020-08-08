@@ -8,8 +8,8 @@ from datetime import date
 import logging
 logger = logging.getLogger("django")
 # model
-from kakeibo.models import Kakeibos, SharedKakeibos
-from kakeibo.forms import KakeiboForm, SharedKakeiboForm
+from kakeibo.models import Kakeibos, SharedKakeibos, Event
+from kakeibo.forms import KakeiboForm, SharedKakeiboForm, EventForm
 
 
 # Create your views here.
@@ -44,7 +44,6 @@ class KakeiboCreate(CreateView):
         return initial
 
     def get_success_url(self):
-        # return reverse('kakeibo:kakeibo_detail', kwargs={'pk': self.object.pk})
         if self.request.POST.get('source_path', None):
             return self.request.POST['source_path']
         else:
@@ -57,6 +56,25 @@ class SharedCreate(CreateView):
 
     def get_success_url(self):
         return reverse('kakeibo:shared_detail', kwargs={'pk': self.object.pk})
+
+
+class EventCreate(CreateView):
+    model = Event
+    form_class = EventForm
+
+    def form_valid(self, form):
+        # form.save()
+        form.save()
+        res = super(EventCreate, self).form_valid(form)
+        smsg = "New Event {} was registered".format(form.cleaned_data['name'])
+        messages.success(self.request, smsg)
+        return res
+
+    def get_success_url(self):
+        if self.request.POST.get('source_path', None):
+            return self.request.POST['source_path']
+        else:
+            return reverse('kakeibo:event_detail', kwargs={'pk': self.object.pk})
 
 
 

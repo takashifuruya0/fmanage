@@ -191,9 +191,10 @@
           </table>
         </div>
         <div class="card-footer">
-          <a class="btn btn-primary" href="{%url 'kakeibo:event_list'%}">
-            <i class="fas fa-plus"></i> Create Event
-          </a>
+          {% include 'kakeibo/modal/modal_new_event.html' %}
+<!--          <a class="btn btn-primary" href="{%url 'kakeibo:event_list'%}">-->
+<!--            <i class="fas fa-plus"></i> Create Event-->
+<!--          </a>-->
           <a class="btn btn-info" href="{%url 'kakeibo:event_list'%}">
             <i class="fas fa-list"></i> Event List
           </a>

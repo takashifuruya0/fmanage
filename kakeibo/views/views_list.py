@@ -177,20 +177,9 @@ class EventList(PaginationMixin, ListView):
     @time_measure
     def get_context_data(self, **kwargs):
         res = super().get_context_data(**kwargs)
-        res['form'] = EventForm(initial={'date': date.today()})
+        res['event_form'] = EventForm(initial={'date': date.today()})
         return res
 
     def get_queryset(self):
         queryset = Event.objects.all().order_by("-is_active", '-date')  # Default: Model.objects.all()
         return queryset
-
-    def post(self, request, *args, **kwargs):
-        try:
-            form = EventForm(request.POST)
-            if form.is_valid():
-                form.save()
-                messages.success(request, "OK")
-        except Exception as e:
-            messages.error(request, e)
-            logger.error(e)
-        return redirect('kakeibo:event_list')

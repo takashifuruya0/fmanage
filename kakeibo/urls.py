@@ -29,6 +29,7 @@ urlpatterns = [
     # create
     url(r'^mine/create/$', views_create.KakeiboCreate.as_view(), name="kakeibo_create"),
     url(r'^shared/create/$', views_create.SharedCreate.as_view(), name="shared_create"),
+    url(r'^event/create/$', views_create.EventCreate.as_view(), name="event_create"),
     # list
     url(r'^usage/list/$', login_required(views_list.UsageList.as_view()), name="usage_list"),
     url(r'^mine/list/$', login_required(views_list.KakeiboList.as_view()), name="kakeibo_list"),

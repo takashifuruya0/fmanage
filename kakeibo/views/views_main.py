@@ -15,10 +15,9 @@ from kakeibo.models import *
 from kakeibo.forms import *
 from datetime import date, datetime
 # function
-from kakeibo.functions import mylib, process_kakeibo
+from kakeibo.functions import mylib
 from kakeibo.functions.mylib import time_measure
 from kakeibo.functions import process_kakeibo
-from django.db.transaction import set_rollback, atomic
 
 # Create your views here.
 
@@ -96,9 +95,8 @@ def dashboard(request):
 
     # Form
     kakeibo_form = KakeiboForm(initial={'date': today})
-    # shared_form
-    shared_form = SharedKakeiboForm(initial={'date': date.today()})
-    # Usual Record
+    shared_form = SharedKakeiboForm(initial={'date': today})
+    event_form = EventForm(initial={'date': today})
     usual_records = UsualRecord.objects.all()
 
     # kakeibo
@@ -190,6 +188,7 @@ def dashboard(request):
         "events": events,
         "event_sum_actual": event_sum_actual,
         "event_sum_plan": event_sum_plan,
+        "event_form": event_form,
     }
     logger.info("output: " + str(output))
     return TemplateResponse(request, 'kakeibo/dashboard.html', output)
