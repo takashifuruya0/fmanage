@@ -3,6 +3,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Avg, Count
+from django.conf import settings
 from django.utils.timezone import now
 # asset
 # from asset.models import AssetStatus
@@ -239,13 +240,12 @@ class UsageResourceRelations(models.Model):
 
 class Kakeibos(models.Model):
     objects = None
-    choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "支出（Suica）", "引き落とし", "収入", "振替"])
     # 日付
     date = models.DateField()
     # 金額
     fee = models.IntegerField()
     # 種類
-    way = models.CharField(max_length=20, choices=choices)
+    way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # タグ
     tag = models.CharField(max_length=100, null=True, blank=True)
     # メモ
@@ -298,7 +298,7 @@ class SharedKakeibos(models.Model):
     # 金額
     fee = models.IntegerField()
     # 種類
-    way = models.CharField(max_length=20)
+    way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道
@@ -386,7 +386,7 @@ class CronKakeibo(models.Model):
     # 金額
     fee = models.IntegerField()
     # 種類
-    way = models.CharField(max_length=20)
+    way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # 使い道/収入源
     usage = models.ForeignKey(
         Usages, null=True, blank=True, on_delete=models.CASCADE,
@@ -418,7 +418,7 @@ class CronShared(models.Model):
     # 金額
     fee = models.IntegerField()
     # 種類
-    way = models.CharField(max_length=20)
+    way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道
@@ -442,11 +442,10 @@ class CronShared(models.Model):
 
 class UsualRecord(models.Model):
     objects = None
-    choices = ((c, c) for c in ["支出（現金）", "支出（クレジット）", "支出（Suica）", "引き落とし", "収入", "振替"])
     # 金額
     fee = models.IntegerField()
     # 種類
-    way = models.CharField(max_length=20, choices=choices)
+    way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     # 使い道/収入源

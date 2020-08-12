@@ -263,3 +263,8 @@ CELERY_RESULT_BACKEND = "django-db"
 
 # font awesome
 fa_add = '<i class="fas fa-plus-square"></i>'
+
+# CHOINCES
+CHOICES_KAKEIBO_WAY = ((c, c) for c in [
+    "支出（現金）", "支出（クレジット）", "支出（Suica）", "引き落とし", "収入", "振替"
+])

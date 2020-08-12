@@ -18,6 +18,12 @@ class Command(BaseCommand):
         # today = date.today()
         for s in stocks:
             # if not StockValueData.objects.filter(stock=s, date=today).exists():
-            d = mylib_asset.register_stock_value_data_alt(s.code)
-            msg = "Result of record_stock_value_data for {}: {}".format(s, d)
-            self.stdout.write(self.style.SUCCESS(msg))
+            try:
+                d = mylib_asset.register_stock_value_data_alt(s.code)
+                msg = "Result of record_stock_value_data for {}: {}".format(s, d)
+                self.stdout.write(self.style.SUCCESS(msg))
+            except Exception as e:
+                logger.warning("【Record StockValueData_alt_stock】：{}".format(e))
+                msg = "Failed to get SVD for {}".format(s)
+                self.stdout.write(msg)
+
