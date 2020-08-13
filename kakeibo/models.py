@@ -502,7 +502,7 @@ class Target(models.Model):
     objects = None
     date = models.DateField()
     val = models.IntegerField()
-    type = models.CharField(choices=CHOICES_TYPE, max_length=20)
+    type = models.CharField(choices=settings.CHOICES_TARGET_TYPE, max_length=20)
     memo = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):

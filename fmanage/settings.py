@@ -268,3 +268,9 @@ fa_add = '<i class="fas fa-plus-square"></i>'
 CHOICES_KAKEIBO_WAY = ((c, c) for c in [
     "支出（現金）", "支出（クレジット）", "支出（Suica）", "引き落とし", "収入", "振替"
 ])
+CHOICES_TARGET_TYPE = ((c, c) for c in (
+    "総資産目標", "投資目標", "投資元本",
+))
+CHOICES_ENTRY_TYPE = (
+    ("短期", "短期"), ("中期", "中期"), ("長期", "長期"),
+)
