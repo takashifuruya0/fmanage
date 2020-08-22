@@ -496,3 +496,20 @@ class StockAnalysisData(models.Model):
 
     def __str__(self):
         return "SAD_{}_{}".format(self.date, self.stock)
+
+    def is_having_trend(self):
+        if (self.val_close_dy_pct >= 0.05 and self.turnover_dy_pct >= 1) \
+                or (self.val_close_dy_pct <= 0.05 and self.turnover_dy_pct >= 1) \
+                or self.is_takuri \
+                or self.is_harami \
+                or self.is_tsutsumi \
+                or self.is_sanku_tatakikomi \
+                or self.is_age_sanpo \
+                or self.is_sage_sanpo \
+                or self.is_sante_daiinsen:
+            return True
+        else:
+            return False
+
+
+

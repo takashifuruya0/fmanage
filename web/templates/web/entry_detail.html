@@ -202,36 +202,36 @@
 			{% endif %}
 
 			{% if not entry.is_closed and not entry.is_plan or entry.is_plan %}
-			<h5><i class="fas fa-tachometer-alt"></i> Current Status</h5>
+			<h5><i class="fas fa-tachometer-alt"></i> Current Status ({{sads.first.date}})</h5>
 			<table class="table table-responsive-xs">
-				<tr>
+	<tr>
 					<th>出来高前日比</th>
 					<td class="right">
-						{{df_latest.turnover_dy_pct |pct_100 |safe}}
+						{{sads.first.turnover_dy_pct |pct_100 |safe}}
 					</td>
 				</tr>
 				<tr>
 					<th>終値前日比</th>
 					<td class="right">
-						{{df_latest.val_close_dy_pct |pct_100 |safe}}
+						{{sads.first.val_close_dy_pct |pct_100 |safe}}
 					</td>
 				</tr>
 				<tr>
 					<th>5日移動平均/乖離率</th>
 					<td class="right">
-						{{df_latest.ma05 |yen}} / {{df_latest.ma05_diff_pct |pct_100 |safe}}
+						{{sads.first.ma05 |yen}} / {{sads.first.ma05_diff_pct |pct_100 |safe}}
 					</td>
 				</tr>
 				<tr>
 					<th>25日移動平均/乖離率</th>
 					<td class="right">
-						{{df_latest.ma25 |yen}} / {{df_latest.ma25_diff_pct |pct_100 |safe}}
+						{{sads.first.ma25 |yen}} / {{sads.first.ma25_diff_pct |pct_100 |safe}}
 					</td>
 				</tr>
 				<tr>
 					<th>75日移動平均/乖離率</th>
 					<td class="right">
-						{{df_latest.ma75 |yen}} / {{df_latest.ma75_diff_pct |pct_100 |safe}}
+						{{sads.first.ma75 |yen}} / {{sads.first.ma75_diff_pct |pct_100 |safe}}
 					</td>
 				</tr>
 
@@ -253,7 +253,6 @@
 					</td>
 				</tr>
 				{% endif %}
-
 			</table>
 			{% endif %}
 		</div>
@@ -317,22 +316,31 @@
 			<h5><i class="fas fa-chart-line"></i> Analysis</h5>
 			<table class="table table-responsive">
 				<tr>
-					<th>種類</th>
 					<th>日付</th>
-					<th>上ひげ</th>
-					<th>下ひげ</th>
-					<th>陽線/陰線</th>
+					<th>前日比 (終値/出来高)</th>
+					<th>種類</th>
 				</tr>
-				{% for d in df_check %}
+				{% for sad in sads %}
+				{% if sad.is_having_trend %}
 				<tr>
+					<td>{{sad.date}}</td>
 					<td>
-						<label class="badge badge-{%if d.is_bottom%}success{%else%}danger{%endif%}">{{d.type}}</label>
+						{{sad.val_close_dy_pct |pct_100 |safe}} / {{sad.turnover_dy_pct |pct_100 |safe}}
 					</td>
-					<td>{{d.df.date}}</td>
-					<td>{{d.df.upper_mustache}}</td>
-					<td>{{d.df.lower_mustache}}</td>
-					<td>{{d.df.val_line}}</td>
+					<td>
+						{% if sad.val_close_dy_pct >= 0.05 %}終値：前日比5%以上<br>{%endif%}
+						{% if sad.val_close_dy_pct <= -0.05 %}終値：前日比5%以下<br>{%endif%}
+						{% if sad.turnover_dy_pct >= 1 %}出来高：前日比100%以上<br>{%endif%}
+						{%if sad.is_harami%}はらみ線<br>{%endif%}
+						{%if sad.is_tsutsumi%}包線<br>{%endif%}
+						{%if sad.is_takuri%}たくり線<br>{%endif%}
+						{%if sad.is_age_sanpo%}上げ三法<br>{%endif%}
+						{%if sad.is_sage_sanpo%}下げ三法<br>{%endif%}
+						{%if sad.is_sanku_tatakikomi%}三空叩き込み<br>{%endif%}
+						{%if sad.is_sante_daiinsen%}三手大陰線<br>{%endif%}
+					</td>
 				</tr>
+				{% endif %}
 				{% endfor %}
 			</table>
 		</div>
