@@ -179,9 +179,9 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         od = edo - relativedelta(days=days)
         cd = edc + relativedelta(days=days) if entry.is_closed else date.today()
         svds = StockValueData.objects.filter(stock=entry.stock, date__gte=od, date__lte=cd).order_by('date')
-        # df = mylib_analysis.prepare(svds)
+        df = mylib_analysis.prepare(svds)
         # df_check = mylib_analysis.check(df)
-        # df_trend = mylib_analysis.get_trend(df)
+        df_trend = mylib_analysis.get_trend(df)
         # グラフ化範囲のデータ数
         svds_count = svds.count()
         # 日付とindex番号の紐付け
@@ -247,7 +247,7 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "cd": cd,
             # "df_latest": df.iloc[-1] if svds.count() > 0 else None,
             # "df_check": df_check,
-            # "df_trend": df_trend,
+            "df_trend": df_trend,
             "sbialert_form": sbialert_form,
             "sbialerts": sbialerts,
             "is_add_graph": is_add_graph,

@@ -38,8 +38,8 @@ class StockDetail(LoginRequiredMixin, DetailView):
         ).order_by('date')
         if context['svds'].count() > 0:
             df = mylib_analysis.prepare(context['svds'])
-            context['df_latest'] = df.iloc[-1]
-            context['df_check'] = mylib_analysis.check(df)
+            # context['df_latest'] = df.iloc[-1]
+            # context['df_check'] = mylib_analysis.check(df)
             context['df_trend'] = mylib_analysis.get_trend(df)
         context['sfds'] = StockFinancialData.objects.filter(stock=context['stock']).order_by('date')
         context['entry_form'] = EntryForm(initial={
@@ -74,6 +74,11 @@ class StockDetail(LoginRequiredMixin, DetailView):
         overview = mylib_scraping.yf_detail(self.object.code)
         if overview['status']:
             context['overview'] = overview['data']
+
+        # sads
+        context['sads'] = StockAnalysisData.objects.filter(
+            stock=context['stock'], date__gte=(date.today()-relativedelta(months=6))
+        ).order_by('-date')
         return context
 
 

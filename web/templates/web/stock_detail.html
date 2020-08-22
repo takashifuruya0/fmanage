@@ -73,17 +73,17 @@
 				</tr>
 				<tr>
 					<td>
-						{{df_latest.val_close |yen}} ({{df_latest.date}})
+						{{svds.last.val_close |yen}} ({{svds.last.date}})
 						<br>
 						⇛ {%if stock.is_trust%} {{current_val |yen:4}}
 						{%else%}{{current_val |yen}}{%endif%}
 
 					</td>
 					<td>
-						{{df_latest.val_close_dy_pct |pct_100 |safe}}
+						{{sads.first.val_close_dy_pct |pct_100 |safe}}
 					</td>
 					<td>
-						{{df_latest.turnover_dy_pct |pct_100 |safe}}
+						{{sads.first.turnover_dy_pct |pct_100 |safe}}
 					</td>
 				</tr>
 				<tr>
@@ -93,13 +93,13 @@
 				</tr>
 				<tr>
 					<td>
-						{{df_latest.ma05 |yen}} / {{df_latest.ma05_diff_pct |pct_100 |safe}}
+						{{sads.first.ma05 |yen}} / {{sads.first.ma05_diff_pct |pct_100 |safe}}
 					</td>
 					<td>
-						{{df_latest.ma25 |yen}} / {{df_latest.ma25_diff_pct |pct_100 |safe}}
+						{{sads.first.ma25 |yen}} / {{sads.first.ma25_diff_pct |pct_100 |safe}}
 					</td>
 					<td>
-						{{df_latest.ma75 |yen}} / {{df_latest.ma75_diff_pct |pct_100 |safe}}
+						{{sads.first.ma75 |yen}} / {{sads.first.ma75_diff_pct |pct_100 |safe}}
 					</td>
 				</tr>
 			</table>
@@ -182,26 +182,26 @@
 				<i class="fas fa-chart-line"></i> Analysis
 			</h5>
 			{% if sads %}
+			{% include 'web/part/trend_type.html' %}
 			<table class="table table-responsive">
 				<tr>
-					<th></th>
 					<th>日付</th>
-					<th>終値前日比</th>
-					<th>出来高前日比</th>
-					<th>5日</th>
-					<th>25日</th>
-					<th>75日</th>
+					<th>前日比 (終値/出来高)</th>
+					<th>トレンド (5/25/75日)</th>
+					<th>メモ</th>
 				</tr>
 				{% for sad in sads %}
+				{% if sad.is_having_trend %}
 				<tr>
 					<td>
 						<a href="/admin/web/stockanalysisdata/{{sad.id}}/change/">
-							<i class="fas fa-info-circle"></i>
+							{{sad.date |naturalday}}
 						</a>
 					</td>
-					<td>{{sad.date |naturalday}}</td>
-					<td>{{sad.val_close_dy_pct |pct_100 |safe}}</td>
-					<td>{{sad.turnover_dy_pct |pct_100 |safe}}</td>
+					<td>
+						{{sad.val_close_dy_pct |pct_100 |safe}}<br>
+						{{sad.turnover_dy_pct |pct_100 |safe}}
+					</td>
 					<td>
 						{% if sad.is_upper05 %}
 						<label class="badge badge-success">
@@ -212,8 +212,7 @@
 							<i class="fas fa-level-down-alt"></i>
 						</label>
 						{% endif %}
-					</td>
-					<td>
+						/
 						{% if sad.is_upper25 %}
 						<label class="badge badge-success">
 							<i class="fas fa-level-up-alt"></i>
@@ -223,8 +222,7 @@
 							<i class="fas fa-level-down-alt"></i>
 						</label>
 						{% endif %}
-					</td>
-					<td>
+						/
 						{% if sad.is_upper75 %}
 						<label class="badge badge-success">
 							<i class="fas fa-level-up-alt"></i>
@@ -235,109 +233,24 @@
 						</label>
 						{% endif %}
 					</td>
+					<td>
+						{% if sad.val_close_dy_pct >= 0.05 %}終値：前日比5%以上<br>{%endif%}
+						{% if sad.val_close_dy_pct <= -0.05 %}終値：前日比5%以下<br>{%endif%}
+						{% if sad.turnover_dy_pct >= 1 %}出来高：前日比100%以上<br>{%endif%}
+						{%if sad.is_harami%}はらみ線<br>{%endif%}
+						{%if sad.is_tsutsumi%}包線<br>{%endif%}
+						{%if sad.is_takuri%}たくり線<br>{%endif%}
+						{%if sad.is_age_sanpo%}上げ三法<br>{%endif%}
+						{%if sad.is_sage_sanpo%}下げ三法<br>{%endif%}
+						{%if sad.is_sanku_tatakikomi%}三空叩き込み<br>{%endif%}
+						{%if sad.is_sante_daiinsen%}三手大陰線<br>{%endif%}
+					</td>
 				</tr>
+				{% endif %}
 				{% endfor %}
 			</table>
-			<hr>
 			{% endif %}
-			{% include 'web/part/trend_type.html' %}
-			<table class="table table-responsive">
-				<tr>
-					<th>日付</th>
-					<th>タイプ</th>
-					<th>終値前日比</th>
-					<th>出来高前日比</th>
-					<th>5日</th>
-					<th>25日</th>
-					<th>75日</th>
-				</tr>
-				{% for d in df_check %}
-				<tr>
-					<td>{{d.df.date |naturalday}}</td>
-					<td>
-						<label class="badge badge-{%if c.is_bottom%}success{%else%}danger{%endif%}">
-							{{d.type}}
-						</label>
-					</td>
-					<td>{{d.df.val_close_dy_pct |pct_100 |safe}}</td>
-					<td>{{d.df.turnover_dy_pct |pct_100 |safe}}</td>
-					<td>
-						{% if d.df.is_upper05 %}
-						<label class="badge badge-success">
-							<i class="fas fa-level-up-alt"></i>
-						</label>
-						{% else %}
-						<label class="badge badge-danger">
-							<i class="fas fa-level-down-alt"></i>
-						</label>
-						{% endif %}
-					</td>
-					<td>
-						{% if d.df.is_upper25 %}
-						<label class="badge badge-success">
-							<i class="fas fa-level-up-alt"></i>
-						</label>
-						{% else %}
-						<label class="badge badge-danger">
-							<i class="fas fa-level-down-alt"></i>
-						</label>
-						{% endif %}
-					</td>
-					<td>
-						{% if d.df.is_upper75 %}
-						<label class="badge badge-success">
-							<i class="fas fa-level-up-alt"></i>
-						</label>
-						{% else %}
-						<label class="badge badge-danger">
-							<i class="fas fa-level-down-alt"></i>
-						</label>
-						{% endif %}
-					</td>
-				</tr>
-				{% endfor %}
-			</table>
 		</div>
-<!--		<div class="col-12 col-sm-4">-->
-<!--			<div class="card">-->
-<!--				<div class="card-header">-->
-<!--					<h5>Finance {% include 'web/part/finance_type.html' %}</h5>-->
-<!--				</div>-->
-<!--				<div class="card-body">-->
-<!--					{%with sfd=sfds.last%}-->
-<!--					<table class="table table-responsive-sm">-->
-<!--						<tr>-->
-<!--							<th>ROE</th>-->
-<!--							<td>{{sfd.roe}}</td>-->
-<!--						</tr>-->
-<!--						<tr>-->
-<!--							<th>ROA</th>-->
-<!--							<td>{{sfd.roa}}</td>-->
-<!--						</tr>-->
-<!--						<tr>-->
-<!--							<th>EPS</th>-->
-<!--							<td>{{sfd.eps_f}}</td>-->
-<!--						</tr>-->
-<!--						<tr>-->
-<!--							<th>PER</th>-->
-<!--							<td>{{sfd.per_f}}</td>-->
-<!--						</tr>-->
-<!--						<tr>-->
-<!--							<th>時価総額</th>-->
-<!--							<td>{{sfd.market_value |intcomma}}</td>-->
-<!--						</tr>-->
-<!--						<tr>-->
-<!--							<th>自己資本比率</th>-->
-<!--							<td>{{sfd.equity_ratio}}%</td>-->
-<!--						</tr>-->
-<!--					</table>-->
-<!--					{%endwith%}-->
-<!--				</div>-->
-<!--				<div class="card-footer">-->
-
-<!--				</div>-->
-<!--			</div>-->
-<!--		</div>-->
 	</div>
 </div>
 {% include 'web/part/chart.html' %}
