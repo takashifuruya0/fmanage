@@ -185,14 +185,15 @@
 			{% include 'web/part/trend_type.html' %}
 			<table class="table table-responsive">
 				<tr>
+					<th></th>
 					<th>日付</th>
 					<th>前日比 (終値/出来高)</th>
-					<th>トレンド (5/25/75日)</th>
 					<th>メモ</th>
 				</tr>
 				{% for sad in sads %}
 				{% if sad.is_having_trend %}
 				<tr>
+					<td>{% include 'web/modal/modal_info_sad.html' %}</td>
 					<td>
 						<a href="/admin/web/stockanalysisdata/{{sad.id}}/change/">
 							{{sad.date |naturalday}}
@@ -201,37 +202,6 @@
 					<td>
 						{{sad.val_close_dy_pct |pct_100 |safe}}<br>
 						{{sad.turnover_dy_pct |pct_100 |safe}}
-					</td>
-					<td>
-						{% if sad.is_upper05 %}
-						<label class="badge badge-success">
-							<i class="fas fa-level-up-alt"></i>
-						</label>
-						{% else %}
-						<label class="badge badge-danger">
-							<i class="fas fa-level-down-alt"></i>
-						</label>
-						{% endif %}
-						/
-						{% if sad.is_upper25 %}
-						<label class="badge badge-success">
-							<i class="fas fa-level-up-alt"></i>
-						</label>
-						{% else %}
-						<label class="badge badge-danger">
-							<i class="fas fa-level-down-alt"></i>
-						</label>
-						{% endif %}
-						/
-						{% if sad.is_upper75 %}
-						<label class="badge badge-success">
-							<i class="fas fa-level-up-alt"></i>
-						</label>
-						{% else %}
-						<label class="badge badge-danger">
-							<i class="fas fa-level-down-alt"></i>
-						</label>
-						{% endif %}
 					</td>
 					<td>
 						{% if sad.val_close_dy_pct >= 0.05 %}終値：前日比5%以上<br>{%endif%}

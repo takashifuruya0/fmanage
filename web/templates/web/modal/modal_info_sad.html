@@ -1,0 +1,125 @@
+{% load humanize %}
+{% load web_template %}
+
+<span data-toggle="modal" data-target="#sad_{{sad.id}}"><i class="fas fa-external-link-alt"></i></span>
+
+<!-- Modal new_stock-->
+<div class="modal fade" id="sad_{{sad.id}}" tabindex="-1" role="dialog" aria-labelledby="sad_{{sad.id}}" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-info-circle"></i> SAD ({{sad.date}})
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h5>概要</h5>
+        <table class="table table-responsive-sm">
+          <tr>
+            <th>終値前日比</th>
+            <td class="right">{{sad.val_close_dy |yen |safe}}</td>
+          </tr>
+          <tr>
+            <th>終値前日比率</th>
+            <td class="right">{{sad.val_close_dy_pct |pct_100 |safe}}</td>
+          </tr>
+          <tr>
+            <th>出来高前日比率</th>
+            <td class="right">{{sad.turnover_dy_pct |pct_100 |safe}}</td>
+          </tr>
+          <tr>
+            <th>上ひげ/下ひげ</th>
+            <td class="right">{{sad.upper_mustache |intcomma}} / {{sad.lower_mustache |intcomma}}</td>
+          </tr>
+          <tr>
+            <th>線長/割合</th>
+            <td class="right">{{sad.val_line |intcomma}} / {{sad.val_line_pct |pct_100}}</td>
+          </tr>
+        </table>
+
+        <h5>移動平均/トレンド/乖離/乖離率</h5>
+        <table class="table table-responsive-sm">
+          <tr>
+            <th></th>
+            <th>移動平均</th>
+            <th>トレンド</th>
+            <th>乖離</th>
+            <th>乖離率</th>
+          </tr>
+          <tr>
+            <th>5日</th>
+            <td class="right">{{sad.ma05 |yen}}</td>
+            <td>
+              {% if sad.is_upper05 %}
+              <label class="badge badge-success">
+                <i class="fas fa-level-up-alt"></i>
+              </label>
+              {% else %}
+              <label class="badge badge-danger">
+                <i class="fas fa-level-down-alt"></i>
+              </label>
+              {% endif %}
+            </td>
+            <td class="right">{{sad.ma05_diff |yen |safe}}</td>
+            <td class="right">{{sad.ma05_diff_pct |pct_100 |safe}}</td>
+          </tr>
+          <tr>
+            <th>25日</th>
+            <td class="right">{{sad.ma25 |yen}}</td>
+            <td>
+              {% if sad.is_upper25 %}
+              <label class="badge badge-success">
+                <i class="fas fa-level-up-alt"></i>
+              </label>
+              {% else %}
+              <label class="badge badge-danger">
+                <i class="fas fa-level-down-alt"></i>
+              </label>
+              {% endif %}
+            </td>
+            <td class="right">{{sad.ma25_diff |yen |safe}}</td>
+            <td class="right">{{sad.ma25_diff_pct |pct_100 |safe}}</td>
+          </tr>
+          <tr>
+            <th>75日</th>
+            <td class="right">{{sad.ma75 |yen}}</td>
+            <td>
+              {% if sad.is_upper75 %}
+              <label class="badge badge-success">
+                <i class="fas fa-level-up-alt"></i>
+              </label>
+              {% else %}
+              <label class="badge badge-danger">
+                <i class="fas fa-level-down-alt"></i>
+              </label>
+              {% endif %}
+            </td>
+            <td class="right">{{sad.ma75_diff |yen |safe}}</td>
+            <td class="right">{{sad.ma75_diff_pct |pct_100 |safe}}</td>
+          </tr>
+        </table>
+
+        <h5>シグナル</h5>
+        <table class="table table-responsive-sm">
+          <tr>
+            <td>
+              {% if sad.val_close_dy_pct >= 0.05 %}終値：前日比5%以上<br>{%endif%}
+              {% if sad.val_close_dy_pct <= -0.05 %}終値：前日比5%以下<br>{%endif%}
+              {% if sad.turnover_dy_pct >= 1 %}出来高：前日比100%以上<br>{%endif%}
+              {%if sad.is_harami%}はらみ線<br>{%endif%}
+              {%if sad.is_tsutsumi%}包線<br>{%endif%}
+              {%if sad.is_takuri%}たくり線<br>{%endif%}
+              {%if sad.is_age_sanpo%}上げ三法<br>{%endif%}
+              {%if sad.is_sage_sanpo%}下げ三法<br>{%endif%}
+              {%if sad.is_sanku_tatakikomi%}三空叩き込み<br>{%endif%}
+              {%if sad.is_sante_daiinsen%}三手大陰線<br>{%endif%}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
