@@ -5,6 +5,7 @@ from django.template.response import TemplateResponse
 from django.views.generic import View
 from django.conf import settings
 from django.contrib import messages
+from django.db import transaction
 # csv
 import csv
 from io import TextIOWrapper
@@ -455,43 +456,44 @@ class ReadCSVView(View):
 
     def post(self, request, *args, **kwargs):
         try:
-            today = date.today()
-            debit_date = datetime.strptime(request.POST['debit_date'], "%Y-%m-%d").date()
-            logger.info("Debit Date: {}/{}".format(debit_date.year, debit_date.month))
-            form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
-            csv_file = csv.reader(form_data)
-            logger.info(next(csv_file))
-            for line in csv_file:
-                # CreditItemの指定or作成
-                cis = CreditItems.objects.filter(name=line[1])
-                if cis.exists():
-                    ci = cis[0]
-                else:
-                    ci = CreditItems.objects.create(name=line[1], date=today)
-                # 最下行以外を登録
-                d = line[0].split("/")
-                if len(d) == 3:
-                    Credits.objects.create(
-                        credit_item=ci,
-                        date=date(int(d[0]), int(d[1]), int(d[2])),
-                        fee=line[5],
-                        debit_date=date(debit_date.year, debit_date.month, 1),
-                        memo=line[6]
-                    )
-                else:
-                    Kakeibos.objects.create(
-                        date=date(debit_date.year, debit_date.month, 1),
-                        fee=line[5],
-                        way="引き落とし",
-                        usage=Usages.objects.get(name="クレジット（個人）"),
-                        move_from=Resources.objects.get(name="ゆうちょ"),
-                        memo="SFC {}/{}".format(debit_date.year, debit_date.month),
-                    )
-                    smsg = "Total {} / ".format(line[5])
-            process_kakeibo.link_credit_kakeibo()
-            smsg = smsg + "Credit records were created"
-            messages.success(request, smsg)
-            logger.info(smsg)
+            with transaction.atomic():
+                today = date.today()
+                debit_date = datetime.strptime(request.POST['debit_date'], "%Y-%m-%d").date()
+                logger.info("Debit Date: {}/{}".format(debit_date.year, debit_date.month))
+                form_data = TextIOWrapper(request.FILES['csv'].file, encoding='shift-jis')
+                csv_file = csv.reader(form_data)
+                logger.info(next(csv_file))
+                for line in csv_file:
+                    # CreditItemの指定or作成
+                    cis = CreditItems.objects.filter(name=line[1])
+                    if cis.exists():
+                        ci = cis[0]
+                    else:
+                        ci = CreditItems.objects.create(name=line[1], date=today)
+                    # 最下行以外を登録
+                    d = line[0].split("/")
+                    if len(d) == 3:
+                        Credits.objects.create(
+                            credit_item=ci,
+                            date=date(int(d[0]), int(d[1]), int(d[2])),
+                            fee=line[5],
+                            debit_date=date(debit_date.year, debit_date.month, 1),
+                            memo=line[6]
+                        )
+                    else:
+                        Kakeibos.objects.create(
+                            date=date(debit_date.year, debit_date.month, 1),
+                            fee=line[5],
+                            way="引き落とし",
+                            usage=Usages.objects.get(name="クレジット（個人）"),
+                            move_from=Resources.objects.get(name="ゆうちょ"),
+                            memo="SFC {}/{}".format(debit_date.year, debit_date.month),
+                        )
+                        smsg = "Total {} / ".format(line[5])
+                process_kakeibo.link_credit_kakeibo()
+                smsg = smsg + "Credit records were created"
+                messages.success(request, smsg)
+                logger.info(smsg)
         except Exception as e:
             emsg = e
             logger.error(emsg)
