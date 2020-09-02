@@ -1,10 +1,12 @@
 from django.contrib import admin
+from django import forms
 from .models import Stock, StockFinancialData, AssetStatus
 from .models import StockValueData, Order, Entry, ReasonWinLoss
 from .models import SBIAlert, EntryStatus, StockAnalysisData
 from .functions import mylib_asset
 from .forms import OrderForm
 from django.contrib import messages
+from web.forms import StockAnalysisDataForm
 
 
 # Register your models here.
@@ -131,6 +133,7 @@ class StockAnalysisDataAdmin(admin.ModelAdmin):
         "date", "is_harami", "is_takuri", "is_tsutsumi", "is_age_sanpo",
         "is_sage_sanpo", "is_sante_daiinsen", "is_sanku_tatakikomi",
     ]
+    form = StockAnalysisDataForm
 
     def val_close_dy_pct_100(self, row):
         return "{}%".format(round(row.val_close_dy_pct * 100, 2))

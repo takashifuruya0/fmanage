@@ -1,5 +1,5 @@
 from django import forms
-from web.models import Entry, Order, Stock, SBIAlert, EntryStatus, StockValueData
+from web.models import Entry, Order, Stock, SBIAlert, EntryStatus, StockValueData, StockAnalysisData
 from datetime import date
 
 
@@ -115,3 +115,17 @@ class SBIAlertForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+
+class StockAnalysisDataForm(forms.ModelForm):
+    class Meta:
+        model = StockAnalysisData
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = kwargs.get("instance")
+        if instance:
+            self.fields['svd'].queryset = StockValueData.objects.filter(stock=instance.stock).order_by('-date')
+        else:
+            self.fields['svd'].queryset = StockValueData.objects.all().order_by('-date')[:100]
