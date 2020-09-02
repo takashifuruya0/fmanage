@@ -493,6 +493,7 @@ class StockAnalysisData(models.Model):
     is_sante_daiinsen = models.BooleanField(
         verbose_name="三手大陰線", help_text="3日連続の大陰線", default=False
     )
+    svd = models.ForeignKey(StockValueData, verbose_name="SVD", null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return "SAD_{}_{}".format(self.date, self.stock)
@@ -510,6 +511,3 @@ class StockAnalysisData(models.Model):
             return True
         else:
             return False
-
-
-

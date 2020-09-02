@@ -3,6 +3,9 @@ from .models import *
 from dateutil.relativedelta import relativedelta
 from django.contrib.admin.helpers import ActionForm
 from django import forms
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+from import_export.formats import base_formats
 # Register your models here.
 
 
@@ -81,11 +84,18 @@ class YearMonthForm(ActionForm):
     month = forms.IntegerField(label="月", initial=date.today().month)
 
 
-class TargetAdmin(admin.ModelAdmin):
+class TargetResource(resources.ModelResource):
+    class Meta:
+        model = Target
+
+
+class TargetAdmin(ImportExportModelAdmin):
     list_display = ["id", "date", "val", "type", "memo"]
     list_editable = ["date", "val", "type", "memo"]
     list_filter = ["date", "type"]
     actions = ['copy_next_month', 'copy_next_year', ]
+    resource_class = TargetResource
+    formats = [base_formats.XLSX]
 
     # action_form = YearMonthForm
 
