@@ -522,8 +522,8 @@ def register_stock_analysis_data(code, is_updating=False):
                 for k in exclude_keys:
                     data_dict.pop(k)
                 data_dict['stock'] = stock
+                data_dict['svd'] = svds.get(date=data_dict['date'], stock=stock)
                 target = StockAnalysisData.objects.filter(date=data_dict['date'], stock=stock)
-                target.svd = svds.get(date=data_dict['date'], stock=stock)
                 target.update(**data_dict)
                 sads_updated_list.append(target)
                 # logger.info("StockAnalysisData of {} was updated successfully.".format(sads_updated))
@@ -536,6 +536,7 @@ def register_stock_analysis_data(code, is_updating=False):
                 data_dict.pop(k)
             data_dict['stock'] = stock
             sad = StockAnalysisData(**data_dict)
+            sad.svd = svds.get(date=sad.date, stock=sad.stock)
             # check
             if data_dict['date'] in cc.keys():
                 if "たくり線" in cc[data_dict['date']]:
@@ -550,7 +551,6 @@ def register_stock_analysis_data(code, is_updating=False):
                     sad.is_sante_daiinsen = True
                 if "上げ三法" in cc[data_dict['date']]:
                     sad.is_age_sanpo = True
-                sad.svd = svds.get(date=sad.date, stock=sad.stock)
             sads_list.append(sad)
     # bulkで登録
     sads = StockAnalysisData.objects.bulk_create(sads_list)
