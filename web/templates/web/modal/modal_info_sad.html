@@ -16,6 +16,24 @@
         </button>
       </div>
       <div class="modal-body">
+        <h5>HLOCT</h5>
+        <table class="table table-responsive-sm">
+          <tr>
+            <th class="right">H</th>
+            <th class="right">L</th>
+            <th class="right">O</th>
+            <th class="right">C</th>
+            <th class="right">T</th>
+          </tr>
+          <tr>
+            <td class="right">{{sad.svd.val_high |yen}}</td>
+            <td class="right">{{sad.svd.val_low |yen}}</td>
+            <td class="right">{{sad.svd.val_open |yen}}</td>
+            <td class="right">{{sad.svd.val_close |yen}}</td>
+            <td class="right">{{sad.svd.turnover |intcomma}}</td>
+          </tr>
+        </table>
+
         <h5>概要</h5>
         <table class="table table-responsive-sm">
           <tr>
