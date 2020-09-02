@@ -1,7 +1,9 @@
 {% load humanize %}
 {% load web_template %}
 
-<span data-toggle="modal" data-target="#sad_{{sad.id}}"><i class="fas fa-external-link-alt"></i></span>
+<button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#sad_{{sad.id}}">
+  <i class="fas fa-external-link-alt"></i>
+</button>
 
 <!-- Modal new_stock-->
 <div class="modal fade" id="sad_{{sad.id}}" tabindex="-1" role="dialog" aria-labelledby="sad_{{sad.id}}" aria-hidden="true">
