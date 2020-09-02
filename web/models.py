@@ -511,3 +511,44 @@ class StockAnalysisData(models.Model):
             return True
         else:
             return False
+
+
+class AssetTarget(models.Model):
+    objects = None
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="作成日時")
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name="更新日時")
+    date = models.DateField(verbose_name="日付")
+    val_investment = models.IntegerField(verbose_name="予定投資元本")
+    val_target = models.IntegerField(verbose_name="投資目標")
+    memo = models.TextField(blank=True, null=True, verbose_name="メモ")
+
+    def __str__(self):
+        return "AssetTarget({}/{})".format(date.year, str(date.month).zfill(2))
+
+    def is_achieved_target(self):
+        astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
+        return astatus.get_total() >= self.val_target
+
+    def is_achieved_investment(self):
+        astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
+        return astatus.investment >= self.val_investment
+
+    def actual_target(self):
+        astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
+        return astatus.get_total()
+
+    def actual_investment(self):
+        astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
+        return astatus.investment
+
+    def actual_date(self):
+        astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
+        return astatus.date
+
+    def diff_target(self):
+        astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
+        return astatus.get_total() - self.val_target
+
+    def diff_investment(self):
+        astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
+        return astatus.investment - self.val_investment

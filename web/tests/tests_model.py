@@ -1,6 +1,6 @@
 from django.test import TestCase
 from web.models import Stock, Order, Entry, AssetStatus, ReasonWinLoss
-from web.models import StockValueData, StockFinancialData, SBIAlert
+from web.models import StockValueData, StockFinancialData, SBIAlert, AssetTarget
 from django.contrib.auth.models import User
 from datetime import datetime, date
 # Create your tests here.
@@ -203,3 +203,28 @@ class ModelTest(TestCase):
         self.assertEqual(sbialert.created_at.date(), date.today())
         self.assertIsNone(sbialert.checked_at)
         self.assertTrue(sbialert.is_active)
+
+    def test_assettarget(self):
+        d = date(2020, 1, 1)
+        self.assertEqual(AssetTarget.objects.count(), 0)
+        atarget = AssetTarget.objects.create(
+            date=d,  val_investment=3000000, val_target=3300000, memo="memo"
+        )
+        self.assertEqual(AssetTarget.objects.count(), 1)
+        astatus = AssetStatus.objects.create(
+            buying_power=1000000,
+            nisa_power=1000000,
+            sum_stock=3400000,
+            sum_trust=0,
+            sum_other=0,
+            date=d,
+            investment=3100000,
+            user=self.u,
+        )
+        self.assertTrue(atarget.is_achieved_target())
+        self.assertTrue(atarget.is_achieved_investment())
+        self.assertEqual(atarget.diff_target(), astatus.get_total()-atarget.val_target)
+        self.assertEqual(atarget.diff_investment(), astatus.investment - atarget.val_investment)
+        self.assertEqual(atarget.actual_target(), astatus.get_total())
+        self.assertEqual(atarget.actual_investment(), astatus.investment)
+        self.assertEqual(atarget.actual_date(), astatus.date)

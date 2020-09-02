@@ -2,11 +2,14 @@ from django.contrib import admin
 from django import forms
 from .models import Stock, StockFinancialData, AssetStatus
 from .models import StockValueData, Order, Entry, ReasonWinLoss
-from .models import SBIAlert, EntryStatus, StockAnalysisData
+from .models import SBIAlert, EntryStatus, StockAnalysisData, AssetTarget
 from .functions import mylib_asset
 from .forms import OrderForm
 from django.contrib import messages
 from web.forms import StockAnalysisDataForm
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+from import_export.formats import base_formats
 
 
 # Register your models here.
@@ -145,6 +148,23 @@ class StockAnalysisDataAdmin(admin.ModelAdmin):
     turnover_dy_pct_100.short_description = "出来高前日比（%）"
 
 
+class AssetTargetResource(resources.ModelResource):
+    class Meta:
+        model = AssetTarget
+
+
+class AssetTargetAdmin(ImportExportModelAdmin):
+    list_display = [
+        "id", "date", "val_investment", "val_target",
+        "is_achieved_target", "actual_target", "diff_target",
+        "created_at", "updated_at",
+    ]
+    list_editable = ["date", "val_investment", "val_target", ]
+    list_filter = ["date", ]
+    resource_class = AssetTargetResource
+    formats = [base_formats.XLSX]
+
+
 admin.site.register(Stock, StockAdmin)
 admin.site.register(AssetStatus, AssetStatusAdmin)
 admin.site.register(Order, OrderAdmin)
@@ -155,3 +175,4 @@ admin.site.register(ReasonWinLoss, ReasonWinLossAdmin)
 admin.site.register(SBIAlert, SBIAlertAdmin)
 admin.site.register(EntryStatus, EntryStatusAdmin)
 admin.site.register(StockAnalysisData, StockAnalysisDataAdmin)
+admin.site.register(AssetTarget, AssetTargetAdmin)
