@@ -195,6 +195,10 @@ class Entry(models.Model):
         """Plan合計"""
         return self.val_plan * self.num_plan if self.val_plan else None
 
+    def total_now(self):
+        """現在合計"""
+        return self.remaining() * self.stock.current_val()
+
     def num_linked_orders(self):
         """紐づくOrder数"""
         return self.order_set.count()

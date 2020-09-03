@@ -51,8 +51,8 @@ class EntryForm(forms.ModelForm):
 
 
 class OrderForm(forms.ModelForm):
-    is_buy = forms.BooleanField(label="買い注文")
-    is_nisa = forms.BooleanField(label="NISA")
+    is_buy = forms.BooleanField(label="買い注文", required=False)
+    is_nisa = forms.BooleanField(label="NISA", required=False)
 
     class Meta:
         model = Order

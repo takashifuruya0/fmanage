@@ -148,6 +148,12 @@
 					</td>
 				</tr>
 				<tr>
+					<th>買付総額/現在総額</th>
+					<td class="right">
+						{{entry.total_buy |yen}} / {{entry.total_now | yen}}
+					</td>
+				</tr>
+				<tr>
 					<th>現在利益</th>
 					<td class="right">
 						{{entry.profit |yen |safe}} / {{entry.profit_pct |pct_100 |safe}}
