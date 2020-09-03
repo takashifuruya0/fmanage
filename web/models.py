@@ -527,15 +527,15 @@ class AssetTarget(models.Model):
 
     def is_achieved_target(self):
         astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
-        return astatus.get_total() >= self.val_target
+        return astatus.get_total() >= self.val_target if date.today() >= self.date else None
 
     def is_achieved_investment(self):
         astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
-        return astatus.investment >= self.val_investment
+        return astatus.investment >= self.val_investment if date.today() >= self.date else None
 
     def actual_target(self):
         astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
-        return astatus.get_total()
+        return astatus.get_total() if date.today() >= self.date else None
 
     def actual_investment(self):
         astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
@@ -543,12 +543,20 @@ class AssetTarget(models.Model):
 
     def actual_date(self):
         astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
-        return astatus.date
+        return astatus.date if date.today() >= self.date else None
 
     def diff_target(self):
         astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
-        return astatus.get_total() - self.val_target
+        return astatus.get_total() - self.val_target if date.today() >= self.date else None
 
     def diff_investment(self):
         astatus = AssetStatus.objects.filter(date__lte=self.date).latest('date')
-        return astatus.investment - self.val_investment
+        return astatus.investment - self.val_investment if date.today() >= self.date else None
+
+    is_achieved_target.short_description = "投資目標を達成？"
+    is_achieved_investment.short_description = "予定投資元本を達成？"
+    actual_target.short_description = "投資実績"
+    diff_target.short_description = "対投資目標差分"
+    actual_investment.short_description = "投資元本実績"
+    diff_investment.short_description = "対予定投資元本差分"
+    actual_date.short_description = "実績日"
