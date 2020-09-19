@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'pure_pagination',
     'django_nose',
     'rest_framework',
+    'rest_framework.authtoken',  # <-- Here
     'django_filters',
     'django_celery_results',
     'import_export',
@@ -256,6 +257,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # <-- And here
+    ],
 }
 
 # CELERY

@@ -1,5 +1,5 @@
 # coding:utf-8
-
+import io
 from django.http import HttpResponse, Http404
 import itertools
 from django.conf import settings
@@ -238,6 +238,7 @@ def fig_bars_basic_color(data={}, vbar_labels = [], colors={}, figtitle="", figs
     ax.yaxis.grid()
     [spine.set_visible(False) for spine in ax.spines.values()]
     # return response-data
+    buf = io.BytesIO()
     canvas = FigureCanvas(fig)
     response = HttpResponse(content_type='image/png')
     canvas.print_png(response)
