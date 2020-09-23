@@ -92,6 +92,7 @@
 			<hr>
 
 			{%include 'web/modal/modal_info_stock.html' %}
+			{%include 'web/modal/modal_info_tweet.html' %}
 			<hr>
 
 			<a class="btn btn-outline-info" href="{%url 'web:entry_edit' pk=entry.pk%}">
@@ -371,27 +372,6 @@
 				<div class="card-footer">
 				</div>
 			</div>
-
-			<hr>
-			<h5><i class="fab fa-twitter"></i> Tweets ({{keyword_tweet}})</h5>
-			<table class="table">
-				<tr>
-					<th>日付</th>
-					<th>ユーザ</th>
-					<th>内容</th>
-				</tr>
-				{% for t in tweets %}
-				<tr>
-					<td>{{t.created_at |datetime_twitter}}</td>
-					<td>
-						<a href="https://twitter.com/{{t.user.screen_name}}">{{t.user.name}}</a>
-<!--						<img src="{{t.user.profile_image_url_https}}">-->
-					</td>
-					<td>{{t.text}}</td>
-				</tr>
-				{% endfor %}
-
-			</table>
 		</div>
 	</div>
 </div>

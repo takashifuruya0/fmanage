@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, Stock, StockValueData, StockFinancialData, SBIAlert
 from web.models import StockAnalysisData
-from web.functions import mylib_asset
+from web.functions import mylib_asset, mylib_twitter
 # list view, pagination
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from pure_pagination.mixins import PaginationMixin
@@ -74,11 +74,18 @@ class StockDetail(LoginRequiredMixin, DetailView):
         overview = mylib_scraping.yf_detail(self.object.code)
         if overview['status']:
             context['overview'] = overview['data']
-
         # sads
         context['sads'] = StockAnalysisData.objects.filter(
             stock=context['stock'], date__gte=(date.today()-relativedelta(months=6))
         ).order_by('-date')
+        # twitter
+        twitter = mylib_twitter.Twitter()
+        names = context['stock'].name.split("(株)")
+        keyword_tweet = names[0] if names[0] not in ("(株)", "") else names[1]
+        tweets = twitter.getTweets(keyword_tweet, 10)
+        context['tweets'] = tweets['statuses'] if tweets else list()
+        context['keyword_tweet'] = keyword_tweet
+        # return
         return context
 
 

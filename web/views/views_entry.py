@@ -237,8 +237,10 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         # twitter
         twitter = mylib_twitter.Twitter()
         names = entry.stock.name.split("(株)")
-        keyword_tweet = names[0] if names[0] != "(株)" else names[1]
-        tweets = twitter.getTweets(keyword_tweet, 10)['statuses']
+        keyword_tweet = names[0] if names[0] not in ("(株)", "") else names[1]
+        tweets = twitter.getTweets(keyword_tweet, 10)
+        tweets = tweets['statuses'] if tweets else list()
+
         # output
         output = {
             "user": self.request.user,
@@ -250,8 +252,6 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "sos_detail": sos_detail,
             "od": od,
             "cd": cd,
-            # "df_latest": df.iloc[-1] if svds.count() > 0 else None,
-            # "df_check": df_check,
             "df_trend": df_trend,
             "sbialert_form": sbialert_form,
             "sbialerts": sbialerts,
