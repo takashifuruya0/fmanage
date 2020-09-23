@@ -28,6 +28,7 @@ urlpatterns = [
     path('stock/<stock_code>/', views_stock.StockDetail.as_view(), name='stock_detail'),
     path('stock/<stock_code>/edit/', views_stock.StockUpdate.as_view(), name='stock_edit'),
     # api
+    path('api/create_order/v2/', views_api.CreateOrderAPI.as_view(), name="api_create_order_v2"),
     path('api/create_order/', views_api.create_order, name="api_create_order"),
     path('api/get_current_vals/', views_api.GetCurrentVals.as_view(), name="api_get_current_vals"),
     path('api/receive_alert/', views_api.ReceiveAlert.as_view(), name="api_receive_alert"),

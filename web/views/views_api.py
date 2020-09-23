@@ -4,9 +4,12 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.conf import settings
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 import json
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 from fmanage import tasks
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -217,3 +220,22 @@ class SlackInteractive(View):
             res["response_type"] = "in_channel"
             logger.info(res)
             return JsonResponse(res, safe=False)
+
+
+class CreateOrderAPI(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+
+    def get(self, request):
+        data = {
+            "status": True,
+            "detail": "you made a GET request to CreateOrderAPI"
+        }
+        return Response(data, status=200, content_type="application/json")
+
+    def post(self, request):
+        data = {
+            "status": True,
+            "detail": "you made a POST request to CreateOrderAPI",
+            "data": request.POST
+        }
+        return Response(data, status=status.HTTP_200_OK, content_type="application/json")
