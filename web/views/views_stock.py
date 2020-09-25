@@ -81,7 +81,7 @@ class StockDetail(LoginRequiredMixin, DetailView):
         # twitter
         twitter = mylib_twitter.Twitter()
         names = context['stock'].name.split("(株)")
-        keyword_tweet = names[0] if names[0] not in ("(株)", "") else names[1]
+        keyword_tweet = "{} {}".format(names[0] if names[0] not in ("(株)", "") else names[1], context['stock'].code)
         tweets = twitter.getTweets(keyword_tweet, 10)
         context['tweets'] = tweets['statuses'] if tweets else list()
         context['keyword_tweet'] = keyword_tweet

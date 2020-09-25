@@ -237,7 +237,7 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         # twitter
         twitter = mylib_twitter.Twitter()
         names = entry.stock.name.split("(株)")
-        keyword_tweet = names[0] if names[0] not in ("(株)", "") else names[1]
+        keyword_tweet = "{} {}".format(names[0] if names[0] not in ("(株)", "") else names[1], entry.stock.code)
         tweets = twitter.getTweets(keyword_tweet, 10)
         tweets = tweets['statuses'] if tweets else list()
 
