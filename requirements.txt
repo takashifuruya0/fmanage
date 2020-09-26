@@ -15,6 +15,7 @@ diff-match-patch==20200713
 dj-database-url==0.5.0
 dj-static==0.0.6
 Django==2.2.16
+django-allauth==0.42.0
 django-bootstrap3-datetimepicker==2.2.3
 django-celery-results==1.2.1
 django-datetime-widget==0.9.3
@@ -70,6 +71,7 @@ pyasn1-modules==0.2.8
 pyparsing==2.4.7
 pyrsistent==0.16.0
 python-dateutil==2.8.1
+python3-openid==3.2.0
 pytz==2020.1
 PyYAML==5.3.1
 Quandl==3.5.2

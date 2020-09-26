@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.urls import include, path            # includeを追加
 from django.contrib import admin
 # media
 from django.conf import settings
@@ -36,7 +37,8 @@ urlpatterns = [
     url(r'^kakeibo/', include('kakeibo.urls', namespace='kakeibo')),
     url(r'^asset/', include('asset.urls', namespace='asset')),
     url(r'^api/', include('api.urls', namespace='api')),
-    url(r'^account/', include('account.urls', namespace='account')),
+    path('accounts/', include('allauth.urls')),
+    # url(r'^account/', include('accounts.urls', namespace='account')),
     url(r'^nams/', include('web.urls', namespace='web')),
     url(r'^document/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     url(r'^drm/', include(router.urls)),

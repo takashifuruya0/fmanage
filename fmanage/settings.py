@@ -41,10 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',  # 追加
     'django.contrib.staticfiles',
     'kakeibo',
     'api',
-    'account',
+    'accounts',
     'command',
     "asset",
     'web',
@@ -57,6 +58,12 @@ INSTALLED_APPS = [
     'django_filters',
     'django_celery_results',
     'import_export',
+    'allauth',  # 追加
+    'allauth.account',  # 追加
+    'allauth.socialaccount',  # 追加
+    'allauth.socialaccount.providers.line',  # 追加
+    'allauth.socialaccount.providers.twitter',  # 追加
+    'allauth.socialaccount.providers.google',  # 追加
 ]
 
 MIDDLEWARE = [
@@ -138,13 +145,37 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-#STATICFILES_DIRS = (
-#    os.path.join(BASE_DIR, 'static'),
-#)
 
-LOGIN_URL = '/account/login'
+######################################
+# Authentication                     #
+######################################
+
+# Don't forget this little dude.
+SITE_ID = 1
+
+# ログインのリダイレクトURL
 LOGIN_REDIRECT_URL = '/kakeibo'
-LOGOUT_REDIRECT_URL = '/account/login'
+
+# ログアウトのリダイレクトURL
+ACCOUNT_LOGOUT_REDIRECT_URL = '/accounts/login'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+SOCIALACCOUNT_PROVIDERS = {
+    'line': {
+        'SCOPE': ['profile', 'openid'],
+    }
+}
+# loginURL
+LOGIN_URL = '/accounts/login'
+LOGOUT_REDIRECT_URL = '/accounts/login'
+# login settings
+ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_LOGOUT_ON_GET = True
 
 
 MEDIA_URL = '/document/'
@@ -153,16 +184,9 @@ MEDIA_ROOT = (
 )
 
 # URL
-URL_KAKEIBO = "https://script.google.com/macros/s/AKfycbyZ8v-KrRaBgtVoXdAEOPv2Zi8QBBgWCPS2VCj51QgRIxPxbVk/exec"
-URL_SHARED = "https://script.google.com/macros/s/AKfycby-55e05olODl_dvB-QtyGhB-ZQ7zAYfhWmGtr7R1H2ppnau0nz/exec"
-URL_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSd1Guht2PZW62FFDKtLpLsSPGgHIXyYmpB44R0KvDnduSChzg/viewform"
-URL_SHAREDFORM = "https://docs.google.com/forms/d/e/1FAIpQLScxkEwMCmdvnNALAPXJa0Ve0oyxlg2t40lnv_292ijFer4gNQ/viewform"
 URL_METABASE = "https://www.fk-management.com/metabase"
 URL_KNOWLEDGE = "https://www.fk-management.com/knowledge"
 
-# Budget
-BUDGET_TAKA = 90000
-BUDGET_HOKO = 60000
 
 # Font Path
 FONT_PATH = 'document/font/ipaexg.ttf'
@@ -210,10 +234,6 @@ PAGINATION_SETTINGS = {
     'MARGIN_PAGES_DISPLAYED': 2,
     'SHOW_FIRST_PAGE_WHEN_INVALID': True,
 }
-
-# Trello
-TRELLO_KEY = env("TRELLO_KEY")
-TRELLO_TOKEN = env("TRELLO_TOKEN")
 
 # Goldpoint
 GOLDPOINT_ID = env("GOLDPOINT_ID")
