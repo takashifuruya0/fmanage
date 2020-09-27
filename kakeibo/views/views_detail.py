@@ -3,6 +3,10 @@ from django.conf import settings
 from django.views.generic import DetailView, UpdateView
 from django.views.generic.list import MultipleObjectMixin
 from pure_pagination import PaginationMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.db.models import Sum, Count, Avg
 # logging
@@ -15,7 +19,8 @@ from kakeibo.forms import KakeiboForm, SharedKakeiboForm, CreditForm, CreditItem
 
 # Create your views here.
 
-class KakeiboDetail(DetailView):
+@method_decorator(staff_member_required, name='dispatch')
+class KakeiboDetail(LoginRequiredMixin, DetailView):
     model = Kakeibos
 
     def get_context_data(self, **kwargs):
@@ -23,7 +28,8 @@ class KakeiboDetail(DetailView):
         return res
 
 
-class SharedDetail(DetailView):
+@method_decorator(staff_member_required, name='dispatch')
+class SharedDetail(LoginRequiredMixin, DetailView):
     model = SharedKakeibos
 
     def get_context_data(self, **kwargs):
@@ -31,7 +37,8 @@ class SharedDetail(DetailView):
         return res
 
 
-class CreditDetail(DetailView):
+@method_decorator(staff_member_required, name='dispatch')
+class CreditDetail(LoginRequiredMixin, DetailView):
     model = Credits
 
     def get_context_data(self, **kwargs):
@@ -39,7 +46,8 @@ class CreditDetail(DetailView):
         return res
 
 
-class CreditItemDetail(DetailView):
+@method_decorator(staff_member_required, name='dispatch')
+class CreditItemDetail(LoginRequiredMixin, DetailView):
     model = CreditItems
 
     def get_context_data(self, **kwargs):
@@ -47,7 +55,8 @@ class CreditItemDetail(DetailView):
         return res
 
 
-class UsageDetail(DetailView):
+@method_decorator(staff_member_required, name='dispatch')
+class UsageDetail(LoginRequiredMixin, DetailView):
     model = Usages
 
     def get_context_data(self, **kwargs):
@@ -55,7 +64,8 @@ class UsageDetail(DetailView):
         return res
 
 
-class EventDetail(PaginationMixin, MultipleObjectMixin, DetailView):
+@method_decorator(staff_member_required, name='dispatch')
+class EventDetail(PaginationMixin, MultipleObjectMixin, LoginRequiredMixin, DetailView):
     model = Event
     paginate_by = 10
 
@@ -65,7 +75,8 @@ class EventDetail(PaginationMixin, MultipleObjectMixin, DetailView):
         return context
 
 
-class KakeiboUpdate(UpdateView):
+@method_decorator(staff_member_required, name='dispatch')
+class KakeiboUpdate(LoginRequiredMixin, UpdateView):
     model = Kakeibos
     form_class = KakeiboForm
 
@@ -73,7 +84,8 @@ class KakeiboUpdate(UpdateView):
         return reverse('kakeibo:kakeibo_detail', kwargs={'pk': self.object.pk})
 
 
-class SharedUpdate(UpdateView):
+@method_decorator(staff_member_required, name='dispatch')
+class SharedUpdate(LoginRequiredMixin, UpdateView):
     model = SharedKakeibos
     form_class = SharedKakeiboForm
 
@@ -81,7 +93,8 @@ class SharedUpdate(UpdateView):
         return reverse('kakeibo:shared_detail', kwargs={'pk': self.object.pk})
 
 
-class CreditUpdate(UpdateView):
+@method_decorator(staff_member_required, name='dispatch')
+class CreditUpdate(LoginRequiredMixin, UpdateView):
     model = Credits
     form_class =CreditForm
 
@@ -89,7 +102,8 @@ class CreditUpdate(UpdateView):
         return reverse('kakeibo:credit_detail', kwargs={'pk': self.object.pk})
 
 
-class CreditItemUpdate(UpdateView):
+@method_decorator(staff_member_required, name='dispatch')
+class CreditItemUpdate(LoginRequiredMixin, UpdateView):
     model = CreditItems
     form_class = CreditItemForm
 
@@ -97,7 +111,8 @@ class CreditItemUpdate(UpdateView):
         return reverse('kakeibo:credit_item_detail', kwargs={'pk': self.object.pk})
 
 
-class UsageUpdate(UpdateView):
+@method_decorator(staff_member_required, name='dispatch')
+class UsageUpdate(LoginRequiredMixin, UpdateView):
     model = Usages
     form_class = UsageForm
 
@@ -105,7 +120,8 @@ class UsageUpdate(UpdateView):
         return reverse('kakeibo:usage_detail', kwargs={'pk': self.object.pk})
 
 
-class EventUpdate(UpdateView):
+@method_decorator(staff_member_required, name='dispatch')
+class EventUpdate(LoginRequiredMixin, UpdateView):
     model = Event
     form_class = EventForm
 

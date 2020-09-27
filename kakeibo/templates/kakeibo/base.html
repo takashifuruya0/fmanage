@@ -159,6 +159,9 @@
             </a>
           </li>
         </ul>
+        <span class="navbar-text">
+          <i class="fas fa-user-circle"></i> {{request.user}}
+        </span>
       </div>
     </nav>
 
@@ -170,6 +173,7 @@
     </div>
     {% endfor %}
     {% endif %}
+
 
     {% block body %}{% endblock %}
 
