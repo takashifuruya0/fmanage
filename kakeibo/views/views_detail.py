@@ -28,8 +28,7 @@ class KakeiboDetail(LoginRequiredMixin, DetailView):
         return res
 
 
-@method_decorator(staff_member_required, name='dispatch')
-class SharedDetail(LoginRequiredMixin, DetailView):
+class SharedDetail(DetailView):
     model = SharedKakeibos
 
     def get_context_data(self, **kwargs):
@@ -84,8 +83,7 @@ class KakeiboUpdate(LoginRequiredMixin, UpdateView):
         return reverse('kakeibo:kakeibo_detail', kwargs={'pk': self.object.pk})
 
 
-@method_decorator(staff_member_required, name='dispatch')
-class SharedUpdate(LoginRequiredMixin, UpdateView):
+class SharedUpdate(UpdateView):
     model = SharedKakeibos
     form_class = SharedKakeiboForm
 

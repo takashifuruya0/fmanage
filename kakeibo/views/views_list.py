@@ -62,8 +62,7 @@ class KakeiboList(PaginationMixin, LoginRequiredMixin, ListView):
         return queryset
 
 
-@method_decorator(staff_member_required, name='dispatch')
-class SharedList(PaginationMixin, LoginRequiredMixin, ListView):
+class SharedList(PaginationMixin, ListView):
     model = SharedKakeibos
     ordering = ['-date']
     paginate_by = 20
