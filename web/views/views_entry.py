@@ -8,7 +8,7 @@ from web.forms import EntryForm, SBIAlertForm, OrderForm
 from django.contrib import messages
 from django.db import transaction
 from web.models import Entry, Order, StockValueData, SBIAlert, StockAnalysisData
-from web.functions import mylib_scraping, mylib_analysis, mylib_asset
+from web.functions import mylib_scraping, mylib_analysis, mylib_asset, mylib_twitter
 # list view, pagination
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from pure_pagination.mixins import PaginationMixin
@@ -234,6 +234,13 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         )
         # sads
         sads = StockAnalysisData.objects.filter(stock=entry.stock, date__gte=od, date__lte=cd).order_by('-date')
+        # twitter
+        twitter = mylib_twitter.Twitter()
+        names = entry.stock.name.split("(株)")
+        keyword_tweet = "{} {}".format(names[0] if names[0] not in ("(株)", "") else names[1], entry.stock.code)
+        tweets = twitter.getTweets(keyword_tweet, 10)
+        tweets = tweets['statuses'] if tweets else list()
+
         # output
         output = {
             "user": self.request.user,
@@ -245,8 +252,6 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "sos_detail": sos_detail,
             "od": od,
             "cd": cd,
-            # "df_latest": df.iloc[-1] if svds.count() > 0 else None,
-            # "df_check": df_check,
             "df_trend": df_trend,
             "sbialert_form": sbialert_form,
             "sbialerts": sbialerts,
@@ -254,6 +259,8 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "overview": overview,
             "order_form": order_form,
             "sads": sads,
+            "tweets": tweets,
+            "keyword_tweet": keyword_tweet,
         }
         # res
         return output

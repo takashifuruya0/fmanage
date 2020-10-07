@@ -4,6 +4,9 @@ from django.views.generic import ListView
 from django.db.models import Count, Q
 from pure_pagination.mixins import PaginationMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect
 from django.contrib import messages
 from datetime import date
@@ -19,7 +22,8 @@ from kakeibo.functions.mylib import time_measure
 
 
 # Create your views here.
-class KakeiboList(PaginationMixin, ListView):
+@method_decorator(staff_member_required, name='dispatch')
+class KakeiboList(PaginationMixin, LoginRequiredMixin, ListView):
     model = Kakeibos
     ordering = ['-date']
     paginate_by = 20
@@ -84,7 +88,8 @@ class SharedList(PaginationMixin, ListView):
         return queryset
 
 
-class CreditList(PaginationMixin, ListView):
+@method_decorator(staff_member_required, name='dispatch')
+class CreditList(PaginationMixin, LoginRequiredMixin, ListView):
     model = Credits
     ordering = ['-date']
     paginate_by = 20
@@ -118,7 +123,8 @@ class CreditList(PaginationMixin, ListView):
         return queryset
 
 
-class CreditItemList(PaginationMixin, ListView):
+@method_decorator(staff_member_required, name='dispatch')
+class CreditItemList(PaginationMixin, LoginRequiredMixin, ListView):
     model = CreditItems
     paginate_by = 20
 
@@ -140,7 +146,8 @@ class CreditItemList(PaginationMixin, ListView):
         return queryset
 
 
-class UsageList(PaginationMixin, ListView):
+@method_decorator(staff_member_required, name='dispatch')
+class UsageList(PaginationMixin, LoginRequiredMixin, ListView):
     model = Usages
     paginate_by = 20
 
@@ -170,7 +177,8 @@ class UsageList(PaginationMixin, ListView):
         return redirect('kakeibo:usage_list')
 
 
-class EventList(PaginationMixin, ListView):
+@method_decorator(staff_member_required, name='dispatch')
+class EventList(PaginationMixin, LoginRequiredMixin, ListView):
     model = Event
     paginate_by = 20
 

@@ -7,6 +7,7 @@ from kakeibo.models import CronKakeibo, CronShared, UsualRecord
 # django-rest-framework
 from django_filters import rest_framework as dfilters
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from kakeibo.serializer import UsagesSerializer, ResourcesSerializer, KakeibosSerializer
 from kakeibo.serializer import SharedKakeibosSerializer, CreditItemsSerializer, CreditsSerializer
 from kakeibo.serializer import CronKakeiboSerializer, CronSharedSerializer, UsualRecordSerializer
@@ -24,47 +25,56 @@ from kakeibo.serializer import CronKakeiboSerializer, CronSharedSerializer, Usua
 
 
 class UsagesViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Usages.objects.all()
     serializer_class = UsagesSerializer
     # filter_class = OrdersFilter
 
 
 class ResourcesViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Resources.objects.all()
     serializer_class = ResourcesSerializer
 
 
 class KakeibosViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Kakeibos.objects.all()
     serializer_class = KakeibosSerializer
 
 
 class SharedKakeibosViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = SharedKakeibos.objects.all()
     serializer_class = SharedKakeibosSerializer
 
 
 class CreditItemsViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = CreditItems.objects.all()
     serializer_class = CreditItemsSerializer
 
 
 class CreditsViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Credits.objects.all()
     serializer_class = CreditsSerializer
 
 
 class CronKakeiboViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = CronKakeibo.objects.all()
     serializer_class = CronKakeiboSerializer
 
 
 class CronSharedViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = CronShared.objects.all()
     serializer_class = CronSharedSerializer
 
 
 class UsualRecordViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = UsualRecord.objects.all()
     serializer_class = UsualRecordSerializer
 

@@ -1,6 +1,10 @@
 # coding:utf-8
 from django.conf import settings
 from django.views.generic import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
 from django.contrib import messages
 from datetime import date
@@ -13,7 +17,8 @@ from kakeibo.forms import KakeiboForm, SharedKakeiboForm, EventForm
 
 
 # Create your views here.
-class KakeiboCreate(CreateView):
+@method_decorator(staff_member_required, name='dispatch')
+class KakeiboCreate(LoginRequiredMixin, CreateView):
     model = Kakeibos
     form_class = KakeiboForm
     template_name = "kakeibo/kakeibos_create.html"
@@ -58,7 +63,8 @@ class SharedCreate(CreateView):
         return reverse('kakeibo:shared_detail', kwargs={'pk': self.object.pk})
 
 
-class EventCreate(CreateView):
+@method_decorator(staff_member_required, name='dispatch')
+class EventCreate(LoginRequiredMixin, CreateView):
     model = Event
     form_class = EventForm
 

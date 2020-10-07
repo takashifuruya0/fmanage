@@ -143,19 +143,25 @@
                 <i class="fas fa-book"></i> Knowledge
               </a>
               <a class="dropdown-item" href="/admin/">
-                <i class="fas fa-database"></i> Admin
+                <i class="fas fa-toolbox"></i> Admin
               </a>
               <a class="dropdown-item" href="/drm/">
                 <i class="fab fa-python"></i> Django Rest Framework
               </a>
+              <a href="{% url 'socialaccount_connections' %}?process=connect" class="dropdown-item">
+                <i class="fas fa-user-circle"></i> Social Account
+              </a>
             </div>
           </li>
           <li class="nav-item active">
-            <a href="{% url 'account:logout' %}" class="nav-link">
+            <a href="/accounts/logout" class="nav-link">
               <i class="fas fa-sign-out-alt"></i> Logout
             </a>
           </li>
         </ul>
+        <span class="navbar-text">
+          <i class="fas fa-user-circle"></i> {{request.user}}
+        </span>
       </div>
     </nav>
 
@@ -167,6 +173,7 @@
     </div>
     {% endfor %}
     {% endif %}
+
 
     {% block body %}{% endblock %}
 

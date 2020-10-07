@@ -1,0 +1,73 @@
+{% extends "kakeibo/base.html" %}
+{% load socialaccount %}
+
+{% block title %}
+    Social Connections
+{% endblock %}
+
+{% block body %}
+  <div class="container-fluid">
+    <div class="row">
+      <h1></h1>
+    </div>
+    <div class="row">
+      <div class="offset-1 col-10 offset-sm-2 col-sm-8 offset-md-3 col-md-6 offset-lg-4 col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <h4>
+              <i class="fas fa-user-circle"></i> Social Connections
+            </h4>
+          </div>
+          <div class="card-body">
+            <h5>
+              <i class="fas fa-link"></i> 紐付け
+            </h5>
+            <a href="{% url 'google_login' %}?process=connect" class="btn btn-outline-primary">
+              <i class="fab fa-google"></i> Google
+            </a>
+            <a href="{% url 'line_login' %}?process=connect" class="btn btn-outline-success">
+              <i class="fab fa-line"></i> LINE
+            </a>
+
+            <hr>
+            {% if form.accounts %}
+            <h5>
+              <i class="fas fa-unlink"></i> 紐付け削除
+            </h5>
+            <form method="post" action="{% url 'socialaccount_connections' %}">
+              {% csrf_token %}
+              <fieldset>
+                {% if form.non_field_errors %}
+                <div id="errorMsg">{{ form.non_field_errors }}</div>
+                {% endif %}
+                {% for base_account in form.accounts %}
+                {% with base_account.get_provider_account as account %}
+                <div>
+                  <label for="id_account_{{ base_account.id }}">
+                    <input id="id_account_{{ base_account.id }}" type="radio" name="account" value="{{ base_account.id }}"/>
+                    <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{account.get_brand.name}}</span>
+                    {{ account }}
+                  </label>
+                </div>
+                {% endwith %}
+                {% endfor %}
+                <div>
+                  <button type="submit">削除</button>
+                </div>
+              </fieldset>
+            </form>
+            {% else %}
+            <p>ソーシャルアカウントが紐付いておりません</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        {{ form.non_field_errors }}
+        {{ form.errors.username }}
+        {{ form.errors.password }}
+      </div>
+    </div>
+  </div>
+{% endblock %}

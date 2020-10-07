@@ -1,0 +1,46 @@
+{% load humanize %}
+{% load web_template %}
+<!--button-->
+<button type="button" class="btn btn-block btn-outline-primary" data-toggle="modal" data-target="#stock_tweets">
+  <i class="fab fa-twitter"></i> Tweets
+</button>
+
+<!-- Modal new_stock-->
+<div class="modal fade" id="stock_tweets" tabindex="-1" role="dialog" aria-labelledby="stock_tweets" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="stock_tweets_Label">
+          <i class="fab fa-twitter"></i> Tweets ({{keyword_tweet}})
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-responsive-sm">
+          {% for t in tweets %}
+          <tr>
+            <td>
+              <img src="{{t.user.profile_image_url_https}}">
+            </td>
+            <td>
+              <p>
+                {{t.created_at |datetime_twitter}}
+                <a href="https://twitter.com/{{t.user.screen_name}}">{{t.user.name}}</a>
+              </p>
+              <p>{{t.text}}</p>
+              <p><a href="https://twitter.com/098musiba/status/{{t.id}}">LINK</a></p>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <div class="modal-footer">
+        <a href="https://twitter.com/search?q={{keyword_tweet}}&src=typed_query" class="btn btn-info">
+          More Tweets <i class="fab fa-twitter-square"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
