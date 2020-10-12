@@ -7,3 +7,4 @@ venv/*
 cover/*
 .coverage*
 static/*
+icon.png
