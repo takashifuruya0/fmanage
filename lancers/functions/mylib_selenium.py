@@ -38,6 +38,9 @@ class Lancers:
         logger.info("closed the driver")
 
     def get_proposal(self, proposal_id):
+        """
+        提案
+        """
         url = "https://www.lancers.jp/work/proposal/{}".format(proposal_id)
         self.driver.get(url)
         # proposal
@@ -60,6 +63,54 @@ class Lancers:
         offer_url = self.driver.find_elements_by_class_name('naviTabs__item__anchor')[5].get_property('href')
         offer_id = offer_url.split("/")[-1]
         # offer
+        res_offer = self.get_offer(offer_id)
+        # res
+        res = {
+            "description_proposal": description_proposal,
+            "val_payment": val_payment,
+            "deadline": deadline,
+            "val": val,
+            "budget": budget,
+            "num_proposal": num_proposal,
+            "client_name": client_name,
+            "client_url": client_url,
+            "client_id": client_id,
+            "offer_url": offer_url,
+            "offer_id": offer_id,
+        }
+        res.update(res_offer)
+        return res
+
+    def get_direct_offer(self, direct_offer_id):
+        """
+        直接依頼
+        """
+        url = "https://www.lancers.jp/work_offer/{}".format(direct_offer_id)
+        self.driver.get(url)
+        vals = self.driver.find_elements_by_class_name("p-proposal-fee-calculators__number")
+        val_payment = int(vals[0].text.replace(",", ""))
+        val = int(vals[1].text.replace(",", ""))
+        date_desired_delivery = datetime.strptime(
+            self.driver.find_elements_by_class_name("worksummary__text")[2].text, "%Y年%m月%d日"
+        )
+        offer_id = self.driver.find_element_by_class_name("naviTabs__item__anchor").get_property("href").split("/")[-2]
+        # offer
+        res_offer = self.get_offer(offer_id)
+        # res
+        res = {
+            "val_payment": val_payment,
+            "val": val,
+            "date_desired_delivery": date_desired_delivery,
+            "offer_id": offer_id,
+        }
+        res.update(res_offer)
+        return res
+
+    def get_offer(self, offer_id):
+        """
+        依頼情報（提案、直接依頼で共通）
+        """
+        offer_url = "https://www.lancers.jp/work/detail/{}".format(offer_id)
         self.driver.get(offer_url)
         dd = self.driver.find_elements_by_class_name('workdetail-schedule__item__text')
         datetime_open_offer = datetime.strptime(dd[0].text, "%Y年%m月%d日 %H:%M")
@@ -75,19 +126,7 @@ class Lancers:
         detail_offer = {
             k.text: v.text for k, v in zip(dt, dd)
         }
-        # res
         res = {
-            "description_proposal": description_proposal,
-            "val_payment": val_payment,
-            "deadline": deadline,
-            "val": val,
-            "budget": budget,
-            "num_proposal": num_proposal,
-            "client_name": client_name,
-            "client_url": client_url,
-            "client_id": client_id,
-            "offer_url": offer_url,
-            "offer_id": offer_id,
             "datetime_open_offer": datetime_open_offer,
             "datetime_close_offer": datetime_close_offer,
             "date_desired_delivery": date_desired_delivery,
@@ -97,73 +136,11 @@ class Lancers:
         }
         return res
 
-    def get_offer(self, client_id):
-        url = "https://www.lancers.jp/work_offer/{}".format(client_id)
-        self.driver.get(url)
-
     def get_client(self, client_id):
+        """
+        クライアント
+        """
         url = "https://www.lancers.jp/client/{}".format(client_id)
         self.driver.get(url)
-
-"""
-a = lancers.driver.find_element_by_class_name('comment')
-b = lancers.driver.find_element_by_class_name('work-proposal-budget')
->>> b.text
-'20,000円\n~\n50,000円'
-
-
-xpath = "/html/body/div[4]/div[2]/table/tbody/tr/td[2]/div/div[3]/table/tbody/tr[3]/td"
-c = lancers.driver.find_element_by_xpath(xpath)
->>> c.text
-'10件'
-
- d = lancers.driver.find_element_by_class_name('client').find_element_by_tag_name('a')
->>> d.text
-'株式会社SYD'
->>> d.get_property('href')
-'https://www.lancers.jp/client/sydmatsuda'
-
-e = lancers.driver.find_element_by_class_name('proposal_amount_value')
->>> e.text
-'41,250 円'
-
-f = lancers.driver.find_element_by_class_name('proposal_amount_deadline')
->>> f.text
-'2020 年 10 月 07 日'
->>> f.text.replace(' ', '')
-'2020年10月07日'
-
-g = lancers.driver.find_element_by_class_name('p-proposal-fee-calculators__number')
->>> g.text
-'37,500'
->>> 
-
-
-h = lancers.driver.find_elements_by_class_name('naviTabs__item__anchor')[5]
->>> h.get_property('href')
-'https://www.lancers.jp/work/detail/3236157'
-
-ii = lancers.driver.find_elements_by_class_name('workdetail-schedule__item__text')
->>> for i in ii:
-...     i.text
-... 
-'2020年10月08日 23:46'
-'2020年10月13日 23:46'
-'2020年10月15日'
-'2020年10月09日 11:44'
-
-jj = lancers.driver.find_elements_by_class_name('definitionList__description')
->>> for j in jj:
-...     j.text
-... 
-'Django3にてスクレイピングを使用したサイトを作成しています。\nある程度実装はできたのですが、本番環境だと処理が色々と試していますが、中々上手くいかないので、本番環境でも問題なく動く、非同期処理の実装をお願いしたいです。\いします。\nあるウェブサイトで自動で様々な処理をするものですが、その処理を非同期で実施したいです。\n\n\n詳しいを使用しています。\n\n\nあくまで本番の同じAWSEC２で動くことを前提としています。\n\n\nいまいちわかっていない部あるかと思いますが、宜しくお願いします。'
-'分からないので、相談して決めさせていただければと思います。'
-'Python'
-'Django'
-'設定なし'
-'設定なし'
-'その他'
-'設計\nバックエンド開発'
-'サーバー'
-
-"""
+        res = {}
+        return res
