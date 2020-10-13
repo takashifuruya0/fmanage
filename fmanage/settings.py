@@ -308,3 +308,7 @@ CHOICES_TARGET_TYPE = ((c, c) for c in (
 CHOICES_ENTRY_TYPE = (
     ("短期", "短期"), ("中期", "中期"), ("長期", "長期"),
 )
+
+# LANCERS
+LANCERS_PASSWORD = env('LANCERS_PASSWORD')
+LANCERS_USER_ID = env('LANCERS_USER_ID')
