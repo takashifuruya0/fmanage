@@ -47,9 +47,9 @@ class Lancers:
         description_proposal = self.driver.find_element_by_class_name('comment').text
         val_payment_str = self.driver.find_element_by_class_name('proposal_amount_value').text
         val_payment = int(val_payment_str.replace(",", "").replace(" 円", ""))
-        deadline_str = self.driver.find_element_by_class_name('proposal_amount_deadline').text
-        deadline = datetime.strptime(deadline_str.replace(' ', ''), "%Y年%m月%d日")
-        val_str = self.driver.find_element_by_class_name('p-proposal-fee-calculators__number').text
+        date_proposed_delivery_str = self.driver.find_element_by_class_name('proposal_amount_deadline').text
+        date_proposed_delivery = datetime.strptime(date_proposed_delivery_str.replace(' ', ''), "%Y年%m月%d日")
+        val_str = self.driver.find_elements_by_class_name('p-proposal-fee-calculators__number')[6].text
         val = int(val_str.replace(",", "").replace(" 円", ""))
         budget = self.driver.find_element_by_class_name('work-proposal-budget').text.replace("\n", "")
         num_proposal_str = self.driver.find_element_by_xpath(
@@ -60,32 +60,34 @@ class Lancers:
         client_name = client.text
         client_url = client.get_property('href')
         client_id = client_url.split("/")[-1]
-        offer_url = self.driver.find_elements_by_class_name('naviTabs__item__anchor')[5].get_property('href')
-        offer_id = offer_url.split("/")[-1]
-        # offer
-        res_offer = self.get_offer(offer_id)
+        opportunity_url = self.driver.find_elements_by_class_name('naviTabs__item__anchor')[5].get_property('href')
+        opportunity_id = opportunity_url.split("/")[-1]
+        date_proposal = datetime.strptime(self.driver.find_element_by_id("suggestion").text[:-3], "%Y-%m-%d %H:%M").date()
+        # opportunity
+        res_opportunity = self.get_opportunity(opportunity_id)
         # res
         res = {
             "description_proposal": description_proposal,
             "val_payment": val_payment,
-            "deadline": deadline,
+            "date_proposed_delivery": date_proposed_delivery,
             "val": val,
             "budget": budget,
             "num_proposal": num_proposal,
             "client_name": client_name,
             "client_url": client_url,
             "client_id": client_id,
-            "offer_url": offer_url,
-            "offer_id": offer_id,
+            "opportunity_url": opportunity_url,
+            "opportunity_id": opportunity_id,
+            "date_proposal": date_proposal,
         }
-        res.update(res_offer)
+        res.update(res_opportunity)
         return res
 
-    def get_direct_offer(self, direct_offer_id):
+    def get_direct_opportunity(self, direct_opportunity_id):
         """
         直接依頼
         """
-        url = "https://www.lancers.jp/work_offer/{}".format(direct_offer_id)
+        url = "https://www.lancers.jp/work_offer/{}".format(direct_opportunity_id)
         self.driver.get(url)
         vals = self.driver.find_elements_by_class_name("p-proposal-fee-calculators__number")
         val_payment = int(vals[0].text.replace(",", ""))
@@ -93,46 +95,48 @@ class Lancers:
         date_desired_delivery = datetime.strptime(
             self.driver.find_elements_by_class_name("worksummary__text")[2].text, "%Y年%m月%d日"
         )
-        offer_id = self.driver.find_element_by_class_name("naviTabs__item__anchor").get_property("href").split("/")[-2]
-        # offer
-        res_offer = self.get_offer(offer_id)
+        opportunity_id = self.driver.find_element_by_class_name("naviTabs__item__anchor").get_property("href").split("/")[-2]
+        # opportunity
+        res_opportunity = self.get_opportunity(opportunity_id)
         # res
         res = {
             "val_payment": val_payment,
             "val": val,
             "date_desired_delivery": date_desired_delivery,
-            "offer_id": offer_id,
+            "opportunity_id": opportunity_id,
         }
-        res.update(res_offer)
+        res.update(res_opportunity)
         return res
 
-    def get_offer(self, offer_id):
+    def get_opportunity(self, opportunity_id):
         """
         依頼情報（提案、直接依頼で共通）
         """
-        offer_url = "https://www.lancers.jp/work/detail/{}".format(offer_id)
-        self.driver.get(offer_url)
+        opportunity_url = "https://www.lancers.jp/work/detail/{}".format(opportunity_id)
+        self.driver.get(opportunity_url)
         dd = self.driver.find_elements_by_class_name('workdetail-schedule__item__text')
-        datetime_open_offer = datetime.strptime(dd[0].text, "%Y年%m月%d日 %H:%M")
-        datetime_close_offer = datetime.strptime(dd[1].text, "%Y年%m月%d日 %H:%M")
+        datetime_open_opportunity = datetime.strptime(dd[0].text, "%Y年%m月%d日 %H:%M")
+        datetime_close_opportunity = datetime.strptime(dd[1].text, "%Y年%m月%d日 %H:%M")
         date_desired_delivery = datetime.strptime(dd[2].text, "%Y年%m月%d日")
         if dd.__len__() > 3:
-            datetime_updated_offer = datetime.strptime(dd[3].text, "%Y年%m月%d日 %H:%M")
+            datetime_updated_opportunity = datetime.strptime(dd[3].text, "%Y年%m月%d日 %H:%M")
         else:
-            datetime_updated_offer = datetime_open_offer
+            datetime_updated_opportunity = datetime_open_opportunity
         dd = self.driver.find_elements_by_class_name('definitionList__description')
         dt = self.driver.find_elements_by_class_name('definitionList__term')
-        description_offer = dd[0].text
-        detail_offer = {
+        description_opportunity = dd[0].text
+        detail_opportunity = {
             k.text: v.text for k, v in zip(dt, dd)
         }
+        name = self.driver.title.split("の依頼")[0]
         res = {
-            "datetime_open_offer": datetime_open_offer,
-            "datetime_close_offer": datetime_close_offer,
+            "datetime_open_opportunity": datetime_open_opportunity,
+            "datetime_close_opportunity": datetime_close_opportunity,
             "date_desired_delivery": date_desired_delivery,
-            "datetime_updated_offer": datetime_updated_offer,
-            "description_offer": description_offer,
-            "detail_offer": detail_offer,
+            "datetime_updated_opportunity": datetime_updated_opportunity,
+            "description_opportunity": description_opportunity,
+            "detail_opportunity": detail_opportunity,
+            "name": name,
         }
         return res
 
