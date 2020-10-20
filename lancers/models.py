@@ -62,7 +62,7 @@ class Client(BaseModel):
         verbose_name_plural = "クライアント"
 
     def __str__(self):
-        return self.name
+        return "【{}】{}".format(self.client_id, self.name)
 
 
 class Opportunity(BaseModel):
@@ -78,6 +78,13 @@ class Opportunity(BaseModel):
     # 共通
     name = models.CharField(max_length=100, verbose_name="案件名")
     opportunity_id = models.CharField(max_length=30, verbose_name="案件ID")
+    direct_opportunity_id = models.CharField(max_length=30, verbose_name="直接依頼ID", null=True, blank=True)
+    related_opportunity = models.ManyToManyField(
+        "self", verbose_name="関連案件", blank=True,
+        limit_choices_to={
+            "type__in": ("直接受注", "提案受注"),
+        }
+    )
     client = models.ForeignKey(Client, verbose_name="クライアント", on_delete=models.CASCADE)
     status = models.CharField(max_length=10, verbose_name="ステータス", choices=CHOICES_STATUS_OPPORTUNITY)
     type = models.CharField(max_length=10, verbose_name="タイプ", choices=CHOICES_TYPE_OPPORTUNITY)
@@ -91,20 +98,22 @@ class Opportunity(BaseModel):
     val_payment = models.IntegerField(verbose_name="クライアント支払額（税込）", null=True, blank=True)
     val = models.IntegerField(verbose_name="報酬額（税込）")
     description_opportunity = models.TextField(verbose_name="依頼内容", null=True, blank=True)
+    detail_opportunity = JSONField(verbose_name="依頼詳細（JSON）", null=True, blank=True)
     budget = models.CharField(max_length=20, verbose_name="予算", null=True, blank=True)
     datetime_open_opportunity = models.DateTimeField(verbose_name="依頼開始日時", null=True, blank=True)
     datetime_close_opportunity = models.DateTimeField(verbose_name="依頼締切日時", null=True, blank=True)
     date_desired_delivery = models.DateField(verbose_name="希望納期", null=True, blank=True)
     datetime_updated_opportunity = models.DateTimeField(verbose_name="依頼更新日時", null=True, blank=True)
     # 提案
+    proposal_id = models.CharField(max_length=30, verbose_name="提案ID", null=True, blank=True)
     date_proposal = models.DateField(verbose_name="提案日", null=True, blank=True)
     description_proposal = models.TextField(verbose_name="提案内容", null=True, blank=True)
-    detail_opportunity = JSONField(verbose_name="提案詳細（JSON）", null=True, blank=True)
     date_proposed_delivery = models.DateField(verbose_name="提案納期", null=True, blank=True)
     num_proposal = models.IntegerField(verbose_name="提案件数", null=True, blank=True)
-    # 関連
-    related_opportunity = models.ManyToManyField("self", verbose_name="関連案件", blank=True)
+    # 検討
     memo = models.TextField(verbose_name="メモ", null=True, blank=True)
+    drive_url = models.URLField(verbose_name="GoogleDrive", null=True, blank=True)
+    knowledge_url = models.URLField(verbose_name="Knowledge", null=True, blank=True)
 
     """META"""
     class Meta:
@@ -112,7 +121,7 @@ class Opportunity(BaseModel):
         verbose_name_plural = "案件"
 
     def __str__(self):
-        return self.name
+        return "【{}】{}".format(self.opportunity_id, self.name)
 
     def get_working_time(self):
         works = self.opportunitywork_set.all()

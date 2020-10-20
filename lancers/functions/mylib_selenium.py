@@ -18,16 +18,27 @@ class Lancers:
             options.add_argument('--headless')
             options.add_argument('--window-size=1280,1024')
             self.driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=options)
+            self.driver.implicitly_wait(10)  # seconds
         elif settings.ENVIRONMENT == 'develop':
             # mac
             self.driver = webdriver.Chrome('/usr/local/bin/chromedriver')
+            self.driver.implicitly_wait(10)  # seconds
+            self.driver.set_page_load_timeout(10)
         logger.info("the driver has started")
         self.driver.get("https://www.lancers.jp/user/login?ref=header_menu")
+        time.sleep(3)
+        if self.driver.title == "404 Not Found":
+            self.close()
+            print("Failed to launch")
         self.driver.find_element_by_name('data[User][password]').send_keys(settings.LANCERS_PASSWORD)
         self.driver.find_element_by_name('data[User][email]').send_keys(settings.LANCERS_USER_ID)
         self.driver.find_element_by_id('form_submit').click()
         logger.info("login Lancers")
         self.driver.get("https://www.lancers.jp/mypage")
+        time.sleep(3)
+        if self.driver.title == "404 Not Found":
+            self.close()
+            print("Failed to launch")
 
     def __del__(self):
         self.driver.close()
@@ -42,7 +53,15 @@ class Lancers:
         提案
         """
         url = "https://www.lancers.jp/work/proposal/{}".format(proposal_id)
-        self.driver.get(url)
+        for i in range(3):
+            self.driver.get(url)
+            time.sleep(3)
+            if self.driver.title == "404 Not Found":
+                print("Retry {}".format(i))
+                if i == 2:
+                    raise Exception("Failed to access {}".format(url))
+            else:
+                break
         # proposal
         description_proposal = self.driver.find_element_by_class_name('comment').text
         val_payment_str = self.driver.find_element_by_class_name('proposal_amount_value').text
@@ -60,11 +79,19 @@ class Lancers:
         client_name = client.text
         client_url = client.get_property('href')
         client_id = client_url.split("/")[-1]
-        opportunity_url = self.driver.find_elements_by_class_name('naviTabs__item__anchor')[5].get_property('href')
-        opportunity_id = opportunity_url.split("/")[-1]
+        opportunity_url = self.driver.find_elements_by_class_name('naviTabs__item__anchor')
         date_proposal = datetime.strptime(self.driver.find_element_by_id("suggestion").text[:-3], "%Y-%m-%d %H:%M").date()
-        # opportunity
-        res_opportunity = self.get_opportunity(opportunity_id)
+        if opportunity_url.__len__() > 5:
+            opportunity_url = opportunity_url[5].get_property('href')
+            opportunity_id = opportunity_url.split("/")[-1]
+            res_opportunity = self.get_opportunity(opportunity_id)
+        elif opportunity_url.__len__() == 2:
+            opportunity_url = opportunity_url[0].get_property('href')
+            opportunity_id = opportunity_url.split("/")[-1]
+            res_opportunity = self.get_opportunity(opportunity_id)
+        else:
+            opportunity_url = None
+            opportunity_id = ""
         # res
         res = {
             "description_proposal": description_proposal,
@@ -79,8 +106,11 @@ class Lancers:
             "opportunity_url": opportunity_url,
             "opportunity_id": opportunity_id,
             "date_proposal": date_proposal,
+            "proposal_id": proposal_id,
+            "type": "提案受注",
         }
-        res.update(res_opportunity)
+        if opportunity_url:
+            res.update(res_opportunity)
         return res
 
     def get_direct_opportunity(self, direct_opportunity_id):
@@ -88,10 +118,18 @@ class Lancers:
         直接依頼
         """
         url = "https://www.lancers.jp/work_offer/{}".format(direct_opportunity_id)
-        self.driver.get(url)
-        vals = self.driver.find_elements_by_class_name("p-proposal-fee-calculators__number")
-        val_payment = int(vals[0].text.replace(",", ""))
-        val = int(vals[1].text.replace(",", ""))
+        for i in range(3):
+            self.driver.get(url)
+            time.sleep(3)
+            if self.driver.title == "404 Not Found":
+                print("Retry {}".format(i))
+                if i == 2:
+                    raise Exception("Failed to access {}".format(url))
+            else:
+                break
+        vals = self.driver.find_elements_by_class_name("p-work-create-private-start-calculator__col-number")
+        val_payment = int(vals[2].text.replace(",", ""))
+        val = int(vals[7].text.replace(",", ""))
         date_desired_delivery = datetime.strptime(
             self.driver.find_elements_by_class_name("worksummary__text")[2].text, "%Y年%m月%d日"
         )
@@ -104,6 +142,8 @@ class Lancers:
             "val": val,
             "date_desired_delivery": date_desired_delivery,
             "opportunity_id": opportunity_id,
+            "type": "直接受注",
+            "direct_opportunity_id": direct_opportunity_id,
         }
         res.update(res_opportunity)
         return res
@@ -113,7 +153,15 @@ class Lancers:
         依頼情報（提案、直接依頼で共通）
         """
         opportunity_url = "https://www.lancers.jp/work/detail/{}".format(opportunity_id)
-        self.driver.get(opportunity_url)
+        for i in range(3):
+            self.driver.get(opportunity_url)
+            time.sleep(3)
+            if self.driver.title == "404 Not Found":
+                print("Retry {}".format(i))
+                if i == 2:
+                    raise Exception("Failed to access {}".format(opportunity_url))
+            else:
+                break
         dd = self.driver.find_elements_by_class_name('workdetail-schedule__item__text')
         datetime_open_opportunity = datetime.strptime(dd[0].text, "%Y年%m月%d日 %H:%M")
         datetime_close_opportunity = datetime.strptime(dd[1].text, "%Y年%m月%d日 %H:%M")
@@ -146,5 +194,6 @@ class Lancers:
         """
         url = "https://www.lancers.jp/client/{}".format(client_id)
         self.driver.get(url)
+        time.sleep(3)
         res = {}
         return res
