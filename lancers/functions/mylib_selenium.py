@@ -25,7 +25,7 @@ class Lancers:
             self.driver.implicitly_wait(10)  # seconds
             self.driver.set_page_load_timeout(10)
         logger.info("the driver has started")
-        self.driver.get("https://www.lancers.jp/user/login?ref=header_menu")
+        self.driver.get("https://www.lancers.jp/user/login")
         time.sleep(3)
         if self.driver.title == "404 Not Found":
             self.close()
@@ -127,6 +127,8 @@ class Lancers:
                     raise Exception("Failed to access {}".format(url))
             else:
                 break
+        self.driver.find_element_by_id("topHiddenDetail").click()
+        self.driver.find_element_by_id("bottomHiddenDetail").click()
         vals = self.driver.find_elements_by_class_name("p-work-create-private-start-calculator__col-number")
         val_payment = int(vals[2].text.replace(",", ""))
         val = int(vals[7].text.replace(",", ""))
@@ -134,6 +136,15 @@ class Lancers:
             self.driver.find_elements_by_class_name("worksummary__text")[2].text, "%Y年%m月%d日"
         )
         opportunity_id = self.driver.find_element_by_class_name("naviTabs__item__anchor").get_property("href").split("/")[-2]
+        # client
+        clients = self.driver.find_elements_by_class_name('c-link')
+        if clients.__len__() == 10:
+            client = clients[0]
+        elif clients.__len__() == 11:
+            client = clients[1]
+        client_url = client.get_property('href')
+        client_name = client.text
+        client_id = client_url.split("/")[-1]
         # opportunity
         res_opportunity = self.get_opportunity(opportunity_id)
         # res
@@ -144,6 +155,9 @@ class Lancers:
             "opportunity_id": opportunity_id,
             "type": "直接受注",
             "direct_opportunity_id": direct_opportunity_id,
+            "client_url": client_url,
+            "client_name": client_name,
+            "client_id": client_id,
         }
         res.update(res_opportunity)
         return res

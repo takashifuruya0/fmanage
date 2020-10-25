@@ -1,6 +1,9 @@
 from lancers.functions import mylib_selenium
-from lancers.models import Client, Opportunity
+from lancers.models import Client, Opportunity, Category, OpportunityWork
 from django.contrib.auth import get_user_model
+import requests
+from datetime import datetime
+from pprint import pprint
 
 
 def create_opportunity(opportunity_id):
@@ -83,77 +86,111 @@ def create_direct_opportunity(direct_opportunity_id):
     return o
 
 
-def test():
+def test3(is_direct=True, is_proposal=True):
+    url = "https://script.google.com/macros/s/AKfycbz_SWwkiNpdnWHUOx_WF1i1kRZYu0I-gKo5N_-1wuzHH1yjm2tS/exec"
+    r = requests.get(url)
+    data = r.json()['data']
+    di = {
+        "直接受注": [],
+        "提案受注": [],
+        "else": [],
+    }
+    for d in data:
+        text_splited = d[3].split("/")
+        if text_splited.__len__() > 3:
+            if text_splited[-2] == "proposal" and is_proposal:
+                di["提案受注"].append(
+                    {
+                        "id": text_splited[-1],
+                        "status": d[4],
+                        "category": d[5],
+                        "working_time": d[13],
+                        "is_working": d[15],
+                        "memo": d[21],
+                    }
+                )
+            elif text_splited[-2] == "work_offer" and is_direct:
+                di["直接受注"].append(
+                    {
+                        "id": text_splited[-1],
+                        "status": d[4],
+                        "category": d[5],
+                        "working_time": d[13],
+                        "is_working": d[15],
+                    }
+                )
+        else:
+            di["else"].append(
+                {
+                    "id": None,
+                    "status": d[4],
+                    "category": d[5],
+                    "working_time": d[13],
+                    "is_working": d[15],
+                    "memo": d[21],
+                    "date_proposal": d[1],
+                    "date_open": d[10],
+                    "date_close": d[11],
+                    "name": d[2],
+                    "val_payment": d[8],
+                    "val": d[9],
+                }
+            )
+    pprint(di)
+    #
     u = get_user_model().objects.get(pk=1)
-    opps = [
-        "https://www.lancers.jp/work/detail/2407503",
-        "https://www.lancers.jp/work/detail/2429450",
-        "https://www.lancers.jp/work/detail/2452668",
-        "https://www.lancers.jp/work/detail/2440293",
-        "https://www.lancers.jp/work/detail/2420065",
-        "https://www.lancers.jp/work/detail/2419566",
-        "https://www.lancers.jp/work/detail/2414393",
-        "https://www.lancers.jp/work/detail/2418068",
-        "https://www.lancers.jp/work/detail/2407889",
-        "https://www.lancers.jp/work/detail/2259534",
-        "https://www.lancers.jp/work/detail/2453635",
-        "https://www.lancers.jp/work/detail/2459384",
-        "https://www.lancers.jp/work/detail/2474906",
-        "https://www.lancers.jp/work/detail/2478681",
-        "https://www.lancers.jp/work/detail/2479074",
-        "https://www.lancers.jp/work/detail/2496537",
-        "https://www.lancers.jp/work/detail/2519039",
-        "https://www.lancers.jp/work/detail/2525492",
-        "https://www.lancers.jp/work/detail/2524208",
-        "https://www.lancers.jp/work/detail/2557282",
-        "https://www.lancers.jp/work/detail/2576411",
-        "https://www.lancers.jp/work/detail/2581271",
-        "https://www.lancers.jp/work/detail/2598296",
-        "https://www.lancers.jp/work/detail/2612439",
-        "https://www.lancers.jp/work/detail/2631199",
-        "https://www.lancers.jp/work/detail/2639620",
-        "https://www.lancers.jp/work/detail/2690840",
-    ]
-    offers = [
-        "https://www.lancers.jp/work_offer/12057",
-        "https://www.lancers.jp/work_offer/15496",
-        "https://www.lancers.jp/work_offer/17517",
-        "https://www.lancers.jp/work_offer/30214",
-        "https://www.lancers.jp/work_offer/122775",
-        "https://www.lancers.jp/work_offer/128941",
-        "https://www.lancers.jp/work_offer/145240",
-    ]
-    proposals = [
-        "https://www.lancers.jp/work/proposal/13568113",
-        "https://www.lancers.jp/work/proposal/14504320",
-        "https://www.lancers.jp/work/proposal/14504345",
-        "https://www.lancers.jp/work/proposal/15417729",
-        "https://www.lancers.jp/work/proposal/15418275",
-        "https://www.lancers.jp/work/proposal/15455496",
-        "https://www.lancers.jp/work/proposal/15465271",
-        "https://www.lancers.jp/work/proposal/15599411",
-        "https://www.lancers.jp/work/proposal/15729105",
-        "https://www.lancers.jp/work/proposal/15897890",
-        "https://www.lancers.jp/work/proposal/15939361",
-        "https://www.lancers.jp/work/proposal/16028315",
-        "https://www.lancers.jp/work/proposal/16233079",
-        "https://www.lancers.jp/work/proposal/16233016",
-        "https://www.lancers.jp/work/proposal/16447669",
-        "https://www.lancers.jp/work/proposal/16473569",
-        "https://www.lancers.jp/work/proposal/16588101",
-        "https://www.lancers.jp/work/proposal/16665174",
-        "https://www.lancers.jp/work/proposal/16873554",
-        "https://www.lancers.jp/work/proposal/16876989",
-        "https://www.lancers.jp/work/proposal/16981836",
-        "https://www.lancers.jp/work/proposal/17002628",
-        "https://www.lancers.jp/work/proposal/17043330",
-        "https://www.lancers.jp/work/proposal/17093480",
-    ]
     d = mylib_selenium.Lancers()
     errors = 0
     done = 0
-    for prop in proposals:
-        proposal_id = prop.split("/")[-1]
+    for i in di['直接受注']:
+        if Category.objects.filter(name=i['category']).count() == 1:
+            category = Category.objects.get(name=i['category'])
+        else:
+            category = Category(name=i['category'])
+            category.save_from_shell(u)
+        direct_opportunity_id = i['id']
+        print(direct_opportunity_id)
+        try:
+            res = d.get_direct_opportunity(direct_opportunity_id)
+            res.pop("client_url")
+            if Client.objects.filter(client_id=res['client_id']).exists():
+                c = Client.objects.get(client_id=res.pop('client_id'))
+                res.pop('client_name')
+            else:
+                c = Client()
+                c.name = res.pop('client_name')
+                c.client_id = res.pop('client_id')
+                c.save_from_shell(u)
+            o = Opportunity(**res)
+            o.client = c
+            if i["status"] == "選定" and i['is_working']:
+                o.status = "選定/作業中"
+            elif i["status"] == "選定" and not i['is_working']:
+                o.status = "選定/終了"
+            else:
+                o.status = i["status"]
+            o.type = "直接受注"
+            o.category = category
+            o.sub_categories.add(category)
+            o.memo = i["memo"]
+            o.save_from_shell(u)
+            # working_time
+            if i["working_time"]:
+                ow = OpportunityWork()
+                ow.opportunity = o
+                ow.working_time = i["working_time"] * 60
+                ow.save_from_shell(u)
+            done += 1
+        except Exception as e:
+            print(e)
+            errors += 1
+    for i in di['提案受注']:
+        if Category.objects.filter(name=i['category']).count() == 1:
+            category = Category.objects.get(name=i['category'])
+        else:
+            category = Category(name=i['category'])
+            category.save_from_shell(u)
+        proposal_id = i['id']
         print(proposal_id)
         try:
             res = d.get_proposal(proposal_id)
@@ -169,37 +206,57 @@ def test():
                 c.save_from_shell(u)
             o = Opportunity(**res)
             o.client = c
-            o.status = "提案中"
-            o.type = "提案受注"
-            o.save_from_shell(u)
-            done += 1
-        except Exception as e:
-            print(e)
-            errors += 1
-    for do in offers:
-        direct_opportunity_id = do.split("/")[-1]
-        print(direct_opportunity_id)
-        try:
-            res = d.get_direct_opportunity(direct_opportunity_id)
-            res.pop("opportunity_url")
-            res.pop("client_url")
-            if Client.objects.filter(client_id=res['client_id']).exists():
-                c = Client.objects.get(client_id=res.pop('client_id'))
-                res.pop('client_name')
+            if i["status"] == "選定" and i['is_working']:
+                o.status = "選定/作業中"
+            elif i["status"] == "選定" and not i['is_working']:
+                o.status = "選定/終了"
             else:
-                c = Client()
-                c.name = res.pop('client_name')
-                c.client_id = res.pop('client_id')
-                c.save_from_shell(u)
-            o = Opportunity(**res)
-            o.client = c
-            o.status = "提案中"
-            o.type = "直接受注"
+                o.status = i["status"]
+            o.type = "提案受注"
+            o.category = category
+            o.sub_categories.add(category)
+            o.memo = i["memo"]
             o.save_from_shell(u)
+            # working_time
+            if i["working_time"]:
+                ow = OpportunityWork()
+                ow.opportunity = o
+                ow.working_time = i["working_time"] * 60
+                ow.save_from_shell(u)
             done += 1
         except Exception as e:
             print(e)
             errors += 1
-    d.close()
-    return [done, errors]
 
+    # for i in di['else']:
+    #     if Category.objects.filter(name=i['category']).count() == 1:
+    #         category = Category.objects.get(name=i['category'])
+    #     else:
+    #         category = Category(name=i['category'])
+    #         category.save_from_shell(u)
+    #     o = Opportunity()
+    #     o.val = i['val']
+    #     o.val_payment = i['val_payment']
+    #     if i["status"] == "選定" and i['is_working']:
+    #         o.status = "選定/作業中"
+    #     elif i["status"] == "選定" and not i['is_working']:
+    #         o.status = "選定/終了"
+    #     else:
+    #         o.status = i["status"]
+    #     o.type = "直接受注"
+    #     o.category = category
+    #     o.sub_categories.add(category)
+    #     o.memo = i["memo"]
+    #     o.date_proposal = datetime.strptime(i['date_proposal'], "%Y-%m-%dT%H:%M").date()
+    #     o.datetime_close_opportunity = datetime.strptime(i['date_close'], "%Y-%m-%dT%H:%M")
+    #     o.datetime_open_opportunity = datetime.strptime(i['date_open'], "%Y-%m-%dT%H:%M")
+    #     o.save_from_shell(u)
+    #     # working_time
+    #     if i["working_time"]:
+    #         ow = OpportunityWork()
+    #         ow.opportunity = o
+    #         ow.working_time = i["working_time"] * 60
+    #         ow.save_from_shell(u)
+
+    d.close()
+    return [done, errors, di]

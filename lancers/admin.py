@@ -4,9 +4,40 @@ from django.utils.safestring import mark_safe
 # Register your models here.
 
 
+class OpportunityInline(admin.TabularInline):
+    model = Opportunity
+    fields = (
+        "val", "status", "type", "_get_val", "_get_working_time", "_get_unit_val",
+    )
+    readonly_fields = (
+        "name", "val", "status", "type", "_get_val", "_get_working_time", "_get_unit_val",
+    )
+    min_num = 1
+
+    def _get_val(self, obj):
+        return obj.get_val()
+    _get_val.short_description = '報酬額合計（税込）'
+
+    def _get_working_time(self, obj):
+        return obj.get_working_time()
+    _get_working_time.short_description = '労働時間合計（分）'
+
+    def _get_unit_val(self, obj):
+        return obj.get_unit_val()
+    _get_unit_val.short_description = '単価（円/h）'
+
+
 class ClientAdmin(admin.ModelAdmin):
-    list_display = ("name", "client_id", "is_nonlancers")
-    readonly_fields = ("created_by", "created_at", "last_updated_by", "last_updated_at")
+    list_display = ("name", "client_id", "is_nonlancers", "_get_num_opportunities", )
+    readonly_fields = (
+        "created_by", "created_at", "last_updated_by", "last_updated_at",
+        "_get_num_opportunities",
+    )
+    inlines = [OpportunityInline]
+
+    def _get_num_opportunities(self, obj):
+        return obj.opportunity_set.count()
+    _get_num_opportunities.short_description = '案件数'
 
 
 class OpportunityWorkInline(admin.TabularInline):
@@ -26,6 +57,7 @@ class OpportunityAdmin(admin.ModelAdmin):
         "_get_val", "_get_working_time", "_get_unit_val",
         "_get_opportunity_url", "_get_proposal_url",
     )
+    list_filter = ("status", "category", )
 
     def _get_val(self, obj):
         return obj.get_val()

@@ -77,7 +77,7 @@ class Opportunity(BaseModel):
     objects = None
     # 共通
     name = models.CharField(max_length=100, verbose_name="案件名")
-    opportunity_id = models.CharField(max_length=30, verbose_name="案件ID")
+    opportunity_id = models.CharField(max_length=30, verbose_name="案件ID", null=True, blank=True)
     direct_opportunity_id = models.CharField(max_length=30, verbose_name="直接依頼ID", null=True, blank=True)
     related_opportunity = models.ManyToManyField(
         "self", verbose_name="関連案件", blank=True,
