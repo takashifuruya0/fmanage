@@ -4,6 +4,16 @@ from django.utils.safestring import mark_safe
 # Register your models here.
 
 
+class RelatedOpportunityInline(admin.TabularInline):
+    model = Opportunity.related_opportunity.through
+    fk_name = "from_opportunity"
+    verbose_name = "関連案件"
+    verbose_name_plural = "関連案件"
+    # https://www.366service.com/jp/qa/3336ea0ab72de9e60ab3a72a5059ef96
+    # def get_queryset(self, request):
+    #     return Opportunity.objects.filter(type="追加受注")
+
+
 class OpportunityInline(admin.TabularInline):
     model = Opportunity
     fields = (
@@ -13,6 +23,7 @@ class OpportunityInline(admin.TabularInline):
         "name", "val", "status", "type", "_get_val", "_get_working_time", "_get_unit_val",
     )
     min_num = 1
+    show_change_link = True
 
     def _get_val(self, obj):
         return obj.get_val()
@@ -46,10 +57,16 @@ class OpportunityWorkInline(admin.TabularInline):
 
 
 class OpportunityAdmin(admin.ModelAdmin):
-    inlines = [OpportunityWorkInline]
+    inlines = [
+        OpportunityWorkInline,
+        # RelatedOpportunityInline
+    ]
+    search_fields = ("name", "client__name")
+    filter_horizontal = ('sub_categories', 'related_opportunity',)
+
     list_display = (
         "name", "opportunity_id", "client", "category", "status", "type",
-        "_get_val", "_get_working_time", "_get_unit_val",
+        # "_get_val", "_get_working_time", "_get_unit_val",
         "_get_opportunity_url", "_get_proposal_url",
     )
     readonly_fields = (
@@ -102,7 +119,7 @@ class OpportunityAdmin(admin.ModelAdmin):
                 ("direct_opportunity_id", ),
                 "related_opportunity",
                 "status", "type",
-                ("category", "sub_categories"),
+                "category", "sub_categories",
             )
         }),
         ("依頼情報", {

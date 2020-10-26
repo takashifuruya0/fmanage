@@ -82,7 +82,7 @@ class Opportunity(BaseModel):
     related_opportunity = models.ManyToManyField(
         "self", verbose_name="関連案件", blank=True,
         limit_choices_to={
-            "type__in": ("直接受注", "提案受注"),
+            "is_active": True,
         }
     )
     client = models.ForeignKey(Client, verbose_name="クライアント", on_delete=models.CASCADE)
@@ -183,3 +183,12 @@ class OpportunityWork(BaseModel):
         else:
             # カレンダー登録されていない→working_time
             return self.working_time
+
+    def save(self, *args, **kwargs):
+        if self.working_time:
+            super(OpportunityWork, self).save()
+        elif self.datetime_start and self.datetime_end:
+            self.working_time = int((self.datetime_end-self.datetime_start).seconds/60)
+            super(OpportunityWork, self).save()
+        else:
+            raise Exception('労働時間の登録が必要です')
