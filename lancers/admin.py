@@ -59,8 +59,8 @@ class OpportunityInline(admin.TabularInline):
     _get_val.short_description = '報酬額合計（税込）'
 
     def _get_working_time(self, obj):
-        return obj.get_working_time()
-    _get_working_time.short_description = '労働時間合計（分）'
+        return obj.get_working_time(is_hour=True)
+    _get_working_time.short_description = '労働時間合計（時間）'
 
     def _get_unit_val(self, obj):
         return obj.get_unit_val()
@@ -108,6 +108,7 @@ class OpportunityAdmin(ImportExportModelAdmin):
         "_get_opportunity_url", "_get_proposal_url",
     )
     list_filter = ("status", "category", )
+    actions = ["_action", ]
     resource_class = OpportunityResource
 
     def _get_val(self, obj):
@@ -115,8 +116,8 @@ class OpportunityAdmin(ImportExportModelAdmin):
     _get_val.short_description = '報酬額合計（税込）'
 
     def _get_working_time(self, obj):
-        return obj.get_working_time()
-    _get_working_time.short_description = '労働時間合計（分）'
+        return obj.get_working_time(is_hour=True)
+    _get_working_time.short_description = '労働時間合計（時間）'
 
     def _get_unit_val(self, obj):
         return obj.get_unit_val()
@@ -139,6 +140,11 @@ class OpportunityAdmin(ImportExportModelAdmin):
                 "<a target='_blank' rel='noopener noreferrer' href=https://www.lancers.jp/work/proposal/{}>LINK</a>".format(obj.proposal_id)
             )
     _get_proposal_url.short_description = "提案URL"
+
+    def _action(self, request, queryset):
+        for obj in queryset:
+            print(obj.name)
+    _action.short_description = "アクション"
 
     fieldsets = (
         ("システム情報", {

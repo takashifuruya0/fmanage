@@ -125,15 +125,16 @@ class Opportunity(BaseModel):
     def __str__(self):
         return "【{}】{}".format(self.opportunity_id, self.name)
 
-    def get_working_time(self):
+    def get_working_time(self, is_hour=False):
         works = self.opportunitywork_set.all()
         ros = self.related_opportunity.all()
         if works.count() == 0 or self.type == "追加受注":
-            return 0
+            sum_work = 0
         elif ros.count() > 0:
-            return sum([ro.get_working_time() for ro in ros]) + sum([work.get_working_time() for work in works])
+            sum_work = sum([ro.get_working_time() for ro in ros]) + sum([work.get_working_time() for work in works])
         else:
-            return sum([work.get_working_time() for work in works])
+            sum_work = sum([work.get_working_time() for work in works])
+        return sum_work/60 if is_hour else sum_work
 
     def get_unit_val(self):
         working_time = self.get_working_time()
@@ -178,12 +179,10 @@ class OpportunityWork(BaseModel):
         pk_zfill = str(self.pk).zfill(4)
         return "OW{}_{}".format(pk_zfill, self.opportunity)
 
-    def get_working_time(self):
-        if self.is_in_calendar:
-            # カレンダー登録されている→差分の時間
-            return int((self.datetime_end-self.datetime_start).seconds/60)
+    def get_working_time(self, is_hour=False):
+        if is_hour:
+            return self.working_time / 60
         else:
-            # カレンダー登録されていない→working_time
             return self.working_time
 
     def save(self, *args, **kwargs):

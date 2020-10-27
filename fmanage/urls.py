@@ -42,4 +42,5 @@ urlpatterns = [
     url(r'^nams/', include('web.urls', namespace='web')),
     url(r'^document/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     url(r'^drm/', include(router.urls)),
+    path('lancers/', include('lancers.urls'), name='lancers'),
 ]
