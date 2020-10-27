@@ -40,7 +40,7 @@ class BaseModel(models.Model):
 
 class Category(BaseModel):
     objects = None
-    name = models.CharField(max_length=30, verbose_name="カテゴリー名")
+    name = models.CharField(max_length=255, verbose_name="カテゴリー名")
     memo = models.TextField(verbose_name="メモ", null=True, blank=True)
 
     class Meta:
@@ -53,8 +53,8 @@ class Category(BaseModel):
 
 class Client(BaseModel):
     objects = None
-    name = models.CharField(max_length=30, verbose_name="クライアント名")
-    client_id = models.CharField(max_length=30, verbose_name="クライアントID")
+    name = models.CharField(max_length=255, verbose_name="クライアント名")
+    client_id = models.CharField(max_length=255, verbose_name="クライアントID")
     is_nonlancers = models.BooleanField(default=False, verbose_name="ランサーズ以外")
 
     class Meta:
@@ -76,9 +76,9 @@ class Opportunity(BaseModel):
     """FIELDS"""
     objects = None
     # 共通
-    name = models.CharField(max_length=100, verbose_name="案件名")
-    opportunity_id = models.CharField(max_length=30, verbose_name="案件ID", null=True, blank=True)
-    direct_opportunity_id = models.CharField(max_length=30, verbose_name="直接依頼ID", null=True, blank=True)
+    name = models.CharField(max_length=255, verbose_name="案件名")
+    opportunity_id = models.CharField(max_length=255, verbose_name="案件ID", null=True, blank=True)
+    direct_opportunity_id = models.CharField(max_length=255, verbose_name="直接依頼ID", null=True, blank=True)
     related_opportunity = models.ManyToManyField(
         "self", verbose_name="関連案件", blank=True,
         limit_choices_to={
@@ -88,8 +88,8 @@ class Opportunity(BaseModel):
     date_open = models.DateField(verbose_name="案件開始日", blank=True, null=True)
     date_close = models.DateField(verbose_name="案件終了日", blank=True, null=True)
     client = models.ForeignKey(Client, verbose_name="クライアント", on_delete=models.CASCADE)
-    status = models.CharField(max_length=10, verbose_name="ステータス", choices=CHOICES_STATUS_OPPORTUNITY)
-    type = models.CharField(max_length=10, verbose_name="タイプ", choices=CHOICES_TYPE_OPPORTUNITY)
+    status = models.CharField(max_length=255, verbose_name="ステータス", choices=CHOICES_STATUS_OPPORTUNITY)
+    type = models.CharField(max_length=255, verbose_name="タイプ", choices=CHOICES_TYPE_OPPORTUNITY)
     category = models.ForeignKey(
         Category, verbose_name="カテゴリー", on_delete=models.CASCADE, null=True, blank=True
     )
@@ -101,13 +101,13 @@ class Opportunity(BaseModel):
     val = models.IntegerField(verbose_name="報酬額（税込）")
     description_opportunity = models.TextField(verbose_name="依頼内容", null=True, blank=True)
     detail_opportunity = JSONField(verbose_name="依頼詳細（JSON）", null=True, blank=True)
-    budget = models.CharField(max_length=20, verbose_name="予算", null=True, blank=True)
+    budget = models.CharField(max_length=255, verbose_name="予算", null=True, blank=True)
     datetime_open_opportunity = models.DateTimeField(verbose_name="依頼開始日時", null=True, blank=True)
     datetime_close_opportunity = models.DateTimeField(verbose_name="依頼締切日時", null=True, blank=True)
     date_desired_delivery = models.DateField(verbose_name="希望納期", null=True, blank=True)
     datetime_updated_opportunity = models.DateTimeField(verbose_name="依頼更新日時", null=True, blank=True)
     # 提案
-    proposal_id = models.CharField(max_length=30, verbose_name="提案ID", null=True, blank=True)
+    proposal_id = models.CharField(max_length=255, verbose_name="提案ID", null=True, blank=True)
     date_proposal = models.DateField(verbose_name="提案日", null=True, blank=True)
     description_proposal = models.TextField(verbose_name="提案内容", null=True, blank=True)
     date_proposed_delivery = models.DateField(verbose_name="提案納期", null=True, blank=True)
