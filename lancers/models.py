@@ -85,6 +85,8 @@ class Opportunity(BaseModel):
             "is_active": True,
         }
     )
+    date_open = models.DateField(verbose_name="案件開始日", blank=True, null=True)
+    date_close = models.DateField(verbose_name="案件終了日", blank=True, null=True)
     client = models.ForeignKey(Client, verbose_name="クライアント", on_delete=models.CASCADE)
     status = models.CharField(max_length=10, verbose_name="ステータス", choices=CHOICES_STATUS_OPPORTUNITY)
     type = models.CharField(max_length=10, verbose_name="タイプ", choices=CHOICES_TYPE_OPPORTUNITY)

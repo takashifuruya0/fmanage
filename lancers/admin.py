@@ -1,9 +1,38 @@
 from django.contrib import admin
 from lancers.models import *
 from django.utils.safestring import mark_safe
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+from import_export.formats import base_formats
 # Register your models here.
 
 
+# ===========================
+# Resource
+# ===========================
+class CategoryResource(resources.ModelResource):
+    class Meta:
+        model = Category
+
+
+class ClientResource(resources.ModelResource):
+    class Meta:
+        model = Client
+
+
+class OpportunityResource(resources.ModelResource):
+    class Meta:
+        model = Opportunity
+
+
+class OpportunityWorkResource(resources.ModelResource):
+    class Meta:
+        model = OpportunityWork
+
+
+# ===========================
+# Inline
+# ===========================
 class RelatedOpportunityInline(admin.TabularInline):
     model = Opportunity.related_opportunity.through
     fk_name = "from_opportunity"
@@ -38,33 +67,37 @@ class OpportunityInline(admin.TabularInline):
     _get_unit_val.short_description = '単価（円/h）'
 
 
-class ClientAdmin(admin.ModelAdmin):
+class OpportunityWorkInline(admin.TabularInline):
+    model = OpportunityWork
+    exclude = ("memo", )
+
+
+# ===========================
+# Admin
+# ===========================
+class ClientAdmin(ImportExportModelAdmin):
     list_display = ("name", "client_id", "is_nonlancers", "_get_num_opportunities", )
     readonly_fields = (
         "created_by", "created_at", "last_updated_by", "last_updated_at",
         "_get_num_opportunities",
     )
     inlines = [OpportunityInline]
+    resource_class = ClientResource
 
     def _get_num_opportunities(self, obj):
         return obj.opportunity_set.count()
     _get_num_opportunities.short_description = '案件数'
 
 
-class OpportunityWorkInline(admin.TabularInline):
-    model = OpportunityWork
-    exclude = ("memo", )
-
-
-class OpportunityAdmin(admin.ModelAdmin):
+class OpportunityAdmin(ImportExportModelAdmin):
     inlines = [
         OpportunityWorkInline,
         # RelatedOpportunityInline
     ]
     search_fields = ("name", "client__name")
     filter_horizontal = ('sub_categories', 'related_opportunity',)
-
     list_display = (
+        "pk", "date_open", "date_close",
         "name", "opportunity_id", "client", "category", "status", "type",
         # "_get_val", "_get_working_time", "_get_unit_val",
         "_get_opportunity_url", "_get_proposal_url",
@@ -75,6 +108,7 @@ class OpportunityAdmin(admin.ModelAdmin):
         "_get_opportunity_url", "_get_proposal_url",
     )
     list_filter = ("status", "category", )
+    resource_class = OpportunityResource
 
     def _get_val(self, obj):
         return obj.get_val()
@@ -116,6 +150,7 @@ class OpportunityAdmin(admin.ModelAdmin):
         ("基本情報", {
             "fields": (
                 "name", ("opportunity_id", "_get_opportunity_url",),
+                "date_open", "date_close",
                 ("direct_opportunity_id", ),
                 "related_opportunity",
                 "status", "type",
@@ -151,12 +186,20 @@ class OpportunityAdmin(admin.ModelAdmin):
     )
 
 
-class OpportunityWorkAdmin(admin.ModelAdmin):
+class OpportunityWorkAdmin(ImportExportModelAdmin):
     list_display = ("opportunity", "is_in_calendar", "get_working_time")
     readonly_fields = ("created_by", "created_at", "last_updated_by", "last_updated_at")
+    resource_class = OpportunityWorkResource
 
 
+class CategoryAdmin(ImportExportModelAdmin):
+    resource_class = CategoryResource
+
+
+# ===========================
+# Register
+# ===========================
 admin.site.register(Client, ClientAdmin)
 admin.site.register(Opportunity, OpportunityAdmin)
-admin.site.register(Category)
+admin.site.register(Category, CategoryAdmin)
 admin.site.register(OpportunityWork, OpportunityWorkAdmin)
