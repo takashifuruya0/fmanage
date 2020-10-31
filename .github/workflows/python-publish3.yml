@@ -1,0 +1,28 @@
+name: Test and Deploy 
+
+on:
+  push:
+    branches: [ develop, master ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.7, ]
+
+    steps:
+    - name: deploy
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        SSH_USER: ${{ secrets.SSH_USER }}
+        SSH_ADDR: ${{ secrets.SSH_ADDR }}
+        SSH_COMMAND: ${{ secrets.SSH_COMMAND }}
+      run: |
+        echo "${SECRET_KEY}" > secret_key
+        chmod 600 secret_key
+        ssh -oStrictHostKeyChecking=no ${SSH_USER}@${SSH_ADDR} -i secret_key "${SSH_COMMAND}"
