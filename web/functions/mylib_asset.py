@@ -228,6 +228,7 @@ def order_process(order, user=None):
             # entry紐付け
             if entry.remaining() >= order.num:
                 order.entry = entry
+                order.is_nisa = entry.is_nisa
                 order.save()
                 logger.info("{} is linked to {}".format(order, entry))
             else:
