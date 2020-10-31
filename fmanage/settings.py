@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'command',
     "asset",
     'web',
+    'lancers',
     'django_extensions',
     'django.contrib.humanize',
     'pure_pagination',
@@ -74,6 +75,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_currentuser.middleware.ThreadLocalUserMiddleware',
 ]
 
 ROOT_URLCONF = 'fmanage.urls'
@@ -308,3 +310,13 @@ CHOICES_TARGET_TYPE = ((c, c) for c in (
 CHOICES_ENTRY_TYPE = (
     ("短期", "短期"), ("中期", "中期"), ("長期", "長期"),
 )
+
+# LANCERS
+LANCERS_PASSWORD = env('LANCERS_PASSWORD')
+LANCERS_USER_ID = env('LANCERS_USER_ID')
+CHOICES_STATUS_OPPORTUNITY = [
+    (k, k) for k in ("相談中", "提案中", "選定/作業中", "選定/終了", "キャンセル", "落選")
+]
+CHOICES_TYPE_OPPORTUNITY = [
+    (k, k) for k in ("直接受注", "提案受注", "追加受注")
+]

@@ -1,0 +1,107 @@
+{% extends "kakeibo/base.html" %}
+{% load humanize %}
+{% load web_template %}
+{% block title %}
+    Lancers Dashboard
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-12">
+			<h3>
+				<i class="fas fa-laptop-code"></i> Lancers Dashboard
+			</h3>
+		</div>
+	</div>
+
+	<hr>
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header bg-primary text-white">
+					<h4>
+						<i class="fas fa-user"></i> Overview
+					</h4>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-12">
+							<h5 class="card-title">
+								<i class="fas fa-briefcase"></i> 活動中の案件
+							</h5>
+							<table class="table table-responsive-xs">
+								<tr>
+									<th>ID</th>
+									<th>開始日</th>
+									<th>案件名</th>
+									<th>種類</th>
+									<th>ステータス</th>
+									<th>カテゴリー</th>
+									<th class="right">報酬見込み</th>
+									<th class="right">稼働実績（分）</th>
+								</tr>
+								{% for oo in open_opps %}
+								<tr>
+									<td>
+										<a href="/admin/lancers/opportunity/{{oo.pk}}">{{oo.pk}}</a>
+									</td>
+									<td>{{oo.date_open}}</td>
+									<td>{{oo.name}}</td>
+									<td>{{oo.type}}</td>
+									<td>{{oo.status}}</td>
+									<td>{{oo.category}}</td>
+									<td class="right">{{oo.val |yen}}</td>
+									<td class="right">{{oo.get_working_time |intcomma}}</td>
+								</tr>
+								{% endfor %}
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="card-footer">
+					<a class="btn btn-info" href="/admin/lancers/opportunity">
+						<i class="fas fa-list"></i> 商談一覧
+					</a>
+					<a class="btn btn-info" href="/admin/lancers/client">
+						<i class="fas fa-list"></i> クライアント一覧
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<hr>
+	<div class="row">
+    <div class="col-12">
+	    <div class="card">
+		    <div class="card-header bg-warning text-black">
+					<h4>
+						<i class="far fa-hand-point-right"></i> 登録
+					</h4>
+		    </div>
+
+		    <div class="card-body">
+					<div class="row">
+						<div class="col-12 col-md-12">
+							<h5 class="card-title">
+								<i class="fas fa-seedling"></i> 直接受注/提案受注
+							</h5>
+							<form method="POST" action="{%url 'lancers:form_opportunity' %}">
+								<table class="table table-responsive-sm">
+									{% csrf_token %}
+									{{opp_form.as_table}}
+								</table>
+								<button type="submit" class="btn btn-primary">登録</button>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="card-footer">
+		    </div>
+	    </div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
