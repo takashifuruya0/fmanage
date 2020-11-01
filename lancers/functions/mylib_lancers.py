@@ -202,6 +202,9 @@ def migrate_from_ss(is_direct=True, is_proposal=True, is_else=True):
         for i in di['直接受注']:
             direct_opportunity_id = i['id']
             print(direct_opportunity_id)
+            if Opportunity.objects.filter(direct_opportunity_id=direct_opportunity_id).exists():
+                print("PASS")
+                continue
             try:
                 res = d.get_direct_opportunity(direct_opportunity_id)
             except Exception as e:
@@ -218,6 +221,9 @@ def migrate_from_ss(is_direct=True, is_proposal=True, is_else=True):
         for i in di['提案受注']:
             proposal_id = i['id']
             print(proposal_id)
+            if Opportunity.objects.filter(proposal_id=proposal_id).exists():
+                print("PASS")
+                continue
             try:
                 res = d.get_proposal(proposal_id)
             except Exception as e:
@@ -263,7 +269,7 @@ def create_opportunity2(oppid, u, type_opp, category_name, status, memo, is_link
             res = d.get_direct_opportunity(oppid)
             res.pop('client_url')
         elif type_opp == "提案受注":
-            res = d.get_proposal(proposal_id)
+            res = d.get_proposal(oppid)
             res.pop("opportunity_url")
             res.pop("client_url")
         d.close()
