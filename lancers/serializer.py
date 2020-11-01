@@ -16,6 +16,13 @@ class ClientSerializer(serializers.ModelSerializer):
         client.save_from_shell(u)
         return client
 
+    def update(self, instance, validated_data):
+        for k, v in validated_data.items():
+            setattr(instance, k, v)
+        u = get_user_model().objects.first()
+        instance.save_from_shell(u)
+        return instance
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,6 +34,13 @@ class CategorySerializer(serializers.ModelSerializer):
         u = get_user_model().objects.first()
         category.save_from_shell(u)
         return category
+
+    def update(self, instance, validated_data):
+        for k, v in validated_data.items():
+            setattr(instance, k, v)
+        u = get_user_model().objects.first()
+        instance.save_from_shell(u)
+        return instance
 
 
 class OpportunitySerializer(serializers.ModelSerializer):
@@ -40,6 +54,13 @@ class OpportunitySerializer(serializers.ModelSerializer):
         opportunity.save_from_shell(u)
         return opportunity
 
+    def update(self, instance, validated_data):
+        for k, v in validated_data.items():
+            setattr(instance, k, v)
+        u = get_user_model().objects.first()
+        instance.save_from_shell(u)
+        return instance
+
 
 class OpportunityWorkSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,3 +72,10 @@ class OpportunityWorkSerializer(serializers.ModelSerializer):
         u = get_user_model().objects.first()
         opportunitywork.save_from_shell(u)
         return opportunitywork
+
+    def update(self, instance, validated_data):
+        for k, v in validated_data.items():
+            setattr(instance, k, v)
+        u = get_user_model().objects.first()
+        instance.save_from_shell(u)
+        return instance
