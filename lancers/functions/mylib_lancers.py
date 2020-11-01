@@ -151,7 +151,7 @@ def _migrate_opportunity(i, res, u, type_opp, is_linked_to_client=True):
         return result
 
 
-def migrate_from_ss(is_direct=True, is_proposal=True, is_else=True):
+def migrate_from_ss(is_direct=True, is_proposal=True, is_else=False):
     url = "https://script.google.com/macros/s/AKfycbz_SWwkiNpdnWHUOx_WF1i1kRZYu0I-gKo5N_-1wuzHH1yjm2tS/exec"
     r = requests.get(url)
     data = r.json()['data']
