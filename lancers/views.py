@@ -1,7 +1,6 @@
 from django.shortcuts import render, reverse, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, FormView, View
-from django_currentuser.middleware import get_current_authenticated_user
 from lancers.models import *
 from lancers.forms import *
 from django.contrib import messages
@@ -13,6 +12,8 @@ from lancers.serializer import ClientSerializer, CategorySerializer, Opportunity
 from datetime import date, datetime, timezone, timedelta
 import json
 import requests
+import logging
+logger = logging.getLogger("django")
 # Create your views here.
 
 
@@ -70,7 +71,7 @@ class OpportunityWorkViewSet(viewsets.ModelViewSet):
     serializer_class = OpportunityWorkSerializer
 
 
-class SyncOppView(LoginRequiredMixin, View):
+class SyncToProdView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         JST = timezone(timedelta(hours=+9), 'JST')
         if settings.ENVIRONMENT == "develop":
@@ -96,12 +97,12 @@ class SyncOppView(LoginRequiredMixin, View):
                     last_updated_at = datetime.strptime(check['last_updated_at'][:-13], "%Y-%m-%dT%H:%M:%S")
                     if client.last_updated_at > last_updated_at.replace(tzinfo=timezone.utc):
                         r = requests.patch(url, json.dumps(data), headers=headers)
-                        print("C{}".format(check['id']))
+                        logger.info("C{}".format(check['id']))
                     else:
-                        print("{} {}".format(client.last_updated_at, last_updated_at.replace(tzinfo=JST)))
+                        logger.info("{} {}".format(client.last_updated_at, last_updated_at.replace(tzinfo=JST)))
                         r = None
                 else:
-                    print("Cnew")
+                    logger.info("Cnew")
                     url = "https://www.fk-management.com/drm/lancers/client/"
                     r = requests.post(url, json.dumps(data), headers=headers)
                 if r is None:
@@ -113,7 +114,7 @@ class SyncOppView(LoginRequiredMixin, View):
                 else:
                     error += 1
                     error_list.append("C{}".format(client.id))
-                    print(r.json())
+                    logger.warning(r.json())
             # Opportunity
             opps = Opportunity.objects.all()
             for opp in opps:
@@ -128,12 +129,12 @@ class SyncOppView(LoginRequiredMixin, View):
                     last_updated_at = datetime.strptime(check['last_updated_at'][:-13], "%Y-%m-%dT%H:%M:%S")
                     if opp.last_updated_at > last_updated_at.replace(tzinfo=timezone.utc):
                         r = requests.patch(url, json.dumps(data), headers=headers)
-                        print("O{}".format(check['id']))
+                        logger.info("O{}".format(check['id']))
                     else:
-                        print("{} {}".format(opp.last_updated_at, last_updated_at.replace(tzinfo=JST)))
+                        logger.info("{} {}".format(opp.last_updated_at, last_updated_at.replace(tzinfo=JST)))
                         r = None
                 else:
-                    print("Onew")
+                    logger.info("Onew")
                     data['client'] = data.pop("client_id")
                     data['category'] = data.pop("category_id")
                     url = "https://www.fk-management.com/drm/lancers/opportunity/"
@@ -147,8 +148,8 @@ class SyncOppView(LoginRequiredMixin, View):
                 else:
                     error += 1
                     error_list.append("O{}".format(opp.id))
-                    print(r.json())
-                print("{} {}".format(opp.id, r.status_code))
+                    logger.warning(r.json())
+                logger.info("{} {}".format(opp.id, r.status_code))
             # OpportunityWork
             ows = OpportunityWork.objects.all()
             for ow in ows:
@@ -163,12 +164,12 @@ class SyncOppView(LoginRequiredMixin, View):
                     last_updated_at = datetime.strptime(check['last_updated_at'][:-13], "%Y-%m-%dT%H:%M:%S")
                     if opp.last_updated_at > last_updated_at.replace(tzinfo=timezone.utc):
                         r = requests.patch(url, json.dumps(data), headers=headers)
-                        print("OW{}".format(check['id']))
+                        logger.info("OW{}".format(check['id']))
                     else:
-                        print("{} {}".format(ow.last_updated_at, last_updated_at.replace(tzinfo=JST)))
+                        logger.info("{} {}".format(ow.last_updated_at, last_updated_at.replace(tzinfo=JST)))
                         r = None
                 else:
-                    print("OWnew")
+                    logger.info("OWnew")
                     data['opportunity'] = data.pop("opportunity_id")
                     url = "https://www.fk-management.com/drm/lancers/opportunitywork/"
                     r = requests.post(url, json.dumps(data), headers=headers)
@@ -181,8 +182,8 @@ class SyncOppView(LoginRequiredMixin, View):
                 else:
                     error += 1
                     error_list.append("OW{}".format(ow.id))
-                    print(r.json())
-                print("{} {}".format(opp.id, r.status_code))
+                    logger.warning(r.json())
+                logger.info("{} {}".format(opp.id, r.status_code))
             messages.success(request, "Success: {} / Added {} / Error: {}".format(success, added, error))
             if error > 0:
                 messages.warning(request, "Error list: {}".format(error_list))
