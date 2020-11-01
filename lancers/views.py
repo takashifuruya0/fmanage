@@ -44,7 +44,7 @@ class OpportunityFormView(LoginRequiredMixin, FormView):
 
 
 class ClientViewSet(viewsets.ModelViewSet):
-    # permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
 
