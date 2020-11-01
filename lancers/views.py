@@ -6,6 +6,10 @@ from lancers.models import *
 from lancers.forms import *
 from django.contrib import messages
 from lancers.functions import mylib_lancers
+# DjangoRestFramework
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from lancers.serializer import ClientSerializer, CategorySerializer, OpportunitySerializer, OpportunityWorkSerializer
 # Create your views here.
 
 
@@ -37,3 +41,27 @@ class OpportunityFormView(LoginRequiredMixin, FormView):
             memo=form.cleaned_data['memo'],
         )
         return res
+
+
+class ClientViewSet(viewsets.ModelViewSet):
+    # permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = Client.objects.all()
+    serializer_class = ClientSerializer
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class OpportunityViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = Opportunity.objects.all()
+    serializer_class = OpportunitySerializer
+
+
+class OpportunityWorkViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = OpportunityWork.objects.all()
+    serializer_class = OpportunityWorkSerializer

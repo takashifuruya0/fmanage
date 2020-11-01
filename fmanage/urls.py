@@ -24,11 +24,12 @@ from django.views.generic import RedirectView
 from rest_framework import routers
 from asset.urls import router as asset_router
 from kakeibo.urls import router as kakeibo_router
-
+from lancers.urls import router as lancers_router
 
 router = routers.DefaultRouter()
 router.registry.extend(asset_router.registry)
 router.registry.extend(kakeibo_router.registry)
+router.registry.extend(lancers_router.registry)
 
 
 urlpatterns = [
@@ -41,6 +42,6 @@ urlpatterns = [
     # url(r'^account/', include('accounts.urls', namespace='account')),
     url(r'^nams/', include('web.urls', namespace='web')),
     url(r'^document/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    url(r'^drm/', include(router.urls)),
     path('lancers/', include('lancers.urls'), name='lancers'),
+    url(r'^drm/', include(router.urls)),
 ]
