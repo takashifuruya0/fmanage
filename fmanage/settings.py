@@ -320,3 +320,4 @@ CHOICES_STATUS_OPPORTUNITY = [
 CHOICES_TYPE_OPPORTUNITY = [
     (k, k) for k in ("直接受注", "提案受注", "追加受注")
 ]
+TOKEN_DRF = None

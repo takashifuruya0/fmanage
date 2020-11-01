@@ -1,7 +1,7 @@
 # coding:utf-8
 # from django.conf.urls import url
 from django.urls import include, path
-from lancers.views import Main, OpportunityFormView
+from lancers.views import Main, OpportunityFormView, SyncOppView
 # django-rest-framework
 from rest_framework import routers
 from lancers.views import ClientViewSet, CategoryViewSet, OpportunityViewSet, OpportunityWorkViewSet
@@ -12,6 +12,7 @@ urlpatterns = [
     # dashboard
     path('', Main.as_view(), name='main'),
     path('form/opportunity', OpportunityFormView.as_view(), name='form_opportunity'),
+    path('sync', SyncOppView.as_view(), name='sync'),
 ]
 
 router = routers.DefaultRouter()
