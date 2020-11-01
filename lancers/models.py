@@ -156,7 +156,6 @@ class OpportunityWork(BaseModel):
         Opportunity, verbose_name="案件", on_delete=models.CASCADE,
         limit_choices_to={
             "type__in": ("直接受注", "提案受注"),
-            "status__in": ("相談中", "提案中", "選定/作業中", ),
         }
     )
     datetime_start = models.DateTimeField(verbose_name="開始時間", null=True, blank=True)

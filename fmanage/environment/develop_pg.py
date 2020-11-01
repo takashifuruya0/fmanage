@@ -24,3 +24,5 @@ LOGGING['loggers'] = {
         'level': 'DEBUG',
     },
 }
+
+TOKEN_DRF = env("DRF_TOKEN")
