@@ -124,10 +124,12 @@ class SyncToProdView(LoginRequiredMixin, View):
                 data = dict()
                 for k, v in raw_data.items():
                     data[k] = str(v) if isinstance(v, datetime) or isinstance(v, date) else v
+                data['client'] = data.pop("client_id")
+                data['category'] = data.pop("category_id")
                 check = requests.get(url, headers).json()
                 if "id" in check.keys():
                     last_updated_at = datetime.strptime(check['last_updated_at'][:-13], "%Y-%m-%dT%H:%M:%S")
-                    if opp.last_updated_at > last_updated_at.replace(tzinfo=timezone.utc):
+                    if opp.last_updated_at > last_updated_at.replace(tzinfo=JST):
                         r = requests.patch(url, json.dumps(data), headers=headers)
                         logger.info("O{}".format(check['id']))
                     else:
@@ -135,8 +137,6 @@ class SyncToProdView(LoginRequiredMixin, View):
                         r = None
                 else:
                     logger.info("Onew")
-                    data['client'] = data.pop("client_id")
-                    data['category'] = data.pop("category_id")
                     url = "https://www.fk-management.com/drm/lancers/opportunity/"
                     r = requests.post(url, json.dumps(data), headers=headers)
                 if r is None:
@@ -159,10 +159,11 @@ class SyncToProdView(LoginRequiredMixin, View):
                 data = dict()
                 for k, v in raw_data.items():
                     data[k] = str(v) if isinstance(v, datetime) or isinstance(v, date) else v
+                data['opportunity'] = data.pop("opportunity_id")
                 check = requests.get(url, headers).json()
                 if "id" in check.keys():
                     last_updated_at = datetime.strptime(check['last_updated_at'][:-13], "%Y-%m-%dT%H:%M:%S")
-                    if opp.last_updated_at > last_updated_at.replace(tzinfo=timezone.utc):
+                    if opp.last_updated_at > last_updated_at.replace(tzinfo=JST):
                         r = requests.patch(url, json.dumps(data), headers=headers)
                         logger.info("OW{}".format(check['id']))
                     else:
@@ -170,7 +171,6 @@ class SyncToProdView(LoginRequiredMixin, View):
                         r = None
                 else:
                     logger.info("OWnew")
-                    data['opportunity'] = data.pop("opportunity_id")
                     url = "https://www.fk-management.com/drm/lancers/opportunitywork/"
                     r = requests.post(url, json.dumps(data), headers=headers)
                 if r is None:

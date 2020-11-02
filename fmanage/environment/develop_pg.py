@@ -22,6 +22,7 @@ DATABASES['default'].update(db_from_env)
 LOGGING['loggers'] = {
     'django': {
         'level': 'DEBUG',
+        'handlers': ['console'],
     },
 }
 
