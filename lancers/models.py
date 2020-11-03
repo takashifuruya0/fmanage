@@ -179,10 +179,10 @@ class OpportunityWork(BaseModel):
             return self.working_time
 
     def save(self, *args, **kwargs):
-        if self.working_time:
-            super(OpportunityWork, self).save()
-        elif self.datetime_start and self.datetime_end:
+        if self.datetime_start and self.datetime_end:
             self.working_time = int((self.datetime_end-self.datetime_start).seconds/60)
+            super(OpportunityWork, self).save()
+        elif self.working_time:
             super(OpportunityWork, self).save()
         else:
             raise Exception('労働時間の登録が必要です')
