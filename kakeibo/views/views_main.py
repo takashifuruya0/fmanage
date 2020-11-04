@@ -28,7 +28,7 @@ from kakeibo.functions import process_kakeibo
 
 
 @login_required
-@staff_member_required
+# @staff_member_required
 @time_measure
 def dashboard(request):
     today = date.today()
@@ -112,7 +112,7 @@ def dashboard(request):
 
 
 @login_required
-@staff_member_required
+# @staff_member_required
 @time_measure
 def mine(request):
     today = date.today()
@@ -294,7 +294,7 @@ def shared(request):
 
 
 @login_required
-@staff_member_required
+# @staff_member_required
 @time_measure
 def credit(request):
     # check year and month from GET parameter
@@ -357,7 +357,7 @@ def credit(request):
 
 
 @time_measure
-@staff_member_required
+# @staff_member_required
 def link_kakeibo_and_credit(request):
     if request.method == "POST":
         messages.info(request, request.POST)
@@ -459,7 +459,7 @@ def link_kakeibo_and_credit(request):
         return TemplateResponse(request, 'kakeibo/link_kakeibo_and_credit.html', output)
 
 
-@method_decorator(staff_member_required, name='dispatch')
+# @method_decorator(staff_member_required, name='dispatch')
 class ReadCSVView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         try:

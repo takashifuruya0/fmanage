@@ -17,7 +17,7 @@ from kakeibo.forms import KakeiboForm, SharedKakeiboForm, EventForm
 
 
 # Create your views here.
-@method_decorator(staff_member_required, name='dispatch')
+# @method_decorator(staff_member_required, name='dispatch')
 class KakeiboCreate(LoginRequiredMixin, CreateView):
     model = Kakeibos
     form_class = KakeiboForm
@@ -63,7 +63,7 @@ class SharedCreate(CreateView):
         return reverse('kakeibo:shared_detail', kwargs={'pk': self.object.pk})
 
 
-@method_decorator(staff_member_required, name='dispatch')
+# @method_decorator(staff_member_required, name='dispatch')
 class EventCreate(LoginRequiredMixin, CreateView):
     model = Event
     form_class = EventForm

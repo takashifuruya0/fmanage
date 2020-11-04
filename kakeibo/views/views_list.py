@@ -22,7 +22,7 @@ from kakeibo.functions.mylib import time_measure
 
 
 # Create your views here.
-@method_decorator(staff_member_required, name='dispatch')
+# @method_decorator(staff_member_required, name='dispatch')
 class KakeiboList(PaginationMixin, LoginRequiredMixin, ListView):
     model = Kakeibos
     ordering = ['-date']
@@ -88,7 +88,7 @@ class SharedList(PaginationMixin, ListView):
         return queryset
 
 
-@method_decorator(staff_member_required, name='dispatch')
+# @method_decorator(staff_member_required, name='dispatch')
 class CreditList(PaginationMixin, LoginRequiredMixin, ListView):
     model = Credits
     ordering = ['-date']
@@ -123,7 +123,7 @@ class CreditList(PaginationMixin, LoginRequiredMixin, ListView):
         return queryset
 
 
-@method_decorator(staff_member_required, name='dispatch')
+# @method_decorator(staff_member_required, name='dispatch')
 class CreditItemList(PaginationMixin, LoginRequiredMixin, ListView):
     model = CreditItems
     paginate_by = 20
@@ -146,7 +146,7 @@ class CreditItemList(PaginationMixin, LoginRequiredMixin, ListView):
         return queryset
 
 
-@method_decorator(staff_member_required, name='dispatch')
+# @method_decorator(staff_member_required, name='dispatch')
 class UsageList(PaginationMixin, LoginRequiredMixin, ListView):
     model = Usages
     paginate_by = 20
@@ -177,7 +177,7 @@ class UsageList(PaginationMixin, LoginRequiredMixin, ListView):
         return redirect('kakeibo:usage_list')
 
 
-@method_decorator(staff_member_required, name='dispatch')
+# @method_decorator(staff_member_required, name='dispatch')
 class EventList(PaginationMixin, LoginRequiredMixin, ListView):
     model = Event
     paginate_by = 20
