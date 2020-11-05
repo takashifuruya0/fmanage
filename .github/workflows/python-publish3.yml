@@ -15,6 +15,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Prepare Env
+      run: |
+        echo "TEST=test" > .env
+        echo "TRELLO_KEY=1" >> .env
+        echo "TRELLO_TOKEN=1" >> .env
+        echo "GOLDPOINT_ID=1" >> .env
+        echo "GOLDPOINT_PASSWORD=1" >> .env
+        echo "CELERY_ENVIRONMENT=fmanage.settings" >> .env
+        echo "URL_SLACK_NAMS=1" >> .env
+        echo "LANCERS_PASSWORD=1" >> .env
+        echo "LANCERS_USER_ID=1" >> .env
+        echo "DRF_TOKEN=1" >> .env
     - name: Install dependencies
       run: |
         sudo apt-get install python3-setuptools
