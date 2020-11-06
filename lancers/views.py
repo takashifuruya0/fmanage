@@ -52,7 +52,7 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     filter_fields = (
-        "name", 'client_id',
+        "name", 'client_id', "sync_id",
     )
 
 
@@ -60,7 +60,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_fields = ('name', )
+    filter_fields = ('name', "sync_id",)
 
 
 class OpportunityViewSet(viewsets.ModelViewSet):
@@ -68,7 +68,7 @@ class OpportunityViewSet(viewsets.ModelViewSet):
     queryset = Opportunity.objects.all()
     serializer_class = OpportunitySerializer
     filter_fields = (
-        "name", 'opportunity_id', "direct_opportunity_id",
+        "name", 'opportunity_id', "direct_opportunity_id", "sync_id",
     )
 
 
@@ -76,6 +76,7 @@ class OpportunityWorkViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = OpportunityWork.objects.all()
     serializer_class = OpportunityWorkSerializer
+    filter_fields = ("sync_id", )
 
 
 class SyncToProdView(LoginRequiredMixin, View):
