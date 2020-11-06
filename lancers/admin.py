@@ -153,6 +153,7 @@ class OpportunityAdmin(ImportExportModelAdmin):
             "fields": (
                 ("created_at", "created_by"),
                 ("last_updated_at", "last_updated_by"),
+                "sync_id",
             )
         }),
         ("基本情報", {

@@ -51,18 +51,25 @@ class ClientViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
+    filter_fields = (
+        "name", 'client_id',
+    )
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filter_fields = ('name', )
 
 
 class OpportunityViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Opportunity.objects.all()
     serializer_class = OpportunitySerializer
+    filter_fields = (
+        "name", 'opportunity_id', "direct_opportunity_id",
+    )
 
 
 class OpportunityWorkViewSet(viewsets.ModelViewSet):
