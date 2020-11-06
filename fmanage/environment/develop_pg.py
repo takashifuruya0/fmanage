@@ -19,8 +19,20 @@ db_from_env = dj_database_url.config(conn_max_age=400)
 DATABASES['default'].update(db_from_env)
 
 # Logging
+LOGGING['handlers'] = {
+    'console': {
+        'level': 'DEBUG',
+        'filters': ['require_debug_true'],
+        'class': 'logging.StreamHandler',
+        'formatter': 'verbose',
+    },
+}
 LOGGING['loggers'] = {
     'django': {
+        'level': 'INFO',
+        'handlers': ['console'],
+    },
+    'django.db.backends': {
         'level': 'DEBUG',
         'handlers': ['console'],
     },

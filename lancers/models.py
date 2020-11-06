@@ -22,6 +22,7 @@ class BaseModel(models.Model):
         verbose_name="最終更新者", editable=False
     )
     is_active = models.BooleanField(default=True, verbose_name="有効")
+    sync_id = models.IntegerField(verbose_name="連携ID", blank=True, null=True)
 
     class Meta:
         abstract = True

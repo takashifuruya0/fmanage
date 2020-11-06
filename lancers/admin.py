@@ -83,6 +83,7 @@ class ClientAdmin(ImportExportModelAdmin):
     )
     inlines = [OpportunityInline]
     resource_class = ClientResource
+    search_fields = ("name", "client_id", )
 
     def _get_num_opportunities(self, obj):
         return obj.opportunity_set.count()
@@ -94,7 +95,7 @@ class OpportunityAdmin(ImportExportModelAdmin):
         OpportunityWorkInline,
         # RelatedOpportunityInline
     ]
-    search_fields = ("name", "client__name")
+    search_fields = ("name", "client__name", )
     filter_horizontal = ('sub_categories', 'related_opportunity',)
     list_display = (
         "pk", "date_open", "date_close",
@@ -110,6 +111,7 @@ class OpportunityAdmin(ImportExportModelAdmin):
     list_filter = ("status", "category", )
     actions = ["_action", ]
     resource_class = OpportunityResource
+    autocomplete_fields = ("client", "category", )
 
     def _get_val(self, obj):
         return obj.get_val()
@@ -151,6 +153,7 @@ class OpportunityAdmin(ImportExportModelAdmin):
             "fields": (
                 ("created_at", "created_by"),
                 ("last_updated_at", "last_updated_by"),
+                "sync_id",
             )
         }),
         ("基本情報", {
@@ -200,6 +203,7 @@ class OpportunityWorkAdmin(ImportExportModelAdmin):
 
 class CategoryAdmin(ImportExportModelAdmin):
     resource_class = CategoryResource
+    search_fields = ("name", )
 
 
 # ===========================
