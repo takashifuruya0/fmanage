@@ -316,3 +316,60 @@ def create_opportunity2(oppid, u, type_opp, category_name, status, memo, is_link
         result = False
     finally:
         return result
+
+
+def update_opportunity2(opportunity, is_from_shell=False):
+    try:
+        d = mylib_selenium.Lancers()
+        if opportunity.type == "直接受注" and opportunity.direct_opportunity_id:
+            res = d.get_direct_opportunity(opportunity.direct_opportunity_id)
+            res.pop('client_url')
+        elif opportunity.type == "提案受注" and opportunity.proposal_id:
+            res = d.get_proposal(opportunity.proposal_id)
+            res.pop("opportunity_url")
+            res.pop("client_url")
+        else:
+            print("{}は対象外でした".format(opportunity))
+            return False
+        d.close()
+    except Exception as e:
+        print("Failed to get data by selenium")
+        print(e)
+        d.close()
+        return False
+    try:
+        u = get_user_model().objects.first()
+        # client
+        if res['client_id'] == opportunity.client.client_id:
+            res.pop('client_name')
+            res.pop('client_id')
+            pass
+        else:
+            if Client.objects.filter(client_id=res['client_id']).exists():
+                c = Client.objects.get(client_id=res.pop('client_id'))
+                res.pop('client_name')
+            else:
+                c = Client()
+                c.name = res.pop('client_name')
+                c.client_id = res.pop('client_id')
+                if is_from_shell:
+                    c.save_from_shell(u)
+                else:
+                    c.save()
+            opportunity.client = c
+        # opportunity update
+        if is_from_shell:
+            opportunity.save_from_shell(u)
+        else:
+            opportunity.save()
+
+        Opportunity.objects.filter(id=opportunity.id).update(**res)
+        opportunity.save()
+        print("{} was updated".format(opportunity))
+        # manytomany
+        result = True
+    except Exception as e:
+        print(e)
+        result = False
+    finally:
+        return result

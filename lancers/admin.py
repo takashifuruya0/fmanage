@@ -1,9 +1,11 @@
 from django.contrib import admin
+from django.contrib import messages
 from lancers.models import *
 from django.utils.safestring import mark_safe
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from import_export.formats import base_formats
+from lancers.functions import mylib_lancers
 # Register your models here.
 
 
@@ -144,9 +146,15 @@ class OpportunityAdmin(ImportExportModelAdmin):
     _get_proposal_url.short_description = "提案URL"
 
     def _action(self, request, queryset):
+        idlist = list()
         for obj in queryset:
-            print(obj.name)
-    _action.short_description = "アクション"
+            res = mylib_lancers.update_opportunity2(obj)
+            if not res:
+                messages.warning(request, "Failed@{}".format(obj))
+            else:
+                idlist.append(obj.pk)
+        messages.success(request, "Updated @{}".format(idlist))
+    _action.short_description = "商談を更新する"
 
     fieldsets = (
         ("システム情報", {
