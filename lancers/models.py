@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import Sum
 from django_currentuser.middleware import get_current_authenticated_user
-from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.conf import settings
 # Create your models here.
@@ -68,6 +67,13 @@ class Client(BaseModel):
 
 
 class Opportunity(BaseModel):
+    """CHOICES"""
+    CHOICES_STATUS_OPPORTUNITY = [
+        (k, k) for k in ("相談中", "提案中", "選定/作業中", "選定/終了", "キャンセル", "落選", "別管理")
+    ]
+    CHOICES_TYPE_OPPORTUNITY = [
+        (k, k) for k in ("直接受注", "提案受注", "追加受注")
+    ]
     """FIELDS"""
     objects = None
     # 共通
@@ -83,8 +89,8 @@ class Opportunity(BaseModel):
     date_open = models.DateField(verbose_name="案件開始日", blank=True, null=True)
     date_close = models.DateField(verbose_name="案件終了日", blank=True, null=True)
     client = models.ForeignKey(Client, verbose_name="クライアント", on_delete=models.CASCADE, null=True, blank=True)
-    status = models.CharField(max_length=255, verbose_name="ステータス", choices=settings.CHOICES_STATUS_OPPORTUNITY)
-    type = models.CharField(max_length=255, verbose_name="タイプ", choices=settings.CHOICES_TYPE_OPPORTUNITY)
+    status = models.CharField(max_length=255, verbose_name="ステータス", choices=CHOICES_STATUS_OPPORTUNITY)
+    type = models.CharField(max_length=255, verbose_name="タイプ", choices=CHOICES_TYPE_OPPORTUNITY)
     category = models.ForeignKey(
         Category, verbose_name="カテゴリー", on_delete=models.CASCADE, null=True, blank=True
     )
@@ -139,8 +145,8 @@ class Opportunity(BaseModel):
             return int(self.get_val()/working_time*60)
 
     def get_val(self):
-        ros = self.related_opportunity.all()
-        if self.type == "追加受注":
+        ros = self.related_opportunity.exclude(status="別管理")
+        if self.type == "追加受注" or self.status == "別管理":
             return None
         elif ros:
             return ros.aggregate(v=Sum('val'))['v'] + self.val

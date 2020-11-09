@@ -4,7 +4,6 @@ from django.urls import path
 from django.contrib.auth.decorators import login_required
 from kakeibo.views import views_figure, views_list, views_detail, views_create, views_delete
 from kakeibo.views import views_main as views
-from kakeibo.views import views_redirect as views_redirect
 # django-rest-framework
 from rest_framework import routers
 from kakeibo.views.views_drm import UsagesViewSet, ResourcesViewSet, KakeibosViewSet
@@ -14,10 +13,6 @@ from kakeibo.views.views_drm import CronKakeiboViewSet, CronSharedViewSet, Usual
 
 app_name = 'kakeibo'
 urlpatterns = [
-    
-    # redirect_to_link
-    url(r'^metabase/$', views_redirect.redirect_metabase, name='metabase'),
-    url(r'^knowledge/$', views_redirect.redirect_knowledge, name='knowledge'),
     # mine
     url(r'^mine/$', views.mine, name='mine'),
     # credit

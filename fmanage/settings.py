@@ -195,7 +195,6 @@ MEDIA_ROOT = (
 )
 
 # URL
-URL_METABASE = "https://www.fk-management.com/metabase"
 URL_KNOWLEDGE = "https://www.fk-management.com/knowledge"
 
 
@@ -314,10 +313,4 @@ CHOICES_ENTRY_TYPE = (
 # LANCERS
 LANCERS_PASSWORD = env('LANCERS_PASSWORD')
 LANCERS_USER_ID = env('LANCERS_USER_ID')
-CHOICES_STATUS_OPPORTUNITY = [
-    (k, k) for k in ("相談中", "提案中", "選定/作業中", "選定/終了", "キャンセル", "落選")
-]
-CHOICES_TYPE_OPPORTUNITY = [
-    (k, k) for k in ("直接受注", "提案受注", "追加受注")
-]
 TOKEN_DRF = None
