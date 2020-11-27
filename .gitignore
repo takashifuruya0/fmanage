@@ -8,3 +8,4 @@ cover/*
 .coverage*
 static/*
 icon.png
+testiam.json
