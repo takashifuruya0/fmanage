@@ -69,10 +69,14 @@ class Client(BaseModel):
 class Opportunity(BaseModel):
     """CHOICES"""
     CHOICES_STATUS_OPPORTUNITY = [
-        (k, k) for k in ("相談中", "提案中", "選定/作業中", "選定/終了", "キャンセル", "落選", "別管理")
+        (k, k) for k in (
+            "相談中", "提案中", "選定/作業中", "選定/終了", "キャンセル", "落選", "別管理",
+        )
     ]
     CHOICES_TYPE_OPPORTUNITY = [
-        (k, k) for k in ("直接受注", "提案受注", "追加受注")
+        (k, k) for k in (
+            "直接受注", "提案受注", "追加受注", "MENTA"
+        )
     ]
     """FIELDS"""
     objects = None
