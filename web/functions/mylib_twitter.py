@@ -8,10 +8,10 @@ logger = logging.getLogger('django')
 class Twitter:
     def __init__(self):
         self.twitter = OAuth1Session(
-            settings.SECRET['TWITTER_CONSUMER_KEY'],
-            settings.SECRET['TWITTER_CONSUMER_SECRET'],
-            settings.SECRET['TWITTER_ACCESS_KEY'],
-            settings.SECRET['TWITTER_ACCESS_SECRET']
+            settings.TWITTER_CONSUMER_KEY,
+            settings.TWITTER_CONSUMER_SECRET,
+            settings.TWITTER_ACCESS_KEY,
+            settings.TWITTER_ACCESS_SECRET
         )
 
     def getTweets(self, keyword, search_limit_count):

@@ -22,8 +22,8 @@ class SeleniumSBI:
             self.driver = webdriver.Chrome('/usr/local/bin/chromedriver')
         logger.info("the driver has started")
         self.driver.get("https://www.sbisec.co.jp/ETGate/")
-        self.driver.find_element_by_name('user_password').send_keys(settings.SECRET['SBI_PASSWORD_LOGIN'])
-        self.driver.find_element_by_name('user_id').send_keys(settings.SECRET['SBI_USER_ID'])
+        self.driver.find_element_by_name('user_password').send_keys(settings.SBI_PASSWORD_LOGIN)
+        self.driver.find_element_by_name('user_id').send_keys(settings.SBI_USER_ID)
         self.driver.find_element_by_name('ACT_login').click()
         logger.info("login SBI")
         self.driver.get("https://site2.sbisec.co.jp/ETGate")
@@ -50,7 +50,7 @@ class SeleniumSBI:
         c.click()
         # PASSWORD
         d = self.driver.find_element_by_id('pwd3')
-        d.send_keys(settings.SECRET['SBI_PASSWORD_ORDER'])
+        d.send_keys(settings.SBI_PASSWORD_ORDER)
         # Order
         e = self.driver.find_element_by_id('botton2')
         e.click()
@@ -85,7 +85,7 @@ class SeleniumSBI:
         c.click()
         # PASSWORD
         d = self.driver.find_element_by_id('pwd3')
-        d.send_keys(settings.SECRET['SBI_PASSWORD_ORDER'])
+        d.send_keys(settings.SBI_PASSWORD_ORDER)
         # Order
         e = self.driver.find_element_by_id('botton2')
         e.click()

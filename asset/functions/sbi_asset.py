@@ -135,7 +135,7 @@ def set_alert(code):
         elif settings.ENVIRONMENT == 'develop':
             # mac
             driver = webdriver.Chrome('/usr/local/bin/chromedriver')
-        login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
+        login(driver, settings.SBI_USER_ID, settings.SBI_PASSWORD_LOGIN)
         # 現在価格の±１％以上の変動で通知
         val = get_info.stock_overview(code)['price']
         alert(driver, code, int(val*1.01), 0)
@@ -165,9 +165,9 @@ def set_buy(code, num):
         elif settings.ENVIRONMENT == 'develop':
             # mac
             driver = webdriver.Chrome('/usr/local/bin/chromedriver')
-        login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
+        login(driver, settings.SBI_USER_ID, settings.SBI_PASSWORD_LOGIN)
         # set_buy：成行
-        buy(driver, code, num, settings.SECRET['SBI_PASSWORD_ORDER'])
+        buy(driver, code, num, settings.SSBI_PASSWORD_ORDER)
         res = True
     except Exception as e:
         logger.error(e)
@@ -190,9 +190,9 @@ def set_sell(code, num):
         elif settings.ENVIRONMENT == 'develop':
             # mac
             driver = webdriver.Chrome('/usr/local/bin/chromedriver')
-        login(driver, settings.SECRET['SBI_USER_ID'], settings.SECRET['SBI_PASSWORD_LOGIN'])
+        login(driver, settings.SBI_USER_ID, settings.SBI_PASSWORD_LOGIN)
         # set_sell：成行
-        sell(driver, code, num, settings.SECRET['SBI_PASSWORD_ORDER'])
+        sell(driver, code, num, settings.SSBI_PASSWORD_ORDER)
         res = True
     except Exception as e:
         logger.error(e)
