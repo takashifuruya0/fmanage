@@ -47,8 +47,8 @@ jobs:
 #         SECRET_KEY: githubactions
 #         SENDGRID_API_KEY: a
 
-#     - name: Django app test
-#       run: python3 manage.py test 
+    - name: Django app test
+      run: python3 manage.py test 
 #       env:
 #         SECRET_KEY: githubactions
 #         SENDGRID_API_KEY: a
