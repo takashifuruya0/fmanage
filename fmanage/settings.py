@@ -105,9 +105,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-# update db settings
-db_from_env = dj_database_url.config(conn_max_age=400)
-DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -194,9 +191,6 @@ MEDIA_ROOT = (
     os.path.join(BASE_DIR, 'document')
 )
 
-# URL
-URL_KNOWLEDGE = "https://www.fk-management.com/knowledge"
-
 
 # Font Path
 FONT_PATH = 'document/font/ipaexg.ttf'
@@ -273,14 +267,24 @@ NOSE_ARGS = [
 # environment
 ENVIRONMENT = "develop"
 
+# Datastore
+# from google.cloud import datastore
+# client = datastore.Client()
+# query = client.query(kind='SECRET')
+# SECRET = {
+#     d['key']: d['value'] for d in (query.fetch())
+# }
 
 # Twitter
-from google.cloud import datastore
-client = datastore.Client()
-query = client.query(kind='SECRET')
-SECRET = {
-    d['key']: d['value'] for d in (query.fetch())
-}
+TWITTER_ACCESS_KEY = env("TWITTER_ACCESS_KEY")
+TWITTER_CONSUMER_SECRET = env('TWITTER_CONSUMER_SECRET')
+TWITTER_CONSUMER_KEY = env("TWITTER_CONSUMER_KEY")
+TWITTER_ACCESS_SECRET = env("TWITTER_ACCESS_SECRET")
+
+# SBI
+SBI_PASSWORD_ORDER = env("SBI_PASSWORD_ORDER")
+SBI_PASSWORD_LOGIN = env("SBI_PASSWORD_LOGIN")
+SBI_USER_ID = env("SBI_USER_ID")
 
 # django-rest-framework
 REST_FRAMEWORK = {
@@ -296,8 +300,6 @@ REST_FRAMEWORK = {
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/1"
 CELERY_RESULT_BACKEND = "django-db"
 
-# font awesome
-fa_add = '<i class="fas fa-plus-square"></i>'
 
 # CHOINCES
 CHOICES_KAKEIBO_WAY = ((c, c) for c in [
