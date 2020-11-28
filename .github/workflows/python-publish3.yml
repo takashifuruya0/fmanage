@@ -8,13 +8,17 @@ jobs:
   build:
 
     runs-on: ubuntu-16.04
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.7, ]
+#     strategy:
+#       max-parallel: 4
+#       matrix:
+#         python-version: [3.7, ]
 
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.7' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+        architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified:  
     - name: Prepare Env
       run: |
         echo "TEST=test" > .env
@@ -27,8 +31,12 @@ jobs:
         echo "LANCERS_PASSWORD=1" >> .env
         echo "LANCERS_USER_ID=1" >> .env
         echo "DRF_TOKEN=1" >> .env
+        python3 --version
+        pip3 --version
     - name: Install dependencies
       run: |
+        sudo apt update
+        sudo apt upgrade -y
         sudo apt-get install python3-setuptools
         python3 -m pip install --upgrade pip
         pip3 install -r requirements.txt
