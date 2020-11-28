@@ -20,6 +20,8 @@ jobs:
         python-version: '3.7' # Version range or exact version of a Python version to use, using SemVer's version range syntax
         architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified:  
     - name: Prepare Env
+      env:
+        URL_SLACK_NAMS: ${{ secrets.URL_SLACK_NAMS }}
       run: |
         echo "TEST=test" > .env
         echo "TRELLO_KEY=1" >> .env
@@ -27,7 +29,7 @@ jobs:
         echo "GOLDPOINT_ID=1" >> .env
         echo "GOLDPOINT_PASSWORD=1" >> .env
         echo "CELERY_ENVIRONMENT=fmanage.settings" >> .env
-        echo "URL_SLACK_NAMS=1" >> .env
+        echo "URL_SLACK_NAMS=${URL_SLACK_NAMS}" >> .env
         echo "LANCERS_PASSWORD=1" >> .env
         echo "LANCERS_USER_ID=1" >> .env
         echo "DRF_TOKEN=1" >> .env
