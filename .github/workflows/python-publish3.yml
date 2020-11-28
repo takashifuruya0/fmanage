@@ -31,6 +31,13 @@ jobs:
         echo "LANCERS_PASSWORD=1" >> .env
         echo "LANCERS_USER_ID=1" >> .env
         echo "DRF_TOKEN=1" >> .env
+        echo "TWITTER_ACCESS_KEY='a'" >> env
+        echo "TWITTER_CONSUMER_SECRET='C'" >> env
+        echo "TWITTER_CONSUMER_KEY='C'" >> env
+        echo "TWITTER_ACCESS_SECRET='I'" >> env
+        echo "SBI_PASSWORD_ORDER='1'" >> env
+        echo "SBI_USER_ID='1'" >> env
+        echo "SBI_PASSWORD_LOGIN='1'" >> env
         python3 --version
         pip3 --version
     - name: Install dependencies
