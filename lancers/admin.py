@@ -204,7 +204,9 @@ class OpportunityAdmin(ImportExportModelAdmin):
 
 
 class OpportunityWorkAdmin(ImportExportModelAdmin):
-    list_display = ("opportunity", "is_in_calendar", "get_working_time")
+    list_display = (
+        "opportunity", "datetime_start", "datetime_end", "get_working_time"
+    )
     readonly_fields = ("created_by", "created_at", "last_updated_by", "last_updated_at")
     resource_class = OpportunityWorkResource
 
