@@ -57,6 +57,7 @@ class Client(BaseModel):
     name = models.CharField(max_length=255, verbose_name="クライアント名")
     client_id = models.CharField(max_length=255, verbose_name="クライアントID")
     is_nonlancers = models.BooleanField(default=False, verbose_name="ランサーズ以外")
+    memo = models.TextField(null=True, blank=True, verbose_name="メモ")
 
     class Meta:
         verbose_name = "クライアント"
