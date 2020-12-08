@@ -379,11 +379,11 @@ def update_opportunity2(opportunity, is_from_shell=False):
         return result
 
 
-def sync(opp):
+def sync(opp, user=None):
     # 準備
     # JST = timezone(timedelta(hours=+9), 'JST')
     if settings.ENVIRONMENT == "develop" and not opp.sync_id:
-        user = get_user_model().objects.first()
+        user = get_user_model().objects.first() if user is None else user
         headers = {
             'Content-Type': 'application/json',
             'Authorization': 'Token {}'.format(settings.TOKEN_DRF)

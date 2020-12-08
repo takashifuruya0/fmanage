@@ -111,7 +111,8 @@ class OpportunityAdmin(ImportExportModelAdmin):
         "_get_opportunity_url", "_get_proposal_url",
     )
     list_filter = ("status", "category", )
-    actions = ["_action", ]
+    if settings.ENVIRONMENT == "develop":
+        actions = ["_action", "_sync"]
     resource_class = OpportunityResource
     autocomplete_fields = ("client", "category", )
 
@@ -154,7 +155,18 @@ class OpportunityAdmin(ImportExportModelAdmin):
             else:
                 idlist.append(obj.pk)
         messages.success(request, "Updated @{}".format(idlist))
-    _action.short_description = "商談を更新する"
+    _action.short_description = "商談を更新する（Selenium）"
+
+    def _sync(self, request, queryset):
+        messages.success(request, "")
+        messages.warning(request, "")
+        for obj in queryset:
+            r = mylib_lancers.sync(obj, request.user)
+            if r:
+                messages.add_message(request, messages.SUCCESS, "{}は同期されました！".format(obj))
+            else:
+                messages.add_message(request, messages.WARNING, "{}は同期されませんでした".format(obj))
+    _sync.short_description = "商談を同期する（Dev→Prod）"
 
     fieldsets = (
         ("システム情報", {
