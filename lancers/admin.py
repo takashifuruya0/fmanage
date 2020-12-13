@@ -6,6 +6,7 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from import_export.formats import base_formats
 from lancers.functions import mylib_lancers
+from lancers.forms import OpportunityWorkForm
 # Register your models here.
 
 
@@ -219,8 +220,10 @@ class OpportunityWorkAdmin(ImportExportModelAdmin):
     list_display = (
         "opportunity", "datetime_start", "datetime_end", "get_working_time"
     )
-    readonly_fields = ("created_by", "created_at", "last_updated_by", "last_updated_at")
+    readonly_fields = ("working_time", "created_by", "created_at", "last_updated_by", "last_updated_at", )
     resource_class = OpportunityWorkResource
+    autocomplete_fields = ("opportunity", )
+    form = OpportunityWorkForm
 
 
 class CategoryAdmin(ImportExportModelAdmin):
