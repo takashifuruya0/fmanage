@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-from lancers.models import Category, Opportunity
+from lancers.models import Category, Opportunity, OpportunityWork
 
 
 class OpportunityForm(forms.Form):
@@ -12,3 +12,14 @@ class OpportunityForm(forms.Form):
     category_id = forms.ModelChoiceField(Category.objects, label="カテゴリー")
     status = forms.ChoiceField(choices=Opportunity.CHOICES_STATUS_OPPORTUNITY, label="ステータス")
     memo = forms.CharField(widget=forms.Textarea(), label="補足")
+
+
+class OpportunityWorkForm(forms.ModelForm):
+    opportunity = forms.ModelChoiceField(
+        queryset=Opportunity.objects.filter(status__in=("相談中", "提案中", "選定/作業中", )),
+        help_text="PPLのみ表示",
+    )
+
+    class Meta:
+        model = OpportunityWork
+        fields = ("opportunity", "datetime_start", "datetime_end", "memo")

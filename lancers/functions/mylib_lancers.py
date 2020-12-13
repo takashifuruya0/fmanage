@@ -1,9 +1,13 @@
 from lancers.functions import mylib_selenium
 from lancers.models import Client, Opportunity, Category, OpportunityWork
 from django.contrib.auth import get_user_model
+from django.conf import settings
 import requests
-from datetime import datetime, date
+import json
+from datetime import datetime, date, timezone, timedelta
 from pprint import pprint
+import logging
+logger = logging.getLogger("django")
 
 
 def create_opportunity(opportunity_id):
@@ -373,3 +377,54 @@ def update_opportunity2(opportunity, is_from_shell=False):
         result = False
     finally:
         return result
+
+
+def sync(opp, user=None):
+    # 準備
+    # JST = timezone(timedelta(hours=+9), 'JST')
+    if settings.ENVIRONMENT == "develop" and not opp.sync_id:
+        user = get_user_model().objects.first() if user is None else user
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Token {}'.format(settings.TOKEN_DRF)
+        }
+    else:
+        logger.info("mylib_lancers.sync is not callable in the production or for data synced")
+        return False
+    # Opportunityに紐づくClientのチェック
+    client = opp.client
+    if client.sync_id:
+        # Productiionとsync済み
+        logger.info("Client {} has already been created in the production".format(client))
+        pass
+    else:
+        # Productionとsyncする
+        logger.info("Syncing Client {} to the production".format(client))
+        url_client = "https://www.fk-management.com/drm/lancers/client/"
+        raw_data = client.__dict__.copy()
+        raw_data.pop("_state")
+        data = dict()
+        for k, v in raw_data.items():
+            data[k] = str(v) if isinstance(v, datetime) or isinstance(v, date) else v
+        r = requests.post(url_client, json.dumps(data), headers=headers)
+        if r.status_code == 201:
+            client.sync_id = r.json()['id']
+            client.save_from_shell(user)
+            logger.info("Successed in syncing Client {} to the production".format(client))
+    # Opp
+    raw_data = opp.__dict__.copy()
+    raw_data.pop("_state")
+    data = dict()
+    for k, v in raw_data.items():
+        data[k] = str(v) if isinstance(v, datetime) or isinstance(v, date) else v
+    data.pop("client_id")
+    data['client'] = client.sync_id
+    data['category'] = data.pop("category_id")
+    logger.info("Syncing Opportunity {} to the production".format(opp))
+    url = "https://www.fk-management.com/drm/lancers/opportunity/"
+    r = requests.post(url, json.dumps(data), headers=headers)
+    if r.status_code == 201:
+        opp.sync_id = r.json()['id']
+        opp.save_from_shell(user)
+        logger.info("Successed in syncing Opportunity {} to the production".format(opp))
+    return True

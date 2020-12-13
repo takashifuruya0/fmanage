@@ -40,19 +40,39 @@
 									<th>カテゴリー</th>
 									<th class="right">報酬見込み</th>
 									<th class="right">稼働実績（分）</th>
+									<th>稼働</th>
 								</tr>
 								{% for oo in open_opps %}
 								<tr>
 									<td>
-										<a href="/admin/lancers/opportunity/{{oo.pk}}">{{oo.pk}}</a>
+										<a href="/admin/lancers/opportunity/{{oo.pk}}" class="btn-outline-primary">
+											<i class="fas fa-info-circle"></i>
+										</a>
 									</td>
 									<td>{{oo.date_open}}</td>
 									<td>{{oo.name}}</td>
 									<td>{{oo.type}}</td>
-									<td>{{oo.status}}</td>
+									<td>
+										<span
+										{% if oo.status == '相談中' %}
+											class="badge badge-warning"
+										{% elif oo.status == '提案中' %}
+											class="badge badge-danger"
+										{% else %}
+											class="badge badge-info"
+									    {% endif %}
+										>
+											{{oo.status}}
+										</span>
+									</td>
 									<td>{{oo.category}}</td>
 									<td class="right">{{oo.val |yen}}</td>
 									<td class="right">{{oo.get_working_time |intcomma}}</td>
+									<td>
+										<a href="/admin/lancers/opportunitywork/add/?opportunity={{oo.pk}}" class="btn btn-primary">
+											<i class="far fa-calendar-plus"></i>
+										</a>
+									</td>
 								</tr>
 								{% endfor %}
 							</table>
@@ -66,20 +86,21 @@
 					<a class="btn btn-info" href="/admin/lancers/client">
 						<i class="fas fa-list"></i> クライアント一覧
 					</a>
-					<a class="btn btn-primary" href="{%url 'lancers:sync'%}">
-						<i class="fas fa-cloud-upload-alt"></i> Sync to production
-					</a>
-					<a class="btn btn-danger" href="#">
-						<i class="fas fa-cloud-download-alt"></i> Sync from production
-					</a>
+<!--					<a class="btn btn-primary" href="{%url 'lancers:sync'%}">-->
+<!--						<i class="fas fa-cloud-upload-alt"></i> Sync to production-->
+<!--					</a>-->
+<!--					<a class="btn btn-danger" href="#">-->
+<!--						<i class="fas fa-cloud-download-alt"></i> Sync from production-->
+<!--					</a>-->
 				</div>
 			</div>
 		</div>
 	</div>
-
+	
+	{%if DEBUG %}
 	<hr>
 	<div class="row">
-    <div class="col-12">
+      <div class="col-12">
 	    <div class="card">
 		    <div class="card-header bg-warning text-black">
 					<h4>
@@ -106,8 +127,9 @@
 				<div class="card-footer">
 		    </div>
 	    </div>
-		</div>
+	  </div>
 	</div>
+	{% endif %}
 </div>
 {% endblock %}
 
