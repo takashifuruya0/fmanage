@@ -19,6 +19,7 @@ Django==2.2.16
 django-allauth==0.42.0
 django-bootstrap3-datetimepicker==2.2.3
 django-celery-results==1.2.1
+django-cors-headers==3.6.0
 django-currentuser==0.5.1
 django-datetime-widget==0.9.3
 django-debug-toolbar==3.1.1
