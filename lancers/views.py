@@ -66,10 +66,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 class OpportunityViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Opportunity.objects.all()
+    queryset = Opportunity.objects.all().order_by('-pk')
     serializer_class = OpportunitySerializer
     filter_fields = (
         "name", 'opportunity_id', "direct_opportunity_id", "sync_id",
+        "status", "type"
     )
 
 

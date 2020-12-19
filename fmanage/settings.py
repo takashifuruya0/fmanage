@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import dj_database_url
+from datetime import timedelta
 import environ
 env = environ.Env(DEBUG=(bool, False),)  # set default values and casting
 environ.Env.read_env('.env')  # reading .env file
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django_nose',
     'rest_framework',
     'rest_framework.authtoken',  # <-- Here
+    'djoser',  # jwt-simle, djoser
     'django_filters',
     'django_celery_results',
     'import_export',
@@ -290,11 +291,18 @@ SBI_USER_ID = env("SBI_USER_ID")
 # django-rest-framework
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',  # <-- And here
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+}
+# simple-jwt
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('JWT', ),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
 }
 
 # CELERY
