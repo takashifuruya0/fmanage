@@ -44,6 +44,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class OpportunitySerializer(serializers.ModelSerializer):
+
+    client_name = serializers.ReadOnlyField(source="client.name")
+    category_name = serializers.ReadOnlyField(source="category.name")
+
     class Meta:
         model = Opportunity
         fields = '__all__'
