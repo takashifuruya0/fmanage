@@ -50,16 +50,16 @@ class OpportunityFormView(LoginRequiredMixin, FormView):
 
 class ClientViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Client.objects.all()
+    queryset = Client.objects.all().order_by('-pk')
     serializer_class = ClientSerializer
     filter_fields = (
-        "name", 'client_id', "sync_id",
+        "name", 'client_id', "sync_id", "is_nonlancers"
     )
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('-pk')
     serializer_class = CategorySerializer
     filter_fields = ('name', "sync_id",)
 
@@ -76,9 +76,11 @@ class OpportunityViewSet(viewsets.ModelViewSet):
 
 class OpportunityWorkViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = OpportunityWork.objects.all()
+    queryset = OpportunityWork.objects.all().order_by('-pk')
     serializer_class = OpportunityWorkSerializer
-    filter_fields = ("sync_id", )
+    filter_fields = (
+        "sync_id", "opportunity_id",
+    )
 
 
 class SyncToProdView(LoginRequiredMixin, View):

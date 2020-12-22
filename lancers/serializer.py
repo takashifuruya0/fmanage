@@ -12,14 +12,16 @@ class ClientSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         client = Client(**validated_data)
-        u = get_user_model().objects.first()
+        # u = get_user_model().objects.first()
+        u = self.context['request'].user
         client.save_from_shell(u)
         return client
 
     def update(self, instance, validated_data):
         for k, v in validated_data.items():
             setattr(instance, k, v)
-        u = get_user_model().objects.first()
+        # u = get_user_model().objects.first()
+        u = self.context['request'].user
         instance.save_from_shell(u)
         return instance
 
@@ -31,14 +33,16 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         category = Category(**validated_data)
-        u = get_user_model().objects.first()
+        u = self.context['request'].user
+        # u = get_user_model().objects.first()
         category.save_from_shell(u)
         return category
 
     def update(self, instance, validated_data):
         for k, v in validated_data.items():
             setattr(instance, k, v)
-        u = get_user_model().objects.first()
+        # u = get_user_model().objects.first()
+        u = self.context['request'].user
         instance.save_from_shell(u)
         return instance
 
@@ -54,14 +58,16 @@ class OpportunitySerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         opportunity = Opportunity(**validated_data)
-        u = get_user_model().objects.first()
+        # u = get_user_model().objects.first()
+        u = self.context['request'].user
         opportunity.save_from_shell(u)
         return opportunity
 
     def update(self, instance, validated_data):
         for k, v in validated_data.items():
             setattr(instance, k, v)
-        u = get_user_model().objects.first()
+        # u = get_user_model().objects.first()
+        u = self.context['request'].user
         instance.save_from_shell(u)
         return instance
 
@@ -73,13 +79,15 @@ class OpportunityWorkSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         opportunitywork = OpportunityWork(**validated_data)
-        u = get_user_model().objects.first()
+        # u = get_user_model().objects.first()
+        u = self.context['request'].user
         opportunitywork.save_from_shell(u)
         return opportunitywork
 
     def update(self, instance, validated_data):
         for k, v in validated_data.items():
             setattr(instance, k, v)
-        u = get_user_model().objects.first()
+        # u = get_user_model().objects.first()
+        u = self.context['request'].user
         instance.save_from_shell(u)
         return instance
