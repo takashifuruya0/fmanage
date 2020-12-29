@@ -115,7 +115,7 @@ class OpportunityAdmin(ImportExportModelAdmin):
     if settings.ENVIRONMENT == "develop":
         actions = ["_action", "_sync"]
     resource_class = OpportunityResource
-    autocomplete_fields = ("client", "category", )
+    autocomplete_fields = ("client", "category", "original_opportunity")
 
     def _get_val(self, obj):
         return obj.get_val()
@@ -184,7 +184,8 @@ class OpportunityAdmin(ImportExportModelAdmin):
                 ("direct_opportunity_id", ),
                 "related_opportunity",
                 "status",
-                ("type", "is_regular"),
+                ("type", "is_regular", "is_copied_to"),
+                "original_opportunity",
                 "category", "sub_categories",
             )
         }),
