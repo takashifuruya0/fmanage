@@ -102,6 +102,7 @@ class Opportunity(BaseModel):
     sub_categories = models.ManyToManyField(
         Category, verbose_name="サブカテゴリー", blank=True, related_name="sub_categories"
     )
+    is_regular = models.BooleanField(verbose_name="定期案件", default=False)
     # 依頼
     val_payment = models.IntegerField(verbose_name="クライアント支払額（税込）", null=True, blank=True)
     val = models.IntegerField(verbose_name="報酬額（税込）")
