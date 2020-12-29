@@ -111,7 +111,7 @@ class OpportunityAdmin(ImportExportModelAdmin):
         "_get_val", "_get_working_time", "_get_unit_val",
         "_get_opportunity_url", "_get_proposal_url",
     )
-    list_filter = ("status", "category", )
+    list_filter = ("status", "type",  "category", )
     if settings.ENVIRONMENT == "develop":
         actions = ["_action", "_sync"]
     resource_class = OpportunityResource
@@ -183,7 +183,8 @@ class OpportunityAdmin(ImportExportModelAdmin):
                 "date_open", "date_close",
                 ("direct_opportunity_id", ),
                 "related_opportunity",
-                "status", "type",
+                "status",
+                ("type", "is_regular"),
                 "category", "sub_categories",
             )
         }),
