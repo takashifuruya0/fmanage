@@ -58,6 +58,7 @@ class Client(BaseModel):
     client_id = models.CharField(max_length=255, verbose_name="クライアントID")
     is_nonlancers = models.BooleanField(default=False, verbose_name="ランサーズ以外")
     memo = models.TextField(null=True, blank=True, verbose_name="メモ")
+    name_slack = models.CharField(max_length=255, verbose_name="Slackユーザ名", blank=True, null=True)
 
     class Meta:
         verbose_name = "クライアント"
@@ -103,6 +104,11 @@ class Opportunity(BaseModel):
         Category, verbose_name="サブカテゴリー", blank=True, related_name="sub_categories"
     )
     is_regular = models.BooleanField(verbose_name="定期案件", default=False)
+    original_opportunity = models.ForeignKey(
+        "self", verbose_name="初期案件", blank=True, null=True, related_name="copied_opportunity",
+        on_delete=models.CASCADE
+    )
+    is_copied_to = models.BooleanField(verbose_name="【定期案件】次期作成済み", default=False)
     # 依頼
     val_payment = models.IntegerField(verbose_name="クライアント支払額（税込）", null=True, blank=True)
     val = models.IntegerField(verbose_name="報酬額（税込）")
