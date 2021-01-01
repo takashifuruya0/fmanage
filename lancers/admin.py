@@ -79,18 +79,34 @@ class OpportunityWorkInline(admin.TabularInline):
 # Admin
 # ===========================
 class ClientAdmin(ImportExportModelAdmin):
-    list_display = ("name", "client_id", "is_nonlancers", "_get_num_opportunities", )
+    list_display = ("name", "client_id", "client_type", "_get_num_opportunities", )
     readonly_fields = (
         "created_by", "created_at", "last_updated_by", "last_updated_at",
-        "_get_num_opportunities",
+        "_get_num_opportunities", "_get_client_url",
     )
     inlines = [OpportunityInline]
     resource_class = ClientResource
     search_fields = ("name", "client_id", )
+    list_filter = ("client_type", )
 
     def _get_num_opportunities(self, obj):
         return obj.opportunity_set.count()
     _get_num_opportunities.short_description = '案件数'
+
+    def _get_client_url(self, obj):
+        if obj.client_type == "MENTA":
+            return mark_safe(
+                "<a target='_blank' rel='noopener noreferrer' href=https://menta.work/user/{}>LINK</a>".format(
+                    obj.client_id)
+            )
+        elif obj.client_type == "Lancers":
+            return mark_safe(
+                "<a target='_blank' rel='noopener noreferrer' href=https://www.lancers.jp/client/{}>LINK</a>".format(
+                    obj.client_id)
+            )
+        else:
+            return None
+    _get_client_url.short_description = "顧客URL"
 
 
 class OpportunityAdmin(ImportExportModelAdmin):
@@ -104,14 +120,15 @@ class OpportunityAdmin(ImportExportModelAdmin):
         "pk", "date_open", "date_close",
         "name", "opportunity_id", "client", "category", "status", "type",
         # "_get_val", "_get_working_time", "_get_unit_val",
-        "_get_opportunity_url", "_get_proposal_url",
+        # "_get_opportunity_url", "_get_proposal_url",
     )
+    # list_display_links = ("client", )
     readonly_fields = (
         "created_by", "created_at", "last_updated_by", "last_updated_at",
         "_get_val", "_get_working_time", "_get_unit_val",
         "_get_opportunity_url", "_get_proposal_url",
     )
-    list_filter = ("status", "type",  "category", )
+    list_filter = ("status", "type", "date_payment")
     if settings.ENVIRONMENT == "develop":
         actions = ["_action", "_sync"]
     resource_class = OpportunityResource
@@ -130,12 +147,17 @@ class OpportunityAdmin(ImportExportModelAdmin):
     _get_unit_val.short_description = '単価（円/h）'
 
     def _get_opportunity_url(self, obj):
-        if obj.client.is_nonlancers:
-            return None
-        else:
+        if obj.client.client_type == "MENTA":
+            return mark_safe(
+                "<a target='_blank' rel='noopener noreferrer' href=https://menta.work/bosyu/{}>LINK</a>".format(
+                    obj.opportunity_id)
+            )
+        elif obj.client.client_type == "Lancers":
             return mark_safe(
                 "<a target='_blank' rel='noopener noreferrer' href=https://www.lancers.jp/work/detail/{}>LINK</a>".format(obj.opportunity_id)
             )
+        else:
+            return None
     _get_opportunity_url.short_description = "案件URL"
 
     def _get_proposal_url(self, obj):
@@ -179,9 +201,10 @@ class OpportunityAdmin(ImportExportModelAdmin):
         }),
         ("基本情報", {
             "fields": (
-                "name", ("opportunity_id", "_get_opportunity_url",),
-                "date_open", "date_close",
+                "name",
+                ("opportunity_id", "_get_opportunity_url",),
                 ("direct_opportunity_id", ),
+                "date_open", "date_close", "date_payment",
                 "related_opportunity",
                 "status",
                 ("type", "is_regular", "is_copied_to"),
@@ -220,12 +243,15 @@ class OpportunityAdmin(ImportExportModelAdmin):
 
 class OpportunityWorkAdmin(ImportExportModelAdmin):
     list_display = (
-        "opportunity", "datetime_start", "datetime_end", "get_working_time"
+        "pk", "opportunity", "datetime_start", "datetime_end", "get_working_time"
     )
     readonly_fields = ("working_time", "created_by", "created_at", "last_updated_by", "last_updated_at", )
     resource_class = OpportunityWorkResource
     autocomplete_fields = ("opportunity", )
     form = OpportunityWorkForm
+    search_fields = ("opportunity__name", )
+    list_filter = ("opportunity__status", )
+    # list_display_links = ("opportunity", )
 
 
 class CategoryAdmin(ImportExportModelAdmin):

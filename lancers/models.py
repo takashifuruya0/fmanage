@@ -53,10 +53,18 @@ class Category(BaseModel):
 
 
 class Client(BaseModel):
+    """CHOICES"""
+    CHOICES_CLIENT_TYPE = (
+        (k, k) for k in ("Lancers", "MENTA", "その他", )
+    )
+    """FIELDS"""
     objects = None
     name = models.CharField(max_length=255, verbose_name="クライアント名")
     client_id = models.CharField(max_length=255, verbose_name="クライアントID")
     is_nonlancers = models.BooleanField(default=False, verbose_name="ランサーズ以外")
+    client_type = models.CharField(
+        max_length=255, verbose_name="クライアント種別", choices=CHOICES_CLIENT_TYPE, blank=True, null=True
+    )
     memo = models.TextField(null=True, blank=True, verbose_name="メモ")
     name_slack = models.CharField(max_length=255, verbose_name="Slackユーザ名", blank=True, null=True)
 
@@ -94,6 +102,7 @@ class Opportunity(BaseModel):
     )
     date_open = models.DateField(verbose_name="案件開始日", blank=True, null=True)
     date_close = models.DateField(verbose_name="案件終了日", blank=True, null=True)
+    date_payment = models.DateField(verbose_name="支払日", blank=True, null=True)
     client = models.ForeignKey(Client, verbose_name="クライアント", on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=255, verbose_name="ステータス", choices=CHOICES_STATUS_OPPORTUNITY)
     type = models.CharField(max_length=255, verbose_name="タイプ", choices=CHOICES_TYPE_OPPORTUNITY)
@@ -136,7 +145,7 @@ class Opportunity(BaseModel):
         verbose_name_plural = "案件"
 
     def __str__(self):
-        return "【{}】{}".format(self.opportunity_id, self.name)
+        return "【{}】{}".format(self.id, self.name)
 
     def get_working_time(self, is_hour=False):
         works = self.opportunitywork_set.all()
