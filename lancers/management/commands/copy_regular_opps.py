@@ -31,7 +31,8 @@ class Command(BaseCommand):
             opp.sync_id = None
             opp.date_open = opp.date_open + relativedelta(months=1)
             opp.date_close = opp.date_close + relativedelta(months=1)
-            opp.date_payment = opp.date_payment + relativedelta(months=1)
+            if opp.date_payment:
+                opp.date_payment = opp.date_payment + relativedelta(months=1)
             opp.date_proposed_delivery = opp.date_proposed_delivery + relativedelta(months=1)
             opp.status = "相談中"
             if not opp.original_opportunity:

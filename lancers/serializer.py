@@ -73,6 +73,10 @@ class OpportunitySerializer(serializers.ModelSerializer):
 
 
 class OpportunityWorkSerializer(serializers.ModelSerializer):
+    opportunity_name = serializers.ReadOnlyField(source="opportunity.name")
+    opportunity_type = serializers.ReadOnlyField(source="opportunity.type")
+    opportunity_status = serializers.ReadOnlyField(source="opportunity.status")
+
     class Meta:
         model = OpportunityWork
         fields = '__all__'
