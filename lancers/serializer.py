@@ -73,6 +73,10 @@ class OpportunitySerializer(serializers.ModelSerializer):
 
 
 class OpportunityWorkSerializer(serializers.ModelSerializer):
+    opportunity_name = serializers.ReadOnlyField(source="opportunity.name")
+    opportunity_type = serializers.ReadOnlyField(source="opportunity.type")
+    opportunity_status = serializers.ReadOnlyField(source="opportunity.status")
+
     class Meta:
         model = OpportunityWork
         fields = '__all__'
@@ -81,6 +85,11 @@ class OpportunityWorkSerializer(serializers.ModelSerializer):
         opportunitywork = OpportunityWork(**validated_data)
         # u = get_user_model().objects.first()
         u = self.context['request'].user
+        if not opportunitywork.working_time \
+                and opportunitywork.datetime_start \
+                and opportunitywork.datetime_end:
+            opportunitywork.working_time = int((opportunitywork.datetime_end-opportunitywork.datetime_start).seconds/60)
+        # save_from_shell
         opportunitywork.save_from_shell(u)
         return opportunitywork
 
