@@ -63,7 +63,9 @@ def create_order(request):
                     msg = "New Order is created: {}".format(o)
                     logger.info(msg)
                 # OrderProcessの実行
-                orders = Order.objects.filter(pk__in=pk_orders).order_by("is_buy", "datetime")
+                """is_buyを入れると、デイトレのケースが通らない。外すと、A買い・B売り・A買いが通らない。後者は買付余力を上げて対応"""
+                # orders = Order.objects.filter(pk__in=pk_orders).order_by("is_buy", "datetime")
+                orders = Order.objects.filter(pk__in=pk_orders).order_by("datetime")
                 data_list = list()
                 for o in orders:
                     res = mylib_asset.order_process(o, user=o.user)
