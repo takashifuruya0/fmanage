@@ -63,7 +63,7 @@ def create_order(request):
                     msg = "New Order is created: {}".format(o)
                     logger.info(msg)
                 # OrderProcessの実行
-                orders = Order.objects.filter(pk__in=pk_orders).order_by("datetime")
+                orders = Order.objects.filter(pk__in=pk_orders).order_by("is_buy", "datetime")
                 data_list = list()
                 for o in orders:
                     res = mylib_asset.order_process(o, user=o.user)
