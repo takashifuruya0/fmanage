@@ -22,7 +22,7 @@ class Main(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Main, self).get_context_data(**kwargs)
-        context['open_opps'] = Opportunity.objects.filter(status__in=("選定/作業中", "相談中", "提案中"))
+        context['open_opps'] = Opportunity.objects.filter(status__in=("選定/作業中", "相談中", "提案中")).order_by('status')
         context['opp_form'] = OpportunityForm()
         context['DEBUG'] = settings.DEBUG
         return context
