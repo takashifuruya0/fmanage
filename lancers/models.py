@@ -85,7 +85,7 @@ class Opportunity(BaseModel):
     ]
     CHOICES_TYPE_OPPORTUNITY = [
         (k, k) for k in (
-            "直接受注", "提案受注", "追加受注", "MENTA"
+            "直接受注", "提案受注", "追加受注", "MENTA", "自己研鑽"
         )
     ]
     """FIELDS"""

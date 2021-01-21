@@ -22,4 +22,4 @@ class OpportunityWorkForm(forms.ModelForm):
 
     class Meta:
         model = OpportunityWork
-        fields = ("opportunity", "datetime_start", "datetime_end", "memo")
+        fields = ("opportunity", "datetime_start", "datetime_end", "memo", "is_in_calendar",)
