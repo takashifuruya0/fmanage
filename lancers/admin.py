@@ -16,21 +16,25 @@ from lancers.forms import OpportunityWorkForm
 class CategoryResource(resources.ModelResource):
     class Meta:
         model = Category
+        exclude = ("created_at", "created_by", "last_updated_at", "last_updated_by", )
 
 
 class ClientResource(resources.ModelResource):
     class Meta:
         model = Client
+        exclude = ("created_at", "created_by", "last_updated_at", "last_updated_by",)
 
 
 class OpportunityResource(resources.ModelResource):
     class Meta:
         model = Opportunity
+        exclude = ("created_at", "created_by", "last_updated_at", "last_updated_by",)
 
 
 class OpportunityWorkResource(resources.ModelResource):
     class Meta:
         model = OpportunityWork
+        exclude = ("created_at", "created_by", "last_updated_at", "last_updated_by",)
 
 
 # ===========================
@@ -79,15 +83,15 @@ class OpportunityWorkInline(admin.TabularInline):
 # Admin
 # ===========================
 class ClientAdmin(ImportExportModelAdmin):
-    list_display = ("name", "client_id", "client_type", "_get_num_opportunities", )
+    list_display = ("name", "client_id", "client_type", "name_slack", "_get_num_opportunities", )
     readonly_fields = (
         "created_by", "created_at", "last_updated_by", "last_updated_at",
         "_get_num_opportunities", "_get_client_url",
     )
     inlines = [OpportunityInline]
     resource_class = ClientResource
-    search_fields = ("name", "client_id", )
-    list_filter = ("client_type", )
+    search_fields = ("name", "client_id", "name_slack", "client_type")
+    list_filter = ("client_type", "name_slack",)
 
     def _get_num_opportunities(self, obj):
         return obj.opportunity_set.count()
@@ -243,7 +247,7 @@ class OpportunityAdmin(ImportExportModelAdmin):
 
 class OpportunityWorkAdmin(ImportExportModelAdmin):
     list_display = (
-        "pk", "opportunity", "datetime_start", "datetime_end", "get_working_time"
+        "pk", "opportunity", "datetime_start", "datetime_end", "get_working_time", "is_in_calendar"
     )
     readonly_fields = ("working_time", "created_by", "created_at", "last_updated_by", "last_updated_at", )
     resource_class = OpportunityWorkResource
@@ -257,6 +261,9 @@ class OpportunityWorkAdmin(ImportExportModelAdmin):
 class CategoryAdmin(ImportExportModelAdmin):
     resource_class = CategoryResource
     search_fields = ("name", )
+    readonly_fields = (
+        "created_by", "created_at", "last_updated_by", "last_updated_at",
+    )
 
 
 # ===========================
