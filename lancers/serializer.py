@@ -50,7 +50,12 @@ class CategorySerializer(serializers.ModelSerializer):
 class OpportunitySerializer(serializers.ModelSerializer):
 
     client_name = serializers.ReadOnlyField(source="client.name")
+    client_type = serializers.ReadOnlyField(source="client.client_type")
+    client_name_slack = serializers.ReadOnlyField(source="client.name_slack")
     category_name = serializers.ReadOnlyField(source="category.name")
+    sub_categories = CategorySerializer(many=True, read_only=True)
+    working_time = serializers.ReadOnlyField(source="get_working_time")
+    unit_val = serializers.ReadOnlyField(source="get_unit_val")
 
     class Meta:
         model = Opportunity
