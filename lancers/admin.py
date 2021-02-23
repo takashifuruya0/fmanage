@@ -13,6 +13,11 @@ from lancers.forms import OpportunityWorkForm
 # ===========================
 # Resource
 # ===========================
+class ServiceResource(resources.ModelResource):
+    class Meta:
+        model = Service
+
+
 class CategoryResource(resources.ModelResource):
     class Meta:
         model = Category
@@ -82,6 +87,15 @@ class OpportunityWorkInline(admin.TabularInline):
 # ===========================
 # Admin
 # ===========================
+class ServiceAdmin(ImportExportModelAdmin):
+    list_display = ("name", "val", "is_regular", )
+    readonly_fields = (
+        "created_by", "created_at", "last_updated_by", "last_updated_at",
+    )
+    resource_class = ServiceResource
+    search_fields = ("name", )
+
+
 class ClientAdmin(ImportExportModelAdmin):
     list_display = ("name", "client_id", "client_type", "name_slack", "_get_num_opportunities", )
     readonly_fields = (
@@ -214,6 +228,7 @@ class OpportunityAdmin(ImportExportModelAdmin):
                 ("type", "is_regular", "is_copied_to"),
                 "original_opportunity",
                 "category", "sub_categories",
+                "service",
             )
         }),
         ("依頼情報", {
@@ -273,3 +288,4 @@ admin.site.register(Client, ClientAdmin)
 admin.site.register(Opportunity, OpportunityAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(OpportunityWork, OpportunityWorkAdmin)
+admin.site.register(Service, ServiceAdmin)

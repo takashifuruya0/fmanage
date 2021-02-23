@@ -39,6 +39,25 @@ class BaseModel(models.Model):
         super(BaseModel, self).save()
 
 
+class Service(BaseModel):
+    objects = None
+    name = models.CharField(verbose_name="サービス名", max_length=256)
+    opportunity_partern = models.CharField(verbose_name="商談名パターン", max_length=256)
+    detail = models.TextField(verbose_name="サービス詳細")
+    url = models.URLField(verbose_name="サービスURL", null=True, blank=True)
+    val_payment = models.IntegerField(verbose_name="クライアント支払額（税込）")
+    val = models.IntegerField(verbose_name="報酬額（税込）")
+    is_regular = models.BooleanField(verbose_name="定期案件")
+    date_deactivate = models.DateField(verbose_name="サービス終了日", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "サービス"
+        verbose_name_plural = "サービス"
+
+    def __str__(self):
+        return self.name
+
+
 class Category(BaseModel):
     objects = None
     name = models.CharField(max_length=255, verbose_name="カテゴリー名")
@@ -138,6 +157,8 @@ class Opportunity(BaseModel):
     memo = models.TextField(verbose_name="メモ", null=True, blank=True)
     drive_url = models.URLField(verbose_name="GoogleDrive", null=True, blank=True)
     knowledge_url = models.URLField(verbose_name="Knowledge", null=True, blank=True)
+    # Service
+    service = models.ForeignKey(Service, verbose_name="サービス", blank=True, null=True, on_delete=models.DO_NOTHING)
 
     """META"""
     class Meta:

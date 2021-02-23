@@ -96,6 +96,64 @@
 			</div>
 		</div>
 	</div>
+
+	<hr>
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header bg-success">
+					<h4>
+						<i class="fas fa-user-tie"></i> MENTA
+					</h4>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-12">
+							<h5>
+								<i class="fas fa-list"></i> サービス一覧
+							</h5>
+							<table class="table">
+								<tr>
+									<th>サービス名</th>
+									<th>金額（税込）</th>
+									<th>クライアント支払額（税込）</th>
+									<th>定期案件</th>
+								</tr>
+								{% for s in services %}
+								<tr>
+									<td>{{s.name}}</td>
+									<td>{{s.val |yen}}</td>
+									<td>{{s.val_payment |yen}}</td>
+									<td>
+										{% if s.is_regular %}
+										<span class="badge badge-success">
+											<i class="fas fa-check-circle"></i>
+										</span>
+										{% endif %}
+									</td>
+								</tr>
+								{% endfor %}
+							</table>
+						</div>
+						<hr>
+						<div class="col-12">
+							<h5>
+								<i class="fas fa-plus"></i> 登録
+							</h5>
+							<form method="POST" action="{%url 'lancers:form_menta' %}">
+								<table class="table table-responsive-sm">
+									{% csrf_token %}
+									{{menta_form.as_table}}
+								</table>
+								<button type="submit" class="btn btn-primary">登録</button>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	
 	{%if DEBUG %}
 	<hr>
