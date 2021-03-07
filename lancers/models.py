@@ -77,18 +77,27 @@ class Category(BaseModel):
 class ClientProfile(BaseModel):
     """CHOICES"""
     CHOICES_MENTA_FREQUENCY = (
-        (3, "頻繁"), (2, "普通"), (1, "少ない"),
+        (3, "3. 頻繁"), (2, "2. 普通"), (1, "1. 少ない"),
     )
     CHOICES_LEVEL = (
-        (3, "高い"), (2, "普通"), (1, "低い"),
+        (3, "3. 高い"), (2, "2. 普通"), (1, "1. 低い"),
+    )
+    CHOICES_GOAL = (
+        (k, k) for k in ("1. 学習", "2. アプリ作成", "3. 副業", "4. 就職")
+    )
+    CHOICES_ATTITUDE = (
+        (1, "1. 横暴"), (2, "2. 普通",), (3, "3. 丁寧")
     )
     """FIELDS"""
     objects = None
     level_comprehensive = models.IntegerField(verbose_name="技術レベル", choices=CHOICES_LEVEL, null=True, blank=True)
-    frequency = models.IntegerField(verbose_name="連絡頻度", choices=CHOICES_MENTA_FREQUENCY, null=True, blank=True)
     level_services = models.ManyToManyField(Category, through="CategoryLevel", blank=True)
+    frequency = models.IntegerField(verbose_name="連絡頻度", choices=CHOICES_MENTA_FREQUENCY, null=True, blank=True)
+    goal = models.CharField(verbose_name="目的", max_length=255, null=True, blank=True)
+    attitude = models.IntegerField(verbose_name="態度", choices=CHOICES_ATTITUDE,null=True, blank=True)
     requiring_camera = models.BooleanField(verbose_name="カメラOn")
     github_url = models.URLField(verbose_name="GitHub", null=True, blank=True)
+    memo = models.TextField(verbose_name="その他メモ", null=True, blank=True)
 
 
 class Client(BaseModel):

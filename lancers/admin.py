@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib import messages
 from lancers.models import *
 from django.utils.safestring import mark_safe
+from datetime import date
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from import_export.formats import base_formats
@@ -93,13 +94,18 @@ class CategoryLevelInline(admin.TabularInline):
 # Admin
 # ===========================
 class ServiceAdmin(ImportExportModelAdmin):
-    list_display = ("pk", "_get_service_name", "val", "is_regular", "is_active", "date_deactivate")
+    list_display = (
+        "pk", "_get_service_name", "version", "val",
+        "is_regular", "is_active", "date_deactivate", "_get_count"
+    )
     readonly_fields = (
         "created_by", "created_at", "last_updated_by", "last_updated_at",
     )
     resource_class = ServiceResource
     search_fields = ("name", )
+    list_filter = ("is_active", )
     ordering = ("-is_active", "-is_regular", "-val")
+    actions = ["_version_up", ]
 
     def _get_service_name(self, obj):
         if not obj.is_active:
@@ -107,9 +113,27 @@ class ServiceAdmin(ImportExportModelAdmin):
         return obj.name
     _get_service_name.short_description = "サービス名"
 
+    def _get_count(self, obj):
+        return obj.opportunity_set.filter(status__startswith="選定").count()
+    _get_count.short_description = "提供数"
+
+    def _version_up(self, request, queryset):
+        for obj in queryset:
+            if obj.is_active:
+                obj.is_active = False
+                obj.date_deactivate = date.today()
+                obj.save()
+                obj.pk = None
+                obj.is_active = True
+                obj.date_deactivate = None
+                obj.version += 1
+                obj.save()
+        messages.success(request, "指定のサービスを更新しました")
+    _version_up.short_description = "サービスを更新する"
+
 
 class ClientAdmin(ImportExportModelAdmin):
-    list_display = ("name", "client_id", "client_type", "name_slack", "_get_num_opportunities", )
+    list_display = ("name", "client_id", "client_type", "name_slack", "_get_num_opportunities", "_has_profile")
     readonly_fields = (
         "created_by", "created_at", "last_updated_by", "last_updated_at",
         "_get_num_opportunities", "_get_client_url",
@@ -118,6 +142,15 @@ class ClientAdmin(ImportExportModelAdmin):
     resource_class = ClientResource
     search_fields = ("name", "client_id", "name_slack", "client_type")
     list_filter = ("client_type", "name_slack",)
+
+    def _has_profile(self, obj):
+        if obj.client_profile:
+            return obj.client_profile.last_updated_at
+        elif obj.client_type == "MENTA":
+            return "要作成"
+        else:
+            return "対象外"
+    _has_profile.short_description = "プロファイル"
 
     def _get_num_opportunities(self, obj):
         return obj.opportunity_set.count()
