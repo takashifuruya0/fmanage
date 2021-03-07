@@ -103,9 +103,6 @@ class ClientProfile(BaseModel):
         verbose_name = "クライアントプロファイル"
         verbose_name_plural = "クライアントプロファイル"
 
-    def __str__(self):
-        return "{}_{}".format(self.last_updated_at.date(), self.client)
-
 
 class Client(BaseModel):
     """CHOICES"""
