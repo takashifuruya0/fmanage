@@ -1,4 +1,4 @@
-name: Test and Deploy 
+name: Deploy 
 
 on:
   push:
@@ -19,49 +19,6 @@ jobs:
       with:
         python-version: '3.7' # Version range or exact version of a Python version to use, using SemVer's version range syntax
         architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified:  
-    - name: Prepare Env
-      env:
-        URL_SLACK_NAMS: ${{ secrets.URL_SLACK_NAMS }}
-      run: |
-        echo "TEST=test" > .env
-        echo "TRELLO_KEY=1" >> .env
-        echo "TRELLO_TOKEN=1" >> .env
-        echo "GOLDPOINT_ID=1" >> .env
-        echo "GOLDPOINT_PASSWORD=1" >> .env
-        echo "CELERY_ENVIRONMENT=fmanage.settings" >> .env
-        echo "URL_SLACK_NAMS=${URL_SLACK_NAMS}" >> .env
-        echo "LANCERS_PASSWORD=1" >> .env
-        echo "LANCERS_USER_ID=1" >> .env
-        echo "DRF_TOKEN=1" >> .env
-        echo "TWITTER_ACCESS_KEY='a'" >> .env
-        echo "TWITTER_CONSUMER_SECRET='C'" >> .env
-        echo "TWITTER_CONSUMER_KEY='C'" >> .env
-        echo "TWITTER_ACCESS_SECRET='I'" >> .env
-        echo "SBI_PASSWORD_ORDER='1'" >> .env
-        echo "SBI_USER_ID='1'" >> .env
-        echo "SBI_PASSWORD_LOGIN='1'" >> .env
-        python3 --version
-        pip3 --version
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt upgrade -y
-        sudo apt-get install python3-setuptools
-        python3 -m pip install --upgrade pip
-        pip3 install -r requirements.txt
-
-#     - name: Run Migrations # run migrations to create table in side car db container
-#       run: python3 manage.py migrate 
-#       env:
-#         SECRET_KEY: githubactions
-#         SENDGRID_API_KEY: a
-
-    - name: Django app test
-      run: python3 manage.py test 
-#       env:
-#         SECRET_KEY: githubactions
-#         SENDGRID_API_KEY: a
-
     - name: deploy
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
