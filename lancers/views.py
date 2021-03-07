@@ -25,7 +25,7 @@ class Main(LoginRequiredMixin, TemplateView):
         context['open_opps'] = Opportunity.objects.filter(status__in=("選定/作業中", "相談中", "提案中")).order_by('status')
         context['opp_form'] = OpportunityForm()
         context['menta_form'] = MentaForm()
-        context['services'] = Service.objects.filter(is_active=True)
+        context['services'] = Service.objects.filter(is_active=True).order_by("is_regular", 'val')
         context['DEBUG'] = settings.DEBUG
         return context
 

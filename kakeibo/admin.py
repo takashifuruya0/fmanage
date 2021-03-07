@@ -32,8 +32,8 @@ class ResourcesAdmin(admin.ModelAdmin):
 
 
 class UsagesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'date', 'is_expense', 'color', "is_active"]
-    list_editable = ['is_active']
+    list_display = ['id', 'name', 'date', 'is_expense', 'color', "is_active", "is_shared"]
+    list_editable = ['is_active', "is_shared"]
     actions = [activate]
 
 

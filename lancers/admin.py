@@ -84,16 +84,28 @@ class OpportunityWorkInline(admin.TabularInline):
     exclude = ("memo", )
 
 
+class CategoryLevelInline(admin.TabularInline):
+    model = CategoryLevel
+    exclude = ("sync_id", )
+
+
 # ===========================
 # Admin
 # ===========================
 class ServiceAdmin(ImportExportModelAdmin):
-    list_display = ("name", "val", "is_regular", )
+    list_display = ("pk", "_get_service_name", "val", "is_regular", "is_active", "date_deactivate")
     readonly_fields = (
         "created_by", "created_at", "last_updated_by", "last_updated_at",
     )
     resource_class = ServiceResource
     search_fields = ("name", )
+    ordering = ("-is_active", "-is_regular", "-val")
+
+    def _get_service_name(self, obj):
+        if not obj.is_active:
+            return "無効_{}".format(obj.name)
+        return obj.name
+    _get_service_name.short_description = "サービス名"
 
 
 class ClientAdmin(ImportExportModelAdmin):
