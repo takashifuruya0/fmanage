@@ -90,6 +90,11 @@ class CategoryLevelInline(admin.TabularInline):
     exclude = ("sync_id", )
 
 
+class ClientProfileInline(admin.StackedInline):
+    model = ClientProfile
+    exclude = ("sync_id",)
+
+
 # ===========================
 # Admin
 # ===========================
@@ -138,7 +143,7 @@ class ClientAdmin(ImportExportModelAdmin):
         "created_by", "created_at", "last_updated_by", "last_updated_at",
         "_get_num_opportunities", "_get_client_url",
     )
-    inlines = [OpportunityInline]
+    inlines = [OpportunityInline, ]
     resource_class = ClientResource
     search_fields = ("name", "client_id", "name_slack", "client_type")
     list_filter = ("client_type", "name_slack",)
@@ -326,6 +331,13 @@ class CategoryAdmin(ImportExportModelAdmin):
     )
 
 
+class ClientProfileAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        "created_by", "created_at", "last_updated_by", "last_updated_at",
+    )
+    inlines = [CategoryLevelInline, ]
+
+
 # ===========================
 # Register
 # ===========================
@@ -334,3 +346,4 @@ admin.site.register(Opportunity, OpportunityAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(OpportunityWork, OpportunityWorkAdmin)
 admin.site.register(Service, ServiceAdmin)
+admin.site.register(ClientProfile, ClientProfileAdmin)

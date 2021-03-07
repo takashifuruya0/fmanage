@@ -99,6 +99,13 @@ class ClientProfile(BaseModel):
     github_url = models.URLField(verbose_name="GitHub", null=True, blank=True)
     memo = models.TextField(verbose_name="その他メモ", null=True, blank=True)
 
+    class Meta:
+        verbose_name = "クライアントプロファイル"
+        verbose_name_plural = "クライアントプロファイル"
+
+    def __str__(self):
+        return "{}_{}".format(self.last_updated_at.date(), self.client)
+
 
 class Client(BaseModel):
     """CHOICES"""
