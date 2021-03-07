@@ -8,6 +8,7 @@ from lancers.functions import mylib_lancers
 # DjangoRestFramework
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from django_filters import rest_framework as filters
 from lancers.serializer import ClientSerializer, CategorySerializer, OpportunitySerializer, OpportunityWorkSerializer
 from datetime import date, datetime, timezone, timedelta
 import json
@@ -25,7 +26,7 @@ class Main(LoginRequiredMixin, TemplateView):
         context['open_opps'] = Opportunity.objects.filter(status__in=("選定/作業中", "相談中", "提案中")).order_by('status')
         context['opp_form'] = OpportunityForm()
         context['menta_form'] = MentaForm()
-        context['services'] = Service.objects.filter(is_active=True)
+        context['services'] = Service.objects.filter(is_active=True).order_by("is_regular", 'val')
         context['DEBUG'] = settings.DEBUG
         return context
 
@@ -89,6 +90,46 @@ class MentaFormView(LoginRequiredMixin, FormView):
         return res
 
 
+# =========================
+# Filter
+# =========================
+class OpportunityFilter(filters.FilterSet):
+    order_by = filters.OrderingFilter(
+        fields=(
+            ('created_at', 'created_at'),
+            ('last_updated_at', 'last_updated_at'),
+            ("date_payment", "date_payment"),
+            ("date_open", "date_open"),
+            ("date_close", "date_close"),
+            ("status", "status"),
+            ("type", "type"),
+            ("name", "name"),
+            ("working_time", "working_time"),
+            ("val", "val")
+        ),
+        # labels do not need to retain order
+        field_labels={
+            'created_at': "作成日",
+            'last_updated_at': '最終更新日',
+            'date_payment': "支払日",
+            "date_open": "開始日",
+            "date_close": "終了日",
+            "status": "ステータス",
+            "type": "タイプ",
+            "working_time": "稼働",
+            "name": "商談名",
+            "val": "金額",
+        }
+    )
+
+    class Meta:
+        model = Opportunity
+        fields = ("status", "type", "category", "service", "client")
+
+
+# =========================
+# ViewSet
+# =========================
 class ClientViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Client.objects.all().order_by('-pk')
@@ -113,6 +154,7 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         "name", 'opportunity_id', "direct_opportunity_id", "sync_id",
         "status", "type"
     )
+    filterset_class = OpportunityFilter
 
 
 class OpportunityWorkViewSet(viewsets.ModelViewSet):

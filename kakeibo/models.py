@@ -79,10 +79,11 @@ class Colors(models.Model):
 
 class Usages(BaseModel):
     # objects = None
-    is_expense = models.BooleanField() # 支出はTrue, 収入はFalse
+    is_expense = models.BooleanField(verbose_name="支出")
     memo = models.CharField(max_length=50, blank=True, null=True)
     color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+    is_shared = models.BooleanField(default=True, verbose_name="共通家計簿で利用")
     icon = models.CharField(max_length=50, null=True, blank=True, help_text="FontAwesomeのHTMLタグ")
 
     def get_kakeibos_2(self):
