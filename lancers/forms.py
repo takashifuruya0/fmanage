@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from lancers.models import Category, Opportunity, OpportunityWork, Service
+from lancers.models import Category, Opportunity, OpportunityWork, Service, Client
 
 
 class OpportunityForm(forms.Form):
@@ -33,8 +33,12 @@ class MentaForm(forms.Form):
         ("提案中", "提案中"), ("相談中", "相談中"), ("選定/作業中", "選定/作業中"),
     )
     # 共通
-    client_name = forms.CharField(label="顧客名", required=True)
-    client_id = forms.CharField(label="顧客ID", help_text="顧客URLのID")
+    client_name = forms.CharField(label="顧客名", required=False)
+    client_id = forms.CharField(label="顧客ID", help_text="顧客URLのID", required=False)
+    client = forms.ModelChoiceField(
+        label="既存顧客",  required=False,
+        queryset=Client.objects.filter(client_type="MENTA", is_active=True)
+    )
     opportunity_id = forms.CharField(label="商談ID", help_text="依頼URLのID")
     date_open = forms.DateField(label="開始日", initial=date.today(), required=True)
     date_close = forms.DateField(label="終了日", initial=date.today()+relativedelta(months=1), required=True)

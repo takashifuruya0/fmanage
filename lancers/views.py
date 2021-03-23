@@ -66,11 +66,14 @@ class MentaFormView(LoginRequiredMixin, FormView):
         res = super().form_valid(form)
         user = get_current_authenticated_user()
         service = form.cleaned_data['service']
-        c = Client(
-            name=form.cleaned_data['client_name'], client_id=form.cleaned_data['client_id'],
-            is_nonlancers=True, client_type="MENTA"
-        )
-        c.save_from_shell(user=user)
+        if not form.cleaned_data["client"]:
+            c = Client(
+                name=form.cleaned_data['client_name'], client_id=form.cleaned_data['client_id'],
+                is_nonlancers=True, client_type="MENTA"
+            )
+            c.save_from_shell(user=user)
+        else:
+            c = form.cleaned_data["client"]
         o = Opportunity(
             name=service.opportunity_partern.format(client_name=c.name),
             client=c, type="MENTA",

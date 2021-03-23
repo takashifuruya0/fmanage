@@ -56,7 +56,7 @@ class Service(BaseModel):
         verbose_name_plural = "サービス"
 
     def __str__(self):
-        if not self.is_active:
+        if self.version:
             return "{}_#{}".format(self.name, self.version)
         return self.name
 

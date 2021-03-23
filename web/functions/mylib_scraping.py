@@ -119,7 +119,7 @@ def yf_settlement(code, is_consolidated=True):
     return res
 
 
-def yf_detail(code):
+def yf_detail_old_v1(code):
     """銘柄詳細を取得"""
     base_url = "https://stocks.finance.yahoo.co.jp/stocks/detail/"
     res = {
@@ -252,6 +252,113 @@ def yf_profile(code):
         res['status'] = True
         res['msg'] = "Success"
     except Exception as e:
+        logger.error(e)
+        res['msg'] = e
+        res['status'] = False
+    return res
+
+
+def yf_detail(code):
+    """銘柄詳細を取得：2021/03/23 YahooFinance Updateに対応"""
+    base_url = "https://stocks.finance.yahoo.co.jp/stocks/detail/"
+    res = {
+        "msg": None,
+        "status": None,
+        "data": None,
+    }
+    data = {
+        key: None
+        for key in ("code", "name", "val", "market", "industry", "financial_data", "is_trust")
+    }
+    data['code'] = code
+    data['is_trust'] = False if len(str(code)) == 4 else True
+    headers = {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
+    }
+    ret = requests.get(base_url, params={"code": str(code), }, headers=headers)
+    try:
+        if settings.ENVIRONMENT == "develop":
+            soup = BeautifulSoup(ret.content, "html5lib")
+        else:
+            soup = BeautifulSoup(ret.content, "lxml")
+        if not data['is_trust']:
+            # 株
+            class_name = "_6uDhA-ZV"
+            data['name'] = soup.find('h1', {"class": class_name}).text
+            class_industry = "_1unyWCX0 _2jbOvvHc"
+            data['industry'] = soup.find('a', {"class": class_industry}).text
+            class_market = "_4C2X3X7J"
+            data['market'] = soup.find('button', {"class": class_market}).text
+            # 値
+            class_info = "_3rXWJKZF"
+            spans = soup.findAll("span", {"class": class_info})
+            val = spans[0].text.replace(",", "")
+            data['val'] = float(0) if val == "---" else float(val)
+            data['val_close'] = data['val']
+            data['val_open'] = None if val == "---" else float(spans[4].text.replace(',', ''))
+            data['val_high'] = None if val == "---" else float(spans[5].text.replace(',', ''))
+            data['val_low'] = None if val == "---" else float(spans[6].text.replace(',', ''))
+            data['turnover'] = None if spans[7].text.replace(',', '') == "---" else float(spans[7].text.replace(',', ''))
+            # finance
+            data['financial_data'] = {}
+            # 完了
+            res['data'] = data
+            res['msg'] = "Success"
+            res['status'] = True
+            """
+            現在値
+            ?
+            ?
+            前日終値
+            始値
+            高値
+            安値
+            出来高
+            売買代金
+            値幅制限
+            時価総額
+            発行済株式数
+            配当利回り
+            1株配当
+            PER（会社予想）
+            PBR（実績）
+            EPS（会社予想）
+            BPS（実績）
+            最低購入代金
+            単元株数
+            年初来高値
+            年初来安値
+            """
+        else:
+            # 投資信託
+            data['name'] = soup.find('span', {'class': "cj4y2d7f"}).text
+            data['industry'] = "投資信託"
+            d = soup.find('span', {"class": "_284RTWj9"})
+            # spans
+            spans = soup.findAll('span', {'class': "_3BGK5SVf"})
+            data['val'] = float(spans[0].text.replace(',', '')) / 10000
+            data['diff'] = float(spans[1].text.replace(',', ''))
+            data['diff_pct'] = float(spans[2].text.replace(',', ''))
+            data['balance'] = float(spans[3].text.replace(',', '')) * 1000000
+            data['資金流出入'] = float(spans[4].text.replace(',', '')) * 1000000
+            data['トータルリターン (%)'] = float(spans[5].text.replace(',', ''))
+            data['信託報酬 (%)'] = float(spans[6].text.replace(',', ''))
+            data['リスク'] = float(spans[7].text.replace(',', ''))
+            # table
+            # table = soup.find('table', {"class": "_2NDVpt4L"})
+            # tds = table.findAll('td')
+            # data['カテゴリ-'] = None
+            # data['運用会社'] = None
+            # data['運用方針'] = None
+            # data['設定日'] = None
+            # data['償還日'] = None
+            res['data'] = data
+            # 完了
+            res['msg'] = "Success"
+            res['status'] = True
+    except Exception as e:
+        logger.error("スクレイピング失敗＠{}".format(code))
+        logger.error("data: {}".format(data))
         logger.error(e)
         res['msg'] = e
         res['status'] = False

@@ -335,6 +335,7 @@ class ClientProfileAdmin(admin.ModelAdmin):
     readonly_fields = (
         "created_by", "created_at", "last_updated_by", "last_updated_at",
     )
+    list_display = ("pk", "client", "created_at")
     inlines = [CategoryLevelInline, ]
 
 
