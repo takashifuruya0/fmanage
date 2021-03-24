@@ -288,17 +288,30 @@ def yf_detail(code):
             class_industry = "_1unyWCX0 _2jbOvvHc"
             data['industry'] = soup.find('a', {"class": class_industry}).text
             class_market = "_4C2X3X7J"
-            data['market'] = soup.find('button', {"class": class_market}).text
+            data['market'] = soup.find('button', {"class": class_market})
+            if data['market'] is None:
+                class_market = "_3sg2Atie"
+                data['market'] = soup.find('span', {"class": class_market}).text
+            else:
+                data['market'] = data['market'].text
             # 値
             class_info = "_3rXWJKZF"
             spans = soup.findAll("span", {"class": class_info})
-            val = spans[0].text.replace(",", "")
-            data['val'] = float(0) if val == "---" else float(val)
-            data['val_close'] = data['val']
-            data['val_open'] = None if val == "---" else float(spans[4].text.replace(',', ''))
-            data['val_high'] = None if val == "---" else float(spans[5].text.replace(',', ''))
-            data['val_low'] = None if val == "---" else float(spans[6].text.replace(',', ''))
-            data['turnover'] = None if spans[7].text.replace(',', '') == "---" else float(spans[7].text.replace(',', ''))
+            if len(spans) > 8:
+                val = spans[0].text.replace(",", "")
+                data['val'] = float(0) if val == "---" else float(val)
+                data['val_close'] = data['val']
+                data['val_open'] = None if val == "---" else float(spans[4].text.replace(',', ''))
+                data['val_high'] = None if val == "---" else float(spans[5].text.replace(',', ''))
+                data['val_low'] = None if val == "---" else float(spans[6].text.replace(',', ''))
+                data['turnover'] = None if spans[7].text.replace(',', '') == "---" else float(spans[7].text.replace(',', ''))
+            else:
+                data['val'] = None
+                data['val_close'] = None
+                data['val_open'] = None
+                data['val_high'] = None
+                data['val_low'] = None
+                data['turnover'] = None
             # finance
             data['financial_data'] = {}
             # 完了
