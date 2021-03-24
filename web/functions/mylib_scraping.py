@@ -281,7 +281,52 @@ def yf_detail(code):
             soup = BeautifulSoup(ret.content, "html5lib")
         else:
             soup = BeautifulSoup(ret.content, "lxml")
-        if not data['is_trust']:
+        if len(ret.url.split("?")) > 1:
+            # ETF
+            stocktable = soup.find('table', {'class': 'stocksTable'})
+            data['name'] = stocktable.findAll('th', {'class': 'symbol'})[0].text
+            data['industry'] = soup.find('dd', {'class': 'category'}).text
+            data['market'] = soup.findAll('span', {'class': 'stockMainTabName'})[0].text
+            # finance情報
+            chartfinance = soup.findAll('div', {'class': 'chartFinance'})[1]
+            # 値の取得
+            vals = [
+                dd.text.replace(",", "").replace("\n", "").replace("(連) ", "").replace("(単) ", "")
+                for dd in chartfinance.findAll('strong')
+            ]
+            # current val and hloct
+            detail = soup.find('div', {"class": "innerDate"})
+            strongs = detail.findAll('strong')
+            val = stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", "")
+            data['val'] = float(strongs[0].text.replace(',', '')) if val == "---" else float(val)
+            data['val_close'] = data['val']
+            data['val_open'] = None if val == "---" else float(strongs[1].text.replace(',', ''))
+            data['val_high'] = None if val == "---" else float(strongs[2].text.replace(',', ''))
+            data['val_low'] = None if val == "---" else float(strongs[3].text.replace(',', ''))
+            data['turnover'] = None if strongs[4].text.replace(',', '') == "---" else float(
+                strongs[4].text.replace(',', ''))
+            # タイトルの取得
+            dts = chartfinance.findAll('dt')
+            keys = list()
+            for dt in dts:
+                # 補足が付いているので、前処理でタイトルのみ抽出
+                splited = dt.text.split("\n")
+                if splited[0] == "":
+                    keys.append(splited[1])
+                else:
+                    keys.append(splited[0])
+            # res['financial_data']に格納
+            data['financial_data'] = {
+                k: None if v == "---" else v
+                for k, v in zip(keys, vals)
+            }
+            if not data['industry'] == "ETF":
+                data['financial_data']['時価総額'] = int(data['financial_data']['時価総額']) * 1000000
+            res['data'] = data
+            # 完了
+            res['msg'] = "Success"
+            res['status'] = True
+        elif not data['is_trust']:
             # 株
             class_name = "_6uDhA-ZV"
             data['name'] = soup.find('h1', {"class": class_name}).text
