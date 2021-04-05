@@ -39,6 +39,28 @@ class BaseModel(models.Model):
         super(BaseModel, self).save()
 
 
+class Service(BaseModel):
+    objects = None
+    name = models.CharField(verbose_name="サービス名", max_length=256)
+    opportunity_partern = models.CharField(verbose_name="商談名パターン", max_length=256)
+    detail = models.TextField(verbose_name="サービス詳細")
+    url = models.URLField(verbose_name="サービスURL", null=True, blank=True)
+    val_payment = models.IntegerField(verbose_name="クライアント支払額（税込）")
+    val = models.IntegerField(verbose_name="報酬額（税込）")
+    is_regular = models.BooleanField(verbose_name="定期案件")
+    version = models.IntegerField(verbose_name="バージョン", default=0)
+    date_deactivate = models.DateField(verbose_name="サービス終了日", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "サービス"
+        verbose_name_plural = "サービス"
+
+    def __str__(self):
+        if self.version:
+            return "{}_#{}".format(self.name, self.version)
+        return self.name
+
+
 class Category(BaseModel):
     objects = None
     name = models.CharField(max_length=255, verbose_name="カテゴリー名")
@@ -50,6 +72,36 @@ class Category(BaseModel):
 
     def __str__(self):
         return self.name
+
+
+class ClientProfile(BaseModel):
+    """CHOICES"""
+    CHOICES_MENTA_FREQUENCY = (
+        (3, "3. 頻繁"), (2, "2. 普通"), (1, "1. 少ない"),
+    )
+    CHOICES_LEVEL = (
+        (3, "3. 高い"), (2, "2. 普通"), (1, "1. 低い"),
+    )
+    CHOICES_GOAL = (
+        (k, k) for k in ("1. 学習", "2. アプリ作成", "3. 副業", "4. 就職")
+    )
+    CHOICES_ATTITUDE = (
+        (1, "1. 横暴"), (2, "2. 普通",), (3, "3. 丁寧")
+    )
+    """FIELDS"""
+    objects = None
+    level_comprehensive = models.IntegerField(verbose_name="技術レベル", choices=CHOICES_LEVEL, null=True, blank=True)
+    level_services = models.ManyToManyField(Category, through="CategoryLevel", blank=True)
+    frequency = models.IntegerField(verbose_name="連絡頻度", choices=CHOICES_MENTA_FREQUENCY, null=True, blank=True)
+    goal = models.CharField(verbose_name="目的", max_length=255, choices=CHOICES_GOAL, null=True, blank=True)
+    attitude = models.IntegerField(verbose_name="態度", choices=CHOICES_ATTITUDE, null=True, blank=True)
+    requiring_camera = models.BooleanField(verbose_name="カメラOn")
+    github_url = models.URLField(verbose_name="GitHub", null=True, blank=True)
+    memo = models.TextField(verbose_name="その他メモ", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "クライアントプロファイル"
+        verbose_name_plural = "クライアントプロファイル"
 
 
 class Client(BaseModel):
@@ -67,6 +119,10 @@ class Client(BaseModel):
     )
     memo = models.TextField(null=True, blank=True, verbose_name="メモ")
     name_slack = models.CharField(max_length=255, verbose_name="Slackユーザ名", blank=True, null=True)
+    # client_profile
+    client_profile = models.OneToOneField(
+        ClientProfile, verbose_name="クライアントプロファイル", on_delete=models.CASCADE, blank=True, null=True
+    )
 
     class Meta:
         verbose_name = "クライアント"
@@ -74,6 +130,19 @@ class Client(BaseModel):
 
     def __str__(self):
         return "【{}】{}".format(self.client_id, self.name)
+
+
+class CategoryLevel(BaseModel):
+    """CHOICES"""
+    CHOICES_LEVEL = (
+        (3, "高い"), (2, "普通"), (1, "低い"),
+    )
+    """FIELDS"""
+    objects = None
+    client_profile = models.ForeignKey(ClientProfile, verbose_name="クライアント", on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, verbose_name="カテゴリ", on_delete=models.CASCADE)
+    level = models.IntegerField(verbose_name="技術レベル", choices=CHOICES_LEVEL)
+    memo = models.CharField(verbose_name="備考", blank=True, null=True, max_length=256)
 
 
 class Opportunity(BaseModel):
@@ -138,6 +207,8 @@ class Opportunity(BaseModel):
     memo = models.TextField(verbose_name="メモ", null=True, blank=True)
     drive_url = models.URLField(verbose_name="GoogleDrive", null=True, blank=True)
     knowledge_url = models.URLField(verbose_name="Knowledge", null=True, blank=True)
+    # Service
+    service = models.ForeignKey(Service, verbose_name="サービス", blank=True, null=True, on_delete=models.DO_NOTHING)
 
     """META"""
     class Meta:

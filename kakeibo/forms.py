@@ -42,7 +42,7 @@ class SharedKakeiboForm(forms.ModelForm):
     paid_by = forms.TypedChoiceField(choices=choices_paid_by)
     date = forms.DateField()
     usage = forms.ModelChoiceField(
-        queryset=Usages.objects.filter(is_expense=True, is_active=True)
+        queryset=Usages.objects.filter(is_expense=True, is_active=True, is_shared=True)
     )
 
     class Meta:

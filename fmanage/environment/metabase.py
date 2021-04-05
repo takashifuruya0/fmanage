@@ -26,13 +26,19 @@ ENVIRONMENT = "metabase"
 LOGGING['handlers'] = {
     'logfile': {
         'level': 'INFO',
-        'class': 'logging.FileHandler',
+        # 'class': 'logging.FileHandler',
+        'class': 'logging.handlers.RotatingFileHandler',
+        'maxBytes': 50000,
+        'backupCount': 2,
         'formatter': 'verbose',
         'filename': "/var/log/gunicorn/logfile",
     },
     'elogfile': {
         'level': 'ERROR',
-        'class': 'logging.FileHandler',
+        # 'class': 'logging.FileHandler',
+        'class': 'logging.handlers.RotatingFileHandler',
+        'maxBytes': 50000,
+        'backupCount': 2,
         'formatter': 'verbose',
         'filename': "/var/log/gunicorn/elogfile",
     },

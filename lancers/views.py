@@ -8,6 +8,7 @@ from lancers.functions import mylib_lancers
 # DjangoRestFramework
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from django_filters import rest_framework as filters
 from lancers.serializer import ClientSerializer, CategorySerializer, OpportunitySerializer, OpportunityWorkSerializer
 from datetime import date, datetime, timezone, timedelta
 import json
@@ -24,6 +25,8 @@ class Main(LoginRequiredMixin, TemplateView):
         context = super(Main, self).get_context_data(**kwargs)
         context['open_opps'] = Opportunity.objects.filter(status__in=("選定/作業中", "相談中", "提案中")).order_by('status')
         context['opp_form'] = OpportunityForm()
+        context['menta_form'] = MentaForm()
+        context['services'] = Service.objects.filter(is_active=True).order_by("is_regular", 'val')
         context['DEBUG'] = settings.DEBUG
         return context
 
@@ -48,6 +51,88 @@ class OpportunityFormView(LoginRequiredMixin, FormView):
         return res
 
 
+class MentaFormView(LoginRequiredMixin, FormView):
+    form_class = MentaForm
+
+    def get_success_url(self):
+        return reverse('lancers:main')
+
+    def form_invalid(self, form):
+        res = super().form_invalid(form)
+        messages.error(self.request, "validation error")
+        return res
+
+    def form_valid(self, form):
+        res = super().form_valid(form)
+        user = get_current_authenticated_user()
+        service = form.cleaned_data['service']
+        if not form.cleaned_data["client"]:
+            c = Client(
+                name=form.cleaned_data['client_name'], client_id=form.cleaned_data['client_id'],
+                is_nonlancers=True, client_type="MENTA"
+            )
+            c.save_from_shell(user=user)
+        else:
+            c = form.cleaned_data["client"]
+        o = Opportunity(
+            name=service.opportunity_partern.format(client_name=c.name),
+            client=c, type="MENTA",
+            service=service, val=service.val, val_payment=service.val_payment, is_regular=service.is_regular,
+            date_open=form.cleaned_data['date_open'], date_close=form.cleaned_data['date_close'],
+            status=form.cleaned_data['status'], category=form.cleaned_data['category'],
+            description_opportunity=form.cleaned_data['description_opportunity'],
+            date_proposal=form.cleaned_data['date_proposal'],
+            description_proposal=form.cleaned_data['description_proposal'],
+            num_proposal=form.cleaned_data['num_proposal']
+        )
+        o.save_from_shell(user=user)
+        print(form.cleaned_data['sub_categories'])
+        text = "クライアント {} と、商談 {} を作成しました".format(c, o)
+        logger.info(text)
+        messages.success(self.request, text)
+        return res
+
+
+# =========================
+# Filter
+# =========================
+class OpportunityFilter(filters.FilterSet):
+    order_by = filters.OrderingFilter(
+        fields=(
+            ('created_at', 'created_at'),
+            ('last_updated_at', 'last_updated_at'),
+            ("date_payment", "date_payment"),
+            ("date_open", "date_open"),
+            ("date_close", "date_close"),
+            ("status", "status"),
+            ("type", "type"),
+            ("name", "name"),
+            ("working_time", "working_time"),
+            ("val", "val")
+        ),
+        # labels do not need to retain order
+        field_labels={
+            'created_at': "作成日",
+            'last_updated_at': '最終更新日',
+            'date_payment': "支払日",
+            "date_open": "開始日",
+            "date_close": "終了日",
+            "status": "ステータス",
+            "type": "タイプ",
+            "working_time": "稼働",
+            "name": "商談名",
+            "val": "金額",
+        }
+    )
+
+    class Meta:
+        model = Opportunity
+        fields = ("status", "type", "category", "service", "client")
+
+
+# =========================
+# ViewSet
+# =========================
 class ClientViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Client.objects.all().order_by('-pk')
@@ -72,6 +157,7 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         "name", 'opportunity_id', "direct_opportunity_id", "sync_id",
         "status", "type"
     )
+    filterset_class = OpportunityFilter
 
 
 class OpportunityWorkViewSet(viewsets.ModelViewSet):
