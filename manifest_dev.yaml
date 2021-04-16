@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fmanage-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fmanage-app
+  template:
+    metadata:
+      labels:
+        app: fmanage-app
+    spec:
+      containers:
+        - name: fmanage-container
+          image: tfuruya/fmanage-app:v1
+          command: [
+              "python3"
+          ]
+          args: [
+            "manage.py", "runserver", "0.0.0.0:8000", "--settings=fmanage.environment.develop_pg"
+          ]
+          ports:
+            - containerPort: 8000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: fmanage-externalip
+spec:
+  type: LoadBalancer # <- LoadBalancerから変更
+  ports:
+    - name: "http-port"
+      protocol: "TCP"
+      port: 80
+      targetPort: 8000
+#      nodePort: 30001
+  selector:
+    app: fmanage-app
+

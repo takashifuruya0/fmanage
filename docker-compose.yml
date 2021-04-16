@@ -1,14 +1,12 @@
 version: '3'
 services:
   fmanage:
-    build: .
-    command: >
-      bash -c '
-        python3 manage.py runserver 0.0.0.0:8000 --settings=fmanage.environment.develop_pg
-        '
+#    build: .
+    image: tfuruya/fmanage-app:v1
+    command: python3 manage.py runserver 0.0.0.0:8000 --settings=fmanage.environment.develop_pg
     ports:
       - 8081:8000
-    volumes:
-      - .:/home/fmanage
+#    volumes:
+#      - .:/home/fmanage
 
 
