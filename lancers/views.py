@@ -97,6 +97,9 @@ class MentaFormView(LoginRequiredMixin, FormView):
 # Filter
 # =========================
 class OpportunityFilter(filters.FilterSet):
+    val_gte = filters.NumberFilter(field_name="val", lookup_expr="gte")
+    category = filters.ModelMultipleChoiceFilter(queryset=Category.objects.filter(is_active=True).order_by('name'))
+
     order_by = filters.OrderingFilter(
         fields=(
             ('created_at', 'created_at'),
@@ -107,7 +110,6 @@ class OpportunityFilter(filters.FilterSet):
             ("status", "status"),
             ("type", "type"),
             ("name", "name"),
-            ("working_time", "working_time"),
             ("val", "val")
         ),
         # labels do not need to retain order
@@ -119,7 +121,6 @@ class OpportunityFilter(filters.FilterSet):
             "date_close": "終了日",
             "status": "ステータス",
             "type": "タイプ",
-            "working_time": "稼働",
             "name": "商談名",
             "val": "金額",
         }
@@ -127,7 +128,36 @@ class OpportunityFilter(filters.FilterSet):
 
     class Meta:
         model = Opportunity
-        fields = ("status", "type", "category", "service", "client")
+        fields = (
+            "status", "type", "category", "service", "client",
+            "val_gte",
+        )
+
+
+class OpportunityWorkFilter(filters.FilterSet):
+    start_date = filters.DateTimeFilter(field_name="datetime_start", lookup_expr="date")
+
+    order_by = filters.OrderingFilter(
+        fields=(
+            ('created_at', 'created_at'),
+            ('last_updated_at', 'last_updated_at'),
+            ("working_time", "working_time"),
+            ("datetime_start", "datetime_start"),
+            ("datetime_end", "datetime_end"),
+        ),
+        # labels do not need to retain order
+        field_labels={
+            'created_at': "作成日",
+            'last_updated_at': '最終更新日',
+            "working_time": "稼働",
+            "datetime_start": "開始時間",
+            "datetime_end": "終了時間",
+        }
+    )
+
+    class Meta:
+        model = OpportunityWork
+        fields = ("opportunity", "start_date", )
 
 
 # =========================
@@ -167,6 +197,7 @@ class OpportunityWorkViewSet(viewsets.ModelViewSet):
     filter_fields = (
         "sync_id", "opportunity_id",
     )
+    filterset_class = OpportunityWorkFilter
 
 
 class SyncToProdView(LoginRequiredMixin, View):
