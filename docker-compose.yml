@@ -2,7 +2,7 @@ version: '3'
 services:
   fmanage:
 #    build: .
-    image: tfuruya/fmanage-app:v1
+    image: tfuruya/fmanage-app:v2
     command: python3 manage.py runserver 0.0.0.0:8000 --settings=fmanage.environment.develop_pg
     ports:
       - 8081:8000

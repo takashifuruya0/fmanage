@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: fmanage-container
-          image: tfuruya/fmanage-app:v1
+          image: tfuruya/fmanage-app:v2
           command: [
               "python3"
           ]
