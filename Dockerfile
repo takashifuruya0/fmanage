@@ -1,6 +1,6 @@
 FROM python:3.7
 ENV PYTHONUNBUFFERED 1
-ENV GOOGLE_APPLICATION_CREDENTIALS /home/fmanage/testiam.json
+# ENV GOOGLE_APPLICATION_CREDENTIALS /home/fmanage/testiam.json
 # ADD requirements.txt requirements.txt
 COPY ./ /home/fmanage/
 WORKDIR /home/fmanage
