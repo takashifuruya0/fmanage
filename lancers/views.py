@@ -135,7 +135,15 @@ class OpportunityFilter(filters.FilterSet):
 
 
 class OpportunityWorkFilter(filters.FilterSet):
-    start_date = filters.DateTimeFilter(field_name="datetime_start", lookup_expr="date")
+
+    def is_datetime_without_null(self, queryset, name, value):
+        if value:
+            return queryset.exclude(datetime_start=None)
+        else:
+            return queryset.filter(datetime_start=None)
+
+    date_start = filters.DateTimeFilter(field_name="datetime_start", lookup_expr="date")
+    datetime_without_null = filters.BooleanFilter(method="is_datetime_without_null", label="開始時間あり")
 
     order_by = filters.OrderingFilter(
         fields=(
@@ -157,7 +165,7 @@ class OpportunityWorkFilter(filters.FilterSet):
 
     class Meta:
         model = OpportunityWork
-        fields = ("opportunity", "start_date", )
+        fields = ("opportunity", "date_start", "datetime_without_null")
 
 
 # =========================
