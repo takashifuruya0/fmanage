@@ -260,12 +260,13 @@ MESSAGE_TAGS = {
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # test
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = [
-    '--with-coverage',  # get coverage
-    '--cover-html',  # output coverage to cover/ in html
-    '--cover-package=kakeibo,asset,api,web',
-]
+# TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+# NOSE_ARGS = [
+#     '--with-coverage',  # get coverage
+#     '--cover-html',  # output coverage to cover/ in html
+#     '--cover-xml',   # output coverage to cover/ in xml
+#     '--cover-package=kakeibo,asset,api,web',
+# ]
 # environment
 ENVIRONMENT = "develop"
 
