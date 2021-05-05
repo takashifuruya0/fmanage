@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models import Sum
-from web.models import AssetStatus, Stock, SBIAlert, Entry, Order
+from web.models import AssetStatus, Stock, SBIAlert, Entry, Order, StockValueData
 from web.functions import mylib_asset
 from datetime import date
 import json
@@ -21,6 +21,14 @@ class APIViewTest(TestCase):
         )
         self.stock3 = Stock.objects.create(
             code="2931113C", name="test3", market="market3", industry="industry", is_trust=True
+        )
+        self.svd1 = StockValueData.objects.create(
+            stock=self.stock1, val_high=1000, val_low=900, val_open=950,
+            val_close=980, turnover=10000, date=date.today()
+        )
+        self.svd2 = StockValueData.objects.create(
+            stock=self.stock2, val_high=1000, val_low=900, val_open=950,
+            val_close=980, turnover=10000, date=date.today()
         )
         self.sbialert = SBIAlert.objects.create(
             stock=self.stock1, type=2, val=1

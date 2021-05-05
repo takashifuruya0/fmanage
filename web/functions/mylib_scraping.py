@@ -359,6 +359,11 @@ def yf_detail(code):
                 data['turnover'] = None
             # finance
             data['financial_data'] = {}
+            keys = soup.findAll('span', {'class': '_3RQJDhPQ'})
+            vals = soup.findAll('span', {'class': '_3rXWJKZF _11kV6f2G'})
+            if len(keys) == len(vals):
+                for k, v in zip(keys, vals):
+                    data['financial_data'][k.text] = None if val == "---" else float(v.text.replace(',', ''))
             # 完了
             res['data'] = data
             res['msg'] = "Success"

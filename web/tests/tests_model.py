@@ -2,12 +2,12 @@ from django.test import TestCase
 from web.models import Stock, Order, Entry, AssetStatus, ReasonWinLoss
 from web.models import StockValueData, StockFinancialData, SBIAlert, AssetTarget
 from django.contrib.auth.models import User
-from datetime import datetime, date
+from datetime import datetime, date, timezone, timedelta
 # Create your tests here.
 
 
 class ModelTest(TestCase):
-    now = datetime.now()
+    now = datetime.now(timezone(timedelta(hours=9)))
     today = date.today()
 
     def setUp(self):
