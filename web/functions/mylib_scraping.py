@@ -363,7 +363,11 @@ def yf_detail(code):
             vals = soup.findAll('span', {'class': '_3rXWJKZF _11kV6f2G'})
             if len(keys) == len(vals):
                 for k, v in zip(keys, vals):
-                    data['financial_data'][k.text] = None if val == "---" else float(v.text.replace(',', ''))
+                    if v == "---":
+                        val = None
+                    else:
+                        val = v.text.replace(",", "").replace("\n", "").replace("(連) ", "").replace("(単) ", "")
+                    data['financial_data'][k.text] = val
             # 完了
             res['data'] = data
             res['msg'] = "Success"
