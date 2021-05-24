@@ -25,7 +25,11 @@ class Main(LoginRequiredMixin, TemplateView):
         context = super(Main, self).get_context_data(**kwargs)
         context['open_opps'] = Opportunity.objects.filter(status__in=("選定/作業中", "相談中", "提案中")).order_by('status')
         context['opp_form'] = OpportunityForm()
-        context['menta_form'] = MentaForm()
+        context['menta_form'] = MentaForm(initial={
+            "date_open": date.today(),
+            "date_close": date.today()+relativedelta(months=1),
+            "date_proposed_delivery": date.today() + relativedelta(months=1),
+        })
         context['services'] = Service.objects.filter(is_active=True).order_by("is_regular", 'val')
         context['DEBUG'] = settings.DEBUG
         return context
@@ -82,11 +86,13 @@ class MentaFormView(LoginRequiredMixin, FormView):
             status=form.cleaned_data['status'], category=form.cleaned_data['category'],
             description_opportunity=form.cleaned_data['description_opportunity'],
             date_proposal=form.cleaned_data['date_proposal'],
+            date_proposed_delivery=form.cleaned_data['date_proposed_delivery'],
             description_proposal=form.cleaned_data['description_proposal'],
             num_proposal=form.cleaned_data['num_proposal']
         )
+        if o.status == "選定/作業中":
+            o.date_payment = o.date_open
         o.save_from_shell(user=user)
-        print(form.cleaned_data['sub_categories'])
         text = "クライアント {} と、商談 {} を作成しました".format(c, o)
         logger.info(text)
         messages.success(self.request, text)
