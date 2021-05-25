@@ -10,7 +10,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django_filters import rest_framework as filters
 from lancers.serializer import ClientSerializer, CategorySerializer, OpportunitySerializer, OpportunityWorkSerializer
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta, timezone
 import json
 import requests
 import logging
