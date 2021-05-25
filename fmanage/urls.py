@@ -52,4 +52,6 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
+    import debug_toolbar
     urlpatterns.append(path('docs/', include_docs_urls(title='FK-MANAGEMENT API')))
+    urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))

@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.line',  # 追加
     'allauth.socialaccount.providers.twitter',  # 追加
     'allauth.socialaccount.providers.google',  # 追加
+    'debug_toolbar',  # debug-toolbar
 ]
 
 MIDDLEWARE = [
@@ -78,7 +79,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_currentuser.middleware.ThreadLocalUserMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',  # debug-toolbar
 ]
+
+# debug-toolbar
+INTERNAL_IPS = ['127.0.0.1', "172.22.0.1"]
 
 ROOT_URLCONF = 'fmanage.urls'
 
