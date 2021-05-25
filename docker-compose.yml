@@ -6,7 +6,7 @@ services:
     command: python3 manage.py runserver 0.0.0.0:8000 --settings=fmanage.environment.develop_gke
     ports:
       - 8081:8000
-#    volumes:
-#      - .:/home/fmanage
+    volumes:
+      - .:/home/fmanage
 
 
