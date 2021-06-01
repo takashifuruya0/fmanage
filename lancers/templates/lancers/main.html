@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{% load static %}
 {% load web_template %}
 {% block title %}
     Lancers Dashboard
@@ -191,3 +192,8 @@
 </div>
 {% endblock %}
 
+{% block script %}
+<!--autocomplete-->
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+{{ menta_form.media }}
+{% endblock %}
