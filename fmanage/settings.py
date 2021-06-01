@@ -69,6 +69,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.twitter',  # 追加
     'allauth.socialaccount.providers.google',  # 追加
     'debug_toolbar',  # debug-toolbar
+    'bootstrap_datepicker_plus',
+
 ]
 
 MIDDLEWARE = [
