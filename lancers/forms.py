@@ -4,6 +4,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from lancers.models import Category, Opportunity, OpportunityWork, Service, Client
 from dal import autocomplete
+from bootstrap_datepicker_plus import DateTimePickerInput, DatePickerInput
 
 
 class OpportunityForm(forms.Form):
@@ -47,11 +48,12 @@ class MentaForm(forms.Form):
     opportunity_id = forms.CharField(label="商談ID", help_text="依頼URLのID", required=False)
     date_open = forms.DateField(
         label="開始日", required=True,
-        widget=forms.DateInput(attrs={"class": "c_date"})
+        # widget=forms.DateInput(attrs={"class": "c_date"})
+        widget=DatePickerInput(options={"format": "YYYY-MM-DD"})
     )
     date_close = forms.DateField(
         label="終了日", required=True,
-        widget=forms.DateInput(attrs={"class": "c_date"})
+        widget=DatePickerInput(options={"format": "YYYY-MM-DD"})
     )
     status = forms.ChoiceField(label="ステータス", choices=CHOICES_STATUS, required=True)
     category = forms.ModelChoiceField(
@@ -64,11 +66,18 @@ class MentaForm(forms.Form):
     # 提案
     date_proposal = forms.DateField(
         label="提案日", required=True,
-        widget=forms.DateInput(attrs={"class": "c_date"})
+        widget=DatePickerInput(options={"format": "YYYY-MM-DD"})
     )
     date_proposed_delivery = forms.DateField(
         label="提案納期", required=True,
-        widget=forms.DateInput(attrs={"class": "c_date"})
+        widget=DatePickerInput(options={"format": "YYYY-MM-DD"})
     )
     description_proposal = forms.CharField(widget=forms.Textarea(), label="提案", required=False)
     num_proposal = forms.IntegerField(label="提案数", widget=forms.NumberInput(), min_value=0, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+        self.fields['client'].widget.attrs['class'] = ""
+        self.fields['category'].widget.attrs['class'] = ""

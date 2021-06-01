@@ -173,7 +173,7 @@
 							<h5 class="card-title">
 								<i class="fas fa-seedling"></i> 直接受注/提案受注
 							</h5>
-							<form method="POST" action="{%url 'lancers:form_opportunity' %}">
+							<form method="POST" action="{%url 'lancers:form_opportunity' %}" class="form">
 								<table class="table table-responsive-sm">
 									{% csrf_token %}
 									{{opp_form.as_table}}
@@ -194,6 +194,5 @@
 
 {% block script %}
 <!--autocomplete-->
-<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
 {{ menta_form.media }}
 {% endblock %}
