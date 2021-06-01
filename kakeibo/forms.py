@@ -15,11 +15,8 @@ class KakeiboForm(forms.ModelForm):
     way.widget.attrs['onchange'] = 'fill_resource()'
     tag_copy_to_shared = forms.BooleanField(required=False, label="共通へコピー")
     usage = forms.ModelChoiceField(
-        queryset=Usages.objects.filter(is_active=True).order_by('is_expense', "pk"), required=False,
-        widget=autocomplete.ModelSelect2(url='kakeibo:autocomplete-usage')
-    )
-    date = forms.DateField(
-        widget=DatePickerInput(options={"format": "YYYY-MM-DD"})
+        queryset=Usages.objects.filter(is_active=True).order_by('is_expense', "pk"),
+        required=False
     )
 
     class Meta:
