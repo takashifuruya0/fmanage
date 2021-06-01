@@ -3,6 +3,7 @@ from django.conf import settings
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from lancers.models import Category, Opportunity, OpportunityWork, Service, Client
+from dal import autocomplete
 
 
 class OpportunityForm(forms.Form):
@@ -11,7 +12,10 @@ class OpportunityForm(forms.Form):
         label="商談種類", help_text="追加受注は選択不可",
         choices=Opportunity.CHOICES_TYPE_OPPORTUNITY, widget=forms.Select()
     )
-    category_id = forms.ModelChoiceField(Category.objects, label="カテゴリー")
+    category_id = forms.ModelChoiceField(
+        Category.objects, label="カテゴリー",
+        widget=autocomplete.ModelSelect2(url='lancers:autocomplete-category'),
+    )
     status = forms.ChoiceField(choices=Opportunity.CHOICES_STATUS_OPPORTUNITY, label="ステータス")
     memo = forms.CharField(widget=forms.Textarea(), label="補足")
 
@@ -37,7 +41,8 @@ class MentaForm(forms.Form):
     client_id = forms.CharField(label="顧客ID", help_text="新規向け・顧客URLのID", required=False)
     client = forms.ModelChoiceField(
         label="既存顧客",  required=False, help_text="既存向け",
-        queryset=Client.objects.filter(client_type="MENTA", is_active=True)
+        queryset=Client.objects.filter(client_type="MENTA", is_active=True),
+        widget=autocomplete.ModelSelect2(url='lancers:autocomplete-mentaclient')
     )
     opportunity_id = forms.CharField(label="商談ID", help_text="依頼URLのID", required=False)
     date_open = forms.DateField(
@@ -49,13 +54,16 @@ class MentaForm(forms.Form):
         widget=forms.DateInput(attrs={"class": "c_date"})
     )
     status = forms.ChoiceField(label="ステータス", choices=CHOICES_STATUS, required=True)
-    category = forms.ModelChoiceField(Category.objects, label="カテゴリー", required=True)
+    category = forms.ModelChoiceField(
+        Category.objects, label="カテゴリー", required=True,
+        widget=autocomplete.ModelSelect2(url='lancers:autocomplete-category')
+    )
     sub_categories = forms.ModelMultipleChoiceField(Category.objects, label="サブカテゴリー", required=False)
     description_opportunity = forms.CharField(widget=forms.Textarea(), label="依頼", required=False)
     service = forms.ModelChoiceField(Service.objects.filter(is_active=True), label="サービス", required=True)
     # 提案
     date_proposal = forms.DateField(
-        label="提案日", initial=date.today(), required=True,
+        label="提案日", required=True,
         widget=forms.DateInput(attrs={"class": "c_date"})
     )
     date_proposed_delivery = forms.DateField(

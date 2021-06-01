@@ -13,6 +13,9 @@ from lancers.serializer import ClientSerializer, CategorySerializer, Opportunity
 from datetime import date, datetime, timezone, timedelta, timezone
 import json
 import requests
+# autocomplete
+from dal import autocomplete
+# logging
 import logging
 logger = logging.getLogger("django")
 # Create your views here.
@@ -25,10 +28,13 @@ class Main(LoginRequiredMixin, TemplateView):
         context = super(Main, self).get_context_data(**kwargs)
         context['open_opps'] = Opportunity.objects.filter(status__in=("選定/作業中", "相談中", "提案中")).order_by('status')
         context['opp_form'] = OpportunityForm()
+        today = date.today()
+        next_month = today + relativedelta(months=1)
         context['menta_form'] = MentaForm(initial={
-            "date_open": date.today(),
-            "date_close": date.today()+relativedelta(months=1),
-            "date_proposed_delivery": date.today() + relativedelta(months=1),
+            "date_open": today,
+            "date_close": next_month,
+            "date_proposal": today,
+            "date_proposed_delivery": next_month,
         })
         context['services'] = Service.objects.filter(is_active=True).order_by("is_regular", 'val')
         context['DEBUG'] = settings.DEBUG
@@ -334,3 +340,28 @@ class SyncToProdView(LoginRequiredMixin, View):
         else:
             messages.error(request, "Devのみ")
         return redirect('lancers:main')
+
+
+# =========================
+# AutoComplete
+# =========================
+class MENTAClientAutoComplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated:
+            return Client.objects.none()
+        qs = Client.objects.filter(client_type="MENTA", is_active=True)
+        if self.q:
+            qs = qs.filter(name__istartswith=self.q)
+        return qs
+
+
+class CategoryAutoComplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated:
+            return Category.objects.none()
+        qs = Category.objects.filter(is_active=True)
+        if self.q:
+            qs = qs.filter(name__istartswith=self.q)
+        return qs
