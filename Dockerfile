@@ -4,5 +4,6 @@ ENV PYTHONUNBUFFERED 1
 # ADD requirements.txt requirements.txt
 COPY ./ /home/fmanage/
 WORKDIR /home/fmanage
+RUN apt update && apt upgrade -y
 RUN pip3 install -r requirements.txt
 EXPOSE 8000
