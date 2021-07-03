@@ -3,7 +3,7 @@ services:
   fmanage:
     build: .
 #    image: tfuruya/fmanage-app:v3
-    command: python3 manage.py runserver 0.0.0.0:8000 --settings=fmanage.environment.develop_gke
+    command: python3 manage.py runserver 0.0.0.0:8000 --settings=fmanage.environment.develop_pg
     ports:
       - 8081:8000
     volumes:
