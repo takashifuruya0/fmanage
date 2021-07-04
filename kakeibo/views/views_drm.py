@@ -2,7 +2,7 @@
 
 import logging
 logger = logging.getLogger("django")
-from kakeibo.models import Usages, Resources, Kakeibos, SharedKakeibos, CreditItems, Credits
+from kakeibo.models import Usages, Resources, Kakeibos, SharedKakeibos, CreditItems, Credits, Event
 from kakeibo.models import CronKakeibo, CronShared, UsualRecord
 # django-rest-framework
 from django_filters import rest_framework as dfilters
@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from kakeibo.serializer import UsagesSerializer, ResourcesSerializer, KakeibosSerializer
 from kakeibo.serializer import SharedKakeibosSerializer, CreditItemsSerializer, CreditsSerializer
 from kakeibo.serializer import CronKakeiboSerializer, CronSharedSerializer, UsualRecordSerializer
+from kakeibo.serializer import EventSerializer
 
 
 # django-rest-framework
@@ -78,3 +79,8 @@ class UsualRecordViewSet(viewsets.ModelViewSet):
     queryset = UsualRecord.objects.all()
     serializer_class = UsualRecordSerializer
 
+
+class EventViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer

@@ -9,6 +9,7 @@ from rest_framework import routers
 from kakeibo.views.views_drm import UsagesViewSet, ResourcesViewSet, KakeibosViewSet
 from kakeibo.views.views_drm import SharedKakeibosViewSet, CreditItemsViewSet, CreditsViewSet
 from kakeibo.views.views_drm import CronKakeiboViewSet, CronSharedViewSet, UsualRecordViewSet
+from kakeibo.views.views_drm import EventViewSet
 
 
 app_name = 'kakeibo'
@@ -92,4 +93,5 @@ router.register(r'kakeibo/credititem', CreditItemsViewSet)
 router.register(r'kakeibo/cron/kakeibo', CronKakeiboViewSet)
 router.register(r'kakeibo/cron/shared', CronSharedViewSet)
 router.register(r'kakeibo/usualrecord', UsualRecordViewSet)
+router.register(r'kakeibo/event', EventViewSet)
 
