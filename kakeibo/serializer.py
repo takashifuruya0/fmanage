@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 from datetime import datetime
-from .models import Usages, Resources, Kakeibos, SharedKakeibos, CreditItems, Credits
+from .models import Usages, Resources, Kakeibos, SharedKakeibos, CreditItems, Credits, Event
 from .models import CronKakeibo, CronShared, UsualRecord
 
 
@@ -168,3 +168,22 @@ class UsualRecordSerializer(serializers.ModelSerializer):
             'move_to', 'move_from', 'memo',
             'icon', 'usage_uid', 'move_from_uid', 'move_to_uid'
         )
+
+
+class EventSerializer(serializers.ModelSerializer):
+    kakeibos = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Event
+        fields = ('pk', "name", "date", "memo", "detail", "sum_plan", "is_active", "kakeibos")
+
+    def get_kakeibos(self, obj):
+        try:
+            res = KakeibosSerializer(
+                Kakeibos.objects.all().filter(event=Event.objects.get(id=obj.id)),
+                many=True
+            ).data
+        except Exception as e:
+            res = None
+        finally:
+            return res
