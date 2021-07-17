@@ -64,11 +64,11 @@ class Stock(models.Model):
             self.is_trust = False if len(str(self.code)) == 4 else True
             if data['data']['industry'] == "REIT":
                 dividend = data['data']['financial_data']['予想分配金']
-                self.dividend = dividend if dividend is None else int(float(dividend))
+                self.dividend = dividend if dividend in (None, "---")  else int(float(dividend))
                 self.dividend_yield = data['data']['financial_data']['分配金利回り']
             elif not data['data']['industry'] == "ETF" and not self.is_trust:
                 dividend = data['data']['financial_data']['1株配当']
-                self.dividend = dividend if dividend is None else int(float(dividend))
+                self.dividend = dividend if dividend in (None, "---") else int(float(dividend))
                 self.dividend_yield = data['data']['financial_data']['配当利回り']
         profile = mylib_scraping.yf_profile(self.code)
         if profile['status']:
