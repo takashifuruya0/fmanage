@@ -29,6 +29,7 @@ class Stock(models.Model):
     unit = models.CharField(max_length=10, blank=True, null=True, verbose_name="単元株数")
     dividend = models.IntegerField(blank=True, null=True, verbose_name="配当金")
     dividend_yield = models.FloatField(blank=True, null=True, verbose_name="配当利回り")
+    is_listed = models.BooleanField("上場済み", default=True)
 
     def __str__(self):
         return "({}) {}".format(self.code, self.name)

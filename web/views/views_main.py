@@ -20,9 +20,12 @@ class Main(LoginRequiredMixin, TemplateView):
     template_name = "web/main.html"
 
     def get_context_data(self, **kwargs):
-        entrys = Entry.objects.filter(user=self.request.user).exclude(is_closed=False).exclude(is_plan=True).order_by('-pk')[:5]
-        open_entrys = Entry.objects.filter(user=self.request.user, is_closed=False).exclude(is_plan=True).order_by('-pk')
-        plan_entrys = Entry.objects.filter(user=self.request.user, is_plan=True, is_closed=False).order_by('-pk')
+        entrys = Entry.objects.select_related('stock').prefetch_related('order_set').filter(
+            user=self.request.user).exclude(is_closed=False).exclude(is_plan=True).order_by('-pk')[:5]
+        open_entrys = Entry.objects.select_related('stock').prefetch_related('order_set').filter(
+            user=self.request.user, is_closed=False).exclude(is_plan=True).order_by('-pk')
+        plan_entrys = Entry.objects.select_related('stock').prefetch_related('order_set').filter(
+            user=self.request.user, is_plan=True, is_closed=False).order_by('-pk')
         astatus_list = AssetStatus.objects.filter(user=self.request.user)
         astatus = astatus_list.latest('date') if astatus_list.exists() else None
         # checks = mylib_asset.analyse_all(days=15)
