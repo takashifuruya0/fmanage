@@ -155,11 +155,17 @@
 					</td>
 				</tr>
 				<tr>
-					<th>現在利益</th>
+					<th>現在利益（配当除く）</th>
 					<td class="right">
 						{{entry.profit |yen |safe}} / {{entry.profit_pct |pct_100 |safe}}
 					</td>
 				</tr>
+				{% if dividend_count > 0 %}
+				<tr>
+					<th>配当利益/税額</th>
+					<td class="right">{{dividend_total.val |yen}} / {{dividend_total.tax |yen}}</td>
+				</tr>
+				{% endif %}
 				<tr>
 					<th>保有期間</th>
 					<td class="right">{{entry.holding_period |intcomma}}日間</td>
@@ -188,11 +194,17 @@
 					</td>
 				</tr>
 				<tr>
-					<th>利益</th>
+					<th>利益（配当除く）</th>
 					<td class="right">
 						{{entry.profit |yen |safe}} / {{entry.profit_pct |pct_100 |safe}}
 					</td>
 				</tr>
+				{% if dividend_count > 0 %}
+				<tr>
+					<th>配当利益/税額</th>
+					<td class="right">{{dividend_total.val |yen}} / {{dividend_total.tax |yen}}</td>
+				</tr>
+				{% endif %}
 				<tr>
 					<th>保有期間</th>
 					<td class="right">{{entry.holding_period |intcomma}}日間</td>
@@ -299,6 +311,28 @@
 				{% include 'web/modal/modal_link_orders.html' %}
 				{% csrf_token %}
 			</form>
+
+			<hr>
+			<h5><i class="fas fa-money-bill-wave-alt"></i> Dividends</h5>
+			<table class="table">
+				<tr>
+					<th>Date</th>
+					<th>Num</th>
+					<th>Val</th>
+					<th>Total</th>
+					<th>Tax</th>
+				</tr>
+				{% for d in entry.dividend_set.all %}
+				<tr>
+					<td>{{d.date}}</td>
+					<td>{{d.unit |intcomma}}</td>
+					<td>{{d.val_unit |yen}}</td>
+					<td>{{d.val |yen}}</td>
+					<td>{{d.tax |yen}}</td>
+				</tr>
+				{% endfor %}
+
+			</table>
 
 
 			<hr>
