@@ -1,8 +1,8 @@
 name: Test
 
 on:
-  pull_request:
-    branches: [ production ]
+#   pull_request:
+#     branches: [ production ]
   push:
     branches: [ develop ]
 
