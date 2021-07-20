@@ -13,7 +13,7 @@ class Command(BaseCommand):
     # コマンドライン引数を指定します。(argparseモジュール https://docs.python.org/2.7/library/argparse.html)
     # コマンドが実行された際に呼ばれるメソッド
     def handle(self, *args, **options):
-        stocks = Stock.objects.filter(is_trust=False)
+        stocks = Stock.objects.filter(is_trust=False, is_listed=True)
         for s in stocks:
             d = mylib_asset.register_stock_financial_data(s.code)
             msg = "Result of record_stock_financial_data for {}: {}".format(s, d)

@@ -172,6 +172,7 @@ class IpoAdmin(admin.ModelAdmin):
         "datetime_open", "datetime_close", "is_applied", "total_applied",
         "datetime_select", "result_select"
     ]
+    readonly_fields = ("created_at", "updated_at")
     ordering = ["-datetime_close", ]
     list_filter = ("is_applied", )
 
