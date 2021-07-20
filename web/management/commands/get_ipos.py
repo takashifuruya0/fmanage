@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from web.functions.mylib_selenium import SeleniumSBI
 from web.models import Stock, Ipo
+from datetime import date
 import logging
 logger = logging.getLogger('django')
 
@@ -8,7 +9,7 @@ logger = logging.getLogger('django')
 # BaseCommandを継承して作成
 class Command(BaseCommand):
     # python manage.py help count_entryで表示されるメッセージ
-    help = 'Sync Order from asset to web'
+    help = 'update IPOs'
 
     # コマンドライン引数を指定します。(argparseモジュール https://docs.python.org/2.7/library/argparse.html)
     # コマンドが実行された際に呼ばれるメソッド
@@ -29,11 +30,20 @@ class Command(BaseCommand):
                     ipo = Ipo.objects.get(stock=s)
                     # update対象項目のみ
                     ipo.val_list = d["val_list"]
-                    ipo.is_applied = d["is_applied"]
                     ipo.num_applied = d["num_applied"]
                     ipo.point = d["point"]
                     ipo.result_select = d['result_select']
                     ipo.result_buy = d["result_buy"]
+                    if d["num_applied"]:
+                        ipo.is_applied = d["is_applied"]
+                        if d['result_select'] == "落選":
+                            ipo.status = "3.落選（上場前）"
+                        elif d['result_select'] == "当選":
+                            ipo.status = "3.当選（上場前）"
+                        else:
+                            ipo.status = "2.申込済"
+                    else:
+                        ipo.status = "1.評価中"
                     # save
                     ipo.save()
                     self.stdout.write(self.style.SUCCESS("IPO {} was updated successfully".format(ipo)))

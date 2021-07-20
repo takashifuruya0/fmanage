@@ -170,11 +170,52 @@ class IpoAdmin(admin.ModelAdmin):
     list_display = [
         "pk", "stock", "rank",
         "datetime_open", "datetime_close", "is_applied", "total_applied",
-        "datetime_select", "result_select"
+        "datetime_select", "result_select", "date_list",
     ]
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = (
+        "created_at", "updated_at",
+        "profit_expected", "profit_pct_expected",
+        "profit_actual", "profit_pct_actual"
+    )
     ordering = ["-datetime_close", ]
-    list_filter = ("is_applied", )
+    list_filter = ("is_applied", "status")
+    fieldsets = (
+        ("システム情報", {
+            "fields": (
+                ("created_at", "updated_at"),
+                ("profit_expected", "profit_pct_expected"),
+                ("profit_actual", "profit_pct_actual"),
+                "memo",
+            )
+        }),
+        ("事前情報", {
+            "fields": (
+                "stock", "datetime_open", "datetime_close", "status",
+                "val_list", "date_list", "datetime_select",
+            )
+        }),
+        ("評価情報", {
+            "fields": (
+                "rank", "val_predicted", "url"
+            )
+        }),
+        ("申請情報", {
+            "fields": (
+                "is_applied", "date_applied", "num_applied", "point",
+            )
+        }),
+        ("購入情報", {
+            "fields": (
+                "result_select", "datetime_purchase_open", "datetime_purchase_close",
+                "result_buy", "num_select",
+            )
+        }),
+        ("上場後情報", {
+            "fields": (
+                "val_initial", "entry",
+            )
+        }),
+    )
 
 
 class DividendAdmin(admin.ModelAdmin):

@@ -625,11 +625,31 @@ class Ipo(models.Model):
 
     @property
     def profit_expected(self):
-        return (self.val_predicted - self.val_list) * self.num_applied
+        if self.val_predicted and self.val_list and self.num_applied:
+            return (self.val_predicted - self.val_list) * self.num_applied
+        else:
+            return None
 
     @property
     def profit_actual(self):
-        return (self.val_initial - self.val_list) * self.num_applied
+        if self.val_initial and self.val_list and self.num_applied:
+            return (self.val_initial - self.val_list) * self.num_applied
+        else:
+            return None
+
+    @property
+    def profit_pct_expected(self):
+        if self.val_predicted and self.val_list:
+            return (self.val_predicted - self.val_list) / self.val_list * 100
+        else:
+            return None
+
+    @property
+    def profit_pct_actual(self):
+        if self.val_initial and self.val_list:
+            return (self.val_initial - self.val_list) / self.val_list * 100
+        else:
+            return None
 
     @property
     def total_applied(self):
