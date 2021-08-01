@@ -154,6 +154,7 @@ class ViewTest(TestCase):
             "fee": kdict['fee'] + 200,
             "way": kdict['way'],
             "usage": kdict['usage_id'],
+            "currency": "JPY",
         })
         kakeibo_updated = Kakeibos.objects.get(pk=kdict['id'])
         # redirect

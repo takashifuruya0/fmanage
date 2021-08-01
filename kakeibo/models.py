@@ -322,7 +322,9 @@ class Kakeibos(models.Model):
         super(Kakeibos, self).save()
         return self.fee_converted
 
-    def save(self):
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        super(Kakeibos, self).save(force_insert, force_update, using, update_fields)
         self.update_fee_converted()
 
 
