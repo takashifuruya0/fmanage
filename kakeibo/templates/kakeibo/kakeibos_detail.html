@@ -43,6 +43,18 @@
             <th>Memo</th>
             <td>{{object.memo}}</td>
         </tr>
+        <tr>
+            <th>Credit</th>
+            <td>
+                <ul>
+                {% for c in object.credits_set.all %}
+                    <li>
+                        <a href="{%url 'kakeibo:credit_detail' pk=c.pk%}">{{c}}</a>
+                    </li>
+                {% endfor %}
+                </ul>
+            </td>
+        </tr>
     </table>
     <div class="row">
         <div class="col-sm-6">
