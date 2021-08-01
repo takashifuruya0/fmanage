@@ -22,7 +22,7 @@ class KakeiboForm(forms.ModelForm):
     class Meta:
         model = Kakeibos
         fields = [
-            'date', 'fee', 'way', 'usage', 'move_from', 'move_to', 'memo',
+            'date', 'fee', 'way', 'usage', 'move_from', 'move_to', 'memo', "currency", "rate",
             'event', "tag_copy_to_shared",
         ]
 

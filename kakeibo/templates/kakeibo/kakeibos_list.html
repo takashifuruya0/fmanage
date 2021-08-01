@@ -81,7 +81,11 @@
             <tr>
                 <td class="right"><a href="{% url 'kakeibo:kakeibo_detail' pk=kakeibo.pk%}?">{{kakeibo.pk}}</a></td>
                 <td class="right">{{kakeibo.date}}</td>
+                {% if kakeibo.currency == "JPY" %}
                 <td class="right">{{kakeibo.fee_yen}}</td>
+                {% else %}
+                <td class="right">{{kakeibo.fee_converted_yen}} ({{kakeibo.fee_usd}})</td>
+                {% endif %}
                 <td class="right">{{kakeibo.way}}</td>
                 <td class="right">{{kakeibo.usage}}</td>
                 <td class="right">{{kakeibo.move_from |default:'-'}}</td>
