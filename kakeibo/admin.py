@@ -16,7 +16,7 @@ def activate(modeladmin, request, queryset):
 
 class KakeibosAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'fee', 'way', 'memo', 'usage', 'move_from', 'move_to', 'event', "is_active"]
-    list_filter = ['date', 'usage__name', 'event', ]
+    list_filter = ['date', 'usage__name', 'event', "currency"]
     list_editable = ['event', "is_active", ]
     search_fields = ['memo', ]
     actions = [activate]

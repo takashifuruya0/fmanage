@@ -39,9 +39,35 @@
             <th>To</th>
             <td>{%if object.move_to%}{{object.move_to}}{% endif %}</td>
         </tr>
+        {% if object.currency == "USD" %}
+        <tr>
+            <th>Currency</th>
+            <td>{{object.currency}}</td>
+        </tr>
+        <tr>
+            <th>Rate</th>
+            <td>{{object.rate}}</td>
+        </tr>
+        <tr>
+            <th>Converted</th>
+            <td>{{object.fee_converted_yen}}</td>
+        </tr>
+        {% endif %}
         <tr>
             <th>Memo</th>
             <td>{{object.memo}}</td>
+        </tr>
+        <tr>
+            <th>Credit</th>
+            <td>
+                <ul>
+                {% for c in object.credits_set.all %}
+                    <li>
+                        <a href="{%url 'kakeibo:credit_detail' pk=c.pk%}">{{c}}</a>
+                    </li>
+                {% endfor %}
+                </ul>
+            </td>
         </tr>
     </table>
     <div class="row">
