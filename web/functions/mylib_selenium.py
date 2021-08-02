@@ -206,6 +206,7 @@ class SeleniumSBI:
         data_list = list()
         error_list = list()
         for tbl in tbls:
+            logger.info("===========================")
             # data
             data = {
                 "name": None,
@@ -237,26 +238,34 @@ class SeleniumSBI:
                     logger.info("Skipped because {} has only {} length".format(data['name'], len(tds)))
                     # 11要素取得できない場合はスキップ
                     continue
-                # 1: ブックビル期間: '7/12\xa00:00～7/16\xa011:00'
-                if "～" in tds[1].text:
+                # 1: ブックビル期間: '7/12\xa00:00〜7/16\xa011:00'
+                logger.info("1: ブックビル期間:")
+                if "〜" in tds[1].text:
                     data['datetime_open'] = datetime.strptime(
-                        "{}/{}".format(year, tds[1].text.split("～")[0].replace(u'\xa0', ' ')), "%Y/%m/%d %H:%M")
+                        "{}/{}".format(year, tds[1].text.split("〜")[0].replace(u'\xa0', ' ')), "%Y/%m/%d %H:%M")
                     data['datetime_close'] = datetime.strptime(
-                        "{}/{}".format(year, tds[1].text.split("～")[1].replace(u'\xa0', ' ')), "%Y/%m/%d %H:%M")
+                        "{}/{}".format(year, tds[1].text.split("〜")[1].replace(u'\xa0', ' ')), "%Y/%m/%d %H:%M")
                 else:
                     data['datetime_open'] = None
                     data['datetime_close'] = None
                 # 2: ブックビル申込: '受付終了'
+                logger.info("2: ブックビル申込:")
                 data['status'] = tds[2].text
                 # 3: 発行価格又は売出価格: '決定日 7/19'
+                #                      '仮条件1700〜1940'
+                logger.info("3: 発行価格又は売出価格:")
                 if "決定日" in tds[3].text:
                     data['val_list'] = None
+                elif "仮条件" in tds[3].text:
+                    data["val_list"] = int(tds[3].text.replace(",", "").replace("円", "").split("〜")[1])
                 else:
                     # 1,780円
                     data['val_list'] = int(tds[3].text.replace("円", "").replace(",", ""))
                 # 4: 申込単位: '100株単位'
+                logger.info("4: 申込単位:")
                 data['unit'] = int(tds[4].text.replace("株単位", ""))
                 # 5: ブックビル申込内容: '-'
+                logger.info("5: ブックビル申込内容:")
                 if "IPOポイント" in tds[5].text:
                     # 200株
                     # ストライクプライス
@@ -272,17 +281,20 @@ class SeleniumSBI:
                     data['point'] = None
                     data['num_applied'] = None
                 # 6: 上場日: '7/30'
+                logger.info("6: 上場日: ")
                 data['date_list'] = datetime.strptime("{}/{}".format(year, tds[6].text), "%Y/%m/%d").date()
-                # 7: 抽選結果: '7/19 18:00～'
+                # 7: 抽選結果: '7/19 18:00〜'
+                logger.info("7: 抽選結果: ")
                 if tds[7].text == "-":
                     data['datetime_select'] = None
-                elif "～" in tds[7].text:
+                elif "〜" in tds[7].text:
                     data['datetime_select'] = datetime.strptime(
-                        "{}/{}".format(year, tds[7].text.replace("～", "")), "%Y/%m/%d %H:%M")
+                        "{}/{}".format(year, tds[7].text.replace("〜", "")), "%Y/%m/%d %H:%M")
                 else:
                     # 落選
                     data['result_select'] = tds[7].text
                 # 8: 購入意思表示期限: '7/26 12:00'
+                logger.info("8: 購入意思表示期限: ")
                 if tds[8].text == "-":
                     data['datetime_purchase_close'] = None
                 elif tds[8].text == "締切":
@@ -290,15 +302,18 @@ class SeleniumSBI:
                 else:
                     data['datetime_purchase_close'] = datetime.strptime(
                         "{}/{}".format(year, tds[8].text), "%Y/%m/%d %H:%M")
-                # 9: 購入意思表示: '7/20 0:00～'
+                # 9: 購入意思表示: '7/20 0:00〜'
+                logger.info("9: 購入意思表示: ")
                 if tds[9].text == "-":
                     data['datetime_purchase_open'] = None
                 else:
                     data['datetime_purchase_open'] = datetime.strptime(
-                        "{}/{}".format(year, tds[9].text.replace("～", "")), "%Y/%m/%d %H:%M")
+                        "{}/{}".format(year, tds[9].text.replace("〜", "")), "%Y/%m/%d %H:%M")
                 # 10: 購入結果: '-'
+                logger.info("10: 購入結果:")
                 data['result_buy'] = tds[10].text
                 # pprint(data)
+                logger.info(data)
                 logger.info("Successfully extracted information of {}".format(data['name']))
                 data_list.append(data)
             except Exception as e:
