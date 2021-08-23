@@ -125,8 +125,8 @@
 				<div class="card-footer">
 					{% include 'web/modal/modal_investment.html' %}
 					<a href="https://datastudio.google.com/u/0/reporting/1pymHrwsmAF6OSbVuXseIAazF3ByPMYWq/page/cCEBB"
-						 class="btn btn-info"
-							target="_blank">
+						class="btn btn-info"
+						target="_blank">
 						<i class="fas fa-tachometer-alt"></i> Data Studio
 					</a>
 				</div>
@@ -137,14 +137,13 @@
 	<hr>
 	<div class="row">
     <div class="col-12">
-	    <div class="card">
-		    <div class="card-header bg-warning text-black">
+			<div class="card">
+				<div class="card-header bg-warning text-black">
 					<h4>
 						<i class="far fa-hand-point-right"></i> Next Plans
 					</h4>
-		    </div>
-
-		    <div class="card-body">
+				</div>
+				<div class="card-body">
 					<div class="row">
 						<div class="col-12 col-md-12">
 							{% if plan_entrys %}
@@ -244,76 +243,61 @@
 								</tr>
 								{% endfor %}
 							</table>
-<!--							<hr>-->
-<!--							<table class="table table-responsive-sm">-->
-<!--								<tr>-->
-<!--									<th>日付</th>-->
-<!--									<th>銘柄</th>-->
-<!--									<th>タイプ</th>-->
-<!--									<th>終値前日比</th>-->
-<!--									<th>出来高前日比</th>-->
-<!--									<th>5日トレンド</th>-->
-<!--									<th>25日トレンド</th>-->
-<!--									<th>75日トレンド</th>-->
-<!--								</tr>-->
-<!--								{% for c in checks %}-->
-<!--								<tr>-->
-<!--									<td>{{c.df.date |naturalday}}</td>-->
-<!--									<td>-->
-<!--										<a href="{%url 'web:stock_detail' stock_code=c.df.code%}">-->
-<!--											{{c.df.stock}}-->
-<!--										</a>-->
-<!--									</td>-->
-<!--									<td>-->
-<!--										<label class="badge badge-{%if c.is_bottom%}success{%else%}danger{%endif%}">-->
-<!--											{{c.type}}-->
-<!--										</label>-->
-<!--									</td>-->
-<!--									<td>{{c.df.val_close_dy_pct |pct_100 |safe}}</td>-->
-<!--									<td>{{c.df.turnover_dy_pct |pct_100 |safe}}</td>-->
-<!--									<td>-->
-<!--										{% if c.df.is_upper05 %}-->
-<!--										<label class="badge badge-success">-->
-<!--											<i class="fas fa-level-up-alt"></i>-->
-<!--										</label>-->
-<!--										{% else %}-->
-<!--										<label class="badge badge-danger">-->
-<!--											<i class="fas fa-level-down-alt"></i>-->
-<!--										</label>-->
-<!--										{% endif %}-->
-<!--									</td>-->
-<!--									<td>-->
-<!--										{% if c.df.is_upper25 %}-->
-<!--										<label class="badge badge-success">-->
-<!--											<i class="fas fa-level-up-alt"></i>-->
-<!--										</label>-->
-<!--										{% else %}-->
-<!--										<label class="badge badge-danger">-->
-<!--											<i class="fas fa-level-down-alt"></i>-->
-<!--										</label>-->
-<!--										{% endif %}-->
-<!--									</td>-->
-<!--									<td>-->
-<!--										{% if c.df.is_upper75 %}-->
-<!--										<label class="badge badge-success">-->
-<!--											<i class="fas fa-level-up-alt"></i>-->
-<!--										</label>-->
-<!--										{% else %}-->
-<!--										<label class="badge badge-danger">-->
-<!--											<i class="fas fa-level-down-alt"></i>-->
-<!--										</label>-->
-<!--										{% endif %}-->
-<!--									</td>-->
-<!--								</tr>-->
-<!--								{% endfor %}-->
-<!--							</table>-->
 						</div>
-
 					</div>
 				</div>
 				<div class="card-footer">
-		    </div>
-	    </div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<hr>
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header bg-danger text-black">
+					<h4>
+						<i class="fab fa-watchman-monitoring"></i> IPO
+					</h4>
+				</div>
+				<div class="card-body">
+					<table class="table">
+						<tr>
+							<th>No</th>
+							<th>Name</th>
+							<th>Status</th>
+							<th>ブックビル期間</th>
+							<th>抽選開始日時</th>
+							<th>申込金額</th>
+						</tr>
+						{% for ipo in ipos %}
+						<tr>
+							<td>
+								<a href="/admin/web/ipo/{{ipo.pk}}" class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-external-link-square-alt"></i> {{ipo.pk}}
+                </a>
+							</td>
+							<td>{{ipo.stock.name}}</td>
+							<td>{{ipo.status}}</td>
+							<td>{{ipo.datetime_open}}〜{{ipo.datetime_close}}</td>
+							<td>{{ipo.datetime_select}}</td>
+							<td>
+								{{ipo.total_applied |yen}}
+								{% if ipo.total_applied > astatus.buying_power %}
+								<span class="badge bg-danger"><i class="fas fa-exclamation"></i></span>
+								{% endif %}
+							</td>
+						</tr>
+						{% endfor %}
+					</table>
+				</div>
+				<div class="card-footer">
+					<a href="/admin/web/ipo/" class="btn btn-secondary">
+						<i class="fas fa-list-alt"></i> IPO list
+					</a>
+				</div>
+			</div>
 		</div>
 	</div>
 
