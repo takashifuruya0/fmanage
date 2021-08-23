@@ -192,7 +192,7 @@ class SeleniumSBI:
         time.sleep(1)
         self.driver.find_element_by_xpath(path0).click()
         # IPO
-        path1 = '/html/body/div[4]/div/div/ul/li[6]/div/a'
+        path1 = '/html/body/div[4]/div/div/ul/li[5]/div/a'
         time.sleep(1)
         self.driver.find_element_by_xpath(path1).click()
         # 購入意思表示

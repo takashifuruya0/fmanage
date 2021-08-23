@@ -7,7 +7,7 @@ from web.forms import InvestmentForm
 from django.contrib import messages
 from dateutil import relativedelta
 from datetime import date
-from web.models import Entry, Order, StockValueData, Stock, AssetStatus, StockAnalysisData
+from web.models import Entry, Order, StockValueData, Stock, AssetStatus, StockAnalysisData, Ipo
 from web.functions import mylib_scraping, mylib_asset
 from django_celery_results.models import TaskResult
 # logging
@@ -54,6 +54,8 @@ class Main(LoginRequiredMixin, TemplateView):
             | Q(is_sanku_tatakikomi=True) | Q(is_age_sanpo=True)
             | Q(is_sage_sanpo=True) | Q(is_sante_daiinsen=True)
         ).order_by('-date')
+        # IPO
+        ipos = Ipo.objects.exclude(status__icontains="落選").order_by("-pk")
         # output
         output = {
             "user": self.request.user,
@@ -66,6 +68,8 @@ class Main(LoginRequiredMixin, TemplateView):
             "total": total if astatus else None,
             "diff": diff if astatus else None,
             "sads": sads,
+            # ipos
+            "ipos": ipos,
         }
         if self.request.user.is_superuser:
             tasks = TaskResult.objects.all()
