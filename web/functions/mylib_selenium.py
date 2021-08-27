@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
 import time
-from datetime import datetime
+from datetime import datetime, date
 from django.conf import settings
 from bs4 import BeautifulSoup
 from pprint import pprint
@@ -330,4 +330,73 @@ class SeleniumSBI:
         return res
 
 
+class SeleniumIPO:
+    def __init__(self):
+        if settings.ENVIRONMENT == 'metabase':
+            # linux
+            options = Options()
+            options.binary_location = '/usr/bin/google-chrome'
+            options.add_argument('--headless')
+            options.add_argument('--window-size=1280,1024')
+            self.driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=options)
+        elif settings.ENVIRONMENT == 'develop':
+            # mac
+            self.driver = webdriver.Chrome('/usr/local/bin/chromedriver')
+        logger.info("the driver has started")
+        self.driver.get("https://96ut.com/ipo/yoso.php")
 
+    def __del__(self):
+        self.driver.close()
+        logger.info("closed the driver")
+
+    def get_list(self):
+        res = []
+        self.driver.get("https://96ut.com/ipo/yoso.php")
+        soup = BeautifulSoup(self.driver.page_source, "lxml")
+        table = soup.find("table")
+        trs = table.find_all("tr")
+        for tr in trs:
+            tds = tr.find_all("td")
+            if len(tds) > 0:
+                #? '=========================='
+                #?0 'サーキュレーション\n(みずほ\n)'
+                #?1 '07/27\n(火)'
+                #?2 '東M\n[7379]'
+                #?3 '1,610-1,810\n1,610⇒1,810'
+                #?4 '2,300\n2,800'
+                #?5 'B(7)⇒B (7)\n2,479 (66件)'
+                #?5 '\n'
+                #?6 '3,205'
+                #?7 '締切\n'
+                #? '=========================='
+                val = {}
+                try:
+                    # 0
+                    td0 = tds[0].text.replace("(", "").replace(")", "").split("\n")
+                    val["name"] = td0[0]
+                    val["managing_underwriter"] = td0[1]
+                    # 1
+                    td1 = tds[1].text.split("\n")[0].split("/")
+                    month = int(td1[0])
+                    day = int(td1[1])
+                    this_year = date.today().year
+                    year =  this_year if date.today() <= date(this_year, month, day) else this_year+1
+                    val["date_list"] = date(year, month, day)
+                    # 2
+                    val["code"] = tds[2].text.replace("]", "").split("[")[1]
+                    # 3
+                    td3 = tds[3].text.split("\n")[1].split("⇒")
+                    val["val_list"] = int((td3[0] if td3[1] == "未" else td3[1]).replace(",", ""))
+                    # 4
+                    # 5
+                    td5 = tds[5].text.split("\n")
+                    val["rank"] = td5[0][0]
+                    val["val_predicted"] = int(tds[5].text.split("\n")[1].split(" ")[0].replace(",", ""))
+                    val["url"] = tds[5].a.get_attribute_list("href")[0]
+                    res.append(val)
+                except Exception as e:
+                    logger.error(e)
+                finally:
+                    logger.info(val)
+                    logger.info("======================")
+        return res
