@@ -32,7 +32,8 @@ class Command(BaseCommand):
                             ipo.status = '1.評価中'
                         ipo.rank = r.get("rank")
                         ipo.val_predicted = r.get("val_predicted")
-                        ipo.url = r.get('url') 
+                        ipo.url = r.get('url')
+                        ipo.val_list = r.get("val_list") 
                         ipo.save()
                         self.stdout.write(self.style.SUCCESS(f"{ipo} was updated"))
                         # slack message
@@ -40,7 +41,7 @@ class Command(BaseCommand):
                             【IPO評価/{date.today()}】
                             ・銘柄：{ipo.stock}
                             ・評価：{ipo.rank}
-                            ・予想金額/上場金額：¥{ipo.val_predicted:,}/¥{r.get("val_list"):,}
+                            ・予想金額/上場金額：¥{ipo.val_predicted:,}/¥{ipo.val_list:,}
                             詳しくは<https://www.fk-management.com/admin/web/ipo/{ipo.pk}|こちら>
                         """.replace(" ", "")
                         mylib_slack.post_message(url=settings.URL_SLACK_LOG, text=text)
