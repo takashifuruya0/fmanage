@@ -28,7 +28,7 @@ jobs:
         echo "GOLDPOINT_PASSWORD=1" >> .env
         echo "CELERY_ENVIRONMENT=fmanage.settings" >> .env
         echo "URL_SLACK_NAMS=${URL_SLACK_NAMS}" >> .env
-        echo "URL_SLACK_LOG=''" >> .env
+        echo "URL_LOG_GAS=''" >> .env
         echo "LANCERS_PASSWORD=1" >> .env
         echo "LANCERS_USER_ID=1" >> .env
         echo "DRF_TOKEN=1" >> .env
