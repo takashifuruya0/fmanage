@@ -254,8 +254,9 @@ PAGINATION_SETTINGS = {
 GOLDPOINT_ID = env("GOLDPOINT_ID")
 GOLDPOINT_PASSWORD = env("GOLDPOINT_PASSWORD")
 
-# Slack_nams
+# Slack
 URL_SLACK_NAMS = env("URL_SLACK_NAMS")
+URL_SLACK_LOG = env("URL_LOG_GAS")
 
 # messages framework
 from django.contrib.messages import constants as messages

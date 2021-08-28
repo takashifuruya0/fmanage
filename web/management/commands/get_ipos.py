@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from web.functions.mylib_selenium import SeleniumSBI
+from web.functions import mylib_slack
 from web.models import Stock, Ipo
 from datetime import date
 import logging
@@ -36,10 +38,22 @@ class Command(BaseCommand):
                     ipo.result_buy = d["result_buy"]
                     if d["num_applied"]:
                         ipo.is_applied = d["is_applied"]
-                        if d['result_select'] == "落選":
+                        if d['result_select'] == "落選" and not "落選" in ipo.status:
+                            # 落選だった場合
                             ipo.status = "3.落選（上場前）"
-                        elif d['result_select'] == "当選":
+                            # slack message
+                            text = f"""
+                                【IPO落選。。。/{date.today()}】
+                                ・銘柄：{ipo.stock}
+                                詳しくは<https://www.fk-management.com/admin/web/ipo/{ipo.pk}|こちら>
+                            """.replace(" ", "")
+                            mylib_slack.post_message(url=settings.URL_SLACK_LOG, text=text)
+                        elif d['result_select'] == "当選" and not "当選" in ipo.status:
+                            # 当選だった場合
                             ipo.status = "3.当選（上場前）"
+                            # slack message
+                            data = mylib_slack.param_ipo_selected(ipo)
+                            mylib_slack.post_rich_message(data)
                         else:
                             ipo.status = "2.申込済"
                     else:
@@ -65,6 +79,15 @@ class Command(BaseCommand):
                         result_buy=d["result_buy"],
                     )
                     self.stdout.write(self.style.SUCCESS("IPO {} was created successfully".format(ipo)))
+                    # slack message
+                    text = f"""
+                        【IPO登録/{date.today()}】
+                        ・銘柄：{ipo.stock}
+                        ・申込期間：{ipo.datetime_open.date()}〜{ipo.datetime_close.date()}
+                        ・抽選日：{ipo.datetime_select.date()}
+                        詳しくは<https://www.fk-management.com/admin/web/ipo/{ipo.pk}|こちら>
+                    """.replace(" ", "")
+                    mylib_slack.post_message(url=settings.URL_SLACK_LOG, text=text)
         except Exception as e:
             self.stderr.write(self.style.ERROR(e))
         finally:

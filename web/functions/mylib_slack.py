@@ -4,7 +4,7 @@ from django.urls import reverse
 import requests
 from datetime import datetime
 from pytz import timezone
-from web.models import Entry
+from web.models import Entry, Ipo
 import json
 import logging
 logger = logging.getLogger("django")
@@ -16,6 +16,14 @@ def post_message(text, url=None):
     headers = {'Content-Type': 'application/json'}
     params = {"text": text, }
     json_data = json.dumps(params)
+    r = requests.post(url, json_data, headers=headers)
+    return r.text == "ok"
+
+def post_rich_message(data, url=None):
+    if url is None:
+        url = settings.URL_SLACK_LOG
+    headers = {'Content-Type': 'application/json'}
+    json_data = json.dumps(data)
     r = requests.post(url, json_data, headers=headers)
     return r.text == "ok"
 
@@ -119,3 +127,32 @@ def param_entry(e):
     }
     params['attachments'].append(button)
     return params
+
+
+def param_ipo_selected(ipo: Ipo):
+    param =  {
+        "short": True,
+        "fallback": "fallback string",
+        "callback_id": "callback_id value",
+        "title": "IPO当選！",
+        "text": "https://www.fk-management.com/web",
+        "fields": [
+            {
+                "title": "当選数",
+                "value": f"{ipo.num_select}株",
+                "short": True,
+            },
+            {
+                "title": "単価",
+                "value": f"¥{ipo.val_list:,}",
+                "short": True,
+            },
+        ],
+        "color": "good",
+        "attachment_type": "default",
+    }
+    d = {
+        "text": "IPO当選",
+        "attachments": [param],
+    }
+    return d
