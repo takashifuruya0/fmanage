@@ -1,7 +1,7 @@
 from django.test import TestCase
 from web.models import *
 from django.contrib.auth.models import User
-from datetime import datetime
+from datetime import datetime, date, timezone, timedelta
 # Create your tests here.
 from django.urls import reverse
 
@@ -21,7 +21,7 @@ class ModelTest(TestCase):
         self.o = Order.objects.create(
             user=self.u,
             stock=self.s,
-            datetime=datetime.now(),
+            datetime=datetime.now(timezone(timedelta(hours=9))),
             is_nisa=False,
             is_buy=True,
             is_simulated=False,
@@ -34,7 +34,7 @@ class ModelTest(TestCase):
         self.so = Order.objects.create(
             user=self.u,
             stock=self.s,
-            datetime=datetime.now(),
+            datetime=datetime.now(timezone(timedelta(hours=9))),
             is_nisa=False,
             is_buy=False,
             is_simulated=False,
@@ -43,6 +43,10 @@ class ModelTest(TestCase):
             commission=250,
             entry=None,
             chart=None,
+        )
+        self.svd = StockValueData.objects.create(
+            stock=self.s, val_high=1000, val_low=900, val_open=950,
+            val_close=980, turnover=10000, date=date.today()
         )
         self.r = ReasonWinLoss.objects.create(reason="OK", is_win=True)
         self.e = Entry.objects.create(user=self.u, stock=self.s, is_plan=True, memo="TEST")

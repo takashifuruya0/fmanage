@@ -19,7 +19,7 @@ class Stock(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name="更新日時")
     code = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=40)
-    is_trust = models.BooleanField()
+    is_trust = models.BooleanField("投資信託", default=False)
     market = models.CharField(max_length=30, blank=True, null=True)
     industry = models.CharField(max_length=30, blank=True, null=True)
     fkmanage_id = models.IntegerField(null=True, blank=True, default=None)
@@ -29,6 +29,7 @@ class Stock(models.Model):
     unit = models.CharField(max_length=10, blank=True, null=True, verbose_name="単元株数")
     dividend = models.IntegerField(blank=True, null=True, verbose_name="配当金")
     dividend_yield = models.FloatField(blank=True, null=True, verbose_name="配当利回り")
+    is_listed = models.BooleanField("上場済み", default=True)
 
     def __str__(self):
         return "({}) {}".format(self.code, self.name)
@@ -56,6 +57,7 @@ class Stock(models.Model):
             return None
 
     def save(self, *args, **kwargs):
+        # 上場済みであれば、各種情報をスクレイピング
         data = mylib_scraping.yf_detail(self.code)
         if data['status']:
             self.name = data['data']['name']
@@ -64,12 +66,14 @@ class Stock(models.Model):
             self.is_trust = False if len(str(self.code)) == 4 else True
             if data['data']['industry'] == "REIT":
                 dividend = data['data']['financial_data']['予想分配金']
-                self.dividend = dividend if dividend is None else int(float(dividend))
-                self.dividend_yield = data['data']['financial_data']['分配金利回り']
+                self.dividend = None if dividend in (None, "---")  else int(float(dividend))
+                dividend_yield = data['data']['financial_data']['分配金利回り']
+                self.dividend_yield = None if dividend_yield in (None, "---") else dividend_yield
             elif not data['data']['industry'] == "ETF" and not self.is_trust:
-                dividend = data['data']['financial_data']['1株配当（会社予想）']
-                self.dividend = dividend if dividend is None else int(float(dividend))
-                self.dividend_yield = data['data']['financial_data']['配当利回り（会社予想）']
+                dividend = data['data']['financial_data']['1株配当']
+                self.dividend = None if dividend in (None, "---") else int(float(dividend))
+                dividend_yield = data['data']['financial_data']['配当利回り']
+                self.dividend_yield = None if dividend_yield in (None, "---") else dividend_yield
         profile = mylib_scraping.yf_profile(self.code)
         if profile['status']:
             self.feature = profile['data']["特色"]
@@ -564,3 +568,114 @@ class AssetTarget(models.Model):
     actual_investment.short_description = "投資元本実績"
     diff_investment.short_description = "対予定投資元本差分"
     actual_date.short_description = "実績日"
+
+
+class Ipo(models.Model):
+    # ===================================
+    # CHOICES
+    # ===================================
+    CHOICES_RANK = (("S", "S"), ("A", "A"), ("B", "B"), ("C", "C"), ("D", "D"))
+    CHOICES_STATUS = (
+        ("0.起票", "0.起票"),
+        ("1.評価中", "1.評価中"),
+        ("2.申込済", "2.申込済"),
+        ("3.落選（上場前）", "3.落選（上場前）"), ("3.当選（上場前）", "3.当選（上場前）"),
+        ("4.落選（上場後）", "4.落選（上場後）"), ("4.当選（上場後）", "4.当選（上場後）"),
+    )
+    # ===================================
+    # fields
+    # ===================================
+    objects = None
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="作成日時")
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name="更新日時")
+    # 事前情報
+    stock = models.ForeignKey(Stock, verbose_name="銘柄", on_delete=models.CASCADE)
+    datetime_open = models.DateTimeField("ブックビル開始日時", blank=True, null=True)
+    datetime_close = models.DateTimeField("ブックビル終了日時", blank=True, null=True)
+    status = models.CharField('ステータス', max_length=255, choices=CHOICES_STATUS, default="0.起票")
+    val_list = models.FloatField("発行価格", blank=True, null=True)
+    date_list = models.DateField("上場日", blank=True, null=True)
+    datetime_select = models.DateTimeField("抽選開始日時", blank=True, null=True)
+    # 申請情報
+    is_applied = models.BooleanField("申込済", default=False)
+    date_applied = models.DateField("申込日", blank=True, null=True)
+    num_applied = models.IntegerField("申込数", blank=True, null=True)
+    point = models.IntegerField("使用ポイント数", default=None, blank=True, null=True)
+    result_select = models.CharField("抽選結果", max_length=255, default="抽選待ち", blank=True, null=True)
+    # 購入情報
+    datetime_purchase_open = models.DateTimeField("購入意思表示開始日時", blank=True, null=True)
+    datetime_purchase_close = models.DateTimeField("購入意思表示終了日時", blank=True, null=True)
+    result_buy = models.CharField("購入結果", max_length=255, blank=True, null=True)
+    num_select = models.IntegerField("当選数", blank=True, null=True)
+    # 評判/評価 (https://96ut.com/ipo/yoso.php)
+    rank = models.CharField("評価", max_length=1, choices=CHOICES_RANK, blank=True, null=True)
+    val_predicted = models.FloatField("予想初値", blank=True, null=True)
+    url = models.URLField("評価詳細URL", blank=True, null=True)
+    # 上場後
+    val_initial = models.FloatField("上場後初値", blank=True, null=True)
+    entry = models.ForeignKey(Entry, verbose_name="Entry", on_delete=models.CASCADE, blank=True, null=True)
+    # その他
+    memo = models.TextField("メモ", blank=True, null=True)
+
+    # ===================================
+    # methods and Meta
+    # ===================================
+    def __str__(self):
+        return "IPO_{}".format(self.stock)
+
+    @property
+    def profit_expected(self):
+        if self.val_predicted and self.val_list and self.num_applied:
+            return (self.val_predicted - self.val_list) * self.num_applied
+        else:
+            return None
+
+    @property
+    def profit_actual(self):
+        if self.val_initial and self.val_list and self.num_applied:
+            return (self.val_initial - self.val_list) * self.num_applied
+        else:
+            return None
+
+    @property
+    def profit_pct_expected(self):
+        if self.val_predicted and self.val_list:
+            return (self.val_predicted - self.val_list) / self.val_list * 100
+        else:
+            return None
+
+    @property
+    def profit_pct_actual(self):
+        if self.val_initial and self.val_list:
+            return (self.val_initial - self.val_list) / self.val_list * 100
+        else:
+            return None
+
+    @property
+    def total_applied(self):
+        if self.num_applied and self.val_list:
+            return self.num_applied * self.val_list
+        else:
+            return None
+
+    class Meta:
+        verbose_name = "IPO"
+        verbose_name_plural = "IPO"
+
+
+class Dividend(models.Model):
+    objects = None
+    entry = models.ForeignKey(Entry, verbose_name="Entry", on_delete=models.CASCADE)
+    date = models.DateField("配当日")
+    val_unit = models.IntegerField("配当単価")
+    unit = models.IntegerField("配当単位数")
+    val = models.IntegerField("配当総額（税引前）")
+    tax = models.IntegerField("税額")
+
+    class Meta:
+        verbose_name = "配当"
+        verbose_name_plural = "配当"
+
+    @property
+    def profit(self):
+        return self.val - self.tax

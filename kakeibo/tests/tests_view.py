@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from kakeibo.models import Kakeibos, Usages, Resources, SharedKakeibos, Credits, CreditItems, Budget
 from kakeibo.models import Event
-from asset.models import AssetStatus
+from web.models import AssetStatus
 from datetime import date
 import logging
 logger = logging.getLogger('django')
@@ -36,11 +36,13 @@ class ViewTest(TestCase):
             credit_item=citem
         )
         astatus = AssetStatus.objects.create(
-            total=100000,
+            user=user,
             date=self.today,
+            nisa_power=1000000,
+            sum_stock=30000,
+            sum_trust=20000,
+            sum_other=0,
             buying_power=50000,
-            stocks_value=30000,
-            other_value=20000,
             investment=100000
         )
         budget = Budget.objects.create(
@@ -152,6 +154,7 @@ class ViewTest(TestCase):
             "fee": kdict['fee'] + 200,
             "way": kdict['way'],
             "usage": kdict['usage_id'],
+            "currency": "JPY",
         })
         kakeibo_updated = Kakeibos.objects.get(pk=kdict['id'])
         # redirect

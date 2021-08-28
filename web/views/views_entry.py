@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta
 from web.forms import EntryForm, SBIAlertForm, OrderForm
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Sum
 from web.models import Entry, Order, StockValueData, SBIAlert, StockAnalysisData
 from web.functions import mylib_scraping, mylib_analysis, mylib_asset, mylib_twitter
 # list view, pagination
@@ -162,7 +163,8 @@ class EntryDetail(LoginRequiredMixin, DetailView):
     template_name = "web/entry_detail.html"
 
     def get_object(self, queryset=None):
-        return Entry.objects.select_related().prefetch_related('order_set').get(pk=self.kwargs['pk'])
+        return Entry.objects.select_related('stock').prefetch_related(
+            'order_set', 'dividend_set').get(pk=self.kwargs['pk'])
 
     def get_context_data(self, **kwargs):
         # 各種情報取得
@@ -240,7 +242,8 @@ class EntryDetail(LoginRequiredMixin, DetailView):
         keyword_tweet = "{} {}".format(names[0] if names[0] not in ("(株)", "") else names[1], entry.stock.code)
         tweets = twitter.getTweets(keyword_tweet, 10)
         tweets = tweets['statuses'] if tweets else list()
-
+        # dividend_total
+        dividend_total = entry.dividend_set.all().aggregate(val=Sum('val'), tax=Sum('tax'))
         # output
         output = {
             "user": self.request.user,
@@ -261,6 +264,8 @@ class EntryDetail(LoginRequiredMixin, DetailView):
             "sads": sads,
             "tweets": tweets,
             "keyword_tweet": keyword_tweet,
+            "dividend_total": dividend_total,
+            "dividend_count": entry.dividend_set.all().count(),
         }
         # res
         return output

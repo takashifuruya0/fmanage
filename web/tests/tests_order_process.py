@@ -3,15 +3,15 @@ from web.models import *
 from django.contrib.auth.models import User
 from django.urls import reverse
 from web.functions import mylib_asset
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import json
 import logging
 logger = logging.getLogger('django')
 
 
 class ModelTest(TestCase):
-    now = datetime.now()
-    now_so = datetime.now()
+    now = datetime.now(timezone(timedelta(hours=9)))
+    now_so = datetime.now(timezone(timedelta(hours=9)))
 
     def setUp(self):
         self.u = User.objects.create_user('HogeTaro', 'taro@hoge.com', 'password')

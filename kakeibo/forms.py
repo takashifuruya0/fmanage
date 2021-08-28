@@ -1,6 +1,7 @@
 from django import forms
-
 from kakeibo.models import Kakeibos, SharedKakeibos, Credits, CreditItems, Usages, Event
+from bootstrap_datepicker_plus import DateTimePickerInput, DatePickerInput
+from dal import autocomplete
 
 
 class KakeiboForm(forms.ModelForm):
@@ -21,7 +22,7 @@ class KakeiboForm(forms.ModelForm):
     class Meta:
         model = Kakeibos
         fields = [
-            'date', 'fee', 'way', 'usage', 'move_from', 'move_to', 'memo',
+            'date', 'fee', 'way', 'usage', 'move_from', 'move_to', 'memo', "currency", "rate",
             'event', "tag_copy_to_shared",
         ]
 
@@ -29,7 +30,8 @@ class KakeiboForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
-        self.fields['date'].widget.attrs['readonly'] = 'readonly'
+        # self.fields['usage'].widget.attrs['class'] = ""
+        # self.fields['date'].widget.attrs['readonly'] = 'readonly'
 
 
 class SharedKakeiboForm(forms.ModelForm):
@@ -42,7 +44,7 @@ class SharedKakeiboForm(forms.ModelForm):
     paid_by = forms.TypedChoiceField(choices=choices_paid_by)
     date = forms.DateField()
     usage = forms.ModelChoiceField(
-        queryset=Usages.objects.filter(is_expense=True, is_active=True, is_shared=True)
+        queryset=Usages.objects.filter(is_expense=True, is_active=True, is_shared=True),
     )
 
     class Meta:

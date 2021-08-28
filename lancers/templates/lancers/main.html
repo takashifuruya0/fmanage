@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{% load static %}
 {% load web_template %}
 {% block title %}
     Lancers Dashboard
@@ -172,7 +173,7 @@
 							<h5 class="card-title">
 								<i class="fas fa-seedling"></i> 直接受注/提案受注
 							</h5>
-							<form method="POST" action="{%url 'lancers:form_opportunity' %}">
+							<form method="POST" action="{%url 'lancers:form_opportunity' %}" class="form">
 								<table class="table table-responsive-sm">
 									{% csrf_token %}
 									{{opp_form.as_table}}
@@ -191,3 +192,7 @@
 </div>
 {% endblock %}
 
+{% block script %}
+<!--autocomplete-->
+{{ menta_form.media }}
+{% endblock %}

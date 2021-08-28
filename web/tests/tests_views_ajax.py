@@ -40,7 +40,6 @@ class ViewsAjaxTest(TestCase):
         }
         res = self.client.post(url, data=data)
         res_data = json.loads(res.content)
-        print(res_data)
         for key in ("status", "msg"):
             self.assertTrue(key in res_data.keys())
         # EntryInactivePlanが1件
@@ -65,7 +64,6 @@ class ViewsAjaxTest(TestCase):
         }
         res = self.client.post(url, data=data)
         res_data = json.loads(res.content)
-        print(res_data)
         for key in ("status", "msg"):
             self.assertTrue(key in res_data.keys())
         # EntryPlanが1件

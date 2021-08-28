@@ -6,11 +6,11 @@ from fmanage.settings import *
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': "fkmanage",
+        'NAME': "dev_fkmanage",
         "USER": env('FKMANAGE_DB_USER'),
         "PASSWORD": env('FKMANAGE_DB_PASSWORD'),
-        'HOST': "test_postgres",
-        "POST": "",
+        'HOST': env("CLOUDSQL_IP"),
+        "POST": env("CLOUDSQL_PORT"),
         "ATOMIC_REQUESTS": True,
     }
 }

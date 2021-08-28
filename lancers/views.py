@@ -10,9 +10,12 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django_filters import rest_framework as filters
 from lancers.serializer import ClientSerializer, CategorySerializer, OpportunitySerializer, OpportunityWorkSerializer
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta, timezone
 import json
 import requests
+# autocomplete
+from dal import autocomplete
+# logging
 import logging
 logger = logging.getLogger("django")
 # Create your views here.
@@ -25,7 +28,14 @@ class Main(LoginRequiredMixin, TemplateView):
         context = super(Main, self).get_context_data(**kwargs)
         context['open_opps'] = Opportunity.objects.filter(status__in=("選定/作業中", "相談中", "提案中")).order_by('status')
         context['opp_form'] = OpportunityForm()
-        context['menta_form'] = MentaForm()
+        today = date.today()
+        next_month = today + relativedelta(months=1)
+        context['menta_form'] = MentaForm(initial={
+            "date_open": today,
+            "date_close": next_month,
+            "date_proposal": today,
+            "date_proposed_delivery": next_month,
+        })
         context['services'] = Service.objects.filter(is_active=True).order_by("is_regular", 'val')
         context['DEBUG'] = settings.DEBUG
         return context
@@ -82,11 +92,13 @@ class MentaFormView(LoginRequiredMixin, FormView):
             status=form.cleaned_data['status'], category=form.cleaned_data['category'],
             description_opportunity=form.cleaned_data['description_opportunity'],
             date_proposal=form.cleaned_data['date_proposal'],
+            date_proposed_delivery=form.cleaned_data['date_proposed_delivery'],
             description_proposal=form.cleaned_data['description_proposal'],
             num_proposal=form.cleaned_data['num_proposal']
         )
+        if o.status == "選定/作業中":
+            o.date_payment = o.date_open
         o.save_from_shell(user=user)
-        print(form.cleaned_data['sub_categories'])
         text = "クライアント {} と、商談 {} を作成しました".format(c, o)
         logger.info(text)
         messages.success(self.request, text)
@@ -135,7 +147,15 @@ class OpportunityFilter(filters.FilterSet):
 
 
 class OpportunityWorkFilter(filters.FilterSet):
-    start_date = filters.DateTimeFilter(field_name="datetime_start", lookup_expr="date")
+
+    def is_datetime_without_null(self, queryset, name, value):
+        if value:
+            return queryset.exclude(datetime_start=None)
+        else:
+            return queryset.filter(datetime_start=None)
+
+    date_start = filters.DateTimeFilter(field_name="datetime_start", lookup_expr="date")
+    datetime_without_null = filters.BooleanFilter(method="is_datetime_without_null", label="開始時間あり")
 
     order_by = filters.OrderingFilter(
         fields=(
@@ -157,7 +177,7 @@ class OpportunityWorkFilter(filters.FilterSet):
 
     class Meta:
         model = OpportunityWork
-        fields = ("opportunity", "start_date", )
+        fields = ("opportunity", "date_start", "datetime_without_null")
 
 
 # =========================
@@ -320,3 +340,28 @@ class SyncToProdView(LoginRequiredMixin, View):
         else:
             messages.error(request, "Devのみ")
         return redirect('lancers:main')
+
+
+# =========================
+# AutoComplete
+# =========================
+class MENTAClientAutoComplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated:
+            return Client.objects.none()
+        qs = Client.objects.filter(client_type="MENTA", is_active=True)
+        if self.q:
+            qs = qs.filter(name__istartswith=self.q)
+        return qs
+
+
+class CategoryAutoComplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated:
+            return Category.objects.none()
+        qs = Category.objects.filter(is_active=True)
+        if self.q:
+            qs = qs.filter(name__istartswith=self.q)
+        return qs

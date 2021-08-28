@@ -346,10 +346,10 @@ def yf_detail(code):
                 val = spans[0].text.replace(",", "")
                 data['val'] = float(0) if val == "---" else float(val)
                 data['val_close'] = data['val']
-                data['val_open'] = None if val == "---" else float(spans[4].text.replace(',', ''))
-                data['val_high'] = None if val == "---" else float(spans[5].text.replace(',', ''))
-                data['val_low'] = None if val == "---" else float(spans[6].text.replace(',', ''))
-                data['turnover'] = None if spans[7].text.replace(',', '') == "---" else float(spans[7].text.replace(',', ''))
+                data['val_open'] = data['val'] if val == "---" else float(spans[4].text.replace(',', ''))
+                data['val_high'] = data['val'] if val == "---" else float(spans[5].text.replace(',', ''))
+                data['val_low'] = data['val'] if val == "---" else float(spans[6].text.replace(',', ''))
+                data['turnover'] = data['val'] if spans[7].text.replace(',', '') == "---" else float(spans[7].text.replace(',', ''))
             else:
                 data['val'] = None
                 data['val_close'] = None
@@ -359,6 +359,15 @@ def yf_detail(code):
                 data['turnover'] = None
             # finance
             data['financial_data'] = {}
+            keys = soup.findAll('span', {'class': '_3RQJDhPQ'})
+            vals = soup.findAll('span', {'class': '_3rXWJKZF _11kV6f2G'})
+            if len(keys) == len(vals):
+                for k, v in zip(keys, vals):
+                    if v == "---":
+                        val = None
+                    else:
+                        val = v.text.replace(",", "").replace("\n", "").replace("(連) ", "").replace("(単) ", "")
+                    data['financial_data'][k.text] = val
             # 完了
             res['data'] = data
             res['msg'] = "Success"

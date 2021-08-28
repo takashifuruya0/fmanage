@@ -14,6 +14,7 @@ logger = logging.getLogger("django")
 # model
 from kakeibo.models import Kakeibos, SharedKakeibos, Event
 from kakeibo.forms import KakeiboForm, SharedKakeiboForm, EventForm
+from web.models import AssetStatus
 
 
 # Create your views here.
@@ -40,6 +41,13 @@ class KakeiboCreate(LoginRequiredMixin, CreateView):
             SharedKakeibos.objects.create(**data)
             smsg += " and copied to Shared Kakeibo"
         messages.success(self.request, smsg)
+        # 投資口座
+        if form.cleaned_data['way'] == "振替" and form.cleaned_data['move_to'].name == "投資口座":
+            astatus = AssetStatus.objects.latest('date')
+            astatus.buying_power += form.cleaned_data['fee']
+            astatus.investment += form.cleaned_data['fee']
+            astatus.save()
+            messages.info(self.request, "Add ¥{:,} as {}".format(form.cleaned_data['fee'], "Investment"))
         return res
 
     def get_initial(self, *args, **kwargs):

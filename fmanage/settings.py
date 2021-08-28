@@ -36,6 +36,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'dal',  # autocomplete-light
+    'dal_select2',  # autocomplete-light
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -66,6 +68,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.line',  # 追加
     'allauth.socialaccount.providers.twitter',  # 追加
     'allauth.socialaccount.providers.google',  # 追加
+    'debug_toolbar',  # debug-toolbar
+    'bootstrap_datepicker_plus',
+
 ]
 
 MIDDLEWARE = [
@@ -78,7 +83,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_currentuser.middleware.ThreadLocalUserMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',  # debug-toolbar
 ]
+
+# debug-toolbar
+INTERNAL_IPS = ['127.0.0.1', "172.22.0.1"]
 
 ROOT_URLCONF = 'fmanage.urls'
 
@@ -245,8 +254,9 @@ PAGINATION_SETTINGS = {
 GOLDPOINT_ID = env("GOLDPOINT_ID")
 GOLDPOINT_PASSWORD = env("GOLDPOINT_PASSWORD")
 
-# Slack_nams
+# Slack
 URL_SLACK_NAMS = env("URL_SLACK_NAMS")
+URL_SLACK_LOG = env("URL_LOG_GAS")
 
 # messages framework
 from django.contrib.messages import constants as messages
@@ -260,12 +270,13 @@ MESSAGE_TAGS = {
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # test
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = [
-    '--with-coverage',  # get coverage
-    '--cover-html',  # output coverage to cover/ in html
-    '--cover-package=kakeibo,asset,api,web',
-]
+# TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+# NOSE_ARGS = [
+#     '--with-coverage',  # get coverage
+#     '--cover-html',  # output coverage to cover/ in html
+#     '--cover-xml',   # output coverage to cover/ in xml
+#     '--cover-package=kakeibo,asset,api,web',
+# ]
 # environment
 ENVIRONMENT = "develop"
 
@@ -319,6 +330,9 @@ CHOICES_TARGET_TYPE = ((c, c) for c in (
 ))
 CHOICES_ENTRY_TYPE = (
     ("短期", "短期"), ("中期", "中期"), ("長期", "長期"),
+)
+CHOICES_CURRENCY = (
+    ("JPY", "JPY"), ("USD", "USD"),
 )
 
 # LANCERS

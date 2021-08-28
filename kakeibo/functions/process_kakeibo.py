@@ -7,7 +7,8 @@ from dateutil.relativedelta import relativedelta
 # function
 from kakeibo.functions.mylib import time_measure
 # asset
-from asset.models import AssetStatus
+# from asset.models import AssetStatus
+from web.models import AssetStatus
 # logging
 import logging
 logger = logging.getLogger("django")
@@ -186,7 +187,7 @@ def resources_year_rev(num=12):
                 resources_year_chart[cnt_t]['val'][i] -= kt['sum']
 
     # 投資口座
-    atotal_initial = AssetStatus.objects.first().total
+    atotal_initial = AssetStatus.objects.first().get_total()
     for i, r in enumerate(resources_year_chart):
         # 投資口座のデータを削除
         if r['name'] == "投資口座":
@@ -202,9 +203,9 @@ def resources_year_rev(num=12):
         month = int(mc.split("/")[1])
         astatus = AssetStatus.objects.filter(date__year=year, date__month=month)
         if astatus:
-            add['val'][i] = astatus.last().total
+            add['val'][i] = astatus.last().get_total()
         elif today.year == year and today.month == month:
-            add['val'][i] = AssetStatus.objects.last().total
+            add['val'][i] = AssetStatus.objects.last().get_total()
         else:
             # データがない場合は0
             add['val'][i] = 0

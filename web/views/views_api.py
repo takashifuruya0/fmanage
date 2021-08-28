@@ -3,7 +3,7 @@ from django.template.response import HttpResponse
 from django.views.generic import View
 from django.http import JsonResponse
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from django.contrib.auth.models import User
 import json
 from rest_framework.views import APIView
@@ -58,6 +58,8 @@ def create_order(request):
                         logger.info(smsg)
                     # Order作成
                     val.pop("code")
+                    val['datetime'] = datetime.strptime("{}+0900".format(val['datetime']), "%Y-%m-%d %H:%M%z")
+
                     o = Order.objects.create(**val)
                     pk_orders.append(o.pk)
                     msg = "New Order is created: {}".format(o)
@@ -156,7 +158,7 @@ class ReceiveAlert(View):
             for sbialert in sbialerts:
                 text = "【({}) {}】{}{}".format(stock.code, stock.name, sbialert.val, sbialert.get_type_display())
                 mylib_slack.post_message(text)
-            sbialerts.update(checked_at=datetime.now(), is_active=False, message=json_data['message'])
+            sbialerts.update(checked_at=datetime.now(timezone(timedelta(hours=9))), is_active=False, message=json_data['message'])
             mylib_slack.post_open_entries()
             # res
             res = {"status": True, "message": json_data['message']}

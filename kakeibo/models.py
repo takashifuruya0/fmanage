@@ -5,6 +5,7 @@ from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Avg, Count
 from django.conf import settings
 from django.utils.timezone import now
+import math
 # asset
 # from asset.models import AssetStatus
 from web.models import AssetStatus
@@ -280,6 +281,10 @@ class Kakeibos(models.Model):
         }
     )
     is_active = models.BooleanField(default=True)
+    # currency, rate
+    currency = models.CharField("通貨", max_length=3, default="JPY", choices=settings.CHOICES_CURRENCY)
+    rate = models.FloatField("レート", blank=True, null=True)
+    fee_converted = models.IntegerField("金額（換算後）", blank=True, null=True)
 
     def __str__(self):
         return "{}_{}_{}_{}".format(self.date, self.way, self.usage, self.fee)
@@ -290,6 +295,37 @@ class Kakeibos(models.Model):
         else:
             new_val = '-¥{:,}'.format(-self.fee)
         return new_val
+
+    def fee_usd(self):
+        if self.fee >= 0:
+            new_val = '${:,}'.format(self.fee)
+        else:
+            new_val = '-${:,}'.format(-self.fee)
+        return new_val
+
+    def fee_converted_yen(self):
+        if self.fee_converted and self.fee_converted >= 0:
+            new_val = '¥{:,}'.format(self.fee_converted)
+        elif self.fee_converted:
+            new_val = '-¥{:,}'.format(-self.fee_converted)
+        else:
+            new_val = None
+        return new_val
+
+    def update_fee_converted(self):
+        if self.currency == "JPY":
+            self.fee_converted = self.fee
+        elif self.rate:
+            self.fee_converted = math.floor(self.fee * self.rate)
+        else:
+            self.fee_converted = None
+        super(Kakeibos, self).save()
+        return self.fee_converted
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        super(Kakeibos, self).save(force_insert, force_update, using, update_fields)
+        self.update_fee_converted()
 
 
 class SharedKakeibos(models.Model):

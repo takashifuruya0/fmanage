@@ -5,8 +5,9 @@ db.sqlite3
 venv/*
 .env
 cover/*
-.coverage*
+.coverage
 static/*
 icon.png
 testiam.json
 .python-version
+coverage.xml

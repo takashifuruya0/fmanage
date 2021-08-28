@@ -7,7 +7,7 @@ from web.forms import InvestmentForm
 from django.contrib import messages
 from dateutil import relativedelta
 from datetime import date
-from web.models import Entry, Order, StockValueData, Stock, AssetStatus, StockAnalysisData
+from web.models import Entry, Order, StockValueData, Stock, AssetStatus, StockAnalysisData, Ipo
 from web.functions import mylib_scraping, mylib_asset
 from django_celery_results.models import TaskResult
 # logging
@@ -20,9 +20,12 @@ class Main(LoginRequiredMixin, TemplateView):
     template_name = "web/main.html"
 
     def get_context_data(self, **kwargs):
-        entrys = Entry.objects.filter(user=self.request.user).exclude(is_closed=False).exclude(is_plan=True).order_by('-pk')[:5]
-        open_entrys = Entry.objects.filter(user=self.request.user, is_closed=False).exclude(is_plan=True).order_by('-pk')
-        plan_entrys = Entry.objects.filter(user=self.request.user, is_plan=True, is_closed=False).order_by('-pk')
+        entrys = Entry.objects.select_related('stock').prefetch_related('order_set').filter(
+            user=self.request.user).exclude(is_closed=False).exclude(is_plan=True).order_by('-pk')[:5]
+        open_entrys = Entry.objects.select_related('stock').prefetch_related('order_set').filter(
+            user=self.request.user, is_closed=False).exclude(is_plan=True).order_by('-pk')
+        plan_entrys = Entry.objects.select_related('stock').prefetch_related('order_set').filter(
+            user=self.request.user, is_plan=True, is_closed=False).order_by('-pk')
         astatus_list = AssetStatus.objects.filter(user=self.request.user)
         astatus = astatus_list.latest('date') if astatus_list.exists() else None
         # checks = mylib_asset.analyse_all(days=15)
@@ -51,6 +54,8 @@ class Main(LoginRequiredMixin, TemplateView):
             | Q(is_sanku_tatakikomi=True) | Q(is_age_sanpo=True)
             | Q(is_sage_sanpo=True) | Q(is_sante_daiinsen=True)
         ).order_by('-date')
+        # IPO
+        ipos = Ipo.objects.exclude(status__icontains="落選").order_by("-pk")
         # output
         output = {
             "user": self.request.user,
@@ -63,6 +68,8 @@ class Main(LoginRequiredMixin, TemplateView):
             "total": total if astatus else None,
             "diff": diff if astatus else None,
             "sads": sads,
+            # ipos
+            "ipos": ipos,
         }
         if self.request.user.is_superuser:
             tasks = TaskResult.objects.all()
