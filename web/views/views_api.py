@@ -7,15 +7,19 @@ from datetime import datetime, timedelta, timezone
 from django.contrib.auth.models import User
 import json
 from rest_framework.views import APIView
+from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import serializers, status
 from fmanage import tasks
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db import transaction
 from web.functions import mylib_scraping, mylib_asset, mylib_slack
-from web.models import Entry, Order, Stock, SBIAlert
+from web.models import Dividend, Entry, Ipo, Order, Stock, SBIAlert, StockValueData, AssetStatus, AssetTarget
+from web.serializer import OrderSerializer, StockSerializer, StockValueDataSerializer
+from web.serializer import AssetStatusSerializer, AssetTargetSerializer, EntrySerializer
+from web.serializer import IpoSerializer, DividendSerializer
 # logging
 import logging
 logger = logging.getLogger("django")
@@ -243,3 +247,51 @@ class CreateOrderAPI(APIView):
             "data": request.POST
         }
         return Response(data, status=status.HTTP_200_OK, content_type="application/json")
+
+
+# viewset
+class EntryiewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = Entry.objects.all()
+    serializer_class = EntrySerializer
+    filter_fields = ("stock", )
+    # filter_class = EntryFilter
+
+
+class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    filter_fields = ("stock", "entry")
+    # filter_class = OrderFilter
+
+
+class StockViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
+
+
+class AssetTargetViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = AssetTarget.objects.all()
+    serializer_class = AssetTargetSerializer
+
+
+class AssetStatusViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = AssetStatus.objects.all()
+    serializer_class = AssetStatusSerializer
+
+
+class StockValueDataViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = StockValueData.objects.all().order_by('date', 'stock')
+    serializer_class = StockValueDataSerializer
+    filter_fields = ("stock", )
+    # filter_class = StockValueDataFilter
+
+
+class IpoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = Ipo.objects.all()
+    serializer_class = IpoSerializer
+
+
+class DividendViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = Dividend.objects.all()
+    serializer_class = DividendSerializer
+    filter_fields = ("entry", )
