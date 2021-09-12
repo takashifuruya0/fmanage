@@ -6,11 +6,13 @@ from django.conf import settings
 from datetime import datetime, timedelta, timezone
 from django.contrib.auth.models import User
 import json
+from django_filters.utils import label_for_filter
+from django_filters import rest_framework as filters
 from rest_framework.views import APIView
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import serializers, status
+from rest_framework import status
 from fmanage import tasks
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -249,7 +251,20 @@ class CreateOrderAPI(APIView):
         return Response(data, status=status.HTTP_200_OK, content_type="application/json")
 
 
-# viewset
+# =========================
+# Filter
+# =========================
+class StockValueDataFilter(filters.FilterSet):
+    date_range = filters.DateFromToRangeFilter(field_name="date")
+
+    class Meta:
+        model = StockValueData
+        fields = ("date_range", "stock")
+
+
+# =========================
+# ViewSet
+# =========================
 class EntryiewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Entry.objects.all()
     serializer_class = EntrySerializer
@@ -282,7 +297,8 @@ class AssetStatusViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, views
 class StockValueDataViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = StockValueData.objects.all().order_by('date', 'stock')
     serializer_class = StockValueDataSerializer
-    filter_fields = ("stock", )
+    # filter_fields = ("stock", )
+    filter_class = StockValueDataFilter
     # filter_class = StockValueDataFilter
 
 
