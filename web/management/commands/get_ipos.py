@@ -87,7 +87,7 @@ class Command(BaseCommand):
                         ・抽選日：{ipo.datetime_select.date()}
                         詳しくは<https://www.fk-management.com/admin/web/ipo/{ipo.pk}|こちら>
                     """.replace(" ", "")
-                    mylib_slack.post_message(url=settings.URL_SLACK_LOG, text=text)
+                    mylib_slack.post_message(url=settings.URL_SLACK_NAMS, text=text)
         except Exception as e:
             self.stderr.write(self.style.ERROR(e))
         finally:
