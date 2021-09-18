@@ -3,6 +3,8 @@
 from django.urls import include, path
 from web.views import views_main, views_entry, views_order, views_stock, views_ajax
 from web.views import views_api
+# django-rest-framework
+from rest_framework import routers
 
 
 app_name = 'web'
@@ -40,6 +42,16 @@ urlpatterns = [
     path('ajax/activate_entry/', views_ajax.ActivateEntry.as_view(), name='ajax_activate_entry'),
     path('ajax/deactivate_entry/', views_ajax.DeactivateEntry.as_view(), name='ajax_deactivate_entry'),
     path('ajax/get_stock_info/', views_ajax.GetStockInfo.as_view(), name='ajax_get_stock_info'),
-
 ]
+
+router = routers.DefaultRouter()
+router.register('web/stock', views_api.StockViewSet)
+router.register('web/order', views_api.OrderViewSet)
+router.register('web/entry', views_api.EntryiewSet)
+router.register('web/stockvaluedata', views_api.StockValueDataViewSet)
+router.register('web/assetstatus', views_api.AssetStatusViewSet)
+router.register('web/assettarget', views_api.AssetTargetViewSet)
+router.register('web/ipo', views_api.IpoViewSet)
+router.register('web/dividend', views_api.DividendViewSet)
+
 

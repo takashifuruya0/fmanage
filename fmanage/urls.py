@@ -26,6 +26,7 @@ from rest_framework import routers
 from asset.urls import router as asset_router
 from kakeibo.urls import router as kakeibo_router
 from lancers.urls import router as lancers_router
+from web.urls import router as web_router
 # accounts
 from accounts.views import UserDetailAPIView
 
@@ -33,6 +34,7 @@ router = routers.DefaultRouter()
 # router.registry.extend(asset_router.registry)
 router.registry.extend(kakeibo_router.registry)
 router.registry.extend(lancers_router.registry)
+router.registry.extend(web_router.registry)
 
 
 urlpatterns = [
