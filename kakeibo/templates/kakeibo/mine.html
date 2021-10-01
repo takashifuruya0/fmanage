@@ -160,7 +160,7 @@
           {% for cr in current_resource %}
           <tr>
             <td>{{cr.name}}</td>
-            <td class="right">¥{{cr.current_val | intcomma}}</td>
+            <td class="right">¥{{cr.current_val | intcomma}} / ${{cr.current_val_usd | intcomma}}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -346,7 +346,7 @@
       labels: [{%for cr in current_resource%}"{{cr.name}}",{%endfor%}],
       datasets: [{
         label: "alice",
-        data: [{%for cr in current_resource%}{{cr.current_val}},{%endfor%}],
+        data: [{%for cr in current_resource%}{{cr.current_val_total}},{%endfor%}],
         backgroundColor: [
           "#2ecc71",
           "#3498db",
