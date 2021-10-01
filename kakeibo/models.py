@@ -223,11 +223,45 @@ class Resources(BaseModel):
         if self.name == "投資口座":
             return AssetStatus.objects.latest('date').get_total()
         else:
-            move_tos = Kakeibos.objects.filter(move_to=self)
-            move_froms = Kakeibos.objects.filter(move_from=self)
+            move_tos = Kakeibos.objects.filter(move_to=self, currency="JPY")
+            move_froms = Kakeibos.objects.filter(move_from=self, currency="JPY")
             v_move_to = move_tos.aggregate(Sum('fee'))['fee__sum'] if move_tos else 0
             v_move_from = move_froms.aggregate(Sum('fee'))['fee__sum'] if move_froms else 0
             return self.initial_val + v_move_to - v_move_from
+    
+    def current_val_usd(self):
+        if self.name == "投資口座":
+            return 0
+        else:
+            move_tos = Kakeibos.objects.filter(move_to=self, currency="USD")
+            move_froms = Kakeibos.objects.filter(move_from=self, currency="USD")
+            v_move_to = move_tos.aggregate(Sum('fee'))['fee__sum'] if move_tos else 0
+            v_move_from = move_froms.aggregate(Sum('fee'))['fee__sum'] if move_froms else 0
+            return v_move_to - v_move_from
+    
+    def current_val_total(self, rate=120):
+        if self.name == "投資口座":
+            return 0
+        else:
+            move_tos = Kakeibos.objects.filter(move_to=self, currency="JPY")
+            move_froms = Kakeibos.objects.filter(move_from=self, currency="JPY")
+            v_move_to = move_tos.aggregate(Sum('fee'))['fee__sum'] if move_tos else 0
+            v_move_from = move_froms.aggregate(Sum('fee'))['fee__sum'] if move_froms else 0
+            total = self.initial_val + v_move_to - v_move_from
+            # USD
+            usd_move_tos = Kakeibos.objects.filter(move_to=self, currency="USD")
+            for umt in usd_move_tos:
+                if umt.fee_converted:
+                    total += umt.fee_converted
+                else:
+                    total += (umt.fee * rate)
+            usd_move_froms = Kakeibos.objects.filter(move_from=self, currency="USD")
+            for umf in usd_move_froms:
+                if umf.fee_converted:
+                    total -= umf.fee_converted
+                else:
+                    total -= (umf.fee * rate)
+            return total
 
 
 # UsagesとResourcesの紐付け
