@@ -241,7 +241,7 @@ class Resources(BaseModel):
     
     def current_val_total(self, rate=120):
         if self.name == "投資口座":
-            return 0
+            return AssetStatus.objects.latest('date').get_total()
         else:
             move_tos = Kakeibos.objects.filter(move_to=self, currency="JPY")
             move_froms = Kakeibos.objects.filter(move_from=self, currency="JPY")
