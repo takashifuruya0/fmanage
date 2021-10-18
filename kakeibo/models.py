@@ -279,7 +279,7 @@ class Kakeibos(models.Model):
     # 日付
     date = models.DateField()
     # 金額
-    fee = models.IntegerField()
+    fee = models.FloatField()
     # 種類
     way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # タグ
@@ -316,7 +316,7 @@ class Kakeibos(models.Model):
     )
     is_active = models.BooleanField(default=True)
     # currency, rate
-    currency = models.CharField("通貨", max_length=3, default="JPY", choices=settings.CHOICES_CURRENCY)
+    currency = models.CharField("通貨", max_length=3, default="USD", choices=settings.CHOICES_CURRENCY)
     rate = models.FloatField("レート", blank=True, null=True)
     fee_converted = models.IntegerField("金額（換算後）", blank=True, null=True)
 
@@ -356,8 +356,7 @@ class Kakeibos(models.Model):
         super(Kakeibos, self).save()
         return self.fee_converted
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super(Kakeibos, self).save(force_insert, force_update, using, update_fields)
         self.update_fee_converted()
 
@@ -455,7 +454,7 @@ class Credits(models.Model):
 class CronKakeibo(models.Model):
     objects = None
     # 金額
-    fee = models.IntegerField()
+    fee = models.FloatField()
     # 種類
     way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # 使い道/収入源
@@ -514,7 +513,7 @@ class CronShared(models.Model):
 class UsualRecord(models.Model):
     objects = None
     # 金額
-    fee = models.IntegerField()
+    fee = models.FloatField()
     # 種類
     way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # メモ
