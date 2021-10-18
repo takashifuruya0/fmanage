@@ -46,7 +46,8 @@ class KakeibosSerializer(serializers.ModelSerializer):
         fields = (
             'pk', 'date', 'fee', 'way', 'usage',
             'move_to', 'move_from', 'memo',
-            'usage_uid', 'move_to_uid', 'move_from_uid'
+            'usage_uid', 'move_to_uid', 'move_from_uid',
+            "currency", "rate", "fee_converted"
         )
 
 
