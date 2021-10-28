@@ -227,7 +227,7 @@ class Resources(BaseModel):
             move_froms = Kakeibos.objects.filter(move_from=self, currency="JPY")
             v_move_to = move_tos.aggregate(Sum('fee'))['fee__sum'] if move_tos else 0
             v_move_from = move_froms.aggregate(Sum('fee'))['fee__sum'] if move_froms else 0
-            return self.initial_val + v_move_to - v_move_from
+            return math.floor(self.initial_val + v_move_to - v_move_from)
     
     def current_val_usd(self):
         if self.name == "投資口座":
@@ -237,7 +237,7 @@ class Resources(BaseModel):
             move_froms = Kakeibos.objects.filter(move_from=self, currency="USD")
             v_move_to = move_tos.aggregate(Sum('fee'))['fee__sum'] if move_tos else 0
             v_move_from = move_froms.aggregate(Sum('fee'))['fee__sum'] if move_froms else 0
-            return v_move_to - v_move_from
+            return math.floor(v_move_to - v_move_from)
     
     def current_val_total(self, rate=120):
         if self.name == "投資口座":
@@ -261,7 +261,7 @@ class Resources(BaseModel):
                     total -= umf.fee_converted
                 else:
                     total -= (umf.fee * rate)
-            return total
+            return math.floor(total)
 
 
 # UsagesとResourcesの紐付け
