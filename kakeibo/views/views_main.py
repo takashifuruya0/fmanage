@@ -52,8 +52,8 @@ def dashboard(request):
     for event in events:
         event_sum_actual += event.sum_actual()
     # 収入・支出・総資産
-    income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    expense = mylib.cal_sum_or_0(kakeibos_out)
+    income = math.floor(mylib.cal_sum_or_0(kakeibos.filter(way="収入")))
+    expense =  math.floor(mylib.cal_sum_or_0(kakeibos_out))
     total = sum([r.current_val() for r in current_resource])
     # status, progress_bar
     pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
@@ -125,8 +125,8 @@ def mine(request):
     kakeibos = Kakeibos.objects.filter(date__month=month, date__year=year)
     kakeibos_out = kakeibos.filter(way__in=("支出（現金）", "引き落とし"))
     kakeibos_expense = kakeibos.filter(way__in=("支出（クレジット）", "支出（現金）", "引き落とし"))
-    income = mylib.cal_sum_or_0(kakeibos.filter(way="収入"))
-    expense = mylib.cal_sum_or_0(kakeibos_out)
+    income = math.floor(mylib.cal_sum_or_0(kakeibos.filter(way="収入")))
+    expense =  math.floor(mylib.cal_sum_or_0(kakeibos_out))
     # status, progress_bar
     pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
     # way
