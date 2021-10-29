@@ -27,7 +27,8 @@ class Command(BaseCommand):
                     "way": ck.way,
                     "usage": ck.usage,
                     "date": date.today(),
-                    "memo": "Created from CronKakeibo"
+                    "memo": "Created from CronKakeibo",
+                    "currency": ck.currency,
                 }
                 Kakeibos.objects.create(**data)
             self.stdout.write(self.style.SUCCESS('completed CronKakeibo.'))

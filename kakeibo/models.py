@@ -481,6 +481,7 @@ class CronKakeibo(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    currency = models.CharField("通貨", max_length=3, default="JPY", choices=settings.CHOICES_CURRENCY)
 
 
 class CronShared(models.Model):
@@ -542,12 +543,29 @@ class UsualRecord(models.Model):
     # fontawesome_icon
     icon = models.CharField(max_length=50, null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    currency = models.CharField("通貨", max_length=3, default="JPY", choices=settings.CHOICES_CURRENCY)
 
     def fee_yen(self):
         if self.fee >= 0:
             new_val = '¥{:,}'.format(self.fee)
         else:
             new_val = '-¥{:,}'.format(-self.fee)
+        return new_val
+
+    def fee_usd(self):
+        if self.fee >= 0:
+            new_val = '${:,}'.format(self.fee)
+        else:
+            new_val = '-${:,}'.format(-self.fee)
+        return new_val
+
+    def fee_converted_yen(self):
+        if self.fee_converted and self.fee_converted >= 0:
+            new_val = '¥{:,}'.format(self.fee_converted)
+        elif self.fee_converted:
+            new_val = '-¥{:,}'.format(-self.fee_converted)
+        else:
+            new_val = None
         return new_val
 
 
