@@ -523,6 +523,7 @@ class UsualRecordView(LoginRequiredMixin, View):
                 "move_from": ur.move_from,
                 "memo": ur.memo,
                 "date": today,
+                "currency": ur.currency,
             }
             Kakeibos.objects.create(**data)
             messages.success(request, "{} {} was created".format(ur.memo, ur.fee_yen()))
