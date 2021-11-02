@@ -5,6 +5,7 @@ from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Avg, Count
 from django.conf import settings
 from django.utils.timezone import now
+from kakeibo.functions import money
 import math
 # asset
 # from asset.models import AssetStatus
@@ -358,6 +359,8 @@ class Kakeibos(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super(Kakeibos, self).save(force_insert, force_update, using, update_fields)
+        if not self.currency == "JPY" and self.rate is None:
+            self.rate = money.get_rate(self.currency)
         self.update_fee_converted()
 
 
