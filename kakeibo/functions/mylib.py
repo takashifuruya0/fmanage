@@ -14,7 +14,7 @@ def cal_sum_or_0(model):
     if model.__len__() == 0:
         return 0
     else:
-        return model.aggregate(fee__sum=Sum('fee_converted'))['fee__sum']
+        return model.aggregate(fee__sum=Sum('fee'))['fee__sum']
 
 
 # calculate avg or 0
@@ -22,7 +22,7 @@ def cal_avg_or_0(model):
     if model.__len__() == 0:
         return 0
     else:
-        return model.aggregate(fee__avg=Avg('fee_converted'))['fee__avg']
+        return model.aggregate(fee__avg=Avg('fee'))['fee__avg']
 
 
 def seisan(year=date.today().year, month=date.today().month):
