@@ -38,15 +38,18 @@ def dashboard(request):
     event_form = EventForm(initial={'date': today})
     usual_records = UsualRecord.objects.all()
     # kakeibo
-    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year)
+    kakeibos = Kakeibos.objects.filter(date__month=today.month, date__year=today.year) \
+        .select_related('usage', 'move_from', 'move_to', 'event')
     kakeibos_out = kakeibos.filter(way__in=("支出（現金）", "引き落とし"))
     kakeibos_expense = kakeibos.filter(way__in=("支出（クレジット）", "支出（現金）", "引き落とし"))
     # resource
-    current_resource = Resources.objects.all()
+    current_resource = Resources.objects.all() \
+        .prefetch_related('move_from', 'move_to')
     # usage
     current_usage = kakeibos_expense.values('usage__name').annotate(sum=Sum('fee')).order_by("-sum")
     # event
-    events = Event.objects.filter(date__year=today.year).order_by("-is_active", "-date")
+    events = Event.objects.filter(date__year=today.year).order_by("-is_active", "-date") \
+        .prefetch_related('event_kakeibo')
     event_sum_plan = events.aggregate(sum=Sum('sum_plan'))['sum']
     event_sum_actual = 0
     for event in events:
@@ -54,7 +57,10 @@ def dashboard(request):
     # 収入・支出・総資産
     income = math.floor(mylib.cal_sum_or_0(kakeibos.filter(way="収入")))
     expense =  math.floor(mylib.cal_sum_or_0(kakeibos_out))
-    total = sum([r.current_val() for r in current_resource])
+    total = Kakeibos.objects.filter(move_from=None).exclude(move_to=None).aggregate(s=Sum('fee_converted'))['s'] \
+        - Kakeibos.objects.filter(move_to=None).exclude(move_from=None).aggregate(s=Sum('fee_converted'))['s'] \
+        - Kakeibos.objects.filter(move_to__name='投資口座').aggregate(s=Sum('fee'))['s'] \
+        + AssetStatus.objects.latest('date').get_total()
     # status, progress_bar
     pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
     # shared
@@ -151,7 +157,10 @@ def mine(request):
     consolidated_usages_chart = sorted(process_kakeibo.consolidated_usages().items(), key=lambda x: -x[1])
     cash_usages_chart = sorted(process_kakeibo.cash_usages().items(), key=lambda x: -x[1])
     # total
-    total = sum([r.current_val() for r in current_resource])
+    total = Kakeibos.objects.filter(move_from=None).exclude(move_to=None).aggregate(s=Sum('fee_converted'))['s'] \
+        - Kakeibos.objects.filter(move_to=None).exclude(move_from=None).aggregate(s=Sum('fee_converted'))['s'] \
+        - Kakeibos.objects.filter(move_to__name='投資口座').aggregate(s=Sum('fee'))['s'] \
+        + AssetStatus.objects.latest('date').get_total()
     total_saved = sum(rs.current_val() for rs in rs_saved)
     # 1年間での推移
     saved_one_year_ago = 0
