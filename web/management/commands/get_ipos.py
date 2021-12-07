@@ -51,7 +51,7 @@ class Command(BaseCommand):
                                 詳しくは<https://www.fk-management.com/admin/web/ipo/{ipo.pk}|こちら>
                             """.replace(" ", "")
                             mylib_slack.post_message(url=settings.URL_SLACK_NAMS, text=text)
-                        elif "当選" in d['result_select'] and not "当選" in ipo.status:
+                        elif d['result_select'] and "当選" in d['result_select'] and not "当選" in ipo.status:
                             # 当選だった場合
                             ipo.status = "3.当選（上場前）"
                             # 補欠当選／100株
@@ -94,5 +94,5 @@ class Command(BaseCommand):
                     """.replace(" ", "")
                     mylib_slack.post_message(url=settings.URL_SLACK_NAMS, text=text)
             except Exception as e:
-                self.stderr.write(self.style.ERROR(e))
+                self.stderr.write(self.style.WARNING(e))
         sbi.close()
