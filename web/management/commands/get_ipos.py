@@ -16,12 +16,15 @@ class Command(BaseCommand):
     # コマンドライン引数を指定します。(argparseモジュール https://docs.python.org/2.7/library/argparse.html)
     # コマンドが実行された際に呼ばれるメソッド
     def handle(self, *args, **options):
-        try:
-            sbi = SeleniumSBI()
-            res = sbi.get_ipos()
-            for d in res['data']:
+        
+        sbi = SeleniumSBI()
+        res = sbi.get_ipos()
+        for d in res['data']:
+            try:
+                self.stdout.write(f"============={d['name']}=================")
                 if Stock.objects.filter(code=d['code']).exists():
                     s = Stock.objects.get(code=d['code'])
+                    self.stdout.write(self.style.SUCCESS("Found Stock {}".format(s)))
                 else:
                     s = Stock.objects.create(
                         code=d['code'], name=d['name'], market=d['market'], unit=d['unit'],
@@ -48,9 +51,11 @@ class Command(BaseCommand):
                                 詳しくは<https://www.fk-management.com/admin/web/ipo/{ipo.pk}|こちら>
                             """.replace(" ", "")
                             mylib_slack.post_message(url=settings.URL_SLACK_NAMS, text=text)
-                        elif d['result_select'] == "当選" and not "当選" in ipo.status:
+                        elif "当選" in d['result_select'] and not "当選" in ipo.status:
                             # 当選だった場合
                             ipo.status = "3.当選（上場前）"
+                            # 補欠当選／100株
+                            ipo.num_select = int(d['result_select'].replace("株", "").replace("口", "").split("／")[1])
                             # slack message
                             data = mylib_slack.param_ipo_selected(ipo)
                             mylib_slack.post_rich_message(data)
@@ -88,7 +93,6 @@ class Command(BaseCommand):
                         詳しくは<https://www.fk-management.com/admin/web/ipo/{ipo.pk}|こちら>
                     """.replace(" ", "")
                     mylib_slack.post_message(url=settings.URL_SLACK_NAMS, text=text)
-        except Exception as e:
-            self.stderr.write(self.style.ERROR(e))
-        finally:
-            sbi.close()
+            except Exception as e:
+                self.stderr.write(self.style.ERROR(e))
+        sbi.close()

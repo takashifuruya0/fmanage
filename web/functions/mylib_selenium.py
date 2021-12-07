@@ -263,7 +263,7 @@ class SeleniumSBI:
                     data['val_list'] = int(tds[3].text.replace("円", "").replace(",", ""))
                 # 4: 申込単位: '100株単位'
                 logger.info("4: 申込単位:")
-                data['unit'] = int(tds[4].text.replace("株単位", ""))
+                data['unit'] = int(tds[4].text.replace("株単位", "").replace("口単位", ""))
                 # 5: ブックビル申込内容: '-'
                 logger.info("5: ブックビル申込内容:")
                 if "IPOポイント" in tds[5].text:
@@ -273,7 +273,7 @@ class SeleniumSBI:
                     data['is_applied'] = True
                     data['num_applied'] = int(tds[5].contents[0].replace("株", "").replace(",", ""))
                     tmp = tds[5].contents[4].replace(
-                        u'\xa0', ' ').replace("株", "").replace(",", "").replace("P)", "").split(" ")[1]
+                        u'\xa0', ' ').replace("株", "").replace("口", "").replace(",", "").replace("P)", "").split(" ")[1]
                     data['point'] = None if tmp == "-)" else int(tmp)
                 else:
                     # 申し込み前
@@ -304,7 +304,7 @@ class SeleniumSBI:
                         "{}/{}".format(year, tds[8].text), "%Y/%m/%d %H:%M")
                 # 9: 購入意思表示: '7/20 0:00〜'
                 logger.info("9: 購入意思表示: ")
-                if tds[9].text == "-":
+                if tds[9].text == "-" or "／" in tds[7].text:
                     data['datetime_purchase_open'] = None
                 else:
                     data['datetime_purchase_open'] = datetime.strptime(
@@ -317,7 +317,7 @@ class SeleniumSBI:
                 logger.info("Successfully extracted information of {}".format(data['name']))
                 data_list.append(data)
             except Exception as e:
-                error_list.append(data['name'])
+                error_list.append({data['name']: e})
                 logger.error("Failed to extract information of {}".format(data['name']))
                 logger.error(e)
                 logger.error(data)
@@ -328,6 +328,42 @@ class SeleniumSBI:
             "errors": error_list
         }
         return res
+
+    def apply_ipo(self, code, num):
+        res = {}
+        url = "https://m.sbisec.co.jp/oeapw011?type=21&p_cd={}".format(code)
+        try:
+            # 国内
+            path0 = '/html/body/div[2]/div/div/ul/li[3]/a/img'
+            time.sleep(1)
+            self.driver.find_element_by_xpath(path0).click()
+            # IPO
+            path1 = '/html/body/div[4]/div/div/ul/li[5]/div/a'
+            time.sleep(1)
+            self.driver.find_element_by_xpath(path1).click()
+            # 購入意思表示
+            path2 = '/html/body/div[4]/div/table/tbody/tr/td[1]/div/div[10]/div/div/a/img'
+            time.sleep(1)
+            self.driver.find_element_by_xpath(path2).click()
+            time.sleep(1)
+            self.driver.get(url)
+            # page遷移
+            time.sleep(2)
+            self.driver.find_element_by_name('suryo').send_keys(num)
+            self.driver.find_element_by_name('tr_pass').send_keys(settings.SBI_PASSWORD_ORDER)
+            self.driver.find_element_by_id('strPriceRadio').click()
+            self.driver.find_element_by_name('order_kakunin').click()
+            # page遷移
+            time.sleep(2)
+            self.driver.find_element_by_name('order_btn').click()
+            res['status'] = True
+            res['msg'] = 'Orderd {} units for Stock code {}'.format(num, code)
+        except Exception as e:
+            res['status'] = False
+            res['msg'] = e
+        finally:
+            # res
+            return res
 
 
 class SeleniumIPO:
