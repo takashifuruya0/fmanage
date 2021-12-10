@@ -271,7 +271,7 @@ class SeleniumSBI:
                     # ストライクプライス
                     # (使用IPOポイント -)
                     data['is_applied'] = True
-                    data['num_applied'] = int(tds[5].contents[0].replace("株", "").replace(",", ""))
+                    data['num_applied'] = int(tds[5].contents[0].replace("株", "").replace("口", "").replace(",", ""))
                     tmp = tds[5].contents[4].replace(
                         u'\xa0', ' ').replace("株", "").replace("口", "").replace(",", "").replace("P)", "").split(" ")[1]
                     data['point'] = None if tmp == "-)" else int(tmp)
