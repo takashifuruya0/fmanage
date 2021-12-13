@@ -68,7 +68,7 @@ jupyter-core==4.6.3
 kiwisolver==1.1.0
 kombu==4.6.11
 lazy-object-proxy==1.4.3
-lxml==4.6.3
+lxml==4.6.5
 Markdown==3.3.3
 MarkupPy==1.14
 MarkupSafe==1.1.1
