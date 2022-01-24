@@ -10,7 +10,7 @@ DATABASES = {
         "PASSWORD": env('FKMANAGE_DB_PASSWORD'),
         #"HOST": "10.142.0.2",
         'HOST': "127.0.0.1",
-        "POST": "",
+        "PORT": env('FKMANAGE_DB_PORT'),
         "ATOMIC_REQUESTS": True,
     }
 }
