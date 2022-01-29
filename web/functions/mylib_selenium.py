@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import time
 from datetime import datetime, date
 from django.conf import settings
@@ -23,12 +24,26 @@ class SeleniumSBI:
         elif settings.ENVIRONMENT == 'develop':
             # mac
             self.driver = webdriver.Chrome('/usr/local/bin/chromedriver')
+        elif settings.ENVIRONMENT == 'gke':
+            # gke
+            # self.driver = webdriver.Remote(command_executor="http://localhost:4444/wd/hub", desired_capabilities=DesiredCapabilities.CHROME)    
+            chrome_options = webdriver.ChromeOptions()
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--disable-gpu')
+            chrome_options.add_argument('--disable-dev-shm-usage')
+            chrome_options.add_argument("--window-size=1920,1080")
+            self.driver = webdriver.Chrome(options=chrome_options)
+            self.driver.implicitly_wait(10)
         logger.info("the driver has started")
         self.login()
         self.driver.get("https://site2.sbisec.co.jp/ETGate")
 
     def __del__(self):
-        self.driver.close()
+        try:
+            self.driver.close()
+        except Exception as e:
+            pass    
         logger.info("closed the driver")
 
     def login(self):
@@ -378,11 +393,25 @@ class SeleniumIPO:
         elif settings.ENVIRONMENT == 'develop':
             # mac
             self.driver = webdriver.Chrome('/usr/local/bin/chromedriver')
+        elif settings.ENVIRONMENT == 'gke':
+            # gke
+            # self.driver = webdriver.Remote(command_executor="http://localhost:4444/wd/hub", desired_capabilities=DesiredCapabilities.CHROME)    
+            chrome_options = webdriver.ChromeOptions()
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--disable-gpu')
+            chrome_options.add_argument('--disable-dev-shm-usage')
+            chrome_options.add_argument("--window-size=1920,1080")
+            self.driver = webdriver.Chrome(options=chrome_options)
+            self.driver.implicitly_wait(10)
         logger.info("the driver has started")
         self.driver.get("https://96ut.com/ipo/yoso.php")
 
     def __del__(self):
-        self.driver.close()
+        try:
+            self.driver.close()
+        except Exception as e:
+            pass    
         logger.info("closed the driver")
 
     def get_list(self):
