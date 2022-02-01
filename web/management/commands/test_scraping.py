@@ -11,7 +11,8 @@ logger = logging.getLogger('django')
 class Command(BaseCommand):
     # python manage.py help count_entryで表示されるメッセージ
     help = 'Test scraping'
-    CODE = 1893
+    CODE = 1357  # ETF
+    # CODE = 1893  # STOCK
 
     # コマンドが実行された際に呼ばれるメソッド
     def handle(self, *args, **options):
