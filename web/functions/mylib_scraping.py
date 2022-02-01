@@ -281,7 +281,7 @@ def yf_detail(code):
             soup = BeautifulSoup(ret.content, "html5lib")
         else:
             soup = BeautifulSoup(ret.content, "lxml")
-        if not soup.find('a', {'class': '_1unyWCX0 _2jbOvvHc'}):
+        if not soup.find('a', {'class': '_1unyWCX0 _2jbOvvHc'}) and not data['is_trust']:
             # ETF
             logger.info('ETF')
             # 値の取得
