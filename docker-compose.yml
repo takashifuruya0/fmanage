@@ -3,10 +3,19 @@ services:
   fmanage:
     build: .
 #    image: tfuruya/fmanage-app:v3
-    command: python3 manage.py runserver 0.0.0.0:8000 --settings=fmanage.environment.develop_pg
+    command: python3 manage.py runserver 0.0.0.0:8000 --settings=fmanage.environment.gke_local
     ports:
-      - 8081:8000
+      - 9000:8000
     volumes:
       - .:/home/fmanage
-
-
+  db2:
+    image: gcr.io/cloudsql-docker/gce-proxy:1.16
+    volumes:
+      - ~/Documents/Local/gcloud/testiam.json:/config
+    ports:
+      - 5432:5432
+    command: [
+      "/cloud_sql_proxy",
+      "-instances=fmanage-202213:asia-northeast1:cloudsql-fk-management=tcp:0.0.0.0:5432",
+      "-credential_file=/config"
+    ]
