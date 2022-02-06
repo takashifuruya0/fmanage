@@ -8,7 +8,7 @@ DATABASES = {
         'NAME': "fkmanage",
         "USER": env('FKMANAGE_DB_USER'),
         "PASSWORD": env('FKMANAGE_DB_PASSWORD'),
-        'HOST': "cloudsql",  #"fk-cloudsql.sunnyvale.svc.cluster.local",
+        'HOST': env('FKMANAGE_DB_HOST'),
         "PORT": env('FKMANAGE_DB_PORT'),
         "ATOMIC_REQUESTS": True,
     }
