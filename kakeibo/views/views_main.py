@@ -57,10 +57,10 @@ def dashboard(request):
     # 収入・支出・総資産
     income = math.floor(mylib.cal_sum_or_0(kakeibos.filter(way="収入")))
     expense =  math.floor(mylib.cal_sum_or_0(kakeibos_out))
-    total = Kakeibos.objects.filter(move_from=None).exclude(move_to=None).aggregate(s=Sum('fee_converted'))['s'] \
-        - Kakeibos.objects.filter(move_to=None).exclude(move_from=None).aggregate(s=Sum('fee_converted'))['s'] \
-        - Kakeibos.objects.filter(move_to__name='投資口座').aggregate(s=Sum('fee'))['s'] \
-        + AssetStatus.objects.latest('date').get_total()
+    total = (Kakeibos.objects.filter(move_from=None).exclude(move_to=None).aggregate(s=Sum('fee_converted'))['s'] or 0)\
+        - (Kakeibos.objects.filter(move_to=None).exclude(move_from=None).aggregate(s=Sum('fee_converted'))['s'] or 0) \
+        - (Kakeibos.objects.filter(move_to__name='投資口座').aggregate(s=Sum('fee'))['s'] or 0) \
+        + (AssetStatus.objects.latest('date').get_total() or 0)
     # status, progress_bar
     pb_kakeibo, status_kakeibo = process_kakeibo.kakeibo_status(income, expense)
     # shared
@@ -157,10 +157,10 @@ def mine(request):
     consolidated_usages_chart = sorted(process_kakeibo.consolidated_usages().items(), key=lambda x: -x[1])
     cash_usages_chart = sorted(process_kakeibo.cash_usages().items(), key=lambda x: -x[1])
     # total
-    total = Kakeibos.objects.filter(move_from=None).exclude(move_to=None).aggregate(s=Sum('fee_converted'))['s'] \
-        - Kakeibos.objects.filter(move_to=None).exclude(move_from=None).aggregate(s=Sum('fee_converted'))['s'] \
-        - Kakeibos.objects.filter(move_to__name='投資口座').aggregate(s=Sum('fee'))['s'] \
-        + AssetStatus.objects.latest('date').get_total()
+    total = (Kakeibos.objects.filter(move_from=None).exclude(move_to=None).aggregate(s=Sum('fee_converted'))['s'] or 0)\
+        - (Kakeibos.objects.filter(move_to=None).exclude(move_from=None).aggregate(s=Sum('fee_converted'))['s'] or 0) \
+        - (Kakeibos.objects.filter(move_to__name='投資口座').aggregate(s=Sum('fee'))['s'] or 0) \
+        + (AssetStatus.objects.latest('date').get_total() or 0)
     total_saved = sum(rs.current_val() for rs in rs_saved)
     # 1年間での推移
     saved_one_year_ago = 0
