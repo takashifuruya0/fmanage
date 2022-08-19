@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class CommandConfig(AppConfig):
-    name = 'commands'
+    name = 'command'
