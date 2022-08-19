@@ -281,47 +281,42 @@ def yf_detail(code):
             soup = BeautifulSoup(ret.content, "html5lib")
         else:
             soup = BeautifulSoup(ret.content, "lxml")
-        if len(ret.url.split("?")) > 1:
+        if not soup.find('a', {'class': '_1unyWCX0 _2jbOvvHc'}) and not data['is_trust']:
             # ETF
-            stocktable = soup.find('table', {'class': 'stocksTable'})
-            data['name'] = stocktable.findAll('th', {'class': 'symbol'})[0].text
-            data['industry'] = soup.find('dd', {'class': 'category'}).text
-            data['market'] = soup.findAll('span', {'class': 'stockMainTabName'})[0].text
-            # finance情報
-            chartfinance = soup.findAll('div', {'class': 'chartFinance'})[1]
+            logger.info('ETF')
             # 値の取得
-            vals = [
-                dd.text.replace(",", "").replace("\n", "").replace("(連) ", "").replace("(単) ", "")
-                for dd in chartfinance.findAll('strong')
-            ]
-            # current val and hloct
-            detail = soup.find('div', {"class": "innerDate"})
-            strongs = detail.findAll('strong')
-            val = stocktable.findAll('td', {'class': 'stoksPrice'})[1].text.replace(",", "")
-            data['val'] = float(strongs[0].text.replace(',', '')) if val == "---" else float(val)
-            data['val_close'] = data['val']
-            data['val_open'] = None if val == "---" else float(strongs[1].text.replace(',', ''))
-            data['val_high'] = None if val == "---" else float(strongs[2].text.replace(',', ''))
-            data['val_low'] = None if val == "---" else float(strongs[3].text.replace(',', ''))
-            data['turnover'] = None if strongs[4].text.replace(',', '') == "---" else float(
-                strongs[4].text.replace(',', ''))
-            # タイトルの取得
-            dts = chartfinance.findAll('dt')
-            keys = list()
-            for dt in dts:
-                # 補足が付いているので、前処理でタイトルのみ抽出
-                splited = dt.text.split("\n")
-                if splited[0] == "":
-                    keys.append(splited[1])
-                else:
-                    keys.append(splited[0])
-            # res['financial_data']に格納
-            data['financial_data'] = {
-                k: None if v == "---" else v
-                for k, v in zip(keys, vals)
-            }
-            if not data['industry'] == "ETF":
-                data['financial_data']['時価総額'] = int(data['financial_data']['時価総額']) * 1000000
+            data['name'] = soup.find('h1', {"class": "_6uDhA-ZV"}).text
+            data['industry'] = 'ETF'
+            data['market'] = "東証"
+            # 値
+            class_info = "_3rXWJKZF"
+            spans = soup.findAll("span", {"class": class_info})
+            if len(spans) > 8:
+                val = spans[0].text.replace(",", "")
+                data['val'] = float(0) if val == "---" else float(val)
+                data['val_close'] = data['val']
+                data['val_open'] = data['val'] if val == "---" else float(spans[4].text.replace(',', ''))
+                data['val_high'] = data['val'] if val == "---" else float(spans[5].text.replace(',', ''))
+                data['val_low'] = data['val'] if val == "---" else float(spans[6].text.replace(',', ''))
+                data['turnover'] = data['val'] if spans[7].text.replace(',', '') == "---" else float(spans[7].text.replace(',', ''))
+            else:
+                data['val'] = None
+                data['val_close'] = None
+                data['val_open'] = None
+                data['val_high'] = None
+                data['val_low'] = None
+                data['turnover'] = None
+            # finance
+            data['financial_data'] = {}
+            keys = soup.findAll('span', {'class': '_3RQJDhPQ'})
+            vals = soup.findAll('span', {'class': '_3rXWJKZF _11kV6f2G'})
+            if len(keys) == len(vals):
+                for k, v in zip(keys, vals):
+                    if v == "---":
+                        val = None
+                    else:
+                        val = v.text.replace(",", "").replace("\n", "").replace("(連) ", "").replace("(単) ", "")
+                    data['financial_data'][k.text] = val
             res['data'] = data
             # 完了
             res['msg'] = "Success"

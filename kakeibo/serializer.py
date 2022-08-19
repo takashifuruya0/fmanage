@@ -46,7 +46,8 @@ class KakeibosSerializer(serializers.ModelSerializer):
         fields = (
             'pk', 'date', 'fee', 'way', 'usage',
             'move_to', 'move_from', 'memo',
-            'usage_uid', 'move_to_uid', 'move_from_uid'
+            'usage_uid', 'move_to_uid', 'move_from_uid',
+            "currency", "rate", "fee_converted"
         )
 
 
@@ -56,7 +57,7 @@ class SharedKakeibosSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['usage'] = validated_data.get('usage_uid', None)
-        if validated_data['user'] is None:
+        if validated_data['usage'] is None:
             raise serializers.ValidationError("usage not found.")
         del validated_data['usage_uid']
         return SharedKakeibos.objects.create(**validated_data)

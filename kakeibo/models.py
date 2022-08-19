@@ -5,6 +5,7 @@ from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Avg, Count
 from django.conf import settings
 from django.utils.timezone import now
+from kakeibo.functions import money
 import math
 # asset
 # from asset.models import AssetStatus
@@ -211,7 +212,6 @@ class Usages(BaseModel):
 
 
 class Resources(BaseModel):
-    # objects = None
     initial_val = models.IntegerField(null=False, blank=False)
     color = models.OneToOneField(Colors, blank=True, null=True, on_delete=models.CASCADE)
     is_saving = models.BooleanField(default=False, help_text="投資を除く貯金用口座")
@@ -223,11 +223,32 @@ class Resources(BaseModel):
         if self.name == "投資口座":
             return AssetStatus.objects.latest('date').get_total()
         else:
-            move_tos = Kakeibos.objects.filter(move_to=self)
-            move_froms = Kakeibos.objects.filter(move_from=self)
+            move_tos = Kakeibos.objects.filter(move_to=self, currency="JPY")
+            move_froms = Kakeibos.objects.filter(move_from=self, currency="JPY")
             v_move_to = move_tos.aggregate(Sum('fee'))['fee__sum'] if move_tos else 0
             v_move_from = move_froms.aggregate(Sum('fee'))['fee__sum'] if move_froms else 0
-            return self.initial_val + v_move_to - v_move_from
+            return math.floor(self.initial_val + v_move_to - v_move_from)
+    
+    def current_val_usd(self):
+        if self.name == "投資口座":
+            return 0
+        else:
+            move_tos = Kakeibos.objects.filter(move_to=self, currency="USD")
+            move_froms = Kakeibos.objects.filter(move_from=self, currency="USD")
+            v_move_to = move_tos.aggregate(Sum('fee'))['fee__sum'] if move_tos else 0
+            v_move_from = move_froms.aggregate(Sum('fee'))['fee__sum'] if move_froms else 0
+            return math.floor(v_move_to - v_move_from)
+    
+    def current_val_total(self, rate=120):
+        if self.name == "投資口座":
+            return AssetStatus.objects.latest('date').get_total()
+        else:
+            move_tos = Kakeibos.objects.filter(move_to=self)
+            move_froms = Kakeibos.objects.filter(move_from=self)
+            v_move_to = move_tos.aggregate(s=Sum('fee_converted'))['s'] if move_tos else 0
+            v_move_from = move_froms.aggregate(s=Sum('fee_converted'))['s'] if move_froms else 0
+            total = self.initial_val + v_move_to - v_move_from
+            return math.floor(total)
 
 
 # UsagesとResourcesの紐付け
@@ -245,7 +266,7 @@ class Kakeibos(models.Model):
     # 日付
     date = models.DateField()
     # 金額
-    fee = models.IntegerField()
+    fee = models.FloatField()
     # 種類
     way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # タグ
@@ -282,7 +303,7 @@ class Kakeibos(models.Model):
     )
     is_active = models.BooleanField(default=True)
     # currency, rate
-    currency = models.CharField("通貨", max_length=3, default="JPY", choices=settings.CHOICES_CURRENCY)
+    currency = models.CharField("通貨", max_length=3, default="USD", choices=settings.CHOICES_CURRENCY)
     rate = models.FloatField("レート", blank=True, null=True)
     fee_converted = models.IntegerField("金額（換算後）", blank=True, null=True)
 
@@ -322,9 +343,10 @@ class Kakeibos(models.Model):
         super(Kakeibos, self).save()
         return self.fee_converted
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super(Kakeibos, self).save(force_insert, force_update, using, update_fields)
+        if not self.currency == "JPY" and self.rate is None:
+            self.rate = money.get_rate(self.currency)
         self.update_fee_converted()
 
 
@@ -421,7 +443,7 @@ class Credits(models.Model):
 class CronKakeibo(models.Model):
     objects = None
     # 金額
-    fee = models.IntegerField()
+    fee = models.FloatField()
     # 種類
     way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # 使い道/収入源
@@ -448,6 +470,7 @@ class CronKakeibo(models.Model):
     # メモ
     memo = models.CharField(max_length=100, null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    currency = models.CharField("通貨", max_length=3, default="JPY", choices=settings.CHOICES_CURRENCY)
 
 
 class CronShared(models.Model):
@@ -480,7 +503,7 @@ class CronShared(models.Model):
 class UsualRecord(models.Model):
     objects = None
     # 金額
-    fee = models.IntegerField()
+    fee = models.FloatField()
     # 種類
     way = models.CharField(max_length=20, choices=settings.CHOICES_KAKEIBO_WAY)
     # メモ
@@ -509,12 +532,29 @@ class UsualRecord(models.Model):
     # fontawesome_icon
     icon = models.CharField(max_length=50, null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    currency = models.CharField("通貨", max_length=3, default="JPY", choices=settings.CHOICES_CURRENCY)
 
     def fee_yen(self):
         if self.fee >= 0:
             new_val = '¥{:,}'.format(self.fee)
         else:
             new_val = '-¥{:,}'.format(-self.fee)
+        return new_val
+
+    def fee_usd(self):
+        if self.fee >= 0:
+            new_val = '${:,}'.format(self.fee)
+        else:
+            new_val = '-${:,}'.format(-self.fee)
+        return new_val
+
+    def fee_converted_yen(self):
+        if self.fee_converted and self.fee_converted >= 0:
+            new_val = '¥{:,}'.format(self.fee_converted)
+        elif self.fee_converted:
+            new_val = '-¥{:,}'.format(-self.fee_converted)
+        else:
+            new_val = None
         return new_val
 
 

@@ -18,7 +18,7 @@ class Command(BaseCommand):
         # self.stdout.write(self.style.SUCCESS('Article count = "%s"' % kakeibos_count))
         # 家計簿
         try:
-            cks = CronKakeibo.objects.all()
+            cks = CronKakeibo.objects.filter(is_active=True)
             for ck in cks:
                 data = {
                     "fee": ck.fee,
@@ -27,7 +27,8 @@ class Command(BaseCommand):
                     "way": ck.way,
                     "usage": ck.usage,
                     "date": date.today(),
-                    "memo": "Created from CronKakeibo"
+                    "memo": "Created from CronKakeibo",
+                    "currency": ck.currency,
                 }
                 Kakeibos.objects.create(**data)
             self.stdout.write(self.style.SUCCESS('completed CronKakeibo.'))
@@ -37,7 +38,7 @@ class Command(BaseCommand):
             logger.error(e)
         # 共通家計簿
         try:
-            css = CronShared.objects.all()
+            css = CronShared.objects.filter(is_active=True)
             for cs in css:
                 data = {
                     "fee": cs.fee,

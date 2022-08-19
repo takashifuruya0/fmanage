@@ -147,6 +147,10 @@ def param_ipo_selected(ipo: Ipo):
                 "value": f"¥{ipo.val_list:,}",
                 "short": True,
             },
+            {
+                "title": "予想単価",
+                "value": f"¥{ipo.val_predicted:,} / {ipo.rank}",
+            },
         ],
         "color": "good",
         "attachment_type": "default",
