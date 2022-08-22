@@ -1,7 +1,0 @@
-apiVersion: networking.gke.io/v1beta2
-kind: ManagedCertificate
-metadata:
-  name: fmanage-certificate # ManagedCertificateリソース名を指定
-spec:
-  domains:
-    - fk-management # 取得したドメイン名を指定

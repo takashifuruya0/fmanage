@@ -1,3 +1,4 @@
+{% load static %}
 <button class="btn btn-outline-info" id="ajax_get_order">
   <i class="fas fa-sync"></i> Get Orders
 </button>
@@ -12,7 +13,7 @@
   bottom: 0;
   left: 0;
   background: rgba(0,0,0,.5);
-  background-image: url(/document/loading.gif);
+  background-image: url({% static 'loading.gif' %});
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center center;

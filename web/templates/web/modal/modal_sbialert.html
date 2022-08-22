@@ -1,3 +1,4 @@
+{% load static %}
 <!--button-->
 <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#sbialert">
   <i class="far fa-bell"></i> SBI Alert
@@ -40,7 +41,7 @@
   bottom: 0;
   left: 0;
   background: rgba(0,0,0,.5);
-  background-image: url(/document/loading.gif);
+  background-image: url({% static 'loading.gif' %});
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center center;

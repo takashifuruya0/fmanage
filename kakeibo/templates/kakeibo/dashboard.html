@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{% load static %}
 {% load web_template %}
 {% block title %}
     Dashboard
@@ -457,5 +458,5 @@
   });
 </script>
 
-<script src="/document/js/fill_resource.js"></script>
+<script src="{% static 'js/fill_resource.js' %}"></script>
 {% endblock %}

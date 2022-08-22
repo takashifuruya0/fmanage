@@ -1,3 +1,4 @@
+{% load static %}
 <button class="btn btn-block btn-danger" id="ajax_deactivate_entry">
   <i class="fas fa-toggle-off"></i> Deactivate
 </button>
@@ -12,7 +13,7 @@
   bottom: 0;
   left: 0;
   background: rgba(0,0,0,.5);
-  background-image: url(/document/loading.gif);
+  background-image: url({% static 'loading.gif' %});
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center center;

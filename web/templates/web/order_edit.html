@@ -1,5 +1,5 @@
 {% extends "kakeibo/base.html" %}
-
+{% load static %}
 {% block title %}
     Order View
 {% endblock %}
@@ -27,7 +27,7 @@
 			</form>
 		</div>
 		<div class="col-12 col-sm-6">
-			<img src="/document/{{order.chart}}">
+			<img src="{{order.chart.url}}">
 		</div>
 	</div>
 </div>
