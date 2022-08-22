@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{% load static %}
 {% block title %}
     Analysis detail
 {% endblock %}
@@ -311,7 +312,7 @@ var myChart = new Chart(ctx, {
 
 
 <!-- analysis -->
-<script src="/static/fill_between.js"></script>
+<script src="{% static 'fill_between.js' %}"></script>
 <script>
 Chart.pluginService.register(fillBetweenLinesPlugin);
 var ctx = document.getElementById('analysis').getContext('2d');

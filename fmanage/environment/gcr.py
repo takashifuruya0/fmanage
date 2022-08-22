@@ -48,17 +48,17 @@ LOGGING['loggers'] = {
     },
 }
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "staticfiles"),)
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# MEDIA
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # GCS
 STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_DEFAULT_ACL = "publicRead"
 GS_FILE_OVERWRITE = True
-GS_BUCKET_NAME = 'prod-w2v'
-STATIC_URL = "https://storage.googleapis.com/local-w2v/"
+GS_BUCKET_NAME = 'back-fmanage'
+# Static files (CSS, JavaScript, Images)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "staticfiles"),)
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/"
+# MEDIA
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

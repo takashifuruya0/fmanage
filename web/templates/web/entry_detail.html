@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{% load static %}
 {% load web_template %}
 {% block title %}
     Entry Detail {{entry.stock}}
@@ -412,7 +413,7 @@
 
 {% include 'web/part/chart.html' %}
 
-<script src="/static/js/candlestick.js"></script>
+<script src="{% static 'js/candlestick.js' %}"></script>
 <script>
 	window.onload = function() {
 		var trades = [

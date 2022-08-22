@@ -1,5 +1,6 @@
 {% extends "kakeibo/base.html" %}
 {% load humanize %}
+{% load static %}
 {% block title %}
     Order View
 {% endblock %}
@@ -73,7 +74,7 @@
 			</a>
 		</div>
 		<div class="col-12 col-sm-6">
-			<img src="/static/{{order.chart}}">
+			<img src="{{order.chart.url}}">
 		</div>
 	</div>
 </div>
