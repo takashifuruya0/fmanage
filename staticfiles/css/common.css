@@ -1,0 +1,36 @@
+p.resizeimage img { width: 100%; }
+
+
+th.right { text-align: right;}
+th.left { text-align: left;}
+th.center { text-align: center;}
+td.right { text-align: right;}
+td.left { text-align: left;}
+td.center { text-align: center;}
+
+.box2 {
+  padding: 0.5em 0.5em;
+  margin: 0.5em 0;
+  /*font-weight: bold;*/
+  background: #F3F3F3;
+  border: solid 2px #222222;/*線*/
+  border-radius: 5px;/*角の丸み*/
+}
+.box2 p {
+  margin: 0;
+  padding: 0;
+}
+
+table.white {
+  background: white;
+  width: 100%;
+}
+
+.boxb {
+  /*padding: 0.5em 0.5em;
+  margin: 0.5em 0;
+  font-weight: bold;*/
+  background: black;
+  border: solid 2px #222222;/*線*/
+  border-radius: 10px;/*角の丸み*/
+}

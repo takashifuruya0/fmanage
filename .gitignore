@@ -11,3 +11,4 @@ icon.png
 testiam.json
 .python-version
 coverage.xml
+.env_gcr

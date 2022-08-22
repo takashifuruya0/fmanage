@@ -1,0 +1,63 @@
+dt{
+  float: left;
+}
+dd{
+  margin-left: 80px;
+}
+
+/*
+candle stick
+*/
+svg text {
+  font-size: 14px;
+}
+path.candle {
+  stroke: #000000;
+}
+path.candle.body {
+  stroke-width: 0;
+}
+path.candle.up {
+  fill: #00AA00;
+  stroke: #00AA00;
+}
+path.candle.down {
+  fill: #FF0000;
+  stroke: #FF0000;
+}
+path.volume {
+  fill: #696969;
+  stroke-width: 1;
+}
+.sma path.line {
+  fill: none;
+  stroke-width: 1;
+}
+.ma5 path.line {
+  stroke: #0000ab;
+}
+.ma25 path.line {
+  stroke: #0000cd;
+  stroke-dasharray: 3;
+}
+.ma75 path.line {
+  stroke: #cd0000;
+  stroke-dasharray: 3;
+}
+.close path.line {
+  stroke: #0000ff;
+  stroke-dasharray: 2;
+}
+
+.tradearrow path.tradearrow.buy {
+    fill: #FF0000;
+    stroke: #FFFFFF;
+    stroke-width: 1.5;
+}
+
+.tradearrow path.tradearrow.sell {
+    fill: #0000FF;
+    stroke: #FFFFFF;
+    stroke-width: 1.5;
+}
+
