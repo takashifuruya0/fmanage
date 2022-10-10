@@ -1,0 +1,117 @@
+steps:
+  - id: Build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --no-cache
+      - -t
+      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - .
+      - -f
+      - Dockerfile
+  - id: Tag
+    name: gcr.io/cloud-builders/docker
+    args:
+      - tag
+      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$REF_NAME'
+  - id: Push image with commit hash
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+  - id: Push image with ref name
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$REF_NAME'
+  - id: Get env from SecretsManager
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args: [ 
+      '-c', 
+      "gcloud secrets versions access latest --secret=${_SECRET} --format='get(payload.data)' | tr '_-' '/+' | base64 -d  > /workspace/env/.env" 
+      ]
+    volumes:
+      - name: env
+        path: /workspace/env
+  - id: Prepare 
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        echo "FROM $_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:${COMMIT_SHA}
+        COPY --from=gcr.io/cloudsql-docker/gce-proxy /cloud_sql_proxy /cloudsql/cloud_sql_proxy" > Dockerfile-proxy;
+        docker build -f Dockerfile-proxy -t $_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:${COMMIT_SHA}-proxy .
+  - id: Run migrate
+    name: "$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:${COMMIT_SHA}-proxy"
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        /cloudsql/cloud_sql_proxy -instances=${_CLOUDSQL_INSTANCE}=tcp:5432 & sleep 2;
+        cd  /home/fmanage;
+        echo ----------show migration-------------
+        python3 manage.py showmigrations --settings=fmanage.environment.${_ENVIRONMENT};
+        echo ----------run migrate-------------
+        python3 manage.py migrate --settings=fmanage.environment.${_ENVIRONMENT}
+    volumes:
+      - name: env
+        path: /home/fmanage/env
+  - id: Run collectstatic
+    name: "$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:${COMMIT_SHA}-proxy"
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        cd  /home/fmanage;
+        python3 manage.py collectstatic --noinput --settings=sunnyvale.environment.${_ENVIRONMENT} --clear
+    volumes:
+      - name: env
+        path: /home/sunnyvale/env
+  - id: Run loaddata
+    name: "$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:${COMMIT_SHA}-proxy"
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        /cloudsql/cloud_sql_proxy -instances=${_CLOUDSQL_INSTANCE}=tcp:5432 & sleep 2;
+        cd  /home/fmanage;
+        python3 manage.py loaddata kakeibo/fixtures/budgets.json --settings=sunnyvale.environment.${_ENVIRONMENT};
+        python3 manage.py loaddata kakeibo/fixtures/resources.json --settings=sunnyvale.environment.${_ENVIRONMENT};
+        python3 manage.py loaddata kakeibo/fixtures/usages.json --settings=sunnyvale.environment.${_ENVIRONMENT};
+        python3 manage.py loaddata asset/fixtures/commission.json --settings=sunnyvale.environment.${_ENVIRONMENT};
+    volumes:
+      - name: env
+        path: /home/fmanage/env
+  - id: Deploy
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: gcloud
+    args:
+      - run
+      - services
+      - update
+      - $_CLOUDRUN_NAME
+      - '--platform=managed'
+      - '--image=$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - >-
+        --labels=commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID,$_LABELS
+      - '--region=$_DEPLOY_REGION'
+      - '--quiet'
+images:
+  - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+options:
+  substitutionOption: ALLOW_LOOSE
+substitutions:
+  _PLATFORM: managed
+  _SERVICE_NAME: back-fmanage
+  _DEPLOY_REGION: asia-northeast1
+  _GCR_HOSTNAME: asia.gcr.io
+  _CLOUDSQL_INSTANCE: fmanage-202213:asia-northeast1:cloudsql-fk-management
+  _ENVIRONMENT: develop_gcr
+  _SECRET: dev-back-fmanage
+  _CLOUDRUN_NAME: dev-back-fmanage
+tags:
+  - sunnyvale
+
