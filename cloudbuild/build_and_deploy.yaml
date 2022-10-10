@@ -66,25 +66,25 @@ steps:
       - '-c'
       - |
         cd  /home/fmanage;
-        python3 manage.py collectstatic --noinput --settings=sunnyvale.environment.${_ENVIRONMENT} --clear
-    volumes:
-      - name: env
-        path: /home/sunnyvale/env
-  - id: Run loaddata
-    name: "$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:${COMMIT_SHA}-proxy"
-    entrypoint: /bin/bash
-    args:
-      - '-c'
-      - |
-        /cloudsql/cloud_sql_proxy -instances=${_CLOUDSQL_INSTANCE}=tcp:5432 & sleep 2;
-        cd  /home/fmanage;
-        python3 manage.py loaddata kakeibo/fixtures/budgets.json --settings=sunnyvale.environment.${_ENVIRONMENT};
-        python3 manage.py loaddata kakeibo/fixtures/resources.json --settings=sunnyvale.environment.${_ENVIRONMENT};
-        python3 manage.py loaddata kakeibo/fixtures/usages.json --settings=sunnyvale.environment.${_ENVIRONMENT};
-        python3 manage.py loaddata asset/fixtures/commission.json --settings=sunnyvale.environment.${_ENVIRONMENT};
+        python3 manage.py collectstatic --noinput --settings=fmanage.environment.${_ENVIRONMENT} --clear
     volumes:
       - name: env
         path: /home/fmanage/env
+  # - id: Run loaddata
+  #   name: "$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:${COMMIT_SHA}-proxy"
+  #   entrypoint: /bin/bash
+  #   args:
+  #     - '-c'
+  #     - |
+  #       /cloudsql/cloud_sql_proxy -instances=${_CLOUDSQL_INSTANCE}=tcp:5432 & sleep 2;
+  #       cd  /home/fmanage;
+  #       python3 manage.py loaddata kakeibo/fixtures/budgets.json --settings=fmanage.environment.${_ENVIRONMENT};
+  #       python3 manage.py loaddata kakeibo/fixtures/resources.json --settings=fmanage.environment.${_ENVIRONMENT};
+  #       python3 manage.py loaddata kakeibo/fixtures/usages.json --settings=fmanage.environment.${_ENVIRONMENT};
+  #       python3 manage.py loaddata asset/fixtures/commission.json --settings=fmanage.environment.${_ENVIRONMENT};
+  #   volumes:
+  #     - name: env
+  #       path: /home/fmanage/env
   - id: Deploy
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     entrypoint: gcloud
@@ -113,5 +113,5 @@ substitutions:
   _SECRET: dev-back-fmanage
   _CLOUDRUN_NAME: dev-back-fmanage
 tags:
-  - sunnyvale
+  - legacy-fmanage
 
