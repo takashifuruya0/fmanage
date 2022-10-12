@@ -109,7 +109,7 @@ substitutions:
   _DEPLOY_REGION: asia-northeast1
   _GCR_HOSTNAME: asia.gcr.io
   _CLOUDSQL_INSTANCE: fmanage-202213:asia-northeast1:cloudsql-fk-management
-  _ENVIRONMENT: develop_gcr
+  _ENVIRONMENT: develop_gcb
   _SECRET: dev-back-fmanage
   _CLOUDRUN_NAME: dev-back-fmanage
 tags:
