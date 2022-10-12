@@ -66,6 +66,7 @@ steps:
       - '-c'
       - |
         cd  /home/fmanage;
+        ls -l;
         python3 manage.py collectstatic --noinput --settings=fmanage.environment.${_ENVIRONMENT} --clear
     volumes:
       - name: env
