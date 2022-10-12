@@ -5,7 +5,7 @@ from fmanage.settings import *
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': "dev-fkmanage",
+        'NAME': "dev_fkmanage",
         "USER": env('FKMANAGE_DB_USER'),
         "PASSWORD": env('FKMANAGE_DB_PASSWORD'),
         'HOST': env('FKMANAGE_DB_HOST'),
