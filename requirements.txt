@@ -32,7 +32,7 @@ django-datetime-widget==0.9.3
 django-debug-toolbar==3.2.1
 django-environ==0.4.5
 django-extensions==3.0.7
-django-filter==2.3.0
+django-filter==2.4.0
 django-import-export==2.3.0
 django-nose==1.4.7
 django-pandas==0.6.2
