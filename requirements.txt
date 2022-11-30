@@ -91,7 +91,7 @@ Pillow==8.3.2
 pipdeptree==1.0.0
 plotly==4.9.0
 proto-plus==1.22.0
-protobuf==4.21.5
+protobuf==4.21.6
 psycopg2==2.8.5
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
