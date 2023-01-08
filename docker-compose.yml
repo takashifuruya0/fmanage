@@ -11,11 +11,11 @@ services:
   db2:
     image: gcr.io/cloudsql-docker/gce-proxy:1.16
     volumes:
-      - ~/Documents/Local/gcloud/testiam.json:/config
+      - ~/Documents/Local/gcloud/ServiceAccount/cloudsql-client-sa.json:/sa.json
     ports:
       - 5432:5432
     command: [
       "/cloud_sql_proxy",
       "-instances=fmanage-202213:asia-northeast1:cloudsql-fk-management=tcp:0.0.0.0:5432",
-      "-credential_file=/config"
+      "-credential_file=/sa.json"
     ]
