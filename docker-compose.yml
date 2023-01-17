@@ -13,7 +13,7 @@ services:
     volumes:
       - ~/Documents/Local/gcloud/ServiceAccount/cloudsql-client-sa.json:/sa.json
     ports:
-      - 5432:5432
+      - 5432
     command: [
       "/cloud_sql_proxy",
       "-instances=fmanage-202213:asia-northeast1:cloudsql-fk-management=tcp:0.0.0.0:5432",
