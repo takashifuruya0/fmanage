@@ -2,7 +2,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from datetime import datetime
-from .models import Client, Opportunity, OpportunityWork, Category
+from .models import Client, Opportunity, OpportunityWork, Category, Service
 
 
 class ClientSerializer(serializers.ModelSerializer):
@@ -105,3 +105,9 @@ class OpportunityWorkSerializer(serializers.ModelSerializer):
         u = self.context['request'].user
         instance.save_from_shell(u)
         return instance
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = '__all__'

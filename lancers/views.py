@@ -9,7 +9,7 @@ from lancers.functions import mylib_lancers
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django_filters import rest_framework as filters
-from lancers.serializer import ClientSerializer, CategorySerializer, OpportunitySerializer, OpportunityWorkSerializer
+from lancers.serializer import ClientSerializer, CategorySerializer, OpportunitySerializer, OpportunityWorkSerializer, ServiceSerializer
 from datetime import date, datetime, timezone, timedelta, timezone
 import json
 import requests
@@ -218,6 +218,12 @@ class OpportunityWorkViewSet(viewsets.ModelViewSet):
         "sync_id", "opportunity_id",
     )
     filterset_class = OpportunityWorkFilter
+
+
+class ServiceViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = Service.objects.all().order_by('-pk')
+    serializer_class = ServiceSerializer
 
 
 class SyncToProdView(LoginRequiredMixin, View):

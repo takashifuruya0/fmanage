@@ -5,7 +5,7 @@ from lancers.views import Main, OpportunityFormView, SyncToProdView, MentaFormVi
 from lancers.views import MENTAClientAutoComplete, CategoryAutoComplete
 # django-rest-framework
 from rest_framework import routers
-from lancers.views import ClientViewSet, CategoryViewSet, OpportunityViewSet, OpportunityWorkViewSet
+from lancers.views import ClientViewSet, CategoryViewSet, OpportunityViewSet, OpportunityWorkViewSet, ServiceViewSet
 
 
 app_name = 'lancers'
@@ -21,6 +21,7 @@ urlpatterns = [
 
 router = routers.DefaultRouter()
 router.register(r'lancers/client', ClientViewSet)
+router.register(r'lancers/service', ServiceViewSet)
 router.register(r'lancers/category', CategoryViewSet)
 router.register(r'lancers/opportunity', OpportunityViewSet)
 router.register(r'lancers/opportunitywork', OpportunityWorkViewSet)
